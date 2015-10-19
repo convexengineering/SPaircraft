@@ -18,9 +18,7 @@ class Beam(Model):
         # store attributes for later external use
         self.N, self.L, self.EI, self.q = N, L, EI, q
         EI = Var("EI", EI, "N*m^2")
-        #L = Var("L", L, "m", "Length of beam")
         dx = Var("dx", L/float(N-1), "m", "Length of an element")
-        #dx_def = (dx == L/(N-1))
         if hasattr(q, "__len__") and len(q) != N:
                 raise TypeError("beam loading must be either a single number"
                                 " or the distributed load (in N/m) observed"
