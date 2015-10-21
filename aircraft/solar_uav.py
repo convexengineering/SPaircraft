@@ -2,7 +2,7 @@
 from gpkit import Variable, Model
 
 
-def solar_uav():
+def solar_uav(substitutions=None):
     """Returns the Model"""
     # Performance
     P = Variable("P", units="W", label="flight power")
@@ -53,7 +53,8 @@ def solar_uav():
                   m_batt*h_batt >= (P + P_non_flight)*t_batt,
                   m_struct >= f_struct*m_tot,
                   wl*S >= m_tot,
-                  b**2 == S*A])
+                  b**2 == S*A],
+                 substitutions=substitutions)
 
 
 if __name__ == "__main__":
