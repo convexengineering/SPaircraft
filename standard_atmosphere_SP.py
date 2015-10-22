@@ -52,15 +52,14 @@ if __name__ == "__main__":
 
     th = 5.2575767
 
-    h   = sol['variables']['h']
-    p   = sol['variables']['p']
-    T   = sol['variables']['T']
-    rho = sol['variables']['rho']
-
-    p0  = sol['constants']['p0']
-    T0  = sol['constants']['T0']
-    L   = sol['constants']['L']
-    MoR = sol['constants']['MoR']
+    h   = sol('h')
+    p   = sol('p')
+    T   = sol('T')
+    rho = sol('rho')
+    p0  = sol('p0')
+    T0  = sol('T0')
+    L   = sol('L')
+    MoR = sol('MoR')
 
     npt.assert_almost_equal(T0, T + L*h, decimal=2)
     npt.assert_almost_equal((p/p0)**(1/th) + L*h/T0, 1, decimal=5)
