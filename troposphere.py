@@ -61,4 +61,4 @@ class Troposphere(Model):
         npt.assert_almost_equal(calculated_rho, rho, decimal=5)
 
 if __name__ == "__main__":
-    Atmosphere().test()
+    Troposphere().test()
