@@ -1,4 +1,6 @@
 from gpkit.shortcuts import *
+from gpkit import Variable, Model, units
+import numpy.testing as npt
 
 class  B_Range(Model):
 
@@ -41,16 +43,20 @@ class  B_Range(Model):
 		z_bre = Var('z_{bre}', "Breguet parameter")
 		t = Var('t', "hr", "time")
 
-		#Constraint Equations
-
-		weight_eq = (W_init >= W_end + W_fuel)
-		MTOW_eq = (W_init <= MTOW)
-		LD_eq = (LoverD <= LoverD_max)
-		TSFC_eq = (TSFC >= TSFC_min)
-		M_eq = (M <= M_max)
-		t_eq = (t <= T/M/a0)
-		zbre_eq = (z_bre >= t*TSFC*g/LoverD)
-		breguet_eq = (W_fuel/W_end >= te_exp_minus1(z_bre, nterm=3))
-
-		#Maximum time
-		return 1/t, [weight_eq, MTOW_eq, LD_eq, TSFC_eq, M_eq, t_eq, zbre_eq, breguet_eq]
+                #Set up Model Equations
+		objective = 1/t #Maximize time
+		constraints = [
+				W_init >= W_oew + W_fuel,
+				W_init <= MTOW,
+				LoverD <= LoverD_max,
+				TSFC >= TSFC_min,
+				M <= M_max,
+				t <= T/M/a0,
+				z_bre >= t*TSFC*g/LoverD,
+				W_fuel/W_end >= te_exp_minus1(z_bre, nterm=3)
+				]
+		return objective, constraints
+							
+		if __name__ == "__main__":
+			m = Breguet_Range(0.307, 10000, 7000, 15, 0.78)
+			sol = m.solve() 
