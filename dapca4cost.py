@@ -4,16 +4,45 @@ import gpkit
 gpkit.disable_units()
 from gpkit import units as u
 
-class DAPCA4Cost(Model):
-	"""
+""""
 	Cost Model from Raymer, Aircraft Design: A Conceptual Approach 3rd Edition, pp 713-714
+	
+	The total cost is Research, Development, Test and Evaluation Cost 
+
+	Cost is in 2012 dollars
+
+	Engineering hours considers all airframe, propulsion and avionics integration and design.
+	It does not include engineering of avionics, propulsion, tooling or production planning. 
+
+	Tooling hours covers all the preparation for production.  It also covers ongoing tooling cost
+	through production. 
+
+	Manufacturing hours is the direct labor to fabricate the aircraft. It also includes cost of 
+	labor of subcontractors. 
+
+	Quality Control hours covers all inspections. 
+
+	Flight test cost covers all cost to prove airworthiness. 
+
+	Manufacturing Materials is the raw materials cost and assumes that airframe 
+	and main materials are made of aluminum.
+
+	The Engine Cost assumes that the cost of the engine is not known. 
+
+
+"""
+
+
+class DAPCA4Cost(Model):
+	
+	"""
 	Uses 2012 pricing and economics
 
 	Units are not included in variable definitions
 	
 	Labor Rates are found from Raymer
 	Avionics rate taken from Raymer and based on 15% cost of unit
-	Default values based on 777-F specs
+	Default values based on Honda Jet specs
 	
 	Arguments
 	---------
@@ -25,7 +54,7 @@ class DAPCA4Cost(Model):
 	
 	"""
 
-	def setup(self, W_e=318300, V=512, Q=100, FTA=10, N_eng=200, T_max=57650, M_max=0.87, T_tur=2050, R_avn=5000,  engine_discount=False):
+	def setup(self, W_e=9200, V=420, Q=5, FTA=1, N_eng=10, T_max=2050, M_max=0.63, T_tur=2050, R_avn=5000, engine_cost=500000, eng_defined=False):
 
 		# User Definied Variables
 		W_e   = Var('W_e', W_e, "lb", "Empty Weight")
@@ -56,18 +85,17 @@ class DAPCA4Cost(Model):
 		C_D    = Var('C_D', "$", "Development Cost")
 		C_F    = Var('C_F', "$", "Flight Test Cost")
 		C_M    = Var('C_M', "$", "Manufacturing Materials Cost")
-		C_eng  = Var('C_{eng}', "$", "Engine Production Cost")
 		C_fly  = Var('C_{tot}', "$", "RDT&E Flyaway Cost")
 		C_unit = Var('C_{unit}', "$", "Cost per unit")
 		C_avn  = Var('C_{avn}', "$", "Cost of avionics")
 		C_max  = Var('C_{max}', 1000000000000, "$", "Maximum Cost")
 		
-		engdis = -3112*2228 if engine_discount else 0
-		C_engdis = Var('C_{engdis}', engdis, "$", "Engine Cost Discount")
+		eng = 3112*(0.043*T_max + 243.35*M_max + 0.969*T_tur - 2228) if eng_defined else engine_cost
+		C_eng = Var('C_{eng}', eng, '$', "Engine Cost")
 
 		objective = C_fly
 		constraints = [
-				C_fly >= H_E*R_E + H_T*R_T + H_M*R_M + H_Q*R_Q + C_D + C_F + C_M + C_eng*N_eng + C_avn + engdis*N_eng,
+				C_fly >= H_E*R_E + H_T*R_T + H_M*R_M + H_Q*R_Q + C_D + C_F + C_M + C_eng*N_eng + C_avn,
 				H_E >= 4.86 * W_e**0.777 * V**0.894 * Q**0.163,
 				H_T >= 5.99 * W_e**0.777 * V**0.696 * Q**0.263,
 				H_M >= 7.37 * W_e**0.82 * V**0.484 * Q**0.641,
@@ -75,7 +103,6 @@ class DAPCA4Cost(Model):
 				C_D >= 91.3 * W_e**0.630 * V**1.3,
 				C_F >= 2498 * W_e**0.325 * V**0.822 * FTA**1.21,
 				C_M >= 22.1 * W_e**0.921 * V**0.621 * Q**0.799,
-				C_eng >= 0.043*T_max + 243.35*M_max + 0.969*T_tur,
 				C_avn >= R_avn*W_e,
 				C_max >= C_fly
 				]
