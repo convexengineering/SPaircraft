@@ -9,8 +9,7 @@ class SolarUAV(Model):
         P = Variable("P", "W", "flight power")
         eta_p = Variable(r"\eta_p", 0.75, "-", "motor+prop efficiency")
         L15D = Variable(r"(C_L^{1.5}/C_D)", 25, "-", "power parameter")
-        rho = Variable(r"\rho", ('sweep', [0.238, 0.449]),
-                       "kg/m^3",
+        rho = Variable(r"\rho", ('sweep', [0.238, 0.449]), "kg/m^3",
                        "air density")
         wl = Variable("(m/S)", "kg/m^2", "wing loading")
         g = Variable("g", 9.8, "m/s^2")
