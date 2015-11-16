@@ -1,4 +1,11 @@
-"""
+"""Aircraft cost models"""
+from gpkit.shortcuts import Var, Model
+import gpkit
+gpkit.disable_units()
+
+
+class DAPCA4Cost(Model):
+    """
     Cost Model from Raymer, Aircraft Design: A Conceptual Approach 3rd Edition,
     pp 713-714
 
@@ -26,15 +33,7 @@
     and main materials are made of aluminum.
 
     The Engine Cost assumes that the cost of the engine is not known.
-"""
-from gpkit.shortcuts import Var, Model
-import gpkit
-gpkit.disable_units()
 
-
-
-class DAPCA4Cost(Model):
-    """
     Uses 2012 pricing and economics
 
     Units are not included in variable definitions
