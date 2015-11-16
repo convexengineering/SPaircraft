@@ -35,13 +35,13 @@ class BreguetRange(Model):
         t = Var('t', "hr", "time")
 
         # Set up Model Equations
-        objective = 1/t #Maximize time
+        objective = 1/R #Maximize range
         constraints = [W_init >= W_oew + W_fuel,
                        W_init <= MTOW,
                        LoverD <= LoverD_max,
                        TSFC >= TSFC_min,
                        M <= M_max,
-                       t <= R/M/a0,
+                       t >= R/M/a0,
                        z_bre >= t*TSFC*g/LoverD,
                        W_fuel/W_oew >= te_exp_minus1(z_bre, nterm=3)
                       ]
