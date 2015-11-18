@@ -2,6 +2,7 @@
 from gpkit.shortcuts import Var, Model
 from gpkit.tools import te_exp_minus1
 
+
 class BreguetRange(Model):
 
     """Breguet Range Model
@@ -10,15 +11,13 @@ class BreguetRange(Model):
     -----------
     Fuel burn varies linearily with thrust and is independent of velocity.
     """
-    def setup(self, TSFC_min=0.307, MTOW=10000, W_oew=7000, LoverD_max=15,
-              M_max=0.78):
+    def setup(self):
 
-        TSFC_min = Var('TSFC_{min}', TSFC_min, "lb/lbf/hr", "Minimum TSFC")
-        MTOW = Var('MTOW', MTOW, "lbf", "Max take off weight")
-        W_oew = Var('W_{oew}', W_oew, "lbf", "Operating Empty Weight")
-        LoverD_max = Var('LoverD_{max}', LoverD_max, "-",
-                         "Maximum Lift to Drag Ratio")
-        M_max = Var('M_max', M_max, "-", "Maximum Mach")
+        TSFC_min = Var('TSFC_{min}', 0.307, "lb/lbf/hr", "Minimum TSFC")
+        MTOW = Var('MTOW', 10000, "lbf", "Max take off weight")
+        W_oew = Var('W_{oew}', 7000, "lbf", "Operating Empty Weight")
+        LoverD_max = Var('LoverD_{max}', 15, "-", "Maximum Lift to Drag Ratio")
+        M_max = Var('M_max', 0.78, "-", "Maximum Mach")
 
         #Constants
         g = Var('g', 9.81, "m/s^2", "gravity")
@@ -35,7 +34,7 @@ class BreguetRange(Model):
         t = Var('t', "hr", "time")
 
         # Set up Model Equations
-        objective = 1/R #Maximize range
+        objective = 1/R  # Maximize range
         constraints = [W_init >= W_oew + W_fuel,
                        W_init <= MTOW,
                        LoverD <= LoverD_max,
@@ -44,7 +43,7 @@ class BreguetRange(Model):
                        t >= R/M/a0,
                        z_bre >= t*TSFC*g/LoverD,
                        W_fuel/W_oew >= te_exp_minus1(z_bre, nterm=3)
-                      ]
+                       ]
         return objective, constraints
 
 
