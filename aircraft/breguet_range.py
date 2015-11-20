@@ -45,8 +45,19 @@ class BreguetRange(Model):
                        W_fuel/W_oew >= te_exp_minus1(z_bre, nterm=3)
                        ]
         return objective, constraints
-
+    
+    def test(self):
+        sol = self.solve()
+        R = sol('R')
+        M = sol('M')
+        LoverD = sol('LoverD')
+        TSFC = sol('TSFC')
+        W_init = sol('W_{init}')
+        W_fuel = sol('W_{fuel}')
+        z_bre = sol('z_{bre}')
+        t = sol('t')
+        g = sol('g')
+        a0 = sol('a0')
 
 if __name__ == "__main__":
-    BR = BreguetRange()
-    SOL = BR.solve()
+    BreguetRange().test()
