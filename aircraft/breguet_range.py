@@ -10,6 +10,19 @@ class BreguetRange(Model):
     Assumptions
     -----------
     Fuel burn varies linearily with thrust and is independent of velocity.
+
+    Arguments
+    ---------
+    TSFC_min : float [lb/lbf/hr]
+        Minimum TSFC
+    MTOW : float [lbf]
+        Max take off wieght
+    W_oew : float [lbf]
+        Operating Empty Weight
+    LoverD : float [-]
+        Maximum L/D ratio
+    M_max : float [-]
+        Maximum Mach number
     """
     def setup(self):
 
