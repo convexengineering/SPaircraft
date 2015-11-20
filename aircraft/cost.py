@@ -3,7 +3,6 @@ from gpkit.shortcuts import Var, Model
 import gpkit
 gpkit.disable_units()
 
-
 class DAPCA4Cost(Model):
     """
     Cost Model from Raymer, Aircraft Design: A Conceptual Approach 3rd Edition,
@@ -11,35 +10,12 @@ class DAPCA4Cost(Model):
 
     Note: this is also one instance of the RAND Corp cost models.
 
-    The total cost is Research, Development, Test and Evaluation Cost
-
     Cost is in 2012 dollars
 
-    Engineering hours considers all airframe, propulsion and avionics
-    integration and design.  It does not include engineering of avionics,
-    propulsion, tooling or production planning.
-
-    Tooling hours covers all the preparation for production.  It also covers
-    ongoing tooling cost through production.
-
-    Manufacturing hours is the direct labor to fabricate the aircraft. It also
-    includes cost of labor of subcontractors.
-
-    Quality Control hours covers all inspections.
-
-    Flight test cost covers all cost to prove airworthiness.
-
-    Manufacturing Materials is the raw materials cost and assumes that airframe
-    and main materials are made of aluminum.
-
-    The Engine Cost assumes that the cost of the engine is not known.
-
-    Uses 2012 pricing and economics
-
-    Units are not included in variable definitions
+    Units disabled because '$' is not defined as a unit 
 
     Labor Rates are found from Raymer
-    Avionics rate taken from Raymer and based on 15% cost of unit
+
     Default values based on Honda Jet specs
 
     Arguments
@@ -74,18 +50,22 @@ class DAPCA4Cost(Model):
         # Free Variables
 
         # Hourly costs in hrs. Multiply by hourly work rate to get cost
-        H_E = Var('H_{E}', "hrs", "Engineering Time")
-        H_T = Var('H_{T}', "hrs", "Tooling Time")
-        H_M = Var('H_{M}', "hrs", "Manufacturing Time")
-        H_Q = Var('H_{Q}', "hrs", "Quality Check Time")
+        H_E = Var('H_{E}', "hrs",
+                  "Engineering hours of airframe and component integration")
+        #Eng Hours does not include cost of avionics or engine engineering
+        H_T = Var('H_{T}', "hrs", "Tooling hours for production preparation")
+        #H_T also covers tooling cost through ongoing production
+        H_M = Var('H_{M}', "hrs",
+                  "Manufacturing hours of main and subcontractors")
+        H_Q = Var('H_{Q}', "hrs", "Quality control hours for inspection")
 
         # Cost Varibles
         C_D = Var('C_D', "$", "Development Cost")
-        C_F = Var('C_F', "$", "Flight Test Cost")
-        C_M = Var('C_M', "$", "Manufacturing Materials Cost")
+        C_F = Var('C_F', "$", "Flight Test Cost to prove airworthiness")
+        C_M = Var('C_M', "$", "Materials cost of aluminum airframe")
         C_fly = Var('C_{tot}', "$", "RDT&E Flyaway Cost")
         C_avn = Var('C_{avn}', "$", "Cost of avionics")
-        C_max = Var('C_{max}', 1000000000000, "$", "Maximum Cost")
+        #Raymer suggests C_avn = 0.15*C_fly
 
         eng = (3112*(0.043*T_max + 243.35*M_max + 0.969*T_tur - 2228)
                if eng_defined else engine_cost)
@@ -102,11 +82,24 @@ class DAPCA4Cost(Model):
                        C_F >= 2498 * W_e**0.325 * V**0.822 * FTA**1.21,
                        C_M >= 22.1 * W_e**0.921 * V**0.621 * Q**0.799,
                        C_avn >= R_avn*W_e,
-                       C_max >= C_fly
                       ]
         return objective, constraints
 
+    def test(self):
+        sol = self.solve()
+        H_E = sol('H_{E}')
+        H_T = sol('H_{T}')
+        H_M = sol('H_{M}')
+        H_Q = sol('H_{Q}')
+        R_E = sol('R_{E}')
+        R_T = sol('R_{T}')
+        R_M = sol('R_{M}')
+        R_Q = sol('R_{Q}')
+        C_D = sol('C_{D}')
+        C_F = sol('C_{F}')
+        C_M = sol('C_{M}')
+        C_avn = sol('C_{avn}')
+        C_fly = sol('C_{fly}')
 
 if __name__ == "__main__":
-    M = DAPCA4Cost()
-    SOL = M.solve()
+    DAPCA4Cost().test()
