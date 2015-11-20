@@ -28,8 +28,8 @@ class BreguetRange(Model):
         M = Var('M', "-", "Mach number")
         LoverD = Var('LoverD', "-", "life to drag ratio")
         TSFC = Var('TSFC', "lb/lbf/hr", "thrust specific fuel consuption")
-        W_init = Var('W_init', "lbf", "initial weight")
-        W_fuel = Var('W_fuel', "lbf", "fuel weight")
+        W_init = Var('W_{init}', "lbf", "initial weight")
+        W_fuel = Var('W_{fuel}', "lbf", "fuel weight")
         z_bre = Var('z_{bre}', "-", "Breguet parameter")
         t = Var('t', "hr", "time")
 
