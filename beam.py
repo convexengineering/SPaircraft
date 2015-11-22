@@ -1,4 +1,10 @@
+"""
+A simple beam example with fixed geometry. Solves the discretized
+Euler-Bernoulli beam equations for a constant distributed load
+"""
+import numpy as np
 from gpkit.shortcuts import *
+
 
 class Beam(Model):
     """Discretization of the Euler beam equations for a distributed load.
@@ -11,21 +17,14 @@ class Beam(Model):
         [m] Length of beam.
     EI : float
         [N m^2] Elastic modulus times cross-section's area moment of inertia.
-    P : float
-        [N/m] Loading density.
+    q : float or N-vector of floats
+        [N/m] Loading density: can be specified as constants or as an array.
     """
-    def setup(self, N=4, L=5, EI=1e4, q=100):
-        # store attributes for later external use
-        self.N, self.L, self.EI, self.q = N, L, EI, q
-        EI = Var("EI", EI, "N*m^2")
-        dx = Var("dx", L/float(N-1), "m", "Length of an element")
-        if hasattr(q, "__len__") and len(q) != N:
-                raise TypeError("beam loading must be either a single number"
-                                " or the distributed load (in N/m) observed"
-                                " at each point.")
-        else:
-            q = [q]*N
-        q = Vec(N, "q", q, "N/m", "Distributed load at each point")
+    def setup(self, N=4):
+        EI = Var("EI", 1e4, "N*m^2")
+        dx = Var("dx", "m", "Length of an element")
+        L = Var("L", 5, "m", "Overall beam length")
+        q = Vec(N, "q", 100*np.ones(N), "N/m", "Distributed load at each point")
         V = Vec(N, "V", "N", "Internal shear")
         V_tip = Var("V_{tip}", 0, "N", "Tip loading")
         M = Vec(N, "M", "N*m", "Internal moment")
@@ -47,4 +46,16 @@ class Beam(Model):
         displ_eq = (w >= w.left + 0.5*dx*(th + th.left))
         displ_eq[0] = (w[0] >= w_base)
         # minimize tip displacement (the last w)
-        return w[-1], [shear_eq, moment_eq, theta_eq, displ_eq]
+        return w[-1], [shear_eq, moment_eq, theta_eq, displ_eq, L == (N-1)*dx]
+
+    def test(self):
+        sol = self.solve()
+        L, EI, q = sol("L"), sol("EI"), sol("q")
+        N = len(q)
+        q = q[0]  # assume uniform loading for the check below
+        x = np.linspace(0, L, N)  # position along beam
+        w_gp = sol("w")  # deflection along beam
+        w_exact = q/(24.*EI) * x**2 * (x**2 - 4*L*x + 6*L**2)  # analytic soln
+
+if __name__ == "__main__":
+    Beam().test()

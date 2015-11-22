@@ -27,15 +27,15 @@ class Troposphere(Model):
         self.g, self.L, self.M, self.R, self.th = g, L, M, R, th
 
         # Free variables
-        h   = Variable('h', 'm', 'Altitude')
-        rho = Variable('\\rho', 'kg/m^3', 'Density')
-        T   = Variable('T', 'K', 'Temperature')
+        h = Variable("h", "m", "Altitude")
+        rho = Variable("\\rho", "kg/m^3", "Density")
+        T = Variable("T", "K", "Temperature")
 
         # Constants
-        L   = Variable('L', L, 'K/m', 'Temperature lapse rate')
-        MoR = Variable('(M/R)', M/R, 'kg*K/J', 'Air property')
-        p_sl = Variable('p_{sl}', 101325, 'Pa', 'Pressure at sea level')
-        T_sl = Variable('T_{sl}', 288.15, 'K', 'Temperature at sea level')
+        L = Variable("L", L, "K/m", "Temperature lapse rate")
+        MoR = Variable("(M/R)", M/R, "kg*K/J", "Air property")
+        p_sl = Variable("p_{sl}", 101325, "Pa", "Pressure at sea level")
+        T_sl = Variable("T_{sl}", 288.15, "K", "Temperature at sea level")
 
         objective = rho**-1 * h**-1  # maximize height * density
         constraints = [  # Model only valid up to top of the troposphere
@@ -48,14 +48,8 @@ class Troposphere(Model):
 
     def test(self):
         sol = self.solve()
-        h    = sol('h')
-        T    = sol('T')
-        rho  = sol('\\rho')
-        p_sl = sol('p_{sl}')
-        T_sl = sol('T_{sl}')
-        L    = sol('L')
-        MoR  = sol('(M/R)')
-
+        h, T, rho, p_sl, T_sl, L, MoR = map(sol, ["h", "T", "\\rho", "p_{sl}",
+                                                   "T_{sl}", "L", "(M/R)"])
         npt.assert_almost_equal(T_sl, T + L*h, decimal=2)
         calculated_rho = p_sl*T**(self.th-1)*MoR/(T_sl**self.th)
         npt.assert_almost_equal(calculated_rho, rho, decimal=5)
