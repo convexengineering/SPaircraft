@@ -10,19 +10,6 @@ class BreguetRange(Model):
     Assumptions
     -----------
     Fuel burn varies linearily with thrust and is independent of velocity.
-
-    Arguments
-    ---------
-    TSFC_min : float [lb/lbf/hr]
-        Minimum TSFC
-    MTOW : float [lbf]
-        Max take off wieght
-    W_oew : float [lbf]
-        Operating Empty Weight
-    LoverD : float [-]
-        Maximum L/D ratio
-    M_max : float [-]
-        Maximum Mach number
     """
     def setup(self):
 
@@ -56,21 +43,12 @@ class BreguetRange(Model):
                        t >= R/M/a0,
                        z_bre >= t*TSFC*g/LoverD,
                        W_fuel/W_oew >= te_exp_minus1(z_bre, nterm=3)
-                       ]
+                      ]
         return objective, constraints
-    
+
     def test(self):
-        sol = self.solve()
-        R = sol('R')
-        M = sol('M')
-        LoverD = sol('LoverD')
-        TSFC = sol('TSFC')
-        W_init = sol('W_{init}')
-        W_fuel = sol('W_{fuel}')
-        z_bre = sol('z_{bre}')
-        t = sol('t')
-        g = sol('g')
-        a0 = sol('a0')
+        _ = self.solve()
+
 
 if __name__ == "__main__":
     BreguetRange().test()
