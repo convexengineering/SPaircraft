@@ -25,21 +25,19 @@ class DAPCA4Cost(Model):
         If false, must define engine_cost
         Todo: this should really be replaced with an engine cost (sub) model.
     """
-    def setup(self, W_e=9200, V=420, Q=5, FTA=1, N_eng=10, T_max=2050,
-              M_max=0.63, T_tur=2050, R_avn=5000, engine_cost=500000,
-              eng_defined=False):
+    def setup(self, eng_defined=False):
 
         # User Definied Variables
-        W_e = Var('W_e', W_e, "lb", "Empty Weight")
-        V = Var('V', V, "knots", "Maximum Velocity")
-        Q = Var('Q', Q, "-", "Number produced in 5 years")
-        FTA = Var('FTA', FTA, "-", "Number of Flight Test Aircraft")
-        N_eng = Var('N_{eng}', N_eng, "-",
+        W_e = Var('W_e', 9200, "lb", "Empty Weight")
+        V = Var('V', 420, "knots", "Maximum Velocity")
+        Q = Var('Q', 5, "-", "Number produced in 5 years")
+        FTA = Var('FTA', 1, "-", "Number of Flight Test Aircraft")
+        N_eng = Var('N_{eng}', 10, "-",
                     "Number of engines or Q*num of engines per aircraft")
-        T_max = Var('T_{max}', T_max, "lb", "Maximum Thrust")
-        M_max = Var('M_{max}', M_max, "-", "Maximum Mach # of engine")
-        T_tur = Var('T_{tur}', T_tur, "R", "Turbine Inlet Temperature")
-        R_avn = Var('C_{avn}', R_avn, "$/lb", "Avionics Cost")
+        T_max = Var('T_{max}', 2050, "lb", "Maximum Thrust")
+        M_max = Var('M_{max}', 0.63, "-", "Maximum Mach # of engine")
+        T_tur = Var('T_{tur}', 2050, "R", "Turbine Inlet Temperature")
+        R_avn = Var('C_{avn}', 5000, "$/lb", "Avionics Cost")
 
         # Constants Hourly Rates
         R_E = Var('R_{E}', 115, "$/hr", "Enginering Hourly Rate")
@@ -68,7 +66,7 @@ class DAPCA4Cost(Model):
         #Raymer suggests C_avn = 0.15*C_fly
 
         eng = (3112*(0.043*T_max + 243.35*M_max + 0.969*T_tur - 2228)
-               if eng_defined else engine_cost)
+               if eng_defined else 500000)
         C_eng = Var('C_{eng}', eng, '$', "Engine Cost")
 
         objective = C_fly
@@ -87,19 +85,6 @@ class DAPCA4Cost(Model):
 
     def test(self):
         sol = self.solve()
-        H_E = sol('H_{E}')
-        H_T = sol('H_{T}')
-        H_M = sol('H_{M}')
-        H_Q = sol('H_{Q}')
-        R_E = sol('R_{E}')
-        R_T = sol('R_{T}')
-        R_M = sol('R_{M}')
-        R_Q = sol('R_{Q}')
-        C_D = sol('C_{D}')
-        C_F = sol('C_{F}')
-        C_M = sol('C_{M}')
-        C_avn = sol('C_{avn}')
-        C_fly = sol('C_{fly}')
 
 if __name__ == "__main__":
     DAPCA4Cost().test()
