@@ -61,7 +61,7 @@ class DAPCA4Cost(Model):
         C_D = Var("C_D", "-", "Development Cost")
         C_F = Var("C_F", "-", "Flight Test Cost to prove airworthiness")
         C_M = Var("C_M", "-", "Materials cost of aluminum airframe")
-        C_fly = Var("C_{tot}", "-", "RDT&E Flyaway Cost")
+        C_fly = Var("C_{fly}", "-", "RDT&E Flyaway Cost")
         C_avn = Var("C_{avn}", "-", "Cost of avionics")
         #Raymer suggests C_avn = 0.15*C_fly
 
