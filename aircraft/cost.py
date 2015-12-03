@@ -10,8 +10,6 @@ class DAPCA4Cost(Model):
 
     Note: this is also one instance of the RAND Corp cost models.
 
-    Cost is in 2012 dollars
-
     Labor Rates are found from Raymer
 
     Default values based on Honda Jet specs
@@ -35,13 +33,13 @@ class DAPCA4Cost(Model):
         T_max = Var("T_{max}", 2050, "lbf", "Maximum Thrust")
         M_max = Var("M_{max}", 0.63, "-", "Maximum Mach # of engine")
         T_tur = Var("T_{tur}", 2050, "R", "Turbine Inlet Temperature")
-        R_avn = Var("C_{avn}", 5000, "USD/lbf", "Avionics Cost")
+        R_avn = Var("C_{avn}", 5000, "USD2012/lbf", "Avionics Cost")
 
         # Constants Hourly Rates
-        R_E = Var("R_{E}", 115, "USD/hr", "Enginering Hourly Rate")
-        R_T = Var("R_{T}", 118, "USD/hr", "Tooling Hourly Rate")
-        R_M = Var("R_{M}", 108, "USD/hr", "Manufacturing Hourly Rate")
-        R_Q = Var("R_{Q}", 98, "USD/hr", "Quality Check Hourly Rate")
+        R_E = Var("R_{E}", 115, "USD2012/hr", "Enginering Hourly Rate")
+        R_T = Var("R_{T}", 118, "USD2012/hr", "Tooling Hourly Rate")
+        R_M = Var("R_{M}", 108, "USD2012/hr", "Manufacturing Hourly Rate")
+        R_Q = Var("R_{Q}", 98, "USD2012/hr", "Quality Check Hourly Rate")
 
         # Free Variables
 
@@ -56,17 +54,17 @@ class DAPCA4Cost(Model):
         H_Q = Var("H_{Q}", "hrs", "Quality control hours for inspection")
 
         # Cost Varibles
-        C_D = Var("C_D", "USD", "Development Cost")
-        C_F = Var("C_F", "USD", "Flight Test Cost to prove airworthiness")
-        C_M = Var("C_M", "USD", "Materials cost of aluminum airframe")
-        C_fly = Var("C_{fly}", "USD", "RDT&E Flyaway Cost")
-        C_avn = Var("C_{avn}", "USD", "Cost of avionics")
+        C_D = Var("C_D", "USD2012", "Development Cost")
+        C_F = Var("C_F", "USD2012", "Flight Test Cost to prove airworthiness")
+        C_M = Var("C_M", "USD2012", "Materials cost of aluminum airframe")
+        C_fly = Var("C_{fly}", "USD2012", "RDT&E Flyaway Cost")
+        C_avn = Var("C_{avn}", "USD2012", "Cost of avionics")
         #Raymer suggests C_avn = 0.15*C_fly
 
         eng = (3112*(0.043*T_max/units.lbf +
                      243.35*M_max + 0.969*T_tur/units.R - 2228)
                if eng_defined else 500000)
-        C_eng = Var("C_{eng}", eng, "USD", "Engine Cost")
+        C_eng = Var("C_{eng}", eng, "USD2012", "Engine Cost")
         H_E_const = Var("H_{E_const}", 4.86,
                         units.hr/(units.lbf**0.777 * units.knots**0.894),
                         "H_E power law proportionality constant")
@@ -79,13 +77,13 @@ class DAPCA4Cost(Model):
         H_Q_const = Var("H_{Q_const}", 0.133, "-",
                         "H_Q power law proportionality constant")
         C_D_const = Var("C_{D_const}", 91.3,
-                        units.USD/(units.lbf**0.630 * units.knots**1.3),
+                        units.USD2012/(units.lbf**0.630 * units.knots**1.3),
                         "C_D power law proportionality constant")
         C_F_const = Var("C_{F_const}", 2498,
-                        units.USD/(units.lbf**0.325 * units.knots**0.822),
+                        units.USD2012/(units.lbf**0.325 * units.knots**0.822),
                         "C_F power law proportionality constant")
         C_M_const = Var("C_{M_const}", 22.1,
-                        units.USD/(units.lbf**0.921 * units.knots**0.621),
+                        units.USD2012/(units.lbf**0.921 * units.knots**0.621),
                         "C_M power law proportionality constant")
 
         objective = C_fly
