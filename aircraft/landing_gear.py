@@ -28,8 +28,8 @@ class LandingGear(Model):
         Eland   = Variable('E_{land}', 'J', 'Max KE to be absorbed in landing')
         Fwm     = Variable('F_{w_m}', '-', 'Weight factor (main)')
         Fwn     = Variable('F_{w_n}', '', 'Weight factor (nose)')
-        I_m     = Variable('I_m', 'm^4', 'Area mom of inertia main gear strut')
-        I_n     = Variable('I_n', 'm^4', 'Area mom of inertia nose gear strut')
+        I_m     = Variable('I_m', 'm^4', 'Area moment of inertia (main strut)')
+        I_n     = Variable('I_n', 'm^4', 'Area moment of inertia (nose strut)')
         l_m     = Variable('l_m', 'm', 'Length of main gear')
         l_n     = Variable('l_n', 'm', 'Length of nose gear')
         l_oleo  = Variable('l_{oleo}', 'm', 'Length of oleo shock absorber')
@@ -89,9 +89,9 @@ class LandingGear(Model):
                              'Density of 4340 Steel') # ASM Matweb
         sig_y_c   = Variable('\\sigma_{y_c}', 470E6, 'Pa',
                              'Compressive yield strength 4340 steel ') #  AZOM
-        tan_15    = Variable('\\tan(15)', np.tan(15*np.pi/180), '-',
+        tan_15    = Variable('\\tan(\\phi_{min})', np.tan(15*np.pi/180), '-',
                              'Lower bound on phi')
-        tan_63    = Variable('\\tan(63)', np.tan(63*np.pi/180), '-',
+        tan_63    = Variable('\\tan(\\psi_{max})', np.tan(63*np.pi/180), '-',
                              'Upper bound on psi')
         tangam    = Variable('\\tan(\\gamma)', np.tan(5*np.pi/180), '-',
                              'Tangent of dihedral angle') 
@@ -100,8 +100,8 @@ class LandingGear(Model):
         w         = Variable('w', 10, 'ft/s', 'Ultimate velocity of descent')
         W_0       = Variable('W_0', 82000*9.81, 'N', # 737 Max airport doc
                              'Weight of aircraft excluding landing gear')
-        xcg0      = Variable('x_{cg_0}', 18, 'm', 'x-location of CG excl. LG')
-        x_upswp   = Variable('x_{upswp}', 28, 'm', 'Fuselage upsweep point')
+        xcg0      = Variable('x_{CG_0}', 18, 'm', 'x-location of CG excl. LG')
+        x_upswp   = Variable('x_{up}', 28, 'm', 'Fuselage upsweep point')
         y_eng     = Variable('y_{eng}', 4.83, 'm', 'Spanwise loc. of engines')
         z_CG_0    = Variable('z_{CG}', 2, 'm',
                              'CG height relative to bottom of fuselage')
@@ -150,7 +150,7 @@ class LandingGear(Model):
                            # stricter constraint uses forward CG
                            # cos(arctan(y/x))) = x/sqrt(x^2 + y^2)
                            1 >= (z_CG_0 + l_m)**2 * (y_m**2 + B**2) /
-                                (xcgn * y_m * tan_psi)**2,
+                                (dxn * y_m * tan_psi)**2,
                            tan_psi <= tan_63,
 
                            # Tail strike: Longitudinal ground clearance in
@@ -177,12 +177,13 @@ class LandingGear(Model):
                            # design landing weight
                            # Landing condition from Torenbeek p360
                            Eland == W_0/(2*g)*w**2, # Torenbeek (10-26)
-                           # S_t == 0.5*lam*Lwm/(p*(dtm*bt)**0.5), # Torenbeek (10-30)
+                           # S_t == 0.5*lam*Lwm/(p*(dtm*bt)**0.5), # (10-30)
                            S == (1/eta_s)*(Eland/(L_m*lam)),# - eta_t*S_t),
                            # [SP] Torenbeek (10-28)
 
                            l_oleo == 2.5*S, # Raymer 244
                            d_oleo == 1.3*(4*lam*L_m/n_mg/(np.pi*p_oleo))**0.5,
+                           l_m >= l_oleo + dtm/2,
 
                            # Wheel weights
                            Fwm == Lwm*dtm/(1000*Lwm.units*dtm.units),
@@ -231,8 +232,6 @@ class LandingGear(Model):
                            # www.dept.aoe.vt.edu/~mason/Mason_f/M96SC08.pdf
                            2*r_m/t_m <= 40,
                            2*r_m/t_n <= 40,
-
-                           l_m >= l_oleo + dtm/2,
 
                            # Retraction constraint on strut diameter
                            2*wtm + 2*r_m <= hhold,
