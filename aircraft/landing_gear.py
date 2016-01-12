@@ -21,8 +21,8 @@ class LandingGear(Model):
         # Variables
         B       = Variable('B', 'm', 'Landing gear base')
         d_oleo  = Variable('d_{oleo}', 'm', 'Diameter of oleo shock absorber')
-        dtm     = Variable('d_{t_m}', 'in', 'O.D. of main gear tyres')
-        dtn     = Variable('d_{t_n}', 'm', 'Diameter of nose tires')
+        dtm     = Variable('d_{t_m}', 'm', 'Diameter of main gear tires')
+        dtn     = Variable('d_{t_n}', 'm', 'Diameter of nose gear tires')
         dxm     = Variable('\\Delta x_m', 'm', 'Distance b/w main gear and CG')
         dxn     = Variable('\\Delta x_n', 'm', 'Distance b/w nose gear and CG')
         Eland   = Variable('E_{land}', 'J', 'Max KE to be absorbed in landing')
@@ -41,7 +41,7 @@ class LandingGear(Model):
         r_m     = Variable('r_m', 'm', 'Radius of main gear struts')
         r_n     = Variable('r_n', 'm', 'Radius of nose gear struts')
         S       = Variable('S', 'm', 'Stroke of the shock absorber')
-        S_t     = Variable('S_t', 'm', 'Tyre deflection')
+        S_t     = Variable('S_t', 'm', 'Tire deflection')
         t_m     = Variable('t_m', 'm', 'Thickness of main gear strut wall')
         t_n     = Variable('t_n', 'm', 'Thickness of nose gear strut wall')
         T       = Variable('T', 'm', 'Main landing gear track')
@@ -73,7 +73,7 @@ class LandingGear(Model):
                              'Modulus of elasticity, 4340 steel') # ASM Matweb
         eta_s     = Variable('\\eta_s', 0.8, '-', 'Shock absorber efficiency')
         eta_t     = Variable('\\eta_t', 0.47, '-',
-                             'Efficiency of tyre in shock absorption')
+                             'Efficiency of tire in shock absorption')
         g         = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         h_nac     = Variable('h_{nacelle}', 0.5, 'm', 'Min. nacelle clearance')
         hhold     = Variable('h_{hold}', 1, 'm', 'Hold height')
@@ -262,7 +262,7 @@ class LandingGear(Model):
 #        with open('landing_gear.tex', 'w') as outfile:
 #            outfile.write(self.latex())
 #        with open('soltable.tex', 'w') as outfile:
-#            outfile.write(sol.table(latex=1))
+#            outfile.write(sol.table(latex=3))
 #        with open('vartable.tex', 'w') as outfile:
 #            outfile.write(sol.table(latex=2))
 
