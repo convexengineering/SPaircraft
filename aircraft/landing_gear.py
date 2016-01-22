@@ -21,8 +21,8 @@ class LandingGear(Model):
         # Variables
         B       = Variable('B', 'm', 'Landing gear base')
         d_oleo  = Variable('d_{oleo}', 'm', 'Diameter of oleo shock absorber')
-        dtm     = Variable('d_{t_m}', 'm', 'Diameter of main gear tires')
-        dtn     = Variable('d_{t_n}', 'm', 'Diameter of nose gear tires')
+        dtm     = Variable('d_{t_m}', 'in', 'Diameter of main gear tires')
+        dtn     = Variable('d_{t_n}', 'in', 'Diameter of nose gear tires')
         dxm     = Variable('\\Delta x_m', 'm', 'Distance b/w main gear and CG')
         dxn     = Variable('\\Delta x_n', 'm', 'Distance b/w nose gear and CG')
         Eland   = Variable('E_{land}', 'J', 'Max KE to be absorbed in landing')
@@ -221,12 +221,12 @@ class LandingGear(Model):
 
                            # Buckling constraint on main gear
                            L_m <= np.pi**2*E*I_m/(K*l_m)**2,
-                           I_m == np.pi*r_m**3*t_m,
+                           I_m <= np.pi*r_m**3*t_m,
 
                            # Buckling constraint on nose gear
                            # source: https://en.wikipedia.org/wiki/Buckling
                            L_n <= np.pi**2*E*I_n/(K*l_n)**2,
-                           I_n == np.pi*r_n**3*t_n,
+                           I_n <= np.pi*r_n**3*t_n,
 
                            # Machining constraint # p89 Mason
                            # www.dept.aoe.vt.edu/~mason/Mason_f/M96SC08.pdf
@@ -238,8 +238,8 @@ class LandingGear(Model):
                            2*wtn + 2*r_n <= 0.8*units.m, #TODO improve this
 
                            # Weight accounting
-                           Waddm == 1.5*W_mw, # Currey p264
-                           Waddn == 1.5*W_nw,
+                           Waddm >= 1.5*W_mw, # Currey p264
+                           Waddn >= 1.5*W_nw,
                            W_mg >= n_mg*(W_ms + W_mw + Waddm),
                            W_ng >= W_ns + W_nw + Waddn,
                            W_lg >= W_mg + W_ng,
