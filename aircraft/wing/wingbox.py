@@ -1,6 +1,6 @@
 from gpkit import Variable, Model
 
-class Structure(Model):
+class WingBox(Model):
     """
     Structural model for a wing
     source: Hoburg, Abbeel, "Geometric Programming for Aircraft Design Optimization", 2014
@@ -79,6 +79,6 @@ class Structure(Model):
                        Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*A**0.5),
 
                        # Total wing weight using an additional weight fraction
-                       Wstruct >= fwadd*(Wweb + Wcap),
+                       Wstruct >= (1 + fwadd)*(Wweb + Wcap),
                        ]
         return objective, constraints

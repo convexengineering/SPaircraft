@@ -2,7 +2,7 @@
 from gpkit import Model, Variable, SignomialsEnabled, units
 import numpy as np
 import numpy.testing as npt
-from wing.structure import Structure
+from wing.wingbox import WingBox
 
 class VerticalTail(Model):
     """
@@ -140,7 +140,7 @@ class VerticalTail(Model):
             m = Model(objective, constraints)
 
             # Incorporate the structural model
-            tail = m & Structure(Lmax=Lmax, taper=taper)
+            tail = m & WingBox(Lmax=Lmax, taper=taper)
 
             tail.cost = m.cost
 
