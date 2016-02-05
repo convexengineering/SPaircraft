@@ -2,7 +2,7 @@
 from gpkit import Model, Variable, SignomialsEnabled, units
 import numpy as np
 import numpy.testing as npt
-from gpjet.wing.structure import Structure
+from wing.structure import Structure
 
 class VerticalTail(Model):
     """
