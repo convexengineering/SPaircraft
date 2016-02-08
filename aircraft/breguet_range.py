@@ -1,5 +1,5 @@
 """Breguet range model"""
-from gpkit.shortcuts import Var, Model
+from gpkit import Variable, Model
 from gpkit.tools import te_exp_minus1
 
 class BreguetRange(Model):
@@ -13,24 +13,24 @@ class BreguetRange(Model):
     def setup(self):
 
         # Fixed Parameters
-        LD_max = Var('\\left(\\frac{L}{D}\\right)_{max}', 15, '-',
+        LD_max = Variable('\\left(\\frac{L}{D}\\right)_{max}', 15, '-',
                      'Maximum lift-to-drag ratio')
-        MTOW   = Var('MTOW', 10000, 'lbf', 'Max takeoff weight')
-        TSFC   = Var('TSFC', 0.307, 'lb/lbf/hr',
+        MTOW   = Variable('MTOW', 10000, 'lbf', 'Max takeoff weight')
+        TSFC   = Variable('TSFC', 0.307, 'lb/lbf/hr',
                      'Thrust specific fuel consumption')
-        V_max  = Var('V_{max}', 420, 'knots', 'Maximum Velocity')
-        W_e    = Var('W_{e}', 7000, 'lbf', 'Operating Empty Weight')
+        V_max  = Variable('V_{max}', 420, 'knots', 'Maximum velocity')
+        W_e    = Variable('W_{e}', 7000, 'lbf', 'Operating empty weight')
 
         # Constants
-        g      = Var('g', 9.81, 'm/s^2', 'Gravitational acceleration')
+        g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
 
         # Free Variables
-        LD     = Var('\\frac{L}{D}', '-', 'Lift-to-drag ratio')
-        R      = Var('R', 'nautical_miles', 'Range')
-        V      = Var('V', 'knots', 'Velocity')
-        W_fuel = Var('W_{fuel}', 'lbf', 'Fuel weight')
-        W_init = Var('W_{init}', 'lbf', 'Initial gross weight')
-        z_bre  = Var('z_{bre}', '-', 'Breguet parameter')
+        LD     = Variable('\\frac{L}{D}', '-', 'Lift-to-drag ratio')
+        R      = Variable('R', 'nautical_miles', 'Range')
+        V      = Variable('V', 'knots', 'Velocity')
+        W_fuel = Variable('W_{fuel}', 'lbf', 'Fuel weight')
+        W_init = Variable('W_{init}', 'lbf', 'Initial gross weight')
+        z_bre  = Variable('z_{bre}', '-', 'Breguet parameter')
 
         # Model
         objective = 1/R  # Maximize range
