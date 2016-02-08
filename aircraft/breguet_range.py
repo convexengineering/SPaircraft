@@ -27,7 +27,6 @@ class BreguetRange(Model):
         # Free Variables
         LD       = Var('\\frac{L}{D}', '-', 'Lift-to-drag ratio')
         R        = Var('R', 'nautical_miles', 'Range')
-        t        = Var('t', 'hr', 'Flight time')
         TSFC     = Var('TSFC', 'lb/lbf/hr', 'Thrust specific fuel consumption')
         V        = Var('V', 'knots', 'Velocity')
         W_fuel   = Var('W_{fuel}', 'lbf', 'Fuel weight')
@@ -36,13 +35,19 @@ class BreguetRange(Model):
 
         # Model
         objective = 1/R  # Maximize range
-        constraints = [W_init >= W_e + W_fuel,
+
+        constraints = [# Aircraft and fuel weight
+                       W_init >= W_e + W_fuel,
+                       
+                       # Performance constraints
                        W_init <= MTOW,
                        LD <= LD_max,
                        TSFC >= TSFC_min,
                        V <= V_max,
-                       t >= R/V,
-                       z_bre >= t*TSFC*g/LD,
+
+                       # Breguet range
+                       R <= z_bre*LD*V/(TSFC*g),
+                       # Taylor series expansion of exp(z_bre) - 1
                        W_fuel/W_e >= te_exp_minus1(z_bre, nterm=3)
                       ]
         return objective, constraints
