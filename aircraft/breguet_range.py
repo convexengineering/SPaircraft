@@ -14,25 +14,25 @@ class BreguetRange(Model):
     def setup(self):
 
         # Fixed Parameters
-        TSFC_min = Var('TSFC_{min}', 0.307, 'lb/lbf/hr', 'Minimum TSFC')
-        MTOW     = Var('MTOW', 10000, 'lbf', 'Max takeoff weight')
-        W_e      = Var('W_{e}', 7000, 'lbf', 'Operating Empty Weight')
         LD_max   = Var('\\left(\\frac{L}{D}\\right)_{max}', 15, '-',
                        'Maximum lift-to-drag ratio')
+        MTOW     = Var('MTOW', 10000, 'lbf', 'Max takeoff weight')
+        TSFC_min = Var('TSFC_{min}', 0.307, 'lb/lbf/hr', 'Minimum TSFC')
         V_max    = Var('V_{max}', 420, 'knots', 'Maximum Velocity')
+        W_e      = Var('W_{e}', 7000, 'lbf', 'Operating Empty Weight')
 
         # Constants
-        g = Var('g', 9.81, 'm/s^2', 'Gravitational acceleration')
+        g        = Var('g', 9.81, 'm/s^2', 'Gravitational acceleration')
 
         # Free Variables
-        R      = Var('R', 'nautical_miles', 'Range')
-        V      = Var('V', 'knots', 'Velocity')
-        LD     = Var('\\frac{L}{D}', '-', 'Lift-to-drag ratio')
-        TSFC   = Var('TSFC', 'lb/lbf/hr', 'Thrust specific fuel consumption')
-        W_init = Var('W_{init}', 'lbf', 'Initial gross weight')
-        W_fuel = Var('W_{fuel}', 'lbf', 'Fuel weight')
-        z_bre  = Var('z_{bre}', '-', 'Breguet parameter')
-        t      = Var('t', 'hr', 'Flight time')
+        LD       = Var('\\frac{L}{D}', '-', 'Lift-to-drag ratio')
+        R        = Var('R', 'nautical_miles', 'Range')
+        t        = Var('t', 'hr', 'Flight time')
+        TSFC     = Var('TSFC', 'lb/lbf/hr', 'Thrust specific fuel consumption')
+        V        = Var('V', 'knots', 'Velocity')
+        W_fuel   = Var('W_{fuel}', 'lbf', 'Fuel weight')
+        W_init   = Var('W_{init}', 'lbf', 'Initial gross weight')
+        z_bre    = Var('z_{bre}', '-', 'Breguet parameter')
 
         # Model
         objective = 1/R  # Maximize range
