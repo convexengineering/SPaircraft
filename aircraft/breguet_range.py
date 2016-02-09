@@ -2,6 +2,7 @@
 from gpkit import Variable, Model
 from gpkit.tools import te_exp_minus1
 
+
 class BreguetRange(Model):
 
     """Breguet Range Model
@@ -14,10 +15,10 @@ class BreguetRange(Model):
 
         # Fixed Parameters
         LD_max = Variable('\\left(\\frac{L}{D}\\right)_{max}', 15, '-',
-                     'Maximum lift-to-drag ratio')
+                          'Maximum lift-to-drag ratio')
         MTOW   = Variable('MTOW', 10000, 'lbf', 'Max takeoff weight')
         TSFC   = Variable('TSFC', 0.307, 'lb/lbf/hr',
-                     'Thrust specific fuel consumption')
+                          'Thrust specific fuel consumption')
         V_max  = Variable('V_{max}', 420, 'knots', 'Maximum velocity')
         W_e    = Variable('W_{e}', 7000, 'lbf', 'Operating empty weight')
 
@@ -51,7 +52,8 @@ class BreguetRange(Model):
         return objective, constraints
 
     def test(self):
-        _ = self.solve()
+        sol = self.solve()
+        assert sol['sensitivities']['variables']['TSFC'] >= 0
 
 if __name__ == '__main__':
     BreguetRange().test()
