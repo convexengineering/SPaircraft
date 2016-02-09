@@ -9,6 +9,7 @@ CL     = Variable('C_L', '-', 'Lift coefficient')
 M      = Variable('M', '-', 'Mach number')
 Mdd    = Variable('M_{dd}', '-', 'Drag divergence Mach number')
 R      = Variable('R', 'nautical_miles', 'Range')
+T      = Variable('T', 'N', 'Thrust')
 V      = Variable('V', 'knots', 'Velocity')
 W_fuel = Variable('W_{fuel}', 'lbf', 'Fuel weight')
 W_init = Variable('W_{init}', 'lbf', 'Initial gross weight')
@@ -22,10 +23,10 @@ cosL  = Variable('\\cos(\\Lambda)', np.cos(25*np.pi/180), '-',
 CD0   = Variable('CD0', 0.02, '-', 'Parasitic drag coefficient')
 e     = Variable('e', 0.8, '-', 'Oswald efficiency factor')
 k     = Variable('\\kappa', 0.95, '-', 'Technology factor')
-MTOW  = Variable('MTOW', 120000, 'lbf', 'Max takeoff weight')
 rho   = Variable('\\rho', 0.4, 'kg/m^3', 'Air density')
 S     = Variable('S', 'm^2', 'Wing reference area')
 tau   = Variable('\\tau', 0.13, '-', 'Wing thickness-to-chord ratio')
+Tmax  = Variable('T_{max}', 1E6, 'N', 'Maximum thrust')
 TSFC  = Variable('TSFC', 0.307, 'lb/lbf/hr',
                  'Thrust specific fuel consumption')
 W_e   = Variable('W_e', 60000, 'lbf', 'Operating empty weight')
@@ -39,9 +40,6 @@ objective = 1/R  # Maximize range
 
 constraints = [# Aircraft and fuel weight
                W_init >= W_e + W_pay + W_fuel,
-               
-               # Performance constraints
-               W_init <= MTOW,
 
                # Breguet range
                R <= z_bre*CL/CD*V/(TSFC*g),
@@ -50,6 +48,8 @@ constraints = [# Aircraft and fuel weight
 
                # Steady level flight
                W_init == 0.5*rho*V**2*S*CL,
+               T == 0.5*rho*V**2*S*CD,
+               T <= Tmax,
 
                # Drag
                CD >= CD0 + CL**2/(np.pi*e*AR),
