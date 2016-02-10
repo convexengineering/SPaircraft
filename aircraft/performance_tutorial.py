@@ -1,4 +1,4 @@
-""" A simple aircraft performance model to be used as GPkit tutorial"""
+""" A simple aircraft performance model to be used as a GPkit tutorial"""
 from gpkit import Variable, Model
 from gpkit.tools import te_exp_minus1
 import numpy as np
@@ -33,7 +33,7 @@ bmax   = Variable('b_{max}', 36, 'm', 'Gate constraint')
 cosL   = Variable('\\cos(\\Lambda)', np.cos(25*np.pi/180), '-',
                   'Cosine of quarter chord sweep')
 CD0    = Variable('CD0', 0.02, '-', 'Parasitic drag coefficient')
-CDl    = Variable('C_D_{land}', 0.08, '-',
+CDl    = Variable('C_{D_{land}}', 0.08, '-',
                   'Drag coefficient in landing configuration')
 CLmaxt = Variable('C_{L_{max}}', 2.0, '-', 'Max lift coefficient (takeoff)')
 CLmaxl = Variable('C_{L_{max}}', 3.0, '-', 'Max lift coefficient (landing)')
