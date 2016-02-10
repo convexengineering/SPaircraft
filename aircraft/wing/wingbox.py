@@ -18,8 +18,8 @@ class WingBox(Model):
         Mr      = Variable('M_r', 'N', 'Root moment per root chord')
         nu      = Variable('\\nu', '-',
                            'Dummy variable = $(t^2 + t + 1)/(t+1)$')
-        p       = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
-        q       = Variable('q', '-', 'Substituted variable = 1 + taper')
+        p       = Variable('p', '-', 'Substituted variable = 1 + 2*\\lambda')
+        q       = Variable('q', '-', 'Substituted variable = 1 + \\lambda')
         S       = Variable('S', 'm^2', 'Reference area')
         taper   = Variable('\\lambda', '-', 'Taper ratio')
         tau     = Variable('\\tau', '-', 'Thickness to chord ratio')
