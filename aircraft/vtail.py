@@ -140,7 +140,7 @@ class VerticalTail(Model):
             m = Model(objective, constraints)
 
             # Incorporate the structural model
-            tail = m & WingBox(Lmax=Lmax, taper=taper)
+            tail = m & WingBox()
 
             tail.cost = m.cost
 

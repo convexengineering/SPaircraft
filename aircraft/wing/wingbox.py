@@ -6,25 +6,22 @@ class WingBox(Model):
     source: Hoburg, "Geometric Programming for Aircraft Design Optimization"
     """
 
-    def setup(self, Lmax, fwadd=0.4, Nlift=2.0, rh=0.75, rhocap=2700,
-              rhoweb=2700, sigmax=250E6, sigmaxshear=167E6, taper=0.45, w=0.5):
-
-        if type(taper) != Variable:
-            taper = Variable('taper', taper, '-', 'Taper ratio')
-        if type(Lmax) != Variable:
-            Lmax  = Variable('L_{max}', Lmax, 'N', 'Maximum wing load')
+    def setup(self, fwadd=0.4, Nlift=2.0, rh=0.75, rhocap=2700,
+              rhoweb=2700, sigmax=250E6, sigmaxshear=167E6, w=0.5):
 
         # Variables
         A       = Variable('A', '-', 'Aspect ratio')
         b       = Variable('b', 'm', 'Span')
         Icap    = Variable('I_{cap}', '-',
                            'Non-dim spar cap area moment of inertia')
+        Lmax    = Variable('L_{max}', 'N', 'Maximum wing load')
         Mr      = Variable('M_r', 'N', 'Root moment per root chord')
         nu      = Variable('\\nu', '-',
                            'Dummy variable = $(t^2 + t + 1)/(t+1)$')
         p       = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q', '-', 'Substituted variable = 1 + taper')
         S       = Variable('S', 'm^2', 'Reference area')
+        taper   = Variable('\\lambda', '-', 'Taper ratio')
         tau     = Variable('\\tau', '-', 'Thickness to chord ratio')
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
