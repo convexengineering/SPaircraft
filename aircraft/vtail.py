@@ -162,7 +162,7 @@ class VerticalTail(Model):
                                 sol('c_{l_{vt}}'), decimal=5) 
         npt.assert_almost_equal((2./3)*(1 + sol('\\lambda')
                                 + sol('\\lambda')**2)*sol('c_{root}')/sol('q'),
-                                sol('\\bar{c}'))
+                                sol('\\bar{c}'), decimal=5)
 
 #        with open('vtail.tex', 'w') as outfile:
 #            outfile.write(self.latex())
