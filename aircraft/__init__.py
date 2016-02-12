@@ -1,1 +1,1 @@
-# GPkit models for aircraft design
+"""Aircraft-related models"""
