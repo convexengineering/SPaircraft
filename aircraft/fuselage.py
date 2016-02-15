@@ -37,7 +37,6 @@ class Fuselage(Model):
         lamcone   = Variable('\\lambda_{cone}', '-',
                              'Tailcone radius taper ratio (xshell2->xtail)')
         plamv     = Variable('p_{\\lambda_v}', '-', '1 + 2*Tail taper ratio')
-        qlamv     = Variable('q_{\\lambda_v}', '-', '1 + Tail taper ratio')
         Qv        = Variable('Q_v', 'N*m', 'Torsion moment imparted by tail')
         Rfuse     = Variable('R_{fuse}', 'm', 'Fuselage radius')
         rhocabin  = Variable('\\rho_{cabin}', 'kg/m^3', 'Air density in cabin')
@@ -246,8 +245,7 @@ class Fuselage(Model):
 #                           xWfloor >= 0.5*(xshell1 + xshell2)*Wfloor,
 
                             # Tail cone
-                            Qv == Lvmax*bv*plamv/(3*qlamv),
-                            2*qlamv <= 1 + plamv, # [SP]
+                            Qv*(1 + plamv/2) >= Lvmax*bv*plamv/3,
                             plamv >= 1.6,
                             taucone == sigskin,
                             Qv == 2*Afuse*taucone*tcone, # matches TASOPT code
@@ -298,8 +296,6 @@ class Fuselage(Model):
     def test(self):
         sol = self.localsolve()
 
-        npt.assert_almost_equal(2*sol('q_{\\lambda_v}'),
-                                1 + sol('p_{\\lambda_v}'), decimal=5)
         npt.assert_almost_equal(sol('A_{hold}'), (2./3)*sol('w_{floor}')
                                 *sol('h_{hold}') + sol('h_{hold}')**3
                                 /(2*sol('w_{floor}')), decimal=4)
