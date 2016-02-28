@@ -2,7 +2,7 @@ from gpkit import Variable, Model
 
 class Sutherland(Model):
     """
-    Kinematic viscosity (mu) as a function of temperature
+    Dynamic viscosity (mu) as a function of temperature
 
     References:
     http://www-mdp.eng.cam.ac.uk/web/library/enginfo/aerothermal_dvd_only/aero/
@@ -11,7 +11,7 @@ class Sutherland(Model):
     """
     def setup(self):
         # Free variables
-        mu = Variable("mu", "kg/(m*s)", "Kinematic viscosity")
+        mu = Variable("mu", "kg/(m*s)", "Dynamic viscosity")
         T  = Variable("T", "K", "Temperature")
 
         # Constants
