@@ -1,0 +1,55 @@
+\documentclass[10pt, a4paper]{article}
+\usepackage{latexsym}
+\usepackage{amssymb,amsmath}
+\usepackage[pdftex]{graphicx}
+\newcommand{\dbar}[1]{\Bar{\Bar{#1}}}
+
+\topmargin = 0.1in \textwidth=5.7in \textheight=8.6in
+
+\oddsidemargin = 0.1in \evensidemargin = 0.1in
+
+% headers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\chead{} 
+\rhead{\thepage} 
+% footer
+\lfoot{\small\scshape } 
+\cfoot{} 
+%%%% insert your name here %%%%
+\rfoot{\footnotesize Michael Burton} 
+\renewcommand{\headrulewidth}{.3pt} 
+\renewcommand{\footrulewidth}{.3pt}
+\setlength\voffset{-0.25in}
+\setlength\textheight{648pt}
+
+\begin{document}
+
+\title{NPV to Gpkit}
+\author{Michael Burton}
+\maketitle
+
+\section*{Variables}
+
+\begin{tabbing}
+  XXXXXXXX \= \kill% this line sets tab stop
+\text{FV} : [\$] \text{  Value of an investment at some future date} \\
+\text{r}: [1/\text{time}] \text{ Rate}  
+\end{tabbing}
+
+\section*{Problem 1}
+
+We know that Present Value is expressed by: 
+
+\[\text{PV} = \text{C} e^{-rt} \]
+
+
+And that future value is expressed by: 
+
+\[\text{FV} = \text{PV} e^{rt} \]
+
+
+
+
+
+\end{document}
