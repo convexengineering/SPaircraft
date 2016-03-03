@@ -34,19 +34,36 @@
 \begin{tabbing}
   XXXXXXXX \= \kill% this line sets tab stop
 \text{FV} : [\$] \text{  Value of an investment at some future date} \\
-\text{r}: [1/\text{time}] \text{ Rate}  
+\text{r}: [1/\text{time}] \text{ Rate}  \\
+\text{C}: [\$] \text{ Cash flow, money used to make investment} \\
+\text{PV}: [\$] \text{ Value of an investment at the present time} \\
+\text{t}: [\text{time}] \text{ Time}
 \end{tabbing}
 
 \section*{Problem 1}
 
-We know that Present Value is expressed by: 
+Let's assume that we want the Net Present Value (NPV) to be \$10 Million.  NPV can be expressed by:
 
-\[\text{PV} = \text{C} e^{-rt} \]
+\[ \text{NPV} = \displaystyle\sum\limits_{i=0}^N \text{PV}_i \] .
+
+Let's assume that the time periods of the payments are not equal but that the PV$_{i}$ are equal and that there are 3 payments.  PV can be expressed by
+
+\[\text{PV} = \text{C} e^{-rt} \].
+
+With these assumptions we can get rid of the $i$ subscript and claim that
+
+\[\text{NPV} = 3\text{PV} \]
+
+Now the problem becomes solving for the length of each time period such that each PV is equal.  Let's assume that the same payment, C, is made at each payment period and that C is given.  This allows us to write 
+
+\[ \text{C}  = \text{PV}e^{r \Delta t_i} \]
+
+Let's assume that $t_0$ is the time of evaulation of the NPV and that $t_i$ is when every payment is made and every PV evaluated. 
 
 
-And that future value is expressed by: 
 
-\[\text{FV} = \text{PV} e^{rt} \]
+
+
 
 
 
