@@ -40,7 +40,7 @@
 \text{t}: [\text{time}] \text{ Time}
 \end{tabbing}
 
-\section*{Problem 1}
+\section*{Problem Set Up}
 
 Let's assume that we want the Net Present Value (NPV) to be \$10 Million.  NPV can be expressed by:
 
@@ -58,7 +58,45 @@ Now the problem becomes solving for the length of each time period such that eac
 
 \[ \text{C}  = \text{PV}e^{r \Delta t_i} \]
 
-Let's assume that $t_0$ is the time of evaulation of the NPV and that $t_i$ is when every payment is made and every PV evaluated. 
+Let's assume that $t_0$ is the time of evaulation of the NPV and that $t_i$ is when every payment is made and every PV evaluated. This means that
+
+\[ \begin{bmatrix} \Delta t_1 = t_1 - t_0 \\
+\Delta t_2 = t_2 - t_1 \\
+\Delta t_3 = t_3 - t_2 
+\end{bmatrix} \]
+
+\section*{GP Set Up}
+
+This is now set up for a GP optimization problem. 
+
+\begin{enumerate}
+
+\item Variables
+\[ \begin{array}{ll}
+ & NPV \gets 10e6 [\$] \\
+ & C \gets 4e6 [\$] \\
+ & r \gets 0.1 [1/\text{year}] \\
+ & PV: \text{ Free Variable} [\$] \\
+ & t_{1,2,3}: \text{ Free Variable} [\text{years}] \\
+ & \Delta t_{1,2,3}: \text{ Free Variable} [\text{years}] 
+ \end{array} \]
+ 
+ \item Objective 
+ 
+ \[ \text{minimize}: t_3 \]
+ 
+ \item Constraints
+ \[ \begin{array}{ll}
+ & NPV \leq 3PV \\
+ & C \geq PV\left(1 + rt_i + \frac{rt_i^2}{2!} + \frac{rt_i^3}{3!} \right) \\
+ & t_1 \geq \Delta t_1 \\
+ & t_2 \geq \Delta t_2 + t_1 \\
+ & t_3 \geq \Delta t_3 + t_3 \\
+ \end{array} \]
+
+
+
+\end{enumerate}
 
 
 
