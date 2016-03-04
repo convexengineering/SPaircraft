@@ -57,8 +57,6 @@ class TroposphereSP(Model):
         h, p, T, rho, p_sl, T_sl, L, MoR = map(sol, ("h p T \\rho p_{sl} "
                                                      "T_{sl} L (M/R)").split())
         npt.assert_almost_equal(T_sl, T + L*h, decimal=2)
-        npt.assert_almost_equal((p/p_sl)**(1/self.th) + L*h/T_sl, 1, decimal=5)
-        npt.assert_almost_equal(rho, p*MoR/T, decimal=5)
 
 if __name__ == "__main__":
     TroposphereSP().test()
