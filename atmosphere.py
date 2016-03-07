@@ -1,4 +1,5 @@
 from gpkit import Variable, Model, units, SignomialsEnabled
+import gpkit.tools as gpt
 import numpy as np
 import numpy.testing as npt
 
@@ -110,7 +111,7 @@ class Tropopause(Model):
         C_1  = Variable('C_1', 1.458E-6, "kg/(m*s*K^0.5)",
                         "Sutherland coefficient")
         g    = Variable('g', g, 'm/s^2', 'Graivational acceleration')
-        p_1  = Variable('p_1', 22630, 'Pa', 'Pressure at 11 km')
+        p11  = Variable('p_{11}', 22630, 'Pa', 'Pressure at 11 km')
         R    = Variable('R', R, 'J/(kg*K)', 'Specific gas constant (air)')
         T    = Variable('T', T, 'K', 'Temperature')
         T_S  = Variable("T_S", 110.4, "K", "Sutherland Temperature")
@@ -124,9 +125,7 @@ class Tropopause(Model):
                          T == 216.5*units.K,
 
                          # Pressure-altitude relation, using taylor series exp
-                         np.exp(k*11000)*p_1/p >= 1 +
-                         (g/(R*T)*h) + ((g/(R*T)*h)**2)/2 + ((g/(R*T)*h)**3)/6
-                         + ((g/(R*T)*h)**4)/24 + ((g/(R*T)*h)**5)/120,
+                         np.exp(k*11000)*p11/p >= 1 + gpt.te_exp_minus1(g/(R*T)*h, 5),
 
                          # Ideal gas law
                          rho == p/(R*T),
