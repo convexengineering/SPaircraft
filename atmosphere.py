@@ -1,13 +1,14 @@
 from gpkit import Variable, Model, units, SignomialsEnabled
+import numpy as np
 import numpy.testing as npt
 
-class Atmosphere(Model):
+class Troposphere(Model):
     """
     Density and dynamic viscosity as a function of altitude based on
-    standard atmosphere model
+    standard atmosphere model for the Troposphere
 
     Required pressures: downward pressure on rho
-    Assumptions: only valid to the top of the troposphere (~11km)
+    Assumptions: only valid to the top of the Troposphere (~11km)
 
     Sources:
     https://en.wikipedia.org/wiki/Density_of_air#Altitude
@@ -41,8 +42,8 @@ class Atmosphere(Model):
         C_1  = Variable("C_1", 1.458E-6, "kg/(m*s*K^0.5)",
                         "Sutherland coefficient")
         L    = Variable('L', L, 'K/m', 'Temperature lapse rate')
-        R    = Variable('R', R, 'J/(kg*K)', 'Specific gas constant (air)')
         p_0  = Variable('p_0', 101325, 'Pa', 'Pressure at sea level')
+        R    = Variable('R', R, 'J/(kg*K)', 'Specific gas constant (air)')
         T_0  = Variable('T_0', 288.15, 'K', 'Temperature at sea level')
         T_S  = Variable("T_S", 110.4, "K", "Sutherland Temperature")
 
@@ -73,5 +74,66 @@ class Atmosphere(Model):
                                                    "T_0 L R").split())
         npt.assert_almost_equal(T_0, T + L*h, decimal=2)
 
-if __name__ == "__main__":
-    Atmosphere().test()
+class Tropopause(Model):
+    """
+    Density and dynamic viscosity as a function of altitude based on
+    standard atmosphere model for the Tropopause
+
+    Assumptions: Only valid in the Tropopause (11 km - 20 km)
+
+    Sources:
+    http://www.digitaldutch.com/atmoscalc/index.htm
+    http://www.engineeringtoolbox.com/standard-atmosphere-d_604.html
+    http://www-mdp.eng.cam.ac.uk/web/library/enginfo/aerothermal_dvd_only/aero/
+           atmos/atmos.html
+    http://www.cfd-online.com/Wiki/Sutherland's_law
+
+    Arguments
+    ---------
+    g : float [m/s^2]
+        Acceleration due to gravity
+    R : float  [J/(kg*K)]
+        Specific gas constant (air)
+    T : float [K]
+        Temperature in the tropopause
+    """
+    def setup(self, g=9.81, T=216.5, R=287):
+        k = g/(R*T)
+
+        # Free variables
+        h   = Variable('h', 'm', 'Altitude')
+        mu  = Variable("mu", "kg/(m*s)", "Dynamic viscosity")
+        p   = Variable('p', 'Pa', 'Pressure')
+        rho = Variable('\\rho', 'kg/m^3', 'Density')
+
+        # Constants
+        C_1  = Variable('C_1', 1.458E-6, "kg/(m*s*K^0.5)",
+                        "Sutherland coefficient")
+        g    = Variable('g', g, 'm/s^2', 'Graivational acceleration')
+        p_1  = Variable('p_1', 22630, 'Pa', 'Pressure at 11 km')
+        R    = Variable('R', R, 'J/(kg*K)', 'Specific gas constant (air)')
+        T    = Variable('T', T, 'K', 'Temperature')
+        T_S  = Variable("T_S", 110.4, "K", "Sutherland Temperature")
+
+        objective = 1/rho  # minimize density
+        constraints = [  # Model only valid up to top of the troposphere
+                         h >= 11*units.km,
+                         h <= 20*units.km,
+
+                         # Temperature is constant
+                         T == 216.5*units.K,
+
+                         # Pressure-altitude relation, using taylor series exp
+                         np.exp(k*11000)*p_1/p >= 1 +
+                         (g/(R*T)*h) + ((g/(R*T)*h)**2)/2 + ((g/(R*T)*h)**3)/6
+                         + ((g/(R*T)*h)**4)/24 + ((g/(R*T)*h)**5)/120,
+
+                         # Ideal gas law
+                         rho == p/(R*T),
+
+                         # Sutherland viscosity model
+                         ((T+T_S).mono_approximation({T:288.15,
+                                                      T_S:T_S.value.magnitude}))
+                         * mu == C_1 * T**1.5
+                      ]
+        return objective, constraints
