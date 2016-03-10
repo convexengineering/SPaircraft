@@ -49,7 +49,7 @@ class Troposphere(Model):
         T_S  = Variable("T_S", 110.4, "K", "Sutherland Temperature")
 
         with SignomialsEnabled():
-            objective = 1/rho  # minimize density
+            objective = rho  # minimize density
             constraints = [  # Model only valid up to top of the troposphere
                              h <= 11000*units.m,
 
@@ -98,7 +98,7 @@ class Tropopause(Model):
     T : float [K]
         Temperature in the tropopause
     """
-    def setup(self, g=9.81, T=216.5, R=287):
+    def setup(self, g=9.81, T=216.65, R=287):
         k = g/(R*T)
 
         # Free variables
@@ -116,16 +116,16 @@ class Tropopause(Model):
         T    = Variable('T', T, 'K', 'Temperature')
         T_S  = Variable("T_S", 110.4, "K", "Sutherland Temperature")
 
-        objective = 1/rho  # minimize density
+        objective = rho  # minimize density
         constraints = [  # Model only valid up to top of the troposphere
                          h >= 11*units.km,
                          h <= 20*units.km,
 
                          # Temperature is constant
-                         T == 216.5*units.K,
+                         T == 216.65*units.K,
 
                          # Pressure-altitude relation, using taylor series exp
-                         np.exp(k*11000)*p11/p >= 1 + gpt.te_exp_minus1(g/(R*T)*h, 5),
+                         np.exp(k*11000)*p11/p >= 1 + gpt.te_exp_minus1(g/(R*T)*h, 15),
 
                          # Ideal gas law
                          rho == p/(R*T),
