@@ -73,3 +73,8 @@ test_reports_nounits/
 
 # OSX
 .DS_Store
+
+# Latex
+*.aux
+*.log
+*.synctex.gz
