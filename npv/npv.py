@@ -1,22 +1,23 @@
 ### NPV MODEL ###
 
 from gpkit import Model, Variable, units, VectorVariable
+from gpkit.tools import te_exp_minus1
 import gpkit
 import numpy as np
 
 class NPV(Model):
     def setup(self):
 
-        N = 3 # number of payments
+        N = 20 # number of payments
         NPV = Variable('NPV', 'USD', 'net present value')
         PV = Variable('PV', 'USD', 'present value')
         C = VectorVariable(N, 'C', 'USD', 'cash flow')
-        C_r = Variable('C_r', 4e6, 'USD', 'cash flow rate')
-        r = Variable('r', 0.02, '-', 'interest rate')
-        t = VectorVariable(N, 't', '-', 'time')
+        C_r = Variable('C_r', 4e6, 'USD/years', 'cash flow rate')
+        r = Variable('r', np.linspace(0.01,0.1,10), '1/years', 'interest rate')
+        t = VectorVariable(N, 't', 'years', 'time')
        
         constraints = [3*PV >= NPV, 
-                       C >= PV*(1 + r*t + r*t**2/2 ),
+                       C >= PV*(te_exp_minus1(r*t,4) + 1),
                        t >= t.left + C/C_r]
 
         cost = 1/NPV
