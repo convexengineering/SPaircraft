@@ -36,6 +36,7 @@
 \text{NPV} : [\$] \text{ Net present value} \\
 r: [1/\text{time}] \text{ Interest Rate}  \\
 \text{C}: [\$] \text{ Cash flow, money used to make investment} \\
+\text{C}$_r$: [\$/\text{time}] \text{ Cash flow rate} \\
 \text{PV}: [\$] \text{ Value of an investment at the present time} \\
 t : [\text{time}] \text{ Time}
 \end{tabbing}
@@ -52,11 +53,11 @@ Let's assume that the time periods of the payments are not equal but that the PV
 
 With these assumptions we can get rid of the $i$ subscript and claim that
 
-\[\text{NPV} = 3\text{PV} \]
+\[\text{NPV} \leq 3\text{PV} \]
 
 Now the problem becomes solving for the length of each time period such that each PV is equal.  Let's assume that the same payment, C, is made at each payment period and that C is given.  This allows us to write 
 
-\[ \text{C}  = \text{PV}e^{r \Delta t_i} \]
+\[ \text{C} \leq \text{PV}e^{r t_i} \]
 
 Let's assume that $t_0$ is the time of evaulation of the NPV and that $t_i$ is when every payment is made and every PV evaluated. This means that
 
@@ -64,6 +65,10 @@ Let's assume that $t_0$ is the time of evaulation of the NPV and that $t_i$ is w
 \Delta t_2 = t_2 - t_1 \\
 \Delta t_3 = t_3 - t_2 
 \end{bmatrix} \]
+
+If there is a cash flow rate, C$_r$ then, 
+
+\[ \text{C} \leq \text{C}_r \Delta t \] 
 
 \section*{GP Set Up}
 
@@ -73,9 +78,10 @@ This is now set up for a GP optimization problem.
 
 \item Variables
 \[ \begin{array}{ll}
- & NPV \gets 10e6 [\$] \\
- & C \gets 4e6 [\$] \\
+ & \text{C}_r \gets 4e6 [\$] \\
  & r \gets 0.1 [1/\text{year}] \\
+ & C : \text{ Free Variable} [\$] \\
+ & NPV : \text{ Free Variable} [\$] \\
  & PV: \text{ Free Variable} [\$] \\
  & t_{1,2,3}: \text{ Free Variable} [\text{years}] \\
  & \Delta t_{1,2,3}: \text{ Free Variable} [\text{years}] 
@@ -83,15 +89,13 @@ This is now set up for a GP optimization problem.
  
  \item Objective 
  
- \[ \text{minimize}: t_3 \]
+ \[ \text{maximize}: \text{NPV} \]
  
  \item Constraints
  \[ \begin{array}{ll}
  & NPV \leq 3PV \\
  & C \geq PV\left(1 + rt_i + \frac{rt_i^2}{2!} + \frac{rt_i^3}{3!} \right) \\
- & t_1 \geq \Delta t_1 \\
- & t_2 \geq \Delta t_2 + t_1 \\
- & t_3 \geq \Delta t_3 + t_3 \\
+ & t_i \geq t_{i-1} + \frac{\text{C}}{\text{C}_r}  
  \end{array} \]
 
 
