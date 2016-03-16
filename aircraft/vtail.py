@@ -31,7 +31,6 @@ class VerticalTail(Model):
         p      = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
         q      = Variable('q', '-', 'Substituted variable = 1 + taper')
         Rec    = Variable('Re_c', '-', 'Vertical tail reynolds number, cruise')
-        Remin  = Variable('Re_{min}', '-', 'Minimum Reynolds number')
         S      = Variable('S', 'm^2', 'Vertical tail reference area (full span)')
         Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail ref. area (half span)')
         taper  = Variable('\\lambda', '-', 'Vertical tail taper ratio')
@@ -61,7 +60,6 @@ class VerticalTail(Model):
         Lfuse = Variable('L_{fuse}', 39, 'm', 'Length of fuselage') # [4]
         mu    = Variable('\\mu', 1.4e-5, 'N*s/m^2', 'Dynamic viscosity (35,000ft)') # [5]
         mu0   = Variable('\\mu_0', 1.8e-5, 'N*s/m^2', 'Dynamic viscosity (SL)') # [5]
-        Recrit= Variable('Re_{crit}', 8.458e+06, '-', 'Critical Reynolds number')
         rho_c = Variable('\\rho_c', 0.38, 'kg/m^3', 'Air density (35,000ft)') # [6]
         rho0  = Variable('\\rho_{TO}', 1.225, 'kg/m^3', 'Air density (SL))')
         tanL  = Variable('\\tan(\\Lambda_{LE})', np.tan(40*np.pi/180), '-',
@@ -113,8 +111,6 @@ class VerticalTail(Model):
                            # Define vertical tail geometry
 
                            taper >= 0.27,
-                           Remin == rho0*V1*ctip/mu0,
-                           Remin >= Recrit,
                            # TODO: Constrain taper by tip Reynolds number
                            # source: b737.org.uk
 
