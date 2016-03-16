@@ -160,15 +160,6 @@ class VerticalTail(Model):
                                 + mag(sol('\\lambda'))**2)*mag(sol('c_{root}'))/mag(sol('q')),
                                 mag(sol('\\bar{c}')))
 
-#        with open('vtail.tex', 'w') as outfile:
-#            outfile.write(self.latex())
-
-#        with open('soltable.tex', 'w') as outfile:
-#            outfile.write(sol.table(latex=3))
-#
-#        with open('vartable.tex', 'w') as outfile:
-#            outfile.write(sol.table(latex=2))
-
 if __name__ == "__main__":
     vt = VerticalTail()
     vt.test()
