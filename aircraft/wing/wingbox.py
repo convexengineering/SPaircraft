@@ -6,22 +6,18 @@ class WingBox(Model):
     source: Hoburg, "Geometric Programming for Aircraft Design Optimization"
     """
 
-    def setup(self, fwadd=0.4, Nlift=2.0, rh=0.75, rhocap=2700,
-              rhoweb=2700, sigmax=250E6, sigmaxshear=167E6, w=0.5):
-
+    def __init__(self, **kwargs):
         # Variables
         A       = Variable('A', '-', 'Aspect ratio')
         b       = Variable('b', 'm', 'Span')
         Icap    = Variable('I_{cap}', '-',
                            'Non-dim spar cap area moment of inertia')
-        Lmax    = Variable('L_{max}', 'N', 'Maximum wing load')
         Mr      = Variable('M_r', 'N', 'Root moment per root chord')
         nu      = Variable('\\nu', '-',
                            'Dummy variable = $(t^2 + t + 1)/(t+1)$')
-        p       = Variable('p', '-', 'Substituted variable = 1 + 2*\\lambda')
-        q       = Variable('q', '-', 'Substituted variable = 1 + \\lambda')
+        p       = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
+        q       = Variable('q', '-', 'Substituted variable = 1 + taper')
         S       = Variable('S', 'm^2', 'Reference area')
-        taper   = Variable('\\lambda', '-', 'Taper ratio')
         tau     = Variable('\\tau', '-', 'Thickness to chord ratio')
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
@@ -30,21 +26,23 @@ class WingBox(Model):
         Wstruct = Variable('W_{struct}', 'N', 'Structural weight')
 
         # Constants
-        fwadd  = Variable('f_{w,add}', fwadd, '-',
+        taper = Variable('taper', 0.45, '-', 'Taper ratio')
+        Lmax  = Variable('L_{max}', 'N', 'Maximum wing load')
+        fwadd  = Variable('f_{w,add}', 0.4, '-',
                           'Wing added weight fraction') # TASOPT code (737.tas)
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
-        Nlift  = Variable('N_{lift}', Nlift, '-', 'Wing loading multiplier')
-        rh     = Variable('r_h', rh, '-',
+        Nlift  = Variable('N_{lift}', 2.0, '-', 'Wing loading multiplier')
+        rh     = Variable('r_h', 0.75, '-',
                           'Fractional wing thickness at spar web')
-        rhocap = Variable('\\rho_{cap}', rhocap, 'kg/m^3',
+        rhocap = Variable('\\rho_{cap}', 2700, 'kg/m^3',
                           'Density of spar cap material')
-        rhoweb = Variable('\\rho_{web}', rhoweb, 'kg/m^3',
+        rhoweb = Variable('\\rho_{web}', 2700, 'kg/m^3',
                           'Density of shear web material')
-        sigmax = Variable('\\sigma_{max}', sigmax, 'Pa',
+        sigmax = Variable('\\sigma_{max}', 250e6, 'Pa',
                           'Allowable tensile stress')
-        sigmaxshear = Variable('\\sigma_{max,shear}', sigmaxshear, 'Pa',
+        sigmaxshear = Variable('\\sigma_{max,shear}', 167e6, 'Pa',
                                'Allowable shear stress')
-        w      = Variable('w', w, '-', 'Wingbox-width-to-chord ratio')
+        w      = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
 
         objective = Wstruct
 
@@ -86,4 +84,5 @@ class WingBox(Model):
                        # Total wing weight using an additional weight fraction
                        Wstruct >= (1 + fwadd)*(Wweb + Wcap),
                        ]
-        return objective, constraints
+        
+        Model.__init__(self, objective, constraints, **kwargs)
