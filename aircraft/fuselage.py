@@ -301,8 +301,8 @@ class Fuselage(Model):
         npt.assert_almost_equal(mag(sol('A_{hold}')), (2./3)*mag(sol('w_{floor}'))
                                 *mag(sol('h_{hold}')) + mag(sol('h_{hold}'))**3
                                 /(2*mag(sol('w_{floor}'))), decimal=4)
-#       npt.assert_almost_equal(mag(sol('\\Delta h')) + mag(sol('h_{hold}'))
-#                               + mag(sol('h_{floor}')), mag(sol('R_{fuse}')))
+        npt.assert_almost_equal(mag(sol('\\Delta h')) + mag(sol('h_{hold}'))
+                                + mag(sol('h_{floor}')), mag(sol('R_{fuse}')))
 #       npt.assert_almost_equal(mag(sol('A_{fuse}')),  np.pi*mag(sol('R_{fuse}'))**2
 #                               + 2*mag(sol('R_{fuse}'))*mag(sol('\\Delta R_{fuse}')))
 #       npt.assert_almost_equal(mag(sol('A_{fuse}')), np.pi*mag(sol('R_{fuse}'))**2
@@ -317,15 +317,6 @@ class Fuselage(Model):
         npt.assert_almost_equal(mag(sol('V_{cone}'))*mag(sol('R_{fuse}'))
                                 *(1 + mag(sol('\\lambda_{cone}'))), 2*mag(sol('Q_v'))
                                 /mag(sol('\\tau_{cone}')) * mag(sol('l_{cone}')))
-
-#        with open('fuselage.tex', 'w') as outfile:
-#            outfile.write(self.latex())
-
-#        with open('vartable.tex', 'w') as outfile:
-#            outfile.write(sol.table(latex=2))
-
-#        with open('soltable.tex', 'w') as outfile:
-#            outfile.write(sol.table(latex=3))
 
 if __name__ == "__main__":
     fu = Fuselage()
