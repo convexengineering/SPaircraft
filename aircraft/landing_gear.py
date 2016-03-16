@@ -261,13 +261,6 @@ class LandingGear(Model):
                                 mag(sol('l_m')) + (mag(sol('y_{eng}'))-mag(sol('y_m'))) * 
                                 mag(sol('\\tan(\\gamma)')), decimal=4)
 
-#        with open('landing_gear.tex', 'w') as outfile:
-#            outfile.write(self.latex())
-#        with open('soltable.tex', 'w') as outfile:
-#            outfile.write(sol.table(latex=3))
-#        with open('vartable.tex', 'w') as outfile:
-#            outfile.write(sol.table(latex=2))
-
 if __name__ == "__main__": 
     lg = LandingGear()
     lg.test()
