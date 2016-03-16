@@ -6,23 +6,23 @@ import gpkit
 import numpy as np
 
 class NPV(Model):
-    def setup(self):
+    def __init__(self):
 
-        N = 20 # number of payments
+        N = 3 # number of payments
         NPV = Variable('NPV', 'USD', 'net present value')
         PV = Variable('PV', 'USD', 'present value')
         C = VectorVariable(N, 'C', 'USD', 'cash flow')
         C_r = Variable('C_r', 4e6, 'USD/years', 'cash flow rate')
-        r = Variable('r', np.linspace(0.01,0.1,10), '1/years', 'interest rate')
+        r = Variable('r', 0.1, '1/years', 'interest rate')
         t = VectorVariable(N, 't', 'years', 'time')
        
-        constraints = [3*PV >= NPV, 
+        constraints = [N*PV >= NPV, 
                        C >= PV*(te_exp_minus1(r*t,4) + 1),
                        t >= t.left + C/C_r]
 
         cost = 1/NPV
 
-        return cost, constraints
+        Model.__init__(self, cost, constraints)
 
     def test(self):
         seft.solve()
