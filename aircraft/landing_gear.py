@@ -2,6 +2,7 @@
 from gpkit import Variable, Model, SignomialsEnabled, units
 import numpy as np
 import numpy.testing as npt
+from gpkit.small_scripts import mag
 
 class LandingGear(Model):
     """
@@ -17,7 +18,7 @@ class LandingGear(Model):
     https://en.wikipedia.org/wiki/Buckling
     http://arc.aiaa.org/doi/pdf/10.2514/3.7771
     """
-    def setup(self):
+    def __init__(self):
         # Variables
         B       = Variable('B', 'm', 'Landing gear base')
         d_oleo  = Variable('d_{oleo}', 'm', 'Diameter of oleo shock absorber')
@@ -244,20 +245,21 @@ class LandingGear(Model):
                            W_ng >= W_ns + W_nw + Waddn,
                            W_lg >= W_mg + W_ng,
                           ]
-        return objective, constraints
+
+        Model.__init__(self, objective, constraints)
 
     def test(self):
         sol = self.localsolve()
-        npt.assert_almost_equal(sol('x_n') + sol('B'), sol('x_m'), decimal=5)
-        npt.assert_almost_equal(sol('\Delta x_n') + sol('x_n'), sol('x_{CG}'),
+        npt.assert_almost_equal(mag(sol('x_n')) + mag(sol('B')), mag(sol('x_m')), decimal=5)
+        npt.assert_almost_equal(mag(sol('\Delta x_n')) + mag(sol('x_n')), mag(sol('x_{CG}')),
                                 decimal=1)
-        npt.assert_almost_equal(sol('\Delta x_m') + sol('x_{CG}') , sol('x_m'),
+        npt.assert_almost_equal(mag(sol('\Delta x_m')) + mag(sol('x_{CG}')) , mag(sol('x_m')),
                                 decimal=4)
-        npt.assert_almost_equal(sol('l_n') + sol('z_{wing}') + sol('y_m') *
-                                sol('\\tan(\\gamma)'), sol('l_m'), decimal=4)
-        npt.assert_almost_equal(sol('d_{nacelle}') + sol('h_{nacelle}'),
-                                sol('l_m') + (sol('y_{eng}')-sol('y_m')) * 
-                                sol('\\tan(\\gamma)'), decimal=4)
+        npt.assert_almost_equal(mag(sol('l_n')) + mag(sol('z_{wing}')) + mag(sol('y_m')) *
+                                mag(sol('\\tan(\\gamma)')), mag(sol('l_m')), decimal=4)
+        npt.assert_almost_equal(mag(sol('d_{nacelle}')) + mag(sol('h_{nacelle}')),
+                                mag(sol('l_m')) + (mag(sol('y_{eng}'))-mag(sol('y_m'))) * 
+                                mag(sol('\\tan(\\gamma)')), decimal=4)
 
 #        with open('landing_gear.tex', 'w') as outfile:
 #            outfile.write(self.latex())
@@ -267,4 +269,5 @@ class LandingGear(Model):
 #            outfile.write(sol.table(latex=2))
 
 if __name__ == "__main__": 
-    LandingGear().test()
+    lg = LandingGear()
+    lg.test()
