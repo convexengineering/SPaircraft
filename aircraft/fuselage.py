@@ -1,12 +1,13 @@
 from gpkit import Variable, Model, SignomialsEnabled, units
 import numpy as np
 import numpy.testing as npt
+from gpkit.small_scripts import mag
 
 class Fuselage(Model):
     """
     Fuselage model
     """
-    def setup(self):
+    def __init__(self):
 
         # Variables
         Afloor    = Variable('A_{floor}', 'm^2', 'Floor beam x-sectional area')
@@ -245,7 +246,7 @@ class Fuselage(Model):
 #                           xWfloor >= 0.5*(xshell1 + xshell2)*Wfloor,
 
                             # Tail cone
-                            Qv*(1 + plamv/2) >= Lvmax*bv*plamv/3,
+                            Qv*(1 + plamv)/2 >= Lvmax*bv*plamv/3,
                             plamv >= 1.6,
                             taucone == sigskin,
                             Qv == 2*Afuse*taucone*tcone, # matches TASOPT code
@@ -291,30 +292,31 @@ class Fuselage(Model):
                             Dupswp >= 3.83*phi**2.5*Afuse * 0.5*rhoinf*Vinf**2, 
                             D >= Dfrict + Dupswp
                           ]
-            return objective, constraints
+
+            Model.__init__(self, objective, constraints)
 
     def test(self):
         sol = self.localsolve()
 
-        npt.assert_almost_equal(sol('A_{hold}'), (2./3)*sol('w_{floor}')
-                                *sol('h_{hold}') + sol('h_{hold}')**3
-                                /(2*sol('w_{floor}')), decimal=4)
-#       npt.assert_almost_equal(sol('\\Delta h') + sol('h_{hold}')
-#                               + sol('h_{floor}'), sol('R_{fuse}'))
-#       npt.assert_almost_equal(sol('A_{fuse}'),  np.pi*sol('R_{fuse}')**2
-#                               + 2*sol('R_{fuse}')*sol('\\Delta R_{fuse}'))
-#       npt.assert_almost_equal(sol('A_{fuse}'), np.pi*sol('R_{fuse}')**2
-#                               + (2./3)*sol('w_{floor}')*sol('\Delta R_{fuse}')
-#                               + (3./2)*sol('h_{hold}')**2
-#                               *sol('\Delta R_{fuse}')/sol('w_{floor}')
-#                               - (3./2)*sol('h_{hold}')*sol('\Delta R_{fuse}')
-#                               **2/sol('w_{floor}'))
-        npt.assert_almost_equal(sol('W_{buoy}'), (sol('\\rho_{cabin}')
-                                - sol('\\rho_{\\infty}'))*sol('g')
-                                * sol('V_{cabin}'), decimal=1)
-        npt.assert_almost_equal(sol('V_{cone}')*sol('R_{fuse}')
-                                *(1 + sol('\\lambda_{cone}')), 2*sol('Q_v')
-                                /sol('\\tau_{cone}') * sol('l_{cone}'))
+        npt.assert_almost_equal(mag(sol('A_{hold}')), (2./3)*mag(sol('w_{floor}'))
+                                *mag(sol('h_{hold}')) + mag(sol('h_{hold}'))**3
+                                /(2*mag(sol('w_{floor}'))), decimal=4)
+#       npt.assert_almost_equal(mag(sol('\\Delta h')) + mag(sol('h_{hold}'))
+#                               + mag(sol('h_{floor}')), mag(sol('R_{fuse}')))
+#       npt.assert_almost_equal(mag(sol('A_{fuse}')),  np.pi*mag(sol('R_{fuse}'))**2
+#                               + 2*mag(sol('R_{fuse}'))*mag(sol('\\Delta R_{fuse}')))
+#       npt.assert_almost_equal(mag(sol('A_{fuse}')), np.pi*mag(sol('R_{fuse}'))**2
+#                               + (2./3)*mag(sol('w_{floor}'))*mag(sol('\Delta R_{fuse}'))
+#                               + (3./2)*mag(sol('h_{hold}'))**2
+#                               *mag(sol('\Delta R_{fuse}'))/mag(sol('w_{floor}'))
+#                               - (3./2)*mag(sol('h_{hold}'))*mag(sol('\Delta R_{fuse}'))
+#                               **2/mag(sol('w_{floor}')))
+        npt.assert_almost_equal(mag(sol('W_{buoy}')), (mag(sol('\\rho_{cabin}'))
+                                - mag(sol('\\rho_{\\infty}')))*mag(sol('g'))
+                                * mag(sol('V_{cabin}')), decimal=1)
+        npt.assert_almost_equal(mag(sol('V_{cone}'))*mag(sol('R_{fuse}'))
+                                *(1 + mag(sol('\\lambda_{cone}'))), 2*mag(sol('Q_v'))
+                                /mag(sol('\\tau_{cone}')) * mag(sol('l_{cone}')))
 
 #        with open('fuselage.tex', 'w') as outfile:
 #            outfile.write(self.latex())
@@ -326,4 +328,5 @@ class Fuselage(Model):
 #            outfile.write(sol.table(latex=3))
 
 if __name__ == "__main__":
-    Fuselage().test()
+    fu = Fuselage()
+    fu.test()
