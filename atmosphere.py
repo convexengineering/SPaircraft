@@ -28,7 +28,7 @@ class Troposphere(Model):
     R : float  [J/(kg*K)]
         Specific gas constant (air)
     """
-    def setup(self, g=9.81, L=0.0065, R=287):
+    def __init__(self, g=9.81, L=0.0065, R=287, **kwargs):
         th = g/(R*L)  # dimensionless
         self.g, self.L, self.R, self.th = g, L, R, th
 
@@ -67,13 +67,13 @@ class Troposphere(Model):
                                                           T_S:T_S.value.magnitude}))
                              * mu == C_1 * T**1.5
                           ]
-        return objective, constraints
+        Model.__init__(self, objective, constraints, **kwargs)
 
     def test(self):
         sol = self.localsolve()
         h, p, T, rho, p_0, T_0, L, R = map(sol, ("h p T \\rho p_0 "
                                                    "T_0 L R").split())
-        npt.assert_almost_equal(T_0, T + L*h, decimal=2)
+        npt.assert_almost_equal(T_0/(T + L*h), 1, decimal=5)
 
 class Tropopause(Model):
     """
@@ -98,7 +98,7 @@ class Tropopause(Model):
     T : float [K]
         Temperature in the tropopause
     """
-    def setup(self, g=9.81, T=216.65, R=287):
+    def __init__(self, g=9.81, T=216.65, R=287, **kwargs):
         k = g/(R*T)
 
         # Free variables
@@ -135,4 +135,10 @@ class Tropopause(Model):
                                                       T_S:T_S.value.magnitude}))
                          * mu == C_1 * T**1.5
                       ]
-        return objective, constraints
+        Model.__init__(self, objective, constraints, **kwargs)
+
+if __name__ == "__main__":
+    TS = Troposphere()
+    TS.test()
+    TP = Tropopause()
+    TP.solve()
