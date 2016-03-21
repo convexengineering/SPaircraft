@@ -1,6 +1,7 @@
-from gpkit import Variable, Model, SignomialsEnabled, units
+from gpkit import Variable, Model, SignomialsEnabled, LinkConstraint
 from gpkit.constraints.tight import TightConstraintSet as TCS
 from numpy import pi, tan
+from wing.wingbox import WingBox
 
 alpha = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
 ARh  = Variable('AR_h', '-', 'Horizontal tail aspect ratio')
@@ -23,6 +24,7 @@ eta  = Variable('\\eta', '-',
 Kf   = Variable('K_f', '-', 'Empirical factor for fuselage-wing interference')
 lh   = Variable('l_h', 'm', 'Horizontal tail moment arm')
 lfuse= Variable('l_{fuse}', 'm', 'Fuselage length')
+Lmax = Variable('L_{max}', 'N', 'Maximum load')
 rho  = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
 Sh   = Variable('S_h', 'm^2', 'Horizontal tail area')
 Sw   = Variable('S_w', 'm^2', 'Wing area')
@@ -56,15 +58,12 @@ with SignomialsEnabled():
                    CLh == CLah*alpha,
                    alpha <= amax,
 
-                   W >= 100*Sh*units.Pa,
-
                    D == 0.5*rho*Vinf**2*Sh*CDh,
-                   CDh >= CD0h + CLh**2/(pi*e*ARh)
+                   CDh >= CD0h + CLh**2/(pi*e*ARh),
                   ]
 
 substitutions = {
                  '\\alpha_{max}': 0.1, # (6 deg)
-                 'AR_h': 4,
                  '\\eta': 0.97,
                  'C_{D_{0_h}}': 0.03,
                  'C_{L_{aw}}': 2*pi,
@@ -75,6 +74,7 @@ substitutions = {
                  '\\bar{c}': 5,
                  'K_f': 0.7,
                  'l_{fuse}': 40,
+                 'L_{max}': 1E6,
                  '\\rho': 0.38,
                  'S_w': 125,
                  'S.M._{min}': 0.05,
@@ -85,6 +85,13 @@ substitutions = {
                  'w_f': 6,
                 }
 
-m = Model(objective, constraints, substitutions)
+wb = WingBox()
+wb.subinplace({'A': ARh,
+               'S': Sh,
+               'W_{struct}': W})
+
+lc = LinkConstraint([constraints, wb])
+
+m = Model(objective, lc, substitutions)
 
 m.solve()
