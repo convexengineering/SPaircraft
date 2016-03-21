@@ -1,19 +1,19 @@
 Beginning signomial solve.
-Solving took 2 GP solves and 0.123 seconds.
+Solving took 6 GP solves and 0.31 seconds.
 
 Cost
 ----
- 2673 [N] 
+ 207 [N] 
 
 Free Variables
 --------------
-   C_{L_h} : 0.3508         
-C_{L_{ah}} : 3.508          
-      S.M. : 0.1058         
-       S_h : 26.73   [m**2] 
-         W : 2673    [N]    
-    \alpha : 0.1            
-       l_h : 20      [m]    
+   C_{L_h} : 0.3508          
+C_{L_{ah}} : 3.508           
+      S.M. : 0.07746         
+       S_h : 26.73    [m**2] 
+         W : 2673     [N]    
+    \alpha : 0.1             
+       l_h : 20       [m]    
 
 Constants
 ---------
@@ -33,14 +33,15 @@ Constants
 
 Sensitivities
 -------------
+        C_{L_w} : 4.776   
+     C_{m_{ac}} : 2.388   
+        \bar{c} : 1.388   
             S_w : 1       
-            x_w : 0.6667  
-        C_{L_w} : 0.6667  
-        \bar{c} : 0.3333  
-     C_{m_{ac}} : 0.3333  
 \tan(\Lambda_h) : 0.1532  
            AR_h : -0.3872 
+            x_w : -0.3879 
            \eta : -0.6128 
        l_{fuse} : -1      
-   \alpha_{max} : -1      
+     C_{L_{aw}} : -6.164  
+   \alpha_{max} : -7.164  
 

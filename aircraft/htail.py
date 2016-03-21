@@ -24,12 +24,12 @@ xw   = Variable('x_w', 'm')
 W    = Variable('W', 'N')
 
 
-objective = W
+objective = W*SM
 
 with SignomialsEnabled():
     constraints = [
                    # Stability
-                   SM + xw/cma >= CLah*Sh*lh/(CLaw*Sw*cma), # [SP]
+                   TCS([SM + xw/cma >= CLah*Sh*lh/(CLaw*Sw*cma)]), # [SP]
                    SM >= SMmin,
 
                    # Trim
