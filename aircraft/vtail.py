@@ -1,5 +1,6 @@
 # coding=utf-8
-from gpkit import Model, Variable, SignomialsEnabled, units, LinkConstraint
+from gpkit import Model, Variable, SignomialsEnabled, LinkConstraint
+from gpkit.constraints.tight import TightConstraintSet as TCS
 import numpy as np
 import numpy.testing as npt
 from wing.wingbox import WingBox
@@ -78,14 +79,14 @@ class VerticalTail(Model):
                            # Force moment balance for one engine out condition
                            # TASOPT 2.0 p45
 
-                           dxlead + zmac*tanL + 0.25*cma >= lvt, # [SP]
+                           TCS([dxlead + zmac*tanL + 0.25*cma >= lvt], reltol=1e-5), # [SP]
                            # Tail moment arm
 
                            Lvt == 0.5*rho0*V1**2*Svt*CLvt,
                            # Vertical tail force (y-direction) for engine out
 
                            Avt == bvt**2/Svt,
-                           CLvt*(1 + clvt/(np.pi*e*Avt)) <= clvt,
+                           TCS([CLvt*(1 + clvt/(np.pi*e*Avt)) <= clvt]),
                            # Finite wing theory
                            # people.clarkson.edu/~pmarzocc/AE429/AE-429-4.pdf
                            # Valid because tail is untwisted and uncambered
@@ -97,16 +98,16 @@ class VerticalTail(Model):
                            Svt <= bvt*(croot + ctip)/2, # [SP]
                            # Tail geometry relationship
 
-                           dxtrail >= croot + dxlead,
+                           TCS([dxtrail >= croot + dxlead]),
                            # Tail geometry constraint
 
-                           Lfuse >= dxtrail + xCG,
+                           TCS([Lfuse >= dxtrail + xCG]),
                            # Fuselage length constrains the tail trailing edge
 
                            p >= 1 + 2*taper,
                            2*q >= 1 + p,
                            zmac == (bvt/3)*q/p,
-                           (2./3)*(1 + taper + taper**2)*croot/q >= cma, # [SP]
+                           TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cma]), # [SP]
                            taper == ctip/croot,
                            # Define vertical tail geometry
 
@@ -144,21 +145,6 @@ class VerticalTail(Model):
 
     def test(self):
         sol = self.localsolve()
-
-        npt.assert_almost_equal(mag(sol('\\Delta x_{trail}')), mag(sol('c_{root}'))
-                                + mag(sol('\\Delta x_{lead}')), decimal=4)
-        npt.assert_almost_equal(mag(sol('\\Delta x_{lead}')) + mag(sol('z_{\\bar{c}}'))
-                                *mag(sol('\\tan(\\Lambda_{LE})'))
-                                + 0.25*mag(sol('\\bar{c}')), mag(sol('l_{vt}')),
-                                decimal=3)
-        npt.assert_almost_equal(mag(sol('L_{fuse}')), mag(sol('\\Delta x_{trail}'))
-                                + mag(sol('x_{CG}')), decimal=4)
-        npt.assert_almost_equal(mag(sol('C_{L_{vt}}'))*(1 + mag(sol('c_{l_{vt}}'))
-                                /(np.pi*mag(sol('e'))*mag(sol('A_{vt}')))),
-                                mag(sol('c_{l_{vt}}')), decimal=5)
-        npt.assert_almost_equal((2./3)*(1 + mag(sol('\\lambda'))
-                                + mag(sol('\\lambda'))**2)*mag(sol('c_{root}'))/mag(sol('q')),
-                                mag(sol('\\bar{c}')))
 
 if __name__ == "__main__":
     vt = VerticalTail()
