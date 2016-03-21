@@ -6,7 +6,7 @@ class WingBox(Model):
     source: Hoburg, "Geometric Programming for Aircraft Design Optimization"
     """
 
-    def setup(self, fwadd=0.4, Nlift=2.0, rh=0.75, rhocap=2700,
+    def __init__(self, fwadd=0.4, Nlift=2.0, rh=0.75, rhocap=2700,
               rhoweb=2700, sigmax=250E6, sigmaxshear=167E6, w=0.5):
 
         # Variables
@@ -86,4 +86,5 @@ class WingBox(Model):
                        # Total wing weight using an additional weight fraction
                        Wstruct >= (1 + fwadd)*(Wweb + Wcap),
                        ]
-        return objective, constraints
+
+        Model.__init__(self, objective, constraints)
