@@ -1,6 +1,5 @@
-Using solver 'mosek'
-Solving for 6 variables.
-Solving took 0.017 seconds.
+Beginning signomial solve.
+Solving took 2 GP solves and 0.123 seconds.
 
 Cost
 ----
@@ -10,6 +9,7 @@ Free Variables
 --------------
    C_{L_h} : 0.3508         
 C_{L_{ah}} : 3.508          
+      S.M. : 0.1058         
        S_h : 26.73   [m**2] 
          W : 2673    [N]    
     \alpha : 0.1            
@@ -19,7 +19,9 @@ Constants
 ---------
            AR_h : 4              
         C_{L_w} : 0.5            
+     C_{L_{aw}} : 6.283          
      C_{m_{ac}} : 0.1            
+     S.M._{min} : 0.05           
             S_w : 125     [m**2] 
    \alpha_{max} : 0.1            
         \bar{c} : 5       [m]    

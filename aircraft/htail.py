@@ -7,6 +7,7 @@ ARh  = Variable('AR_h', '-')
 amax = Variable('\\alpha_{max}', '-')
 eta  = Variable('\\eta', '-')
 CLah = Variable('C_{L_{ah}}', '-')
+CLaw = Variable('C_{L_{aw}}', '-')
 CLh  = Variable('C_{L_h}', '-')
 CLw  = Variable('C_{L_w}', '-')
 cma  = Variable('\\bar{c}', 'm')
@@ -15,6 +16,8 @@ lh   = Variable('l_h', 'm')
 lfuse= Variable('l_{fuse}', 'm')
 Sh   = Variable('S_h', 'm^2')
 Sw   = Variable('S_w', 'm^2')
+SM   = Variable('S.M.', '-')
+SMmin= Variable('S.M._{min}', '-')
 tanLh= Variable('\\tan(\\Lambda_h)', '-')
 xCG  = Variable('x_{CG}', 'm')
 xw   = Variable('x_w', 'm')
@@ -23,33 +26,37 @@ W    = Variable('W', 'N')
 
 objective = W
 
-constraints = [
-               # Stability
+with SignomialsEnabled():
+    constraints = [
+                   # Stability
+                   SM + xw/cma >= CLah*Sh*lh/(CLaw*Sw*cma), # [SP]
+                   SM >= SMmin,
 
+                   # Trim
+                   CLh*Sh*lh/(Sw*cma) >= Cmac + CLw*xw/cma,
 
-               # Trim
-               CLh*Sh*lh/(Sw*cma) >= Cmac + CLw*xw/cma,
+                   TCS([xCG + lh <= lfuse]),
 
-               TCS([xCG + lh <= lfuse]),
+                   # DATCOM formula (Mach number makes it SP)
+                   TCS([(ARh/eta)**2 * (1 + tanLh**2) + 8*pi*ARh/CLah
+                        <= (2*pi*ARh/CLah)**2]),
+                   CLh == CLah*alpha,
+                   alpha <= amax,
 
-               # DATCOM formula (Mach number makes it SP)
-               TCS([(ARh/eta)**2 * (1 + tanLh**2) + 8*pi*ARh/CLah
-                    <= (2*pi*ARh/CLah)**2]),
-               CLh == CLah*alpha,
-               alpha <= amax,
-
-               W >= 100*Sh*units.Pa
-              ]
+                   W >= 100*Sh*units.Pa
+                  ]
 
 substitutions = {
                  '\\alpha_{max}': 0.1, # (6 deg)
                  'AR_h': 4,
                  '\\eta': 0.97,
                  'C_{m_{ac}}': 0.1,
+                 'C_{L_{aw}}': 2*pi,
                  'C_{L_w}': 0.5,
                  '\\bar{c}': 5,
                  'l_{fuse}': 40,
                  'S_w': 125,
+                 'S.M._{min}': 0.05,
                  '\\tan(\\Lambda_h)': tan(30*pi/180),
                  'x_{CG}': 20,
                  'x_w': 2,
@@ -57,4 +64,4 @@ substitutions = {
 
 m = Model(objective, constraints, substitutions)
 
-m.solve()
+m.localsolve()
