@@ -2,9 +2,7 @@
 from gpkit import Model, Variable, SignomialsEnabled, LinkConstraint
 from gpkit.constraints.tight import TightConstraintSet as TCS
 import numpy as np
-import numpy.testing as npt
 from wing.wingbox import WingBox
-from gpkit.small_scripts import mag
 
 class VerticalTail(Model):
     """
