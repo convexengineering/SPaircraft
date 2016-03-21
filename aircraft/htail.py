@@ -1,56 +1,77 @@
-from gpkit import Variable, Model, SignomialsEnabled, LinkConstraint
+from gpkit import Variable, Model, SignomialsEnabled, LinkConstraint, units
 from gpkit.constraints.tight import TightConstraintSet as TCS
 from numpy import pi, tan
 from wing.wingbox import WingBox
 
-alpha = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
-ARh  = Variable('AR_h', '-', 'Horizontal tail aspect ratio')
-amax = Variable('\\alpha_{max}', '-', 'Max angle of attack (htail)')
-CDh  = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
-CD0h = Variable('C_{D_{0_h}}', '-',
-                'Horizontal tail parasitic drag coefficient')
-CLah = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
-CLaw = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
-CLh  = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
-CLw  = Variable('C_{L_w}', '-', 'Lift coefficient (wing)')
-cma  = Variable('\\bar{c}', 'm', 'Mean aerodynamic chord (wing)')
-Cmac = Variable('C_{m_{ac}}', '-',
-                'Moment coefficient about aerodynamic centre (wing)')
-Cmfu = Variable('C_{m_{fuse}}', '-', 'Moment coefficient (fuselage)')
-D    = Variable('D_h', 'N', 'Horizontal tail drag')
-e    = Variable('e_h', '-', 'Oswald efficiency factor')
-eta  = Variable('\\eta', '-',
-                'Lift efficiency (diff between sectional and actual lift)')
-Kf   = Variable('K_f', '-', 'Empirical factor for fuselage-wing interference')
-lh   = Variable('l_h', 'm', 'Horizontal tail moment arm')
-lfuse= Variable('l_{fuse}', 'm', 'Fuselage length')
-Lmax = Variable('L_{max}', 'N', 'Maximum load')
-rho  = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
-Sh   = Variable('S_h', 'm^2', 'Horizontal tail area')
-Sw   = Variable('S_w', 'm^2', 'Wing area')
-SM   = Variable('S.M.', '-', 'Stability margin')
-SMmin= Variable('S.M._{min}', '-', 'Minimum stability margin')
-tanLh= Variable('\\tan(\\Lambda_h)', '-', 'tangent of horizontal tail sweep')
-Vinf = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
-W    = Variable('W', 'N', 'Horizontal tail weight')
-wf   = Variable('w_f', 'm', 'Fuselage width')
-xCG  = Variable('x_{CG}', 'm', 'CG location')
-xw   = Variable('x_w', 'm', 'Distance from aerodynamic centre to CG')
-
+alpha   = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
+ARh     = Variable('AR_h', '-', 'Horizontal tail aspect ratio')
+amax    = Variable('\\alpha_{max}', '-', 'Max angle of attack (htail)')
+bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
+CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
+CD0h    = Variable('C_{D_{0_h}}', '-',
+                   'Horizontal tail parasitic drag coefficient')
+CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
+CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
+CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
+CLw     = Variable('C_{L_w}', '-', 'Lift coefficient (wing)')
+Cmac    = Variable('C_{m_{ac}}', '-',
+                   'Moment coefficient about aerodynamic centre (wing)')
+chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
+croot   = Variable('c_{root}', 'm', 'Horizontal tail root chord')
+ctip    = Variable('c_{tip}', 'm', 'Horizontal tail tip chord')
+cwma    = Variable('\\bar{c}_{wing}', 'm', 'Mean aerodynamic chord (wing)')
+Cmfu    = Variable('C_{m_{fuse}}', '-', 'Moment coefficient (fuselage)')
+D       = Variable('D_h', 'N', 'Horizontal tail drag')
+dxlead  = Variable('\\Delta x_{lead}', 'm',
+                   'Distance from CG to horizontal tail leading edge')
+dxtrail = Variable('\\Delta x_{trail}', 'm',
+                   'Distance from CG to horizontal tail trailing edge')
+e       = Variable('e_h', '-', 'Oswald efficiency factor')
+eta     = Variable('\\eta', '-',
+                   'Lift efficiency (diff between sectional and actual lift)')
+Kf      = Variable('K_f', '-', 'Empirical factor for fuselage-wing interference')
+lh      = Variable('l_h', 'm', 'Horizontal tail moment arm')
+lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
+Lmax    = Variable('L_{max}', 'N', 'Maximum load')
+p       = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
+q       = Variable('q', '-', 'Substituted variable = 1 + taper')
+rho     = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
+Sh      = Variable('S_h', 'm^2', 'Horizontal tail area')
+Sw      = Variable('S_w', 'm^2', 'Wing area')
+SM      = Variable('S.M.', '-', 'Stability margin')
+SMmin   = Variable('S.M._{min}', '-', 'Minimum stability margin')
+taper   = Variable('\\lambda', '-', 'Horizontal tail taper ratio')
+tanLh   = Variable('\\tan(\\Lambda_h)', '-', 'tangent of horizontal tail sweep')
+Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
+W       = Variable('W', 'N', 'Horizontal tail weight')
+wf      = Variable('w_f', 'm', 'Fuselage width')
+xCG     = Variable('x_{CG}', 'm', 'CG location')
+xw      = Variable('x_w', 'm', 'Distance from aerodynamic centre to CG')
+ymac    = Variable('y_{\\bar{c}}', 'm',
+                   'Vertical location of mean aerodynamic chord')
 
 objective = D + 0.5*W
 
 with SignomialsEnabled():
     constraints = [
                    # Stability
-                   TCS([SM + xw/cma + Kf*wf**2*lfuse/(CLaw*Sw*cma)
-                        <= CLah*Sh*lh/(CLaw*Sw*cma)]),
+                   TCS([SM + xw/cwma + Kf*wf**2*lfuse/(CLaw*Sw*cwma)
+                        <= CLah*Sh*lh/(CLaw*Sw*cwma)]),
                    SM >= SMmin,
 
                    # Trim
-                   CLh*Sh*lh/(Sw*cma) >= Cmac + CLw*xw/cma + Cmfu,
+                   TCS([CLh*Sh*lh/(Sw*cwma) >= Cmac + CLw*xw/cwma + Cmfu]),
 
-                   TCS([xCG + lh <= lfuse]),
+                   # Moment arm and geometry
+                   TCS([dxlead + croot <= dxtrail]),
+                   TCS([xCG + dxtrail <= lfuse]),
+                   TCS([dxlead + ymac*tanLh + 0.25*chma >= lh], reltol=1e-5), # [SP]
+                   p >= 1 + 2*taper,
+                   2*q >= 1 + p,
+                   ymac == (bht/3)*q/p,
+                   TCS([(2./3)*(1 + taper + taper**2)*croot/q >= chma]), # [SP]
+                   taper == ctip/croot,
+                   TCS([Sh <= bht*(croot + ctip)/2]), # [SP]
 
                    # DATCOM formula (Mach number makes it SP)
                    TCS([(ARh/eta)**2 * (1 + tanLh**2) + 8*pi*ARh/CLah
@@ -58,6 +79,7 @@ with SignomialsEnabled():
                    CLh == CLah*alpha,
                    alpha <= amax,
 
+                   # Drag
                    D == 0.5*rho*Vinf**2*Sh*CDh,
                    CDh >= CD0h + CLh**2/(pi*e*ARh),
                   ]
@@ -71,8 +93,9 @@ substitutions = {
                  'C_{m_{ac}}': 0.1,
                  'C_{m_{fuse}}': 0.1,
                  'e_h': 0.8,
-                 '\\bar{c}': 5,
+                 '\\bar{c}_{wing}': 5,
                  'K_f': 0.7,
+                 '\\lambda': 0.45,
                  'l_{fuse}': 40,
                  'L_{max}': 1E6,
                  '\\rho': 0.38,
@@ -87,11 +110,15 @@ substitutions = {
 
 wb = WingBox()
 wb.subinplace({'A': ARh,
+               'b': bht,
+               'p': p,
+               'q': q,
                'S': Sh,
+               'taper': taper,
                'W_{struct}': W})
 
 lc = LinkConstraint([constraints, wb])
 
 m = Model(objective, lc, substitutions)
 
-m.solve()
+m.localsolve()
