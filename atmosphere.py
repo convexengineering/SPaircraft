@@ -110,7 +110,7 @@ class Tropopause(Model):
         # Constants
         C_1  = Variable('C_1', 1.458E-6, "kg/(m*s*K^0.5)",
                         "Sutherland coefficient")
-        g    = Variable('g', g, 'm/s^2', 'Graivational acceleration')
+        g    = Variable('g', g, 'm/s^2', 'Gravitational acceleration')
         p11  = Variable('p_{11}', 22630, 'Pa', 'Pressure at 11 km')
         R    = Variable('R', R, 'J/(kg*K)', 'Specific gas constant (air)')
         T    = Variable('T', T, 'K', 'Temperature')
@@ -133,9 +133,7 @@ class Tropopause(Model):
                                           {T: 288.15, T_S: T_S.value})
                       ]
 
-        substitutions = {'T': 216.65} # Temperature is constant 
-
-        Model.__init__(self, objective, constraints, substitutions, **kwargs)
+        Model.__init__(self, objective, constraints, **kwargs)
 
 if __name__ == "__main__":
     TS = Troposphere()
