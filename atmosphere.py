@@ -1,5 +1,6 @@
 from gpkit import Variable, Model, units, SignomialsEnabled
-import gpkit.tools as gpt
+from gpkit.tools import te_exp_minus1
+from gpkit.constraints.tight import TightConstraintSet as TCS
 import numpy as np
 import numpy.testing as npt
 
@@ -54,7 +55,7 @@ class Troposphere(Model):
                              h <= 11000*units.m,
 
                              # Temperature decreases with height at a rate of L
-                             T_0 <= T + L*h,
+                             TCS([T_0 <= T + L*h]),
 
                              # Pressure-altitude relation
                              (p/p_0)**(1/th) == T/T_0,
@@ -63,9 +64,8 @@ class Troposphere(Model):
                              rho == p/(R*T),
 
                              # Sutherland viscosity model
-                             ((T+T_S).mono_approximation({T:288.15,
-                                                          T_S:T_S.value.magnitude}))
-                             * mu == C_1 * T**1.5
+                             C_1*T**1.5/mu == (T+T_S).mono_approximation(
+                                              {T: 288.15, T_S: T_S.value})
                           ]
         Model.__init__(self, objective, constraints, **kwargs)
 
@@ -116,26 +116,26 @@ class Tropopause(Model):
         T    = Variable('T', T, 'K', 'Temperature')
         T_S  = Variable("T_S", 110.4, "K", "Sutherland Temperature")
 
-        objective = rho  # minimize density
+        objective = 1/rho  # maximize density
         constraints = [  # Model only valid up to top of the troposphere
                          h >= 11*units.km,
                          h <= 20*units.km,
 
-                         # Temperature is constant
-                         T == 216.65*units.K,
-
                          # Pressure-altitude relation, using taylor series exp
-                         np.exp(k*11000)*p11/p >= 1 + gpt.te_exp_minus1(g/(R*T)*h, 15),
+                         TCS([np.exp(k*11000)*p11/p >=
+                              1 + te_exp_minus1(g/(R*T)*h, 15)]),
 
                          # Ideal gas law
                          rho == p/(R*T),
 
                          # Sutherland viscosity model
-                         ((T+T_S).mono_approximation({T:288.15,
-                                                      T_S:T_S.value.magnitude}))
-                         * mu == C_1 * T**1.5
+                         C_1*T**1.5/mu == (T+T_S).mono_approximation(
+                                          {T: 288.15, T_S: T_S.value})
                       ]
-        Model.__init__(self, objective, constraints, **kwargs)
+
+        substitutions = {'T': 216.65} # Temperature is constant 
+
+        Model.__init__(self, objective, constraints, substitutions, **kwargs)
 
 if __name__ == "__main__":
     TS = Troposphere()
