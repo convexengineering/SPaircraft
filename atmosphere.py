@@ -2,7 +2,6 @@ from gpkit import Variable, Model, units, SignomialsEnabled
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
 import numpy as np
-import numpy.testing as npt
 
 class Troposphere(Model):
     """
@@ -71,9 +70,6 @@ class Troposphere(Model):
 
     def test(self):
         sol = self.localsolve()
-        h, p, T, rho, p_0, T_0, L, R = map(sol, ("h p T \\rho p_0 "
-                                                   "T_0 L R").split())
-        npt.assert_almost_equal(T_0/(T + L*h), 1, decimal=5)
 
 class Tropopause(Model):
     """
