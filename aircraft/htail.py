@@ -34,15 +34,18 @@ Kf      = Variable('K_f', '-', 'Empirical factor for fuselage-wing interference'
 lh      = Variable('l_h', 'm', 'Horizontal tail moment arm')
 lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
 Lmax    = Variable('L_{max}', 'N', 'Maximum load')
+mu      = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
 p       = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
 q       = Variable('q', '-', 'Substituted variable = 1 + taper')
+Rec     = Variable('Re_c', '-', 'Cruise Reynolds number (Horizontal tail')
 rho     = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
 Sh      = Variable('S_h', 'm^2', 'Horizontal tail area')
 Sw      = Variable('S_w', 'm^2', 'Wing area')
 SM      = Variable('S.M.', '-', 'Stability margin')
 SMmin   = Variable('S.M._{min}', '-', 'Minimum stability margin')
-taper   = Variable('\\lambda', '-', 'Horizontal tail taper ratio')
 tanLh   = Variable('\\tan(\\Lambda_h)', '-', 'tangent of horizontal tail sweep')
+taper   = Variable('\\lambda', '-', 'Horizontal tail taper ratio')
+tau     = Variable('\\tau', '-', 'Horizontal tail thickness/chord ratio')
 Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
 W       = Variable('W', 'N', 'Horizontal tail weight')
 wf      = Variable('w_f', 'm', 'Fuselage width')
@@ -81,20 +84,22 @@ with SignomialsEnabled():
                    alpha <= amax,
 
                    # K_f as function of wing position (fitted posynomial)
-                   Kf >= 1.5012*(xw/lfuse)**2
-                       + 0.538*(xw/lfuse)
-                       + 0.0331,
+                   Kf >= 1.5012*(xw/lfuse)**2 + 0.538*(xw/lfuse) + 0.0331,
                    TCS([xw >= xCG + dxw]),
 
                    # Drag
                    D == 0.5*rho*Vinf**2*Sh*CDh,
                    CDh >= CD0h + CLh**2/(pi*e*ARh),
+                   CD0h**0.125 >= 0.19*(tau)**0.0075 *(Rec)**0.0017
+                                + 1.83e+04*(tau)**3.54*(Rec)**-0.494
+                                + 0.118*(tau)**0.0082 *(Rec)**0.00165
+                                + 0.198*(tau)**0.00774*(Rec)**0.00168,
+                   Rec == rho*Vinf*chma/mu,
                   ]
 
 substitutions = {
                  '\\alpha_{max}': 0.1, # (6 deg)
                  '\\eta': 0.97,
-                 'C_{D_{0_h}}': 0.03,
                  'C_{L_{aw}}': 2*pi,
                  'C_{L_w}': 0.5,
                  'C_{m_{ac}}': 0.1,
@@ -104,6 +109,7 @@ substitutions = {
                  '\\lambda': 0.45,
                  'l_{fuse}': 40,
                  'L_{max}': 1E6,
+                 '\\mu': 1.4E-5,
                  '\\rho': 0.38,
                  'S_w': 125,
                  'S.M._{min}': 0.05,
@@ -121,6 +127,7 @@ wb.subinplace({'A': ARh,
                'q': q,
                'S': Sh,
                'taper': taper,
+               '\\tau': tau,
                'W_{struct}': W})
 
 lc = LinkConstraint([constraints, wb])
