@@ -26,6 +26,7 @@ dxlead  = Variable('\\Delta x_{lead}', 'm',
                    'Distance from CG to horizontal tail leading edge')
 dxtrail = Variable('\\Delta x_{trail}', 'm',
                    'Distance from CG to horizontal tail trailing edge')
+dxw     = Variable('\\Delta x_w', 'm', 'Distance from aerodynamic centre to CG')
 e       = Variable('e_h', '-', 'Oswald efficiency factor')
 eta     = Variable('\\eta', '-',
                    'Lift efficiency (diff between sectional and actual lift)')
@@ -46,7 +47,7 @@ Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
 W       = Variable('W', 'N', 'Horizontal tail weight')
 wf      = Variable('w_f', 'm', 'Fuselage width')
 xCG     = Variable('x_{CG}', 'm', 'CG location')
-xw      = Variable('x_w', 'm', 'Distance from aerodynamic centre to CG')
+xw      = Variable('x_w', 'm', 'Position of wing aerodynamic center')
 ymac    = Variable('y_{\\bar{c}}', 'm',
                    'Vertical location of mean aerodynamic chord')
 
@@ -55,12 +56,12 @@ objective = D + 0.5*W
 with SignomialsEnabled():
     constraints = [
                    # Stability
-                   TCS([SM + xw/cwma + Kf*wf**2*lfuse/(CLaw*Sw*cwma)
+                   TCS([SM + dxw/cwma + Kf*wf**2*lfuse/(CLaw*Sw*cwma)
                         <= CLah*Sh*lh/(CLaw*Sw*cwma)]),
                    SM >= SMmin,
 
                    # Trim
-                   TCS([CLh*Sh*lh/(Sw*cwma) >= Cmac + CLw*xw/cwma + Cmfu]),
+                   TCS([CLh*Sh*lh/(Sw*cwma) >= Cmac + CLw*dxw/cwma + Cmfu]),
 
                    # Moment arm and geometry
                    TCS([dxlead + croot <= dxtrail]),
@@ -79,6 +80,12 @@ with SignomialsEnabled():
                    CLh == CLah*alpha,
                    alpha <= amax,
 
+                   # K_f as function of wing position (fitted posynomial)
+                   Kf >= 1.5012*(xw/lfuse)**2
+                       + 0.538*(xw/lfuse)
+                       + 0.0331,
+                   TCS([xw >= xCG + dxw]),
+
                    # Drag
                    D == 0.5*rho*Vinf**2*Sh*CDh,
                    CDh >= CD0h + CLh**2/(pi*e*ARh),
@@ -94,7 +101,6 @@ substitutions = {
                  'C_{m_{fuse}}': 0.1,
                  'e_h': 0.8,
                  '\\bar{c}_{wing}': 5,
-                 'K_f': 0.7,
                  '\\lambda': 0.45,
                  'l_{fuse}': 40,
                  'L_{max}': 1E6,
@@ -104,7 +110,7 @@ substitutions = {
                  '\\tan(\\Lambda_h)': tan(30*pi/180),
                  'V_{\\infty}': 240,
                  'x_{CG}': 20,
-                 'x_w': 2,
+                 '\\Delta x_w': 2,
                  'w_f': 6,
                 }
 
