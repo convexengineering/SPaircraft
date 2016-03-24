@@ -30,6 +30,7 @@ dxw     = Variable('\\Delta x_w', 'm', 'Distance from aerodynamic centre to CG')
 e       = Variable('e_h', '-', 'Oswald efficiency factor')
 eta     = Variable('\\eta', '-',
                    'Lift efficiency (diff between sectional and actual lift)')
+fl      = Variable('f\(\\lambda\)', '-', 'Empirical efficiency function of taper')
 Kf      = Variable('K_f', '-', 'Empirical factor for fuselage-wing interference')
 lh      = Variable('l_h', 'm', 'Horizontal tail moment arm')
 lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
@@ -37,7 +38,7 @@ Lmax    = Variable('L_{max}', 'N', 'Maximum load')
 mu      = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
 p       = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
 q       = Variable('q', '-', 'Substituted variable = 1 + taper')
-Rec     = Variable('Re_c', '-', 'Cruise Reynolds number (Horizontal tail')
+Rec     = Variable('Re_c', '-', 'Cruise Reynolds number (Horizontal tail)')
 rho     = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
 Sh      = Variable('S_h', 'm^2', 'Horizontal tail area')
 Sw      = Variable('S_w', 'm^2', 'Wing area')
@@ -95,6 +96,14 @@ with SignomialsEnabled():
                                 + 0.118*(tau)**0.0082 *(Rec)**0.00165
                                 + 0.198*(tau)**0.00774*(Rec)**0.00168,
                    Rec == rho*Vinf*chma/mu,
+
+                   # Oswald efficiency
+                   # Nita, Scholz, "Estimating the Oswald factor from basic
+                   # aircraft geometrical parameters"
+                   TCS([fl >= 0.0524*taper**4 - 0.15*taper**3 + 0.1659*taper**2
+                            - 0.0706*taper + 0.0119]),
+                   TCS([e*(1 + fl*ARh) <= 1]),
+                   taper >= 0.2, # TODO
                   ]
 
 substitutions = {
@@ -102,13 +111,11 @@ substitutions = {
                  '\\eta': 0.97,
                  'C_{L_{aw}}': 2*pi,
                  'C_{L_w}': 0.5,
-                 'C_{m_{ac}}': 0.1,
-                 'C_{m_{fuse}}': 0.1,
-                 'e_h': 0.8,
+                 'C_{m_{ac}}': 0.1, # TODO
+                 'C_{m_{fuse}}': 0.1, # TODO
                  '\\bar{c}_{wing}': 5,
-                 '\\lambda': 0.45,
                  'l_{fuse}': 40,
-                 'L_{max}': 1E6,
+                 'L_{max}': 1E6, # TODO
                  '\\mu': 1.4E-5,
                  '\\rho': 0.38,
                  'S_w': 125,
