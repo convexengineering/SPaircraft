@@ -24,8 +24,8 @@ class NPV(Model):
 
     def test(self):
         "test the model by solving it"
-        self.solve()
+        return self.solve()
 
 if __name__ == "__main__":
     M = NPV()
-    SOL = M.solve()
+    SOL = M.test()
