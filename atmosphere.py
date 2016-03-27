@@ -28,9 +28,13 @@ class Troposphere(Model):
     R : float  [J/(kg*K)]
         Specific gas constant (air)
     """
-    def __init__(self, g=9.81, L=0.0065, R=287, **kwargs):
-        th = g/(R*L)  # dimensionless
+    def __init__(self, min_rho=True, **kwargs):
+        g = 9.81     # [m/s^2]
+        L = 0.0065   # [K/m]
+        R = 287      # [J/(kg*K)]
+        th = g/(R*L) # [-]
         self.g, self.L, self.R, self.th = g, L, R, th
+        self.min_rho = min_rho
 
         # Free variables
         h   = Variable('h', 'm', 'Altitude')
@@ -48,28 +52,40 @@ class Troposphere(Model):
         T_0  = Variable('T_0', 288.15, 'K', 'Temperature at sea level')
         T_S  = Variable("T_S", 110.4, "K", "Sutherland Temperature")
 
-        with SignomialsEnabled():
+        if min_rho:
             objective = rho  # minimize density
-            constraints = [  # Model only valid up to top of the troposphere
-                             h <= 11000*units.m,
+        else:
+            objective = 1/rho # maximize density
 
-                             # Temperature decreases with height at a rate of L
-                             TCS([T_0 <= T + L*h]),
+        constraints = [  # Model only valid up to top of the troposphere
+                         h <= 11000*units.m,
+                         h >= 1E-6*units.m,
 
-                             # Pressure-altitude relation
-                             (p/p_0)**(1/th) == T/T_0,
- 
-                             # Ideal gas law
-                             rho == p/(R*T),
+                         # Pressure-altitude relation
+                         (p/p_0)**(1/th) == T/T_0,
 
-                             # Sutherland viscosity model
-                             C_1*T**1.5/mu == (T+T_S).mono_approximation(
-                                              {T: 288.15, T_S: T_S.value})
-                          ]
+                         # Ideal gas law
+                         rho == p/(R*T),
+
+                         # Sutherland viscosity model
+                         C_1*T**1.5/mu == (T+T_S).mono_approximation(
+                                          {T: 288.15, T_S: T_S.value})
+                      ]
+
+        # Temperature lapse rate constraint
+        if min_rho:
+            with SignomialsEnabled():
+                constraints.extend([TCS([T_0 <= T + L*h])])
+        else:
+            constraints.extend([TCS([T_0 >= T + L*h])])
+
         Model.__init__(self, objective, constraints, **kwargs)
 
     def test(self):
-        sol = self.localsolve()
+        if self.min_rho:
+            sol = self.localsolve()
+        else:
+            sol = self.solve()
 
 class Tropopause(Model):
     """
