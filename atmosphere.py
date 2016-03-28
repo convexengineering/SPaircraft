@@ -135,7 +135,7 @@ class Tropopause(Model):
 
                          # Pressure-altitude relation, using taylor series exp
                          TCS([np.exp(k*11000)*p11/p >=
-                              1 + te_exp_minus1(g/(R*T)*h, 15)]),
+                              1 + te_exp_minus1(g/(R*T)*h, 15)], reltol=1E-4),
 
                          # Ideal gas law
                          rho == p/(R*T),
