@@ -13,6 +13,7 @@ CD0h    = Variable('C_{D_{0_h}}', '-',
 CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
 CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
 CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
+CLhmax  = Variable('C_{L_{hmax}}', '-', 'Max lift coefficient')
 CLw     = Variable('C_{L_w}', '-', 'Lift coefficient (wing)')
 Cmac    = Variable('|C_{m_{ac}}|', '-', # Absolute value of CMwing
                    'Moment coefficient about aerodynamic centre (wing)')
@@ -40,6 +41,7 @@ p       = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
 q       = Variable('q', '-', 'Substituted variable = 1 + taper')
 Rec     = Variable('Re_c', '-', 'Cruise Reynolds number (Horizontal tail)')
 rho     = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
+rho0    = Variable('\\rho_0', 'kg/m^3', 'Air density (0 ft)')
 Sh      = Variable('S_h', 'm^2', 'Horizontal tail area')
 Sw      = Variable('S_w', 'm^2', 'Wing area')
 SM      = Variable('S.M.', '-', 'Stability margin')
@@ -48,6 +50,7 @@ tanLh   = Variable('\\tan(\\Lambda_h)', '-', 'tangent of horizontal tail sweep')
 taper   = Variable('\\lambda', '-', 'Horizontal tail taper ratio')
 tau     = Variable('\\tau', '-', 'Horizontal tail thickness/chord ratio')
 Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
+Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
 W       = Variable('W', 'N', 'Horizontal tail weight')
 wf      = Variable('w_f', 'm', 'Fuselage width')
 xCG     = Variable('x_{CG}', 'm', 'CG location')
@@ -104,6 +107,8 @@ with SignomialsEnabled():
                             - 0.0706*taper + 0.0119]),
                    TCS([e*(1 + fl*ARh) <= 1]),
                    taper >= 0.2, # TODO
+
+                   Lmax == 0.5*rho0*Vne**2*Sh*CLhmax,
                   ]
 
 # References
@@ -113,18 +118,20 @@ substitutions = {
                  '\\alpha_{max}': 0.1, # (6 deg)
                  '\\eta': 0.97,
                  'C_{L_{aw}}': 2*pi,
+                 'C_{L_{hmax}}': 2.6,
                  'C_{L_w}': 0.5,
                  '|C_{m_{ac}}|': 0.1,
                  'C_{m_{fuse}}': 0.05, # [1]
                  '\\bar{c}_{wing}': 5,
                  'l_{fuse}': 40,
-                 'L_{max}': 1E6, # TODO
                  '\\mu': 1.4E-5,
                  '\\rho': 0.38,
+                 '\\rho_0': 1.225,
                  'S_w': 125,
                  'S.M._{min}': 0.05,
                  '\\tan(\\Lambda_h)': tan(30*pi/180),
                  'V_{\\infty}': 240,
+                 'V_{ne}': 144,
                  'x_{CG}': 20,
                  '\\Delta x_w': 2,
                  'w_f': 6,
@@ -133,6 +140,7 @@ substitutions = {
 wb = WingBox()
 wb.subinplace({'A': ARh,
                'b': bht,
+               'L_{max}': Lmax,
                'p': p,
                'q': q,
                'S': Sh,
