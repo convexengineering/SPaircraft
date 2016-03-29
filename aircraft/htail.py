@@ -14,7 +14,7 @@ CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
 CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
 CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
 CLw     = Variable('C_{L_w}', '-', 'Lift coefficient (wing)')
-Cmac    = Variable('C_{m_{ac}}', '-',
+Cmac    = Variable('|C_{m_{ac}}|', '-', # Absolute value of CMwing
                    'Moment coefficient about aerodynamic centre (wing)')
 chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
 croot   = Variable('c_{root}', 'm', 'Horizontal tail root chord')
@@ -65,7 +65,7 @@ with SignomialsEnabled():
                    SM >= SMmin,
 
                    # Trim
-                   TCS([CLh*Sh*lh/(Sw*cwma) >= Cmac + CLw*dxw/cwma + Cmfu]),
+                   TCS([CLh*Sh*lh/(Sw*cwma) + Cmac >= CLw*dxw/cwma + Cmfu]),
 
                    # Moment arm and geometry
                    TCS([dxlead + croot <= dxtrail]),
@@ -106,13 +106,16 @@ with SignomialsEnabled():
                    taper >= 0.2, # TODO
                   ]
 
+# References
+# [1] TASOPT code
+
 substitutions = {
                  '\\alpha_{max}': 0.1, # (6 deg)
                  '\\eta': 0.97,
                  'C_{L_{aw}}': 2*pi,
                  'C_{L_w}': 0.5,
-                 'C_{m_{ac}}': 0.1, # TODO
-                 'C_{m_{fuse}}': 0.1, # TODO
+                 '|C_{m_{ac}}|': 0.1,
+                 'C_{m_{fuse}}': 0.05, # [1]
                  '\\bar{c}_{wing}': 5,
                  'l_{fuse}': 40,
                  'L_{max}': 1E6, # TODO
