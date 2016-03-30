@@ -84,6 +84,5 @@ class WingBox(Model):
                        # Total wing weight using an additional weight fraction
                        Wstruct >= (1 + fwadd)*(Wweb + Wcap),
                        ]
-
+        
         Model.__init__(self, objective, constraints, **kwargs)
-

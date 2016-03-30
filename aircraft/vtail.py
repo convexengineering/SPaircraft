@@ -1,16 +1,14 @@
 # coding=utf-8
-from gpkit import Model, Variable, SignomialsEnabled, units
+from gpkit import Model, Variable, SignomialsEnabled, LinkConstraint
+from gpkit.constraints.tight import TightConstraintSet as TCS
 import numpy as np
-import numpy.testing as npt
 from wing.wingbox import WingBox
 
 class VerticalTail(Model):
     """
     Vertical tail sizing
     """
-    def setup(self, Aeng=np.pi*(1.75/2)**2, CDwm=0.5, clvt=0.5, e=0.8, le=4.83,
-                    Lfuse=39, mu=1.4E-5, rho_c=0.38, rho0=1.225, Te=1.29E5, 
-                    Vc=234, V1=65, xCG=18):
+    def __init__(self, **kwargs):
         # Variables
         Avt    = Variable('A_{vt}', '-', 'Vertical tail aspect ratio')
         b      = Variable('b', 'm', 'Vertical tail full span')
@@ -50,25 +48,26 @@ class VerticalTail(Model):
         # 5: http://www.digitaldutch.com/atmoscalc
         # 6: Engineering toolbox
         # 7: Boeing.com
-        Aeng  = Variable('A_{eng}', Aeng, 'm^2', 'Engine reference area') # [1]
-        CDwm  = Variable('C_{D_{wm}}', CDwm, '-', 'Windmill drag coefficient') # [2]
+        Aeng  = Variable('A_{eng}', np.pi*(1.75/2)**2, 'm^2', 
+                         'Engine reference area') # [1]
+        CDwm  = Variable('C_{D_{wm}}', 0.5, '-', 'Windmill drag coefficient') # [2]
         CLvmax= Variable('C_{L_{vmax}}', 2.6, '-', 'Max lift coefficient')
-        clvt  = Variable('c_{l_{vt}}', clvt, '-',
+        clvt  = Variable('c_{l_{vt}}', 0.5, '-',
                          'Sectional lift force coefficient (engine out)') # [2]
-        e     = Variable('e', e, '-', 'Span efficiency of vertical tail')
-        le    = Variable('l_e', le, 'm', 'Engine moment arm') # [3]
-        Lfuse = Variable('L_{fuse}', Lfuse, 'm', 'Length of fuselage') # [4]
-        mu    = Variable('\\mu', mu, 'N*s/m^2', 'Dynamic viscosity (35,000ft)') # [5]
-        mu0   = Variable('\\mu_0', 1.8E-5, 'N*s/m^2', 'Dynamic viscosity (SL)') # [5]
-        rho_c = Variable('\\rho_c', rho_c, 'kg/m^3', 'Air density (35,000ft)') # [6]
-        rho0  = Variable('\\rho_{TO}', rho0, 'kg/m^3', 'Air density (SL))')
+        e     = Variable('e', 0.8, '-', 'Span efficiency of vertical tail')
+        le    = Variable('l_e', 4.83, 'm', 'Engine moment arm') # [3]
+        Lfuse = Variable('L_{fuse}', 39, 'm', 'Length of fuselage') # [4]
+        mu    = Variable('\\mu', 1.4e-5, 'N*s/m^2', 'Dynamic viscosity (35,000ft)') # [5]
+        mu0   = Variable('\\mu_0', 1.8e-5, 'N*s/m^2', 'Dynamic viscosity (SL)') # [5]
+        rho_c = Variable('\\rho_c', 0.38, 'kg/m^3', 'Air density (35,000ft)') # [6]
+        rho0  = Variable('\\rho_{TO}', 1.225, 'kg/m^3', 'Air density (SL))')
         tanL  = Variable('\\tan(\\Lambda_{LE})', np.tan(40*np.pi/180), '-',
                          'Tangent of leading edge sweep (40 deg)')
-        Te    = Variable('T_e', Te, 'N', 'Thrust per engine at takeoff') # [4]
-        V1    = Variable('V_1', V1, 'm/s', 'Minimum takeoff velocity')
-        Vc    = Variable('V_c', Vc, 'm/s', 'Cruise velocity') # [7]
+        Te    = Variable('T_e', 1.29e5, 'N', 'Thrust per engine at takeoff') # [4]
+        V1    = Variable('V_1', 65, 'm/s', 'Minimum takeoff velocity')
+        Vc    = Variable('V_c', 234, 'm/s', 'Cruise velocity') # [7]
         Vne   = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
-        xCG   = Variable('x_{CG}', xCG, 'm', 'x-location of CG')
+        xCG   = Variable('x_{CG}', 18, 'm', 'x-location of CG')
 
 
         with SignomialsEnabled():
@@ -78,14 +77,14 @@ class VerticalTail(Model):
                            # Force moment balance for one engine out condition
                            # TASOPT 2.0 p45
 
-                           dxlead + zmac*tanL + 0.25*cma >= lvt, # [SP]
+                           TCS([dxlead + zmac*tanL + 0.25*cma >= lvt], reltol=1e-5), # [SP]
                            # Tail moment arm
 
                            Lvt == 0.5*rho0*V1**2*Svt*CLvt,
-                           # Vertical tail force (y-direction) for engine out 
+                           # Vertical tail force (y-direction) for engine out
 
                            Avt == bvt**2/Svt,
-                           CLvt*(1 + clvt/(np.pi*e*Avt)) <= clvt,
+                           TCS([CLvt*(1 + clvt/(np.pi*e*Avt)) <= clvt]),
                            # Finite wing theory
                            # people.clarkson.edu/~pmarzocc/AE429/AE-429-4.pdf
                            # Valid because tail is untwisted and uncambered
@@ -97,22 +96,20 @@ class VerticalTail(Model):
                            Svt <= bvt*(croot + ctip)/2, # [SP]
                            # Tail geometry relationship
 
-                           dxtrail >= croot + dxlead,
+                           TCS([dxtrail >= croot + dxlead]),
                            # Tail geometry constraint
 
-                           Lfuse >= dxtrail + xCG,
+                           TCS([Lfuse >= dxtrail + xCG]),
                            # Fuselage length constrains the tail trailing edge
 
                            p >= 1 + 2*taper,
                            2*q >= 1 + p,
                            zmac == (bvt/3)*q/p,
-                           (2./3)*(1 + taper + taper**2)*croot/q >= cma, # [SP]
+                           TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cma]), # [SP]
                            taper == ctip/croot,
                            # Define vertical tail geometry
 
                            taper >= 0.27,
-#                           Recrit == rho0*V1*ctip/mu0,
-#                           Recrit >= 8.458e+06,
                            # TODO: Constrain taper by tip Reynolds number
                            # source: b737.org.uk
 
@@ -137,41 +134,16 @@ class VerticalTail(Model):
                            # Max load for structural sizing
                            ]
 
-            m = Model(objective, constraints)
+        # Incorporate the structural model
+        wb = WingBox()
+        wb.subinplace({"taper": taper})
+        lc = LinkConstraint([constraints, wb])
 
-            # Incorporate the structural model
-            tail = m & WingBox()
-
-            tail.cost = m.cost
-
-        return tail
+        Model.__init__(self, objective, lc, **kwargs)
 
     def test(self):
         sol = self.localsolve()
 
-        npt.assert_almost_equal(sol('\\Delta x_{trail}'), sol('c_{root}')
-                                + sol('\\Delta x_{lead}'), decimal=4)
-        npt.assert_almost_equal(sol('\\Delta x_{lead}') + sol('z_{\\bar{c}}')
-                                *sol('\\tan(\\Lambda_{LE})')
-                                + 0.25*sol('\\bar{c}'), sol('l_{vt}'),
-                                decimal=3)
-        npt.assert_almost_equal(sol('L_{fuse}'), sol('\\Delta x_{trail}')
-                                + sol('x_{CG}'), decimal=4)
-        npt.assert_almost_equal(sol('C_{L_{vt}}')*(1 + sol('c_{l_{vt}}')
-                                /(np.pi*sol('e')*sol('A_{vt}'))),
-                                sol('c_{l_{vt}}'), decimal=5) 
-        npt.assert_almost_equal((2./3)*(1 + sol('\\lambda')
-                                + sol('\\lambda')**2)*sol('c_{root}')/sol('q'),
-                                sol('\\bar{c}'), decimal=5)
-
-#        with open('vtail.tex', 'w') as outfile:
-#            outfile.write(self.latex())
-
-#        with open('soltable.tex', 'w') as outfile:
-#            outfile.write(sol.table(latex=3))
-#
-#        with open('vartable.tex', 'w') as outfile:
-#            outfile.write(sol.table(latex=2))
-
 if __name__ == "__main__":
-    VerticalTail().test()
+    vt = VerticalTail()
+    vt.test()
