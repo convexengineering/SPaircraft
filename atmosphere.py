@@ -3,9 +3,6 @@ from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
 import numpy as np
 
-TS = 110.4    # Sutherland temperature
-C1 = 1.458E-6 # Sutherland coefficient
-
 class Troposphere(Model):
     """
     Density and dynamic viscosity as a function of altitude based on
@@ -163,22 +160,22 @@ class Sutherland(Model):
            atmos/atmos.html
     http://www.cfd-online.com/Wiki/Sutherland's_law
     """
-    def setup(self):
+    def __init__(self, **kwargs):
         # Free variables
         mu = Variable("mu", "kg/(m*s)", "Dynamic viscosity")
         T  = Variable("T", "K", "Temperature")
 
         # Constants
-        T_S   = Variable("T_S", TS, "K", "Sutherland Temperature")
-        C_1 = Variable("C_1", C1, "kg/(m*s*K^0.5)",
+        T_S   = Variable("T_S", 110.4, "K", "Sutherland Temperature")
+        C_1 = Variable("C_1", 1.458E-6, "kg/(m*s*K^0.5)",
                        "Sutherland coefficient")
 
         objective = mu
-        constraints = [((T+T_S).mono_approximation({T:288.15,
-                                                    T_S:T_S.value.magnitude}))
+        constraints = [((T+T_S).mono_approximation({T: 288.15,
+                                                    T_S: T_S.value}))
                        * mu == C_1 * T**1.5]
 
-        return objective, constraints
+        Model.__init__(self, objective, constraints, **kwargs)
 
 
 if __name__ == "__main__":
@@ -186,3 +183,7 @@ if __name__ == "__main__":
     TS.test()
     TP = Tropopause()
     TP.solve()
+    SU = Sutherland()
+    # TODO: move this to a test() method
+    SU.substitutions.update({SU["T"]: 288})
+    SU.solve()
