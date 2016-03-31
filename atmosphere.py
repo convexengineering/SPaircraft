@@ -50,22 +50,22 @@ class Troposphere(Model):
         else:
             objective = 1/rho # maximize density
 
-        constraints = [h <= 11000*units.m,
-                       h >= 1E-6*units.m,
-
-                       # Pressure-altitude relation
-                       (p/p_0)**(1/th) == T/T_0,
-
-                       # Ideal gas law
-                       rho == p/(R*T),
-                      ]
-
         # Temperature lapse rate constraint
         if min_rho:
             with SignomialsEnabled():
-                constraints.extend([TCS([T_0 <= T + L*h])])
+                constraints = TCS([T_0 <= T + L*h])
         else:
-            constraints.extend([TCS([T_0 >= T + L*h])])
+            constraints = TCS([T_0 >= T + L*h])
+
+        constraints += [h <= 11000*units.m,
+                        h >= 1E-6*units.m,
+
+                        # Pressure-altitude relation
+                        (p/p_0)**(1/th) == T/T_0,
+
+                        # Ideal gas law
+                        rho == p/(R*T),
+                       ]
 
         su = Sutherland()
         lc = LinkConstraint([constraints, su])
