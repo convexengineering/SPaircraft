@@ -23,15 +23,14 @@ The cost per year is simply the sum of holding, setup, and production costs,
 $$Y(Q) = \frac{hQ}{2} + \frac{AD}{Q} + cD$$
 Or in gpkit,
 ```python
-from gpkit.constraints.set import ConstraintSet
-eoq = ConstraintSet([Y >= h*Q/2 + A*D/Q + c*D])
+eoq = [Y >= h*Q/2 + A*D/Q + c*D]
 ```
 
 Now create a model that minimizes cost
 and substitute in the values given in Factory Physics.
 ```python
 from gpkit import Model, units
-m = Model(Y, [eoq])
+m = Model(Y, eoq)
 m.substitutions.update({D: 1000,  # /units("year"),
                         c: 250,   # *units("USD"),
                         A: 500,   # *units("USD"),
