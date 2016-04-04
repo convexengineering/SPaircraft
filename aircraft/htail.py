@@ -76,16 +76,16 @@ class HorizontalTail(Model):
         objective = D + 0.5*W
 
         with SignomialsEnabled():
-                           # Stability
+                           # Stability from UMich AE-481 course notes
             constraints = [TCS([SM + dxw/cwma + Kf*wf**2*lfuse/(CLaw*Sw*cwma)
                                 <= CLah*Sh*lh/(CLaw*Sw*cwma)]),
                            SM >= SMmin,
 
-                           # Trim
+                           # Trim from UMich AE-481 course notes
                            TCS([CLh*Sh*lh/(Sw*cwma) + Cmac >=
                                 CLw*dxw/cwma + Cmfu]),
 
-                           # Moment arm and geometry
+                           # Moment arm and geometry -- same as for vtail
                            TCS([dxlead + croot <= dxtrail]),
                            TCS([xcg + dxtrail <= lfuse]),
                            TCS([dxlead + ymac*tanLh + 0.25*chma >= lh],
@@ -105,6 +105,7 @@ class HorizontalTail(Model):
                            alpha <= amax,
 
                            # K_f as f(wing position) -- (fitted posynomial)
+                           # from from UMich AE-481 course notes Table 9.1
                            Kf >= (1.5012*(xw/lfuse)**2 +
                                   0.538*(xw/lfuse) +
                                   0.0331),
@@ -113,6 +114,7 @@ class HorizontalTail(Model):
                            # Drag
                            D == 0.5*rho*Vinf**2*Sh*CDh,
                            CDh >= CD0h + CLh**2/(pi*e*ARh),
+                           # same drag model as vtail
                            CD0h**0.125 >= 0.19*(tau)**0.0075 *(Rec)**0.0017
                                         + 1.83e+04*(tau)**3.54*(Rec)**-0.494
                                         + 0.118*(tau)**0.0082 *(Rec)**0.00165
@@ -127,7 +129,7 @@ class HorizontalTail(Model):
                                        + 0.1659*taper**2
                                        - 0.0706*taper + 0.0119)]),
                            TCS([e*(1 + fl*ARh) <= 1]),
-                           taper >= 0.2, # TODO
+                           taper >= 0.2, # TODO: make less arbitrary
 
                            Lmax == 0.5*rho0*Vne**2*Sh*CLhmax,
                           ]
