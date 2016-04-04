@@ -1,5 +1,5 @@
 # coding=utf-8
-from gpkit import Model, Variable, SignomialsEnabled, LinkConstraint
+from gpkit import Model, Variable, SignomialsEnabled, LinkedConstraintSet
 from gpkit.constraints.tight import TightConstraintSet as TCS
 import numpy as np
 from wing.wingbox import WingBox
@@ -137,7 +137,7 @@ class VerticalTail(Model):
         # Incorporate the structural model
         wb = WingBox()
         wb.subinplace({"taper": taper})
-        lc = LinkConstraint([constraints, wb])
+        lc = LinkedConstraintSet([constraints, wb])
 
         Model.__init__(self, objective, lc, **kwargs)
 
