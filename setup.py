@@ -1,4 +1,4 @@
-"""Standard Python setup script for gpkit"""
+"""Standard Python setup script for GPkit Models"""
 from __future__ import print_function
 import sys
 from distutils.core import setup
