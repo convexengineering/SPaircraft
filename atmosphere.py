@@ -1,6 +1,6 @@
 "Models for atmospheric quantities"
 import numpy as np
-from gpkit import Variable, Model, units, SignomialsEnabled, LinkConstraint
+from gpkit import Variable, Model, units, SignomialsEnabled
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
 # pylint: disable=bad-whitespace
@@ -66,9 +66,8 @@ class Troposphere(Model):
                         # Ideal gas law
                         rho == p/(R*T),
                         ]
-
         su = Sutherland()
-        lc = LinkConstraint([constraints, su])
+        lc = su.link(constraints)
 
         Model.__init__(self, objective, lc, **kwargs)
 
@@ -112,9 +111,8 @@ class Tropopause(Model):
                        # Ideal gas law
                        rho == p/(R*T),
                        ]
-
         su = Sutherland()
-        lc = LinkConstraint([constraints, su])
+        lc = su.link(constraints)
 
         Model.__init__(self, objective, lc, **kwargs)
 

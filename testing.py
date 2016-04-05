@@ -1,27 +1,19 @@
 """Script for running all gpkit-models test() methods"""
 import unittest
-from gpkit.tests.helpers import run_tests
-MODULES = []
+from gpkit.tests.helpers import run_tests, StdoutCaptured
+MODELS = []
 
 import beam
-MODULES.append(beam)
+MODELS.append(beam.Beam)
 
-import troposphere
-MODULES.append(troposphere)
-import troposphere_sp
-MODULES.append(troposphere_sp)
+import atmosphere
+MODELS.append(atmosphere.Troposphere)
+MODELS.append(atmosphere.Tropopause)
+MODELS.append(atmosphere.Sutherland)
 
-from aircraft import breguet_range, cost
-MODULES.append(breguet_range)
-MODULES.append(cost)
-
-
-def test_generator(model_class):
-    """Returns method that tests model_class, to be attached to a TestCase"""
-    def test(self):
-        m = model_class()
-        m.test()
-    return test
+# from aircraft import breguet_range, cost
+# MODELS.append(breguet_range)
+# MODELS.append(cost)
 
 
 class TestModels(unittest.TestCase):
@@ -29,22 +21,18 @@ class TestModels(unittest.TestCase):
     pass
 
 
+def generate_test(modelclass):
+    def test(self):
+        with StdoutCaptured():
+            modelclass.test()
+    return test
+
+
 def attach_tests():
     """Gather Models that have test() methods; attach to TestModels"""
-    for module in MODULES:
-        for attr_name in dir(module):
-            candidate = getattr(module, attr_name)
-            try:
-                if candidate.__module__ != module.__name__:
-                    # skip things imported by this module, like np
-                    continue
-                if hasattr(candidate, 'test'):
-                    setattr(TestModels,
-                            "test_%s" % candidate.__name__,
-                            test_generator(candidate))
-            except AttributeError:
-                # dict attributes like __builtins__ don't have __module__
-                pass
+    for modelclass in MODELS:
+        setattr(TestModels, "test_%s" % modelclass.__name__,
+                generate_test(modelclass))
 
 
 def run(xmloutput=False):
