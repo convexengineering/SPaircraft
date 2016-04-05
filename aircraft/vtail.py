@@ -48,7 +48,7 @@ class VerticalTail(Model):
         # 5: http://www.digitaldutch.com/atmoscalc
         # 6: Engineering toolbox
         # 7: Boeing.com
-        Aeng  = Variable('A_{eng}', np.pi*(1.75/2)**2, 'm^2', 
+        Aeng  = Variable('A_{eng}', np.pi*(1.75/2)**2, 'm^2',
                          'Engine reference area') # [1]
         CDwm  = Variable('C_{D_{wm}}', 0.5, '-', 'Windmill drag coefficient') # [2]
         CLvmax= Variable('C_{L_{vmax}}', 2.6, '-', 'Max lift coefficient')
@@ -141,9 +141,9 @@ class VerticalTail(Model):
 
         Model.__init__(self, objective, lc, **kwargs)
 
-    def test(self):
-        sol = self.localsolve()
+    @classmethod
+    def test(cls):
+        cls().localsolve()
 
 if __name__ == "__main__":
-    vt = VerticalTail()
-    vt.test()
+    VerticalTail.test()

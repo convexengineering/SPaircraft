@@ -100,8 +100,9 @@ class DAPCA4Cost(Model):
                       ]
         return objective, constraints
 
-    def test(self):
-        sol = self.solve()
+    @classmethod
+    def test(cls):
+        cls().solve()
 
 if __name__ == "__main__":
-    DAPCA4Cost().test()
+    DAPCA4Cost.test()

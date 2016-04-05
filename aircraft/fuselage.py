@@ -289,14 +289,15 @@ class Fuselage(Model):
                             # Drag due to fuselage upsweep (Raymer p286)
                             1.13226*phi**1.03759 == Rfuse/lcone, # monomial fit
                                                                  # of tan(phi)
-                            Dupswp >= 3.83*phi**2.5*Afuse * 0.5*rhoinf*Vinf**2, 
+                            Dupswp >= 3.83*phi**2.5*Afuse * 0.5*rhoinf*Vinf**2,
                             D >= Dfrict + Dupswp
                           ]
 
             Model.__init__(self, objective, constraints)
 
-    def test(self):
-        sol = self.localsolve()
+    @classmethod
+    def test(cls):
+        sol = cls().localsolve()
 
         npt.assert_almost_equal(mag(sol('A_{hold}')), (2./3)*mag(sol('w_{floor}'))
                                 *mag(sol('h_{hold}')) + mag(sol('h_{hold}'))**3
@@ -319,5 +320,4 @@ class Fuselage(Model):
                                 /mag(sol('\\tau_{cone}')) * mag(sol('l_{cone}')))
 
 if __name__ == "__main__":
-    fu = Fuselage()
-    fu.test()
+    Fuselage.test()

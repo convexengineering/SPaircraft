@@ -38,7 +38,7 @@ class BreguetRange(Model):
 
         constraints = [# Aircraft and fuel weight
                        W_init >= W_e + W_fuel,
-                       
+
                        # Performance constraints
                        W_init <= MTOW,
                        LD <= LD_max,
@@ -51,9 +51,10 @@ class BreguetRange(Model):
                       ]
         return objective, constraints
 
-    def test(self):
-        sol = self.solve()
+    @classmethod
+    def test(cls):
+        sol = cls().solve()
         assert sol['sensitivities']['variables']['TSFC'] >= 0
 
 if __name__ == '__main__':
-    BreguetRange().test()
+    BreguetRange.test()

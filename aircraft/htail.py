@@ -174,9 +174,9 @@ class HorizontalTail(Model):
 
         Model.__init__(self, objective, lc, substitutions, **kwargs)
 
-    def test(self):
-        _ = self.localsolve()
+    @classmethod
+    def test(cls):
+        cls().localsolve()
 
 if __name__ == "__main__":
-    HT = HorizontalTail()
-    HT.test()
+    HorizontalTail.test()

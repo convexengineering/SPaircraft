@@ -7,7 +7,7 @@ from gpkit.small_scripts import mag
 class LandingGear(Model):
     """
     Landing gear sizing model
-    
+
     Sources:
     AERO 481 notes
     www.fzt.haw-hamburg.de/pers/Scholz/dglr/hh/text_2002_04_11_Fahrwerk.pdf
@@ -95,7 +95,7 @@ class LandingGear(Model):
         tan_63    = Variable('\\tan(\\psi_{max})', np.tan(63*np.pi/180), '-',
                              'Upper bound on psi')
         tangam    = Variable('\\tan(\\gamma)', np.tan(5*np.pi/180), '-',
-                             'Tangent of dihedral angle') 
+                             'Tangent of dihedral angle')
         tan_th_TO = Variable('\\tan(\\theta_{TO})', np.tan(15*np.pi/180), '-',
                              'Takeoff pitch angle')
         w         = Variable('w', 10, 'ft/s', 'Ultimate velocity of descent')
@@ -132,14 +132,14 @@ class LandingGear(Model):
                            # Maximum static loads through main and nose gears
                            L_n == W_0*dxm/B,
                            L_m == W_0*dxn/B,
-                           
+
                            # Dynamic braking load through nose gear
                            # (assumes deceleration of 10 ft/s^2)
                            L_n_dyn >= 0.31*((z_CG_0+l_m)/B)*W_0,
 
                            # For steering don't want too much or too little
                            # load on nose gear
-                           L_n/W_0 >= 0.05, 
+                           L_n/W_0 >= 0.05,
                            L_n/W_0 <= 0.20,
 
                            # Longitudinal tip over (static)
@@ -248,8 +248,8 @@ class LandingGear(Model):
 
         Model.__init__(self, objective, constraints)
 
-    def test(self):
-        sol = self.localsolve()
+    def test(cls):
+        sol = cls().localsolve()
         npt.assert_almost_equal(mag(sol('x_n')) + mag(sol('B')), mag(sol('x_m')), decimal=5)
         npt.assert_almost_equal(mag(sol('\Delta x_n')) + mag(sol('x_n')), mag(sol('x_{CG}')),
                                 decimal=1)
@@ -258,9 +258,8 @@ class LandingGear(Model):
         npt.assert_almost_equal(mag(sol('l_n')) + mag(sol('z_{wing}')) + mag(sol('y_m')) *
                                 mag(sol('\\tan(\\gamma)')), mag(sol('l_m')), decimal=4)
         npt.assert_almost_equal(mag(sol('d_{nacelle}')) + mag(sol('h_{nacelle}')),
-                                mag(sol('l_m')) + (mag(sol('y_{eng}'))-mag(sol('y_m'))) * 
+                                mag(sol('l_m')) + (mag(sol('y_{eng}'))-mag(sol('y_m'))) *
                                 mag(sol('\\tan(\\gamma)')), decimal=4)
 
-if __name__ == "__main__": 
-    lg = LandingGear()
-    lg.test()
+if __name__ == "__main__":
+    LandingGear.test()
