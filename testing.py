@@ -7,13 +7,23 @@ import beam
 MODELS.append(beam.Beam)
 
 import atmosphere
-MODELS.append(atmosphere.Troposphere)
+# MODELS.append(atmosphere.Troposphere)
 MODELS.append(atmosphere.Tropopause)
 MODELS.append(atmosphere.Sutherland)
 
-# from aircraft import breguet_range, cost
-# MODELS.append(breguet_range)
-# MODELS.append(cost)
+# from aircraft import cost
+# MODELS.append(cost.DAPCA4Cost)
+# from aircraft import breguet_range
+# MODELS.append(breguet_range.BreguetRange)
+# from aircraft import fuselage
+# MODELS.append(fuselage.Fuselage)
+# from aircraft import htail
+# MODELS.append(htail.HorizontalTail)
+from aircraft import landing_gear
+MODELS.append(landing_gear.LandingGear)
+# from aircraft import performance_tutorial
+from aircraft import vtail
+MODELS.append(vtail.VerticalTail)
 
 
 class TestModels(unittest.TestCase):

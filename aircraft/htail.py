@@ -1,6 +1,6 @@
 "Implement HorizontalTail model"
 from numpy import pi, tan
-from gpkit import Variable, Model, SignomialsEnabled, LinkConstraint
+from gpkit import Variable, Model, SignomialsEnabled
 from gpkit.constraints.tight import TightConstraintSet as TCS
 from wing.wingbox import WingBox
 # pylint:disable=bad-whitespace
@@ -170,7 +170,7 @@ class HorizontalTail(Model):
                        r'\tau': tau,
                        'W_{struct}': W})
 
-        lc = LinkConstraint([constraints, wb])
+        lc = wb.link(constraints)
 
         Model.__init__(self, objective, lc, substitutions, **kwargs)
 

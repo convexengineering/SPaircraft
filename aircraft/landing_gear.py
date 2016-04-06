@@ -248,6 +248,7 @@ class LandingGear(Model):
 
         Model.__init__(self, objective, constraints)
 
+    @classmethod
     def test(cls):
         sol = cls().localsolve()
         npt.assert_almost_equal(mag(sol('x_n')) + mag(sol('B')), mag(sol('x_m')), decimal=5)
