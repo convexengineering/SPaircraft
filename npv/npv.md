@@ -12,7 +12,7 @@ class NPV(Model):
 
 
 ```
-# Variables 
+# Variables
 
 ```python
 #inPDF: replace with vartable.generated.tex
@@ -40,7 +40,7 @@ With these assumptions we can get rid of the $i$ subscript and claim that
 
 $$\text{NPV} \leq 3\text{PV} $$
 
-Now the problem becomes solving for the length of each time period such that each PV is equal.  Let's assume that the same payment, C, is made at each payment period and that C is given.  This allows us to write 
+Now the problem becomes solving for the length of each time period such that each PV is equal.  Let's assume that the same payment, C, is made at each payment period and that C is given.  This allows us to write
 
 $$ \text{C} \leq \text{PV}e^{r t_i} $$
 
@@ -48,12 +48,12 @@ Let's assume that $t_0$ is the time of evaulation of the NPV and that $t_i$ is w
 
 $$ \begin{bmatrix} \Delta t_1 = t_1 - t_0 \\
 \Delta t_2 = t_2 - t_1 \\
-\Delta t_3 = t_3 - t_2 
+\Delta t_3 = t_3 - t_2
 \end{bmatrix} $$
 
-If there is a cash flow rate, C$_r$ then, 
+If there is a cash flow rate, C$_r$ then,
 
-$$ \text{C} \leq\text{C}_r \Delta t $$ 
+$$ \text{C} \leq\text{C}_r \Delta t $$
 
 
 # Constraints and Objective
@@ -72,13 +72,13 @@ $$ \text{C} \leq\text{C}_r \Delta t $$
 
         Model.__init__(self, cost, constraints, **kwargs)
 
-    def test(self):
+    @classmethod
+    def test(cls):
         "test the model by solving it"
-        return self.solve()
+        return cls().solve()
 
 if __name__ == "__main__":
-    M = NPV()
-    SOL = M.test()
+    SOL = NPV.test()
     with open("vartable.generated.tex", "w") as f:
         f.write("\\begin{tabbing}\n  XXXXXXXXXX \\= \\kill\n")
         for var in M.varkeys:

@@ -1,6 +1,6 @@
 "Models for atmospheric quantities"
 import numpy as np
-from gpkit import Variable, Model, units, SignomialsEnabled, LinkConstraint
+from gpkit import Variable, Model, units, SignomialsEnabled
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
 # pylint: disable=bad-whitespace
@@ -48,7 +48,7 @@ class Troposphere(Model):
         if min_rho:
             objective = rho  # minimize density
         else:
-            objective = 1/rho # maximize density
+            objective = 1/rho  # maximize density
 
         # Temperature lapse rate constraint
         if min_rho:
@@ -65,18 +65,20 @@ class Troposphere(Model):
 
                         # Ideal gas law
                         rho == p/(R*T),
-                       ]
-
+                        ]
         su = Sutherland()
-        lc = LinkConstraint([constraints, su])
+        lc = su.link(constraints)
 
         Model.__init__(self, objective, lc, **kwargs)
 
-    def test(self):
-        if self.min_rho:
-            self.localsolve()
+    @classmethod
+    def test(cls):
+        m = cls()
+        if m.min_rho:
+            m.localsolve()
         else:
-            self.solve()
+            m.solve()
+
 
 class Tropopause(Model):
     """
@@ -93,7 +95,7 @@ class Tropopause(Model):
         T_tp = 216.65
         k = GRAVITATIONAL_ACCEL/(GAS_CONSTANT*T_tp)
 
-        p11  = Variable('p_{11}', 22630, 'Pa', 'Pressure at 11 km')
+        p11 = Variable('p_{11}', 22630, 'Pa', 'Pressure at 11 km')
 
         objective = 1/rho  # maximize density
         constraints = [h >= 11*units.km,
@@ -108,12 +110,15 @@ class Tropopause(Model):
 
                        # Ideal gas law
                        rho == p/(R*T),
-                      ]
-
+                       ]
         su = Sutherland()
-        lc = LinkConstraint([constraints, su])
+        lc = su.link(constraints)
 
         Model.__init__(self, objective, lc, **kwargs)
+
+    @classmethod
+    def test(cls):
+        cls().solve()
 
 
 class Sutherland(Model):
@@ -139,13 +144,13 @@ class Sutherland(Model):
 
         Model.__init__(self, objective, constraints, **kwargs)
 
+    @classmethod
+    def test(cls):
+        m = cls()
+        m.substitutions.update({"T": 288})
+        m.solve()
 
 if __name__ == "__main__":
-    TS = Troposphere()
-    TS.test()
-    TP = Tropopause()
-    TP.solve()
-    SU = Sutherland()
-    # TODO: move this to a test() method
-    SU.substitutions.update({SU["T"]: 288})
-    SU.solve()
+    Troposphere.test()
+    Tropopause.test()
+    Sutherland.test()
