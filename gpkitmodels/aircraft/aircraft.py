@@ -1,9 +1,9 @@
 # coding=utf-8
 "Implements an aircraft model composed of multiple sub-models"
-from gpkit import Model, Variable, SignomialsEnabled, LinkConstraint
-from gpjet.aircraft.vtail import VerticalTail
-from gpjet.aircraft.fuselage import Fuselage
-from gpjet.aircraft.landing_gear import LandingGear
+from gpkit import Model, Variable, SignomialsEnabled, LinkedConstraintSet
+from vtail import VerticalTail
+from fuselage import Fuselage
+from landing_gear import LandingGear
 
 class Aircraft(Model):
     """
@@ -47,7 +47,7 @@ class Aircraft(Model):
             lgs = LandingGear.standalone_737()
 
             # Need to initialize solve with solution of uncoupled models
-            vtfu = Model(vt.cost + fu.cost, LinkConstraint([vt, fu]))
+            vtfu = Model(vt.cost + fu.cost, LinkedConstraintSet([vt, fu]))
             vtfu.substitutions.update({
                                        'x_{CG_{fu}}': 15,
                                        'x_{CG_{vt}}': 35,
@@ -64,7 +64,7 @@ class Aircraft(Model):
 
             self.init = init
 
-        Model.__init__(self, vt.cost + fu.cost + 0.5*lg.cost , LinkConstraint([vt, fu, lg]))
+        Model.__init__(self, vt.cost + fu.cost + 0.5*lg.cost , LinkedConstraintSet([vt, fu, lg]))
 
     def test(self):
         sol = self.localsolve(x0=self.init)

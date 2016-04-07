@@ -2,7 +2,7 @@
 "Implements a Vertical Tail model"
 import numpy as np
 import numpy.testing as npt
-from gpkit import Model, Variable, SignomialsEnabled, LinkConstraint
+from gpkit import Model, Variable, SignomialsEnabled, LinkedConstraintSet
 from gpkit.constraints.costed import CostedConstraintSet
 from gpkit.constraints.tight import TightConstraintSet as TCS
 from wingbox import WingBox
@@ -109,7 +109,8 @@ class VerticalTail(CostedConstraintSet):
                            TCS([dxtrail >= croot + dxlead]),
                            # Tail geometry constraint
 
-                           TCS([lfuse >= dxtrail + xCG]),
+                           lfuse >= dxtrail + xCG,
+                           #TCS([lfuse >= dxtrail + xCG]),
                            # Fuselage length constrains the tail trailing edge
 
                            p >= 1 + 2*taper,
@@ -158,7 +159,7 @@ class VerticalTail(CostedConstraintSet):
         # Incorporate the structural model
         wb = WingBox()
         wb.subinplace({"taper": taper})
-        lc = LinkConstraint([constraints, wb])
+        lc = LinkedConstraintSet([constraints, wb])
 
         CostedConstraintSet.__init__(self, objective, lc)
 
@@ -213,7 +214,7 @@ class VerticalTail(CostedConstraintSet):
                          'y_{eng}': 4.83, # [3]
                          }
 
-        m = Model(ccs.cost, constraints, substitutions)
+        m = Model(ccs.cost, constraints, substitutions, name='VerticalTail')
         return m
 
     def test(self):
