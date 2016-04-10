@@ -1,9 +1,9 @@
 Beginning signomial solve.
-Solving took 5 GP solves and 0.952 seconds.
+Solving took 5 GP solves and 1.39 seconds.
 
 Cost
 ----
- 2.035e+09 [N**2] 
+ 8.887e+04 [N] 
 
 Free Variables
 --------------
@@ -17,7 +17,6 @@ Free Variables
              FF : 1.076                Fuselage form factor                        
       M_{floor} : 4.442e+05  [N*m]     Max bending moment in floor beams           
       P_{floor} : 1.137e+06  [N]       Distributed floor load                      
-            Q_v : 1.005e+05  [N*m]     Torsion moment imparted by tail             
        R_{fuse} : 1.855      [m]       Fuselage radius                             
        S_{bulk} : 21.62      [m**2]    Bulkhead surface area                       
       S_{floor} : 5.686e+05  [N]       Maximum shear in floor beams                
@@ -62,11 +61,12 @@ Free Variables
        n_{pass} : 167                  Number of passengers                        
        n_{rows} : 31                   Number of rows                              
   p_{\lambda_v} : 1.6                  1 + 2*Tail taper ratio                      
-       t_{cone} : 4.494e-05  [m]       Cone thickness                              
       t_{shell} : 0.001259   [m]       Shell thickness                             
        t_{skin} : 0.0009324  [m]       Skin thickness                              
       w_{floor} : 3.125      [m]       Floor width                                 
      x_{shell1} : 5.2        [m]       Start of cylinder section                   
+     x_{shell2} : 29.61      [m]       End of cylinder section                     
+         x_{up} : 29.61      [m]       Fuselage upsweep point                      
 
 Constants
 ---------
@@ -99,8 +99,8 @@ Constants
 \sigma_{floor} : 2.069e+08  [N/m**2]   Max allowable cap stress                       
  \sigma_{skin} : 1.034e+08  [N/m**2]   Max allowable skin stress                      
   \tau_{floor} : 2.069e+08  [N/m**2]   Max allowable shear web stress                 
-           b_v : 7          [m]        Vertical tail span                             
-        c_{vt} : 4          [m]        Vertical tail chord                            
+        b_{vt} : 7          [m]        Vertical tail span                             
+        c_{vt} : 4          [m]        Vertical tail root chord                       
        f_{apu} : 0.035                 APU weight as fraction of payload weight       
       f_{fadd} : 0.2                   Fractional added weight of local reinforcements
      f_{frame} : 0.25                  Fractional frame weight                        
@@ -119,37 +119,37 @@ Constants
 
 Sensitivities
 -------------
-     w_{seat} : 2.23     Seat width                                     
-   V_{\infty} : 1.882    Cruise velocity                                
-          SPR : 1.771    Number of seats per row                        
-     n_{seat} : 1.095     Number of seats                               
-\rho_{\infty} : 0.8739   Air density (35,000ft)                         
-          p_s : 0.4586   Seat pitch                                     
-           LF : 0.4501   Load factor                                    
-     f_{padd} : 0.4289   Other misc weight as fraction of payload weight
-W_{avg. pass} : 0.392    Average passenger weight                       
-    w_{aisle} : 0.3791   Aisle width                                    
-    W'_{seat} : 0.1863   Weight per seat                                
-      w_{sys} : 0.1487   Width between cabin and skin for systems       
-          \mu : 0.1183   Dynamic viscosity (35,000ft)                   
-            g : 0.118    Gravitational acceleration                     
-  \rho_{skin} : 0.105    Skin density                                   
-     \Delta p : 0.105    Pressure difference across fuselage skin       
-      W_{fix} : 0.08852  Fixed weights (pilots, cockpit seats, navcom)  
-  W'_{window} : 0.07044  Weight/length density of windows               
-  W_{checked} : 0.05807  Ave. checked bag weight                        
-   f_{lugg,1} : 0.03871  Proportion of passengers with one suitcase     
-      f_{apu} : 0.03753  APU weight as fraction of payload weight       
-  W''_{floor} : 0.03497  Floor weight/area density                      
-    W_{cargo} : 0.03148  Cargo weight                                   
-  W''_{insul} : 0.02857  Weight/area density of insulation material     
-   f_{string} : 0.02087  Fractional weight of stringers                 
-   f_{lugg,2} : 0.01936  Proportion of passengers with two suitcases    
-    p_{cabin} : 0.01785  Cabin air pressure (8,000ft)                   
-    f_{frame} : 0.01491  Fractional frame weight                        
-     f_{fadd} : 0.01193  Fractional added weight of local reinforcements
-    T_{cabin} : -0.01785 Cabin temperature                              
-            R : -0.01785 Universal gas constant                         
-\sigma_{skin} : -0.1073  Max allowable skin stress                      
-       c_{vt} : -0.8788  Vertical tail chord                            
+     n_{seat} : 0.7542    Number of seats                               
+     w_{seat} : 0.507    Seat width                                     
+           LF : 0.3817   Load factor                                    
+     f_{padd} : 0.3637   Other misc weight as fraction of payload weight
+W_{avg. pass} : 0.3324   Average passenger weight                       
+          SPR : 0.2925   Number of seats per row                        
+   V_{\infty} : 0.2858   Cruise velocity                                
+          p_s : 0.2144   Seat pitch                                     
+    W'_{seat} : 0.158    Weight per seat                                
+\rho_{\infty} : 0.1273   Air density (35,000ft)                         
+            g : 0.1001   Gravitational acceleration                     
+  \rho_{skin} : 0.08902  Skin density                                   
+     \Delta p : 0.08902  Pressure difference across fuselage skin       
+    w_{aisle} : 0.08619  Aisle width                                    
+      W_{fix} : 0.07508  Fixed weights (pilots, cockpit seats, navcom)  
+  W'_{window} : 0.05974  Weight/length density of windows               
+  W_{checked} : 0.04925  Ave. checked bag weight                        
+      w_{sys} : 0.0338   Width between cabin and skin for systems       
+   f_{lugg,1} : 0.03283  Proportion of passengers with one suitcase     
+      f_{apu} : 0.03183  APU weight as fraction of payload weight       
+  W''_{floor} : 0.02966  Floor weight/area density                      
+    W_{cargo} : 0.0267   Cargo weight                                   
+  W''_{insul} : 0.02423  Weight/area density of insulation material     
+          \mu : 0.01797  Dynamic viscosity (35,000ft)                   
+   f_{string} : 0.0177   Fractional weight of stringers                 
+   f_{lugg,2} : 0.01642  Proportion of passengers with two suitcases    
+    p_{cabin} : 0.01514  Cabin air pressure (8,000ft)                   
+    f_{frame} : 0.01264  Fractional frame weight                        
+     f_{fadd} : 0.01011  Fractional added weight of local reinforcements
+    T_{cabin} : -0.01514 Cabin temperature                              
+            R : -0.01514 Universal gas constant                         
+\sigma_{skin} : -0.09103 Max allowable skin stress                      
+       c_{vt} : -0.1319  Vertical tail root chord                       
 
