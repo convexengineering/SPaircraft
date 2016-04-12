@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 5 GP solves and 4.46 seconds.
+Solving took 5 GP solves and 4.44 seconds.
 
 Cost
 ----
@@ -11,7 +11,7 @@ Free Variables
           A_{vt} : 1.095             Vertical tail aspect ratio                     
      C_{D_{vis}} : 0.00513           Viscous drag coefficient                       
       C_{L_{vt}} : 0.4231            Vertical tail lift coefficient                 
-         D_{vis} : 2114       [N]    Vertical tail viscous drag, cruise             
+          D_{vt} : 2114       [N]    Vertical tail viscous drag, cruise             
           D_{wm} : 3112       [N]    Engine out windmill drag                       
          L_{max} : 2.615e+06  [N]    Maximum load for structural sizing             
          L_{max} : 2.615e+06  [N]    Maximum wing load                              

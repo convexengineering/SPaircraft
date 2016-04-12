@@ -1,14 +1,21 @@
 Beginning signomial solve.
-Solving took 5 GP solves and 61 seconds.
+Solving took 5 GP solves and 62.2 seconds.
 
 Cost
 ----
- 1.302e+05 [N] 
+ 1.637e+05 [N] 
 
 Free Variables
 --------------
                        Aircraft |                                                                      
+                              D : 2.555e+04  [N]       Total aircraft drag (cruise)                    
+                       D_{fuse} : 1.305e+04  [N]       Fuselage drag                                   
+                         D_{vt} : 1492       [N]       Vertical tail drag                              
                     L_{v_{max}} : 9.154e+05  [N]       Maximum load for structural sizing              
+                              W : 2.764e+05  [N]       Total aircraft weight                           
+                       W_{fuse} : 2.064e+05  [N]       Fuselage weight                                 
+                         W_{lg} : 1.654e+04  [N]       Weight of landing gear                          
+                         W_{vt} : 8501       [N]       Vertical tail weight                            
                          b_{vt} : 7.155      [m]       Vertical tail span                              
                          c_{vt} : 5.961      [m]       Vertical tail root chord                        
                        h_{hold} : 0.9493     [m]       Hold height                                     
@@ -21,7 +28,6 @@ Free Variables
                        A_{fuse} : 13.31      [m**2]    Fuselage x-sectional area                       
                        A_{hold} : 2.396      [m**2]    Cargo hold x-sectional area                     
                        A_{skin} : 0.01338    [m**2]    Skin cross sectional area                       
-                              D : 1.305e+04  [N]       Total drag in cruise                            
                    D_{friction} : 9718       [N]       Friction drag                                   
                     D_{upsweep} : 3337       [N]       Drag due to fuse upsweep                        
                              FF : 1.075                Fuselage form factor                            
@@ -32,7 +38,7 @@ Free Variables
                       S_{floor} : 5.686e+05  [N]       Maximum shear in floor beams                    
                        S_{nose} : 55.83      [m**2]    Nose surface area                               
                        V_{bulk} : 0.02755    [m**3]    Bulkhead skin volume                            
-                      V_{cabin} : 976.5      [m**3]    Cabin volume                                    
+                      V_{cabin} : 949.4      [m**3]    Cabin volume                                    
                       V_{cargo} : 6.796      [m**3]    Cargo volume                                    
                        V_{cone} : 0.2686     [m**3]    Cone skin volume                                
                         V_{cyl} : 0.3267     [m**3]    Cylinder skin volume                            
@@ -41,18 +47,17 @@ Free Variables
                        V_{lugg} : 18.24      [m**3]    Luggage volume                                  
                        V_{nose} : 0.05777    [m**3]    Nose skin volume                                
                         W_{apu} : 5657       [N]       APU weight                                      
-                       W_{buoy} : 4704       [N]       Buoyancy weight                                 
+                       W_{buoy} : 4573       [N]       Buoyancy weight                                 
                        W_{cone} : 1.281e+04  [N]       Cone weight                                     
                       W_{floor} : 1.087e+04  [N]       Floor weight                                    
-                       W_{fuse} : 2.064e+05  [N]       Fuselage weight                                 
                       W_{insul} : 4818       [N]       Insulation material weight                      
                        W_{lugg} : 1.79e+04   [N]       Passenger luggage weight                        
                        W_{padd} : 6.465e+04  [N]       Misc weights (galley, toilets, doors etc.)      
                        W_{pass} : 1.337e+05  [N]       Passenger weight                                
                         W_{pay} : 1.616e+05  [N]       Payload weight                                  
                        W_{seat} : 2.79e+04   [N]       Seating weight                                  
-                      W_{shell} : 2.556e+04  [N]       Shell weight                                    
-                       W_{skin} : 1.42e+04   [N]       Skin weight                                     
+                      W_{shell} : 2.553e+04  [N]       Shell weight                                    
+                       W_{skin} : 1.418e+04  [N]       Skin weight                                     
                      W_{window} : 1.062e+04  [N]       Window weight                                   
                  \lambda_{cone} : 0.4                  Tailcone radius taper ratio (xshell2->xtail)    
                            \phi : 0.1317               Upsweep angle                                   
@@ -102,7 +107,6 @@ Free Variables
                         L_{w_n} : 8.044e+04  [N]       Static load per wheel (nose)                    
                            S_sa : 0.2959     [m]       Stroke of the shock absorber                    
                               T : 9.66       [m]       Main landing gear track                         
-                         W_{lg} : 1.654e+04  [N]       Weight of landing gear                          
                          W_{mg} : 1.497e+04  [N]       Weight of main gear                             
                          W_{ms} : 1543       [N]       Weight of main struts                           
                          W_{mw} : 2377       [N]       Weight of main wheels (per strut)               
@@ -137,7 +141,6 @@ Free Variables
                          A_{vt} : 1.847                Vertical tail aspect ratio                      
                     C_{D_{vis}} : 0.005174             Viscous drag coefficient                        
                      C_{L_{vt}} : 0.4514               Vertical tail lift coefficient                  
-                        D_{vis} : 1492       [N]       Vertical tail viscous drag, cruise              
                          D_{wm} : 3112       [N]       Engine out windmill drag                        
                         L_{max} : 1.831e+06  [N]       Maximum wing load                               
                          L_{vt} : 3.238e+04  [N]       Vertical tail lift in engine out                
@@ -145,7 +148,6 @@ Free Variables
                               S : 55.44      [m**2]    Reference area                                  
                          S_{vt} : 27.72      [m**2]    Vertical tail ref. area (half)                  
                      W_{struct} : 1.7e+04    [N]       Full span weight                                
-                         W_{vt} : 8501       [N]       Vertical tail weight                            
                 \Delta x_{lead} : 17.02      [m]       Distance from CG to vertical tail leading edge  
                \Delta x_{trail} : 22.98      [m]       Distance from CG to vertical tail trailing edge 
                         \bar{c} : 4.249      [m]       Vertical tail mean aero chord                   
@@ -172,6 +174,11 @@ WingBox, VerticalTail, Aircraft |
 Constants
 ---------
                        Aircraft |                                                                       
+                         D_{ht} : 1000       [N]         Horizontal tail drag                           
+                       D_{wing} : 1e+04      [N]         Wing drag                                      
+                        W_{eng} : 1e+04      [N]         Engine weight                                  
+                         W_{ht} : 5000       [N]         Horizontal tail weight                         
+                       W_{wing} : 3e+04      [N]         Wing weight                                    
                             \mu : 1.4e-05    [N*s/m**2]  Dynamic viscosity (35,000ft)                   
                         d_{fan} : 1.75       [m]         Fan diameter                                   
                               g : 9.81       [m/s**2]    Gravitational acceleration                     
@@ -276,69 +283,71 @@ WingBox, VerticalTail, Aircraft |
 Sensitivities
 -------------
 WingBox, VerticalTail, Aircraft |                                                         
-                       N_{lift} : 0.03332  Wing loading multiplier                        
-                     \rho_{cap} : 0.02746  Density of spar cap material                   
-                   \sigma_{max} : -0.02814 Allowable tensile stress                       
+                       N_{lift} : 0.0265   Wing loading multiplier                        
+                     \rho_{cap} : 0.02184  Density of spar cap material                   
+                   \sigma_{max} : -0.02239 Allowable tensile stress                       
                                                                                           
          VerticalTail, Aircraft |                                                         
-                         V_{ne} : 0.3095   Never exceed velocity                          
-                            T_e : 0.2884   Thrust per engine at takeoff                   
-                   C_{L_{vmax}} : 0.1548   Max lift coefficient                           
-                            V_c : 0.02265  Cruise velocity                                
-                         \rho_c : 0.0112   Air density (35,000ft)                         
-             \tan(\Lambda_{LE}) : -0.02437 Tangent of leading edge sweep (40 deg)         
-                              e : -0.02873 Span efficiency of vertical tail               
-                      \rho_{TO} : -0.1336  Air density (SL))                              
-                     c_{l_{vt}} : -0.2666  Sectional lift force coefficient (engine out)  
-                    x_{CG_{vt}} : -0.2997  x-location of tail CG                          
-                            V_1 : -0.5768  Minimum takeoff velocity                       
+                         V_{ne} : 0.2462   Never exceed velocity                          
+                            T_e : 0.2294   Thrust per engine at takeoff                   
+                   C_{L_{vmax}} : 0.1231   Max lift coefficient                           
+                            V_c : 0.01802  Cruise velocity                                
+             \tan(\Lambda_{LE}) : -0.01938 Tangent of leading edge sweep (40 deg)         
+                              e : -0.02285 Span efficiency of vertical tail               
+                      \rho_{TO} : -0.1063  Air density (SL))                              
+                     c_{l_{vt}} : -0.2121  Sectional lift force coefficient (engine out)  
+                    x_{CG_{vt}} : -0.2384  x-location of tail CG                          
+                            V_1 : -0.4588  Minimum takeoff velocity                       
                                                                                           
           LandingGear, Aircraft |                                                         
-                            W_0 : 0.1219   Weight of aircraft excluding landing gear      
-              \tan(\theta_{TO}) : 0.03737  Takeoff pitch angle                            
-                      f_{add,m} : 0.02737  Proportional added weight, main                
-                              K : 0.02422  Column effective length factor                 
-                      \rho_{st} : 0.01263  Density of 4340 Steel                          
-                              E : -0.01211 Modulus of elasticity, 4340 steel              
-                         n_{mg} : -0.04914 Number of main gear struts                     
-                        n_{wps} : -0.05893 Number of wheels per strut                     
+                            W_0 : 0.09698  Weight of aircraft excluding landing gear      
+              \tan(\theta_{TO}) : 0.02972  Takeoff pitch angle                            
+                      f_{add,m} : 0.02177  Proportional added weight, main                
+                              K : 0.01927  Column effective length factor                 
+                      \rho_{st} : 0.01005  Density of 4340 Steel                          
+                         n_{mg} : -0.03909 Number of main gear struts                     
+                        n_{wps} : -0.04687 Number of wheels per strut                     
                                                                                           
              Fuselage, Aircraft |                                                         
-                       n_{seat} : 1.233     Number of seats                               
-                            p_s : 0.7689   Seat pitch                                     
-                             LF : 0.3365   Load factor                                    
-                  W_{avg. pass} : 0.2969   Average passenger weight                       
-                       f_{padd} : 0.288    Other misc weight as fraction of payload weight
-                     V_{\infty} : 0.1855   Cruise velocity                                
-                       \Delta h : 0.1551   Distance from floor to widest part of fuselage 
-                      W'_{seat} : 0.1274   Weight per seat                                
-                    \rho_{cone} : 0.1215   Cone material density                          
-                  \rho_{\infty} : 0.08531  Air density (35,000ft)                         
-                    \rho_{skin} : 0.08116  Skin density                                   
-                       \Delta p : 0.08116  Pressure difference across fuselage skin       
-                        f_{apu} : 0.05296  APU weight as fraction of payload weight       
-                           xapu : 0.05296  x-location of APU                              
-                    W'_{window} : 0.0473   Weight/length density of windows               
-                    W_{checked} : 0.03959  Ave. checked bag weight                        
-                     f_{string} : 0.0394   Fractional weight of stringers                 
-                      f_{frame} : 0.02814  Fractional frame weight                        
-                    W''_{floor} : 0.02744  Floor weight/area density                      
-                     f_{lugg,1} : 0.02639  Proportion of passengers with one suitcase     
-                       f_{fadd} : 0.02251  Fractional added weight of local reinforcements
-                      W_{cargo} : 0.0222   Cargo weight                                   
-                    W''_{insul} : 0.02146  Weight/area density of insulation material     
-                       N_{land} : 0.02097  Emergency landing load factor                  
-                   \rho_{floor} : 0.02097  Floor material density                         
-                     f_{lugg,2} : 0.0132   Proportion of passengers with two suitcases    
-                 \sigma_{floor} : -0.01922 Max allowable cap stress                       
-                  \sigma_{skin} : -0.2026  Max allowable skin stress                      
-                            SPR : -0.7689  Number of seats per row                        
-                    x_{CG_{fu}} : -0.7922  x-location of fuselage CG                      
+                       n_{seat} : 0.9806    Number of seats                               
+                            p_s : 0.6116   Seat pitch                                     
+                             LF : 0.2676   Load factor                                    
+                  W_{avg. pass} : 0.2362   Average passenger weight                       
+                       f_{padd} : 0.2291   Other misc weight as fraction of payload weight
+                     V_{\infty} : 0.1476   Cruise velocity                                
+                       \Delta h : 0.1234   Distance from floor to widest part of fuselage 
+                      W'_{seat} : 0.1013   Weight per seat                                
+                    \rho_{cone} : 0.0966   Cone material density                          
+                  \rho_{\infty} : 0.06785  Air density (35,000ft)                         
+                    \rho_{skin} : 0.06456  Skin density                                   
+                       \Delta p : 0.06456  Pressure difference across fuselage skin       
+                        f_{apu} : 0.04212  APU weight as fraction of payload weight       
+                           xapu : 0.04212  x-location of APU                              
+                    W'_{window} : 0.03762  Weight/length density of windows               
+                    W_{checked} : 0.03149  Ave. checked bag weight                        
+                     f_{string} : 0.03134  Fractional weight of stringers                 
+                      f_{frame} : 0.02238  Fractional frame weight                        
+                    W''_{floor} : 0.02182  Floor weight/area density                      
+                     f_{lugg,1} : 0.02099  Proportion of passengers with one suitcase     
+                       f_{fadd} : 0.01791  Fractional added weight of local reinforcements
+                      W_{cargo} : 0.01766  Cargo weight                                   
+                    W''_{insul} : 0.01707  Weight/area density of insulation material     
+                       N_{land} : 0.01668  Emergency landing load factor                  
+                   \rho_{floor} : 0.01668  Floor material density                         
+                     f_{lugg,2} : 0.0105   Proportion of passengers with two suitcases    
+                 \sigma_{floor} : -0.01529 Max allowable cap stress                       
+                  \sigma_{skin} : -0.1612  Max allowable skin stress                      
+                            SPR : -0.6116  Number of seats per row                        
+                    x_{CG_{fu}} : -0.6301  x-location of fuselage CG                      
                                                                                           
                        Aircraft |                                                         
-                        y_{eng} : 0.2951   Engine moment arm                              
-                              g : 0.2688   Gravitational acceleration                     
-                         x_{CG} : 0.06965  x-location of CG                               
-                            \mu : 0.01518  Dynamic viscosity (35,000ft)                   
-                        d_{fan} : 0.01392  Fan diameter                                   
+                        y_{eng} : 0.2347   Engine moment arm                              
+                              g : 0.2138   Gravitational acceleration                     
+                       W_{wing} : 0.09161  Wing weight                                    
+                       D_{wing} : 0.06107  Wing drag                                      
+                         x_{CG} : 0.0554   x-location of CG                               
+                        W_{eng} : 0.03054  Engine weight                                  
+                         W_{ht} : 0.01527  Horizontal tail weight                         
+                            \mu : 0.01208  Dynamic viscosity (35,000ft)                   
+                        d_{fan} : 0.01107  Fan diameter                                   
 

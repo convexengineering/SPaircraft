@@ -27,7 +27,7 @@ class VerticalTail(CostedConstraintSet):
         CDwm   = Variable('C_{D_{wm}}', '-', 'Windmill drag coefficient')
         CLvmax = Variable('C_{L_{vmax}}', '-', 'Max lift coefficient')
         CLvt   = Variable('C_{L_{vt}}', '-', 'Vertical tail lift coefficient')
-        Dvis   = Variable('D_{vis}', 'N', 'Vertical tail viscous drag, cruise')
+        Dvt    = Variable('D_{vt}', 'N', 'Vertical tail viscous drag, cruise')
         Dwm    = Variable('D_{wm}', 'N', 'Engine out windmill drag')
         Lmax   = Variable('L_{max}', 'N',
                           'Maximum load for structural sizing') # fuselage
@@ -79,7 +79,7 @@ class VerticalTail(CostedConstraintSet):
 
 
         with SignomialsEnabled():
-            objective = Dvis + 0.5*Wvt
+            objective = Dvt + 0.5*Wvt
             constraints = [
                            Lvt*lvt >= Te*y_eng + Dwm*y_eng,
                            # Force moment balance for one engine out condition
@@ -122,7 +122,7 @@ class VerticalTail(CostedConstraintSet):
                            # TODO: Constrain taper by tip Reynolds number
                            # source: b737.org.uk
 
-                           Dvis >= 0.5*rho_c*Vc**2*Svt*CDvis,
+                           Dvt >= 0.5*rho_c*Vc**2*Svt*CDvis,
                            CDvis**0.125 >= 0.19*(tau)**0.0075 *(Rec)**0.0017
                                         + 1.83e+04*(tau)**3.54*(Rec)**-0.494
                                         + 0.118*(tau)**0.0082 *(Rec)**0.00165

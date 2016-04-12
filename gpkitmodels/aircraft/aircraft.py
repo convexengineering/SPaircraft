@@ -12,33 +12,35 @@ class Aircraft(Model):
 
     def __init__(self):
 
-        # Free variables
+        D      = Variable('D', 'N', 'Total aircraft drag (cruise)')
+        Dfuse  = Variable('D_{fuse}', 'N', 'Fuselage drag')
+        Dht    = Variable('D_{ht}', 'N', 'Horizontal tail drag')
+        Dvt    = Variable('D_{vt}', 'N', 'Vertical tail drag')
+        Dwing  = Variable('D_{wing}', 'N', 'Wing drag')
         W      = Variable('W', 'N', 'Total aircraft weight')
+        Weng   = Variable('W_{eng}', 'N', 'Engine weight')
         Wfuse  = Variable('W_{fuse}', 'N', 'Fuselage weight')
+        Wht    = Variable('W_{ht}', 'N', 'Horizontal tail weight')
         Wlg    = Variable('W_{lg}', 'N', 'Landing gear weight')
         Wvt    = Variable('W_{vt}', 'N', 'Vertical tail weight')
+        Wwing  = Variable('W_{wing}', 'N', 'Wing weight')
         xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
+        xCGeng  = Variable('x_{CG_{eng}}', 'm', 'x-location of engine CG')
         xCGfu  = Variable('x_{CG_{fu}}', 'm', 'x-location of fuselage CG')
+        xCGht   = Variable('x_{CG_{ht}}', 'm', 'x-location of htail CG')
         xCGlg  = Variable('x_{CG_{lg}}', 'm', 'x-location of landing gear CG')
-        xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of tail CG') 
-
-        # Fixed variables
-        Weng    = Variable('W_{eng}', 10000, 'N', 'Engine weight')
-        Wht     = Variable('W_{ht}', 5000, 'N', 'Horizontal tail weight')
-        Wwing   = Variable('W_{wing}', 30000, 'N', 'Wing weight')
-        xCGeng  = Variable('x_{CG_{eng}}', 15, 'm', 'x-location of engine CG')
-        xCGht   = Variable('x_{CG_{ht}}', 38, 'm', 'x-location of horizontal tail CG')
-        xCGwing = Variable('x_{CG_{wing}}', 15, 'm', 'x-location of wing CG')
+        xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of vtail CG') 
+        xCGwing = Variable('x_{CG_{wing}}', 'm', 'x-location of wing CG')
 
         with SignomialsEnabled():
 
-            # High level model
-            #objective = W
-            #constraints = [W <= Wvt + Wfuse + Wlg + Wwing + Wht + Weng,
+            objective = D + 0.5*W
+            constraints = [# High level constraints
+                           D >= Dvt + Dfuse       + Dwing + Dht,
+                           W >= Wvt + Wfuse + Wlg + Wwing + Wht + Weng,
+                          ]
             #               xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
             #                      + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng,
-            #              ]
-            #m = Model(objective, constraints)
 
             # Subsystem models
             vt = VerticalTail.aircraft_737()
@@ -64,7 +66,20 @@ class Aircraft(Model):
 
             self.init = init
 
-        Model.__init__(self, vt.cost + fu.cost + 0.5*lg.cost , LinkedConstraintSet([vt, fu, lg]))
+        substitutions = {
+                         'D_{ht}': 1000,
+                         'D_{wing}': 10000,
+                         'W_{eng}': 10000,
+                         'W_{ht}': 5000,
+                         'W_{wing}': 30000,
+                         'x_{CG_{eng}}': 15,
+                         'x_{CG_{ht}}': 38,
+                         'x_{CG_{wing}}': 15,
+                        }
+
+        Model.__init__(self, objective,
+                             LinkedConstraintSet([constraints, vt, fu, lg]),
+                             substitutions)
 
     def test(self):
         sol = self.localsolve(x0=self.init)

@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 5 GP solves and 3.36 seconds.
+Solving took 5 GP solves and 3.43 seconds.
 
 Cost
 ----
@@ -11,8 +11,8 @@ Free Variables
        A_{fuse} : 10.81      [m**2]    Fuselage x-sectional area                   
        A_{hold} : 1.026      [m**2]    Cargo hold x-sectional area                 
        A_{skin} : 0.01087    [m**2]    Skin cross sectional area                   
-              D : 1.35e+04   [N]       Total drag in cruise                        
    D_{friction} : 7988       [N]       Friction drag                               
+       D_{fuse} : 1.35e+04   [N]       Total drag in cruise                        
     D_{upsweep} : 5513       [N]       Drag due to fuse upsweep                    
              FF : 1.076                Fuselage form factor                        
       M_{floor} : 4.442e+05  [N*m]     Max bending moment in floor beams           

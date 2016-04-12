@@ -14,7 +14,7 @@ class Fuselage(CostedConstraintSet):
         Afuse    = Variable('A_{fuse}', 'm^2', 'Fuselage x-sectional area')
         Ahold    = Variable('A_{hold}', 'm^2', 'Cargo hold x-sectional area')
         Askin    = Variable('A_{skin}', 'm^2', 'Skin cross sectional area')
-        D        = Variable('D', 'N', 'Total drag in cruise')
+        Dfuse    = Variable('D_{fuse}', 'N', 'Total drag in cruise')
         Dfrict   = Variable('D_{friction}', 'N', 'Friction drag')
         Dupswp   = Variable('D_{upsweep}', 'N', 'Drag due to fuse upsweep')
         FF       = Variable('FF', '-','Fuselage form factor')
@@ -163,7 +163,7 @@ class Fuselage(CostedConstraintSet):
         xshell2  = Variable('x_{shell2}', 'm', 'End of cylinder section')
 
         with SignomialsEnabled():
-            objective = D + 0.5*Wfuse
+            objective = Dfuse + 0.5*Wfuse
 
             constraints = [
                             # Geometry relations
@@ -265,7 +265,7 @@ class Fuselage(CostedConstraintSet):
                             1.13226*phi**1.03759 == Rfuse/lcone, # monomial fit
                                                                  # of tan(phi)
                             Dupswp >= 3.83*phi**2.5*Afuse * 0.5*rhoinf*Vinf**2,
-                            D >= Dfrict + Dupswp
+                            Dfuse >= Dfrict + Dupswp
                           ]
 
         CG_constraints = [
