@@ -1,10 +1,9 @@
 # coding=utf-8
 "Implements Landing Gear model"
 import numpy as np
-import numpy.testing as npt
 from gpkit import Variable, Model, SignomialsEnabled, units
 from gpkit.constraints.costed import CostedConstraintSet
-from gpkit.small_scripts import mag
+from gpkit.constraints.tight import TightConstraintSet as TCS
 
 class LandingGear(CostedConstraintSet):
     """
@@ -89,7 +88,6 @@ class LandingGear(CostedConstraintSet):
         w_ult   = Variable('w_{ult}', 'ft/s', 'Ultimate velocity of descent')
         wtm     = Variable('w_{t_m}', 'm', 'Width of main tires')
         wtn     = Variable('w_{t_n}', 'm', 'Width of nose tires')
-        xCGlg   = Variable('x_{CG_{lg}}', 'm', 'x-location of landing gear CG')
         x_m     = Variable('x_m', 'm', 'x-location of main gear')
         x_n     = Variable('x_n', 'm', 'x-location of nose gear')
         x_upswp = Variable('x_{up}', 'm', 'Fuselage upsweep point')
@@ -109,19 +107,18 @@ class LandingGear(CostedConstraintSet):
 
             constraints = [
                            # Track and Base geometry definitions
-                           l_n + zwing + y_m*tan_gam >= l_m, # [SP]
+                           TCS([l_n + zwing + y_m*tan_gam >= l_m]), # [SP]
                            T == 2*y_m,
-                           x_n + B <= x_m,
+                           TCS([x_n + B <= x_m]),
                            x_n >= 5*units.m, # nose gear after nose
 
                            # Geometric constraints relating gear placement with
                            # fore/aft CG locations
-                           dxn + x_n >= xcg, # [SP] Needs to be tight
-                           dxm + xcg >= x_m, # [SP] Needs to be tight
+                           TCS([dxn + x_n >= xcg], reltol=1E-5), # [SP]
+                           TCS([dxm + xcg >= x_m]), # [SP]
                            # TODO forward and aft CG
 
                            # CG location affected by landing gear position
-#                           xCGlg >= (W_ng*x_n + W_mg*x_m)/W_lg,
                            xcg*(W_0 + W_lg) <= W_0*xcg0 + W_ng*x_n + W_mg*x_m,
 
                            # Maximum static loads through main and nose gears
@@ -325,20 +322,6 @@ class LandingGear(CostedConstraintSet):
         """Tests the standalone landing gear model"""
         m = cls.standalone_737()
         sol = m.localsolve()
-
-        npt.assert_almost_equal(mag(sol('x_n')) + mag(sol('B')),
-                                mag(sol('x_m')), decimal=5)
-        npt.assert_almost_equal(mag(sol('\Delta x_n')) + mag(sol('x_n')),
-                                mag(sol('x_{CG}')), decimal=1)
-        npt.assert_almost_equal(mag(sol('\Delta x_m')) + mag(sol('x_{CG}')),
-                                mag(sol('x_m')), decimal=4)
-        npt.assert_almost_equal(mag(sol('l_n')) + mag(sol('z_{wing}')) +
-                                mag(sol('y_m')) * mag(sol('\\tan(\\gamma)')),
-                                mag(sol('l_m')), decimal=4)
-        npt.assert_almost_equal(mag(sol('d_{nacelle}')) + mag(sol('h_{nacelle}')),
-                                mag(sol('l_m')) + (mag(sol('y_{eng}')) -
-                                mag(sol('y_m'))) * mag(sol('\\tan(\\gamma)')),
-                                decimal=4)
 
 if __name__ == "__main__":
     LandingGear.test()

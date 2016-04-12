@@ -1,9 +1,8 @@
 "Implements Fuselage model"
 import numpy as np
-import numpy.testing as npt
 from gpkit import Variable, Model, SignomialsEnabled, units
 from gpkit.constraints.costed import CostedConstraintSet
-from gpkit.small_scripts import mag
+from gpkit.constraints.tight import TightConstraintSet as TCS
 
 class Fuselage(CostedConstraintSet):
     """
@@ -196,7 +195,7 @@ class Fuselage(CostedConstraintSet):
                             # Cabin volume and buoyancy weight
                             rhocabin == (1/(R*Tcabin))*pcabin,
                             Vcabin >= Afuse*(lshell + 0.67*lnose + 0.67*Rfuse),
-                            Wbuoy >= (rhocabin - rhoinf)*g*Vcabin, # [SP]
+                            TCS([Wbuoy >= (rhocabin - rhoinf)*g*Vcabin], reltol=1E-3), # [SP]
 
                             # Windows and insulation
                             Wwindow == Wpwindow * lshell,
@@ -242,9 +241,9 @@ class Fuselage(CostedConstraintSet):
                             Wcargo == Vcargo*g*rhocargo,
                             Vhold >= Vcargo + Vlugg,
                             Vhold == Ahold*lshell,
-                            Ahold <= (2./3)*wfloor*hhold + hhold**3/(2*wfloor),
+                            TCS([Ahold <= (2./3)*wfloor*hhold + hhold**3/(2*wfloor)], reltol=1E-5),
                             # [SP] Harris stocker 1998 (wolfram)
-                            dh + hhold + hfloor <= Rfuse,
+                            TCS([dh + hhold + hfloor <= Rfuse]),
                             Wpay >= Wpass + Wlugg + Wcargo,
 
                             # Total fuselage weight
@@ -411,14 +410,6 @@ class Fuselage(CostedConstraintSet):
         fu = cls.standalone_737()
         sol = fu.localsolve()
 
-        npt.assert_almost_equal(mag(sol('A_{hold}')), (2./3)*mag(sol('w_{floor}'))
-                                *mag(sol('h_{hold}')) + mag(sol('h_{hold}'))**3
-                                /(2*mag(sol('w_{floor}'))), decimal=4)
-        npt.assert_almost_equal(mag(sol('\\Delta h')) + mag(sol('h_{hold}'))
-                                + mag(sol('h_{floor}')), mag(sol('R_{fuse}')))
-        npt.assert_almost_equal(mag(sol('W_{buoy}')), (mag(sol('\\rho_{cabin}'))
-                                - mag(sol('\\rho_{\\infty}')))*mag(sol('g'))
-                                * mag(sol('V_{cabin}')), decimal=1)
 
 if __name__ == "__main__":
     Fuselage.test()

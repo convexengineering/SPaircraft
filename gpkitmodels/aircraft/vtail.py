@@ -1,7 +1,6 @@
 # coding=utf-8
 "Implements a Vertical Tail model"
 import numpy as np
-import numpy.testing as npt
 from gpkit import Model, Variable, SignomialsEnabled, LinkedConstraintSet
 from gpkit.constraints.costed import CostedConstraintSet
 from gpkit.constraints.tight import TightConstraintSet as TCS
@@ -110,7 +109,6 @@ class VerticalTail(CostedConstraintSet):
                            # Tail geometry constraint
 
                            lfuse >= dxtrail + xCG,
-                           #TCS([lfuse >= dxtrail + xCG]),
                            # Fuselage length constrains the tail trailing edge
 
                            p >= 1 + 2*taper,
