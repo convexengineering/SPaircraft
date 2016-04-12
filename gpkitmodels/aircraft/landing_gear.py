@@ -40,8 +40,6 @@ class LandingGear(CostedConstraintSet):
                            'Wheel assembly weight for single main gear wheel')
         WAWn    = Variable('W_{wa,n}', 'lbf',
                            'Wheel assembly weight for single nose gear wheel')
-        Waddm   = Variable('W_{add_m}', 'N', 'Proportional added weight, main')
-        Waddn   = Variable('W_{add_n}', 'N', 'Proportional added weight, nose')
         W_0     = Variable('W_0', 'N', 'Weight of aircraft excluding landing gear')
         W_lg    = Variable('W_{lg}', 'N', 'Weight of landing gear')
         W_mg    = Variable('W_{mg}', 'N', 'Weight of main gear')
@@ -60,6 +58,8 @@ class LandingGear(CostedConstraintSet):
         eta_s   = Variable('\\eta_s', '-', 'Shock absorber efficiency')
         eta_t   = Variable('\\eta_t', '-',
                            'Efficiency of tire in shock absorption')
+        faddm   = Variable('f_{add,m}', '-', 'Proportional added weight, main')
+        faddn   = Variable('f_{add,n}', '-', 'Proportional added weight, nose')
         g       = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         h_nac   = Variable('h_{nacelle}', 'm', 'Min. nacelle clearance')
         hhold   = Variable('h_{hold}', 'm', 'Hold height')
@@ -235,10 +235,8 @@ class LandingGear(CostedConstraintSet):
                            2*wtn + 2*r_n <= 0.8*units.m, #TODO improve this
 
                            # Weight accounting
-                           Waddm == 1.5*W_mw, # Currey p264
-                           Waddn == 1.5*W_nw,
-                           W_mg >= n_mg*(W_ms + W_mw + Waddm),
-                           W_ng >= W_ns + W_nw + Waddn,
+                           W_mg >= n_mg*(W_ms + W_mw*(1 + faddm)),# Currey p264
+                           W_ng >= W_ns + W_nw*(1 + faddn),
                            W_lg >= W_mg + W_ng,
                           ]
 
@@ -265,6 +263,8 @@ class LandingGear(CostedConstraintSet):
                          '\\tan(\\theta_{TO})': np.tan(15*np.pi/180),
                          '\\sigma_{y_c}': 470E6,
                          'd_{fan}': 1.75,
+                         'f_{add,m}': 1.5,
+                         'f_{add,n}': 1.5,
                          'h_{hold}': 1,
                          'h_{nacelle}': 0.5,
                          'n_{mg}': 2,
@@ -302,6 +302,8 @@ class LandingGear(CostedConstraintSet):
                          '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
                          '\\tan(\\theta_{TO})': np.tan(15*np.pi/180),
                          'd_{fan}': 1.75,
+                         'f_{add,m}': 1.5,
+                         'f_{add,n}': 1.5,
                          'h_{nacelle}': 0.5,
                          'n_{mg}': 2,
                          'n_{wps}': 2,
