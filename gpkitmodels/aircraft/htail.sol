@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 4 GP solves and 0.846 seconds.
+Solving took 4 GP solves and 5.6 seconds.
 
 Cost
 ----
@@ -30,7 +30,7 @@ Free Variables
                c_{root} : 5.896      [m]    Horizontal tail root chord                       
                 c_{tip} : 1.179      [m]    Horizontal tail tip chord                        
                     e_h : 0.9874            Oswald efficiency factor                         
-           f\(\lambda\) : 0.003309          Empirical efficiency function of taper           
+             f(\lambda) : 0.003309          Empirical efficiency function of taper           
                     l_h : 17.37      [m]    Horizontal tail moment arm                       
                       p : 1.4               Substituted variable = 1 + 2*taper               
                       q : 1.2               Substituted variable = 1 + taper                 
@@ -49,10 +49,8 @@ WingBox, HorizontalTail |
 Constants
 ---------
          HorizontalTail |                                                                              
-                C_{L_w} : 0.5                  Lift coefficient (wing)                                 
              C_{L_{aw}} : 6.283                Lift curve slope (wing)                                 
            C_{L_{hmax}} : 2.6                  Max lift coefficient                                    
-           C_{m_{fuse}} : 0.05                 Moment coefficient (fuselage)                           
              S.M._{min} : 0.05                 Minimum stability margin                                
                     S_w : 125       [m**2]     Wing area                                               
              V_{\infty} : 240       [m/s]      Freestream velocity                                     
@@ -68,7 +66,6 @@ Constants
                l_{fuse} : 40        [m]        Fuselage length                                         
                     w_f : 6         [m]        Fuselage width                                          
                  x_{CG} : 20        [m]        CG location                                             
-           |C_{m_{ac}}| : 0.1                  Moment coefficient about aerodynamic centre (wing)      
                                                                                                        
 WingBox, HorizontalTail |                                                                              
                N_{lift} : 2                    Wing loading multiplier                                 

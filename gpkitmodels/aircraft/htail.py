@@ -2,7 +2,7 @@
 from numpy import pi, tan
 from gpkit import Variable, Model, SignomialsEnabled
 from gpkit.constraints.tight import TightConstraintSet as TCS
-from wing.wingbox import WingBox
+from wingbox import WingBox
 # pylint:disable=bad-whitespace
 
 class HorizontalTail(Model):
@@ -89,7 +89,7 @@ class HorizontalTail(Model):
                            TCS([dxlead + croot <= dxtrail]),
                            TCS([xcg + dxtrail <= lfuse]),
                            TCS([dxlead + ymac*tanLh + 0.25*chma >= lh],
-                               reltol=1e-5), # [SP]
+                               reltol=1e-2), # [SP]
                            p >= 1 + 2*taper,
                            2*q >= 1 + p,
                            ymac == (bht/3)*q/p,
@@ -127,7 +127,7 @@ class HorizontalTail(Model):
                            # aircraft geometrical parameters"
                            TCS([fl >= (0.0524*taper**4 - 0.15*taper**3
                                        + 0.1659*taper**2
-                                       - 0.0706*taper + 0.0119)]),
+                                       - 0.0706*taper + 0.0119)], reltol=1E-2),
                            TCS([e*(1 + fl*ARh) <= 1]),
                            taper >= 0.2, # TODO: make less arbitrary
 
