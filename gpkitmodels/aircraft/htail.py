@@ -1,11 +1,12 @@
 "Implement HorizontalTail model"
 from numpy import pi, tan
 from gpkit import Variable, Model, SignomialsEnabled, LinkedConstraintSet
+from gpkit.constraints.costed import CostedConstraintSet
 from gpkit.constraints.tight import TightConstraintSet as TCS
 from wingbox import WingBox
 # pylint:disable=bad-whitespace
 
-class HorizontalTail(Model):
+class HorizontalTail(CostedConstraintSet):
     """
     Horizontal tail sizing
     """
@@ -134,9 +135,30 @@ class HorizontalTail(Model):
                            Lmax == 0.5*rho0*Vne**2*Sh*CLhmax,
                           ]
 
+        wb = WingBox()
+        wb.subinplace({'A': ARh,
+                       'b': bht,
+                       'L_{max}': Lmax,
+                       'p': p,
+                       'q': q,
+                       'S': Sh,
+                       'taper': taper,
+                       r'\tau': tau,
+                       'W_{struct}': W})
+
+        lc = LinkedConstraintSet([constraints, wb])
+
+        CostedConstraintSet.__init__(self, objective, lc, **kwargs)
+
+    @classmethod
+    def standalone_737(cls):
+
+        ccs = cls()
+
         # References
         # [1] TASOPT code
-        substitutions = {'\\alpha_{max}': 0.1, # (6 deg)
+        substitutions = {
+                         '\\alpha_{max}': 0.1, # (6 deg)
                          '\\eta_h': 0.97,
                          'C_{L_{aw}}': 2*pi,
                          'C_{L_{hmax}}': 2.6,
@@ -158,24 +180,40 @@ class HorizontalTail(Model):
                          'w_f': 6,
                         }
 
-        wb = WingBox()
-        wb.subinplace({'A': ARh,
-                       'b': bht,
-                       'L_{max}': Lmax,
-                       'p': p,
-                       'q': q,
-                       'S': Sh,
-                       'taper': taper,
-                       r'\tau': tau,
-                       'W_{struct}': W})
+        m = Model(ccs.cost, ccs, substitutions)
+        return m
 
-        lc = LinkedConstraintSet([constraints, wb])
+    @classmethod
+    def aircraft_737(cls):
 
-        Model.__init__(self, objective, lc, substitutions, **kwargs)
+        ccs = cls()
+
+        substitutions = {
+                         '\\alpha_{max}': 0.1, # (6 deg)
+                         '\\eta_h': 0.97,
+                         'C_{L_{aw}}': 2*pi,
+                         'C_{L_{hmax}}': 2.6,
+                         'C_{L_w}': 0.5,
+                         '|C_{m_{ac}}|': 0.1,
+                         'C_{m_{fuse}}': 0.05, # [1]
+                         '\\bar{c}_{wing}': 5,
+                         '\\rho': 0.38,
+                         '\\rho_0': 1.225,
+                         'S_w': 125,
+                         'S.M._{min}': 0.05,
+                         '\\tan(\\Lambda_h)': tan(30*pi/180),
+                         'V_{\\infty}': 240,
+                         'V_{ne}': 144,
+                         '\\Delta x_w': 2,
+                        }
+
+        m = Model(ccs.cost, ccs, substitutions, name='HorizontalTail')
+        return m
 
     @classmethod
     def test(cls):
-        cls().localsolve()
+        ht = cls.standalone_737()
+        sol = ht.localsolve()
 
 if __name__ == "__main__":
     HorizontalTail.test()
