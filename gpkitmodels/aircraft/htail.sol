@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 4 GP solves and 5.6 seconds.
+Solving took 4 GP solves and 3.21 seconds.
 
 Cost
 ----
@@ -13,27 +13,27 @@ Free Variables
             C_{D_{0_h}} : 0.005177          Horizontal tail parasitic drag coefficient       
                 C_{L_h} : 0.1119            Lift coefficient (htail)                         
              C_{L_{ah}} : 3.457             Lift curve slope (htail)                         
-                    D_h : 3285       [N]    Horizontal tail drag                             
+                 D_{ht} : 3285       [N]    Horizontal tail drag                             
                     K_f : 0.7831            Empirical factor for fuselage-wing interference  
-                L_{max} : 1.592e+06  [N]    Maximum load                                     
-                   Re_c : 2.646e+07         Cruise Reynolds number (Horizontal tail)         
+            L_{{max}_h} : 1.592e+06  [N]    Maximum load                                     
+               Re_{c_h} : 2.646e+07         Cruise Reynolds number (Horizontal tail)         
                    S.M. : 0.05              Stability margin                                 
                     S_h : 48.22      [m**2] Horizontal tail area                             
-                      W : 1.16e+04   [N]    Horizontal tail weight                           
-        \Delta x_{lead} : 14.1       [m]    Distance from CG to horizontal tail leading edge 
-       \Delta x_{trail} : 20         [m]    Distance from CG to horizontal tail trailing edge
+                 W_{ht} : 1.16e+04   [N]    Horizontal tail weight                           
+    \Delta x_{{lead}_h} : 14.1       [m]    Distance from CG to horizontal tail leading edge 
+   \Delta x_{{trail}_h} : 20         [m]    Distance from CG to horizontal tail trailing edge
                  \alpha : 0.03239           Horizontal tail angle of attack                  
            \bar{c}_{ht} : 4.062      [m]    Mean aerodynamic chord (ht)                      
-                \lambda : 0.2               Horizontal tail taper ratio                      
-                   \tau : 0.15              Horizontal tail thickness/chord ratio            
+              \lambda_h : 0.2               Horizontal tail taper ratio                      
+                 \tau_h : 0.15              Horizontal tail thickness/chord ratio            
                  b_{ht} : 13.63      [m]    Horizontal tail span                             
-               c_{root} : 5.896      [m]    Horizontal tail root chord                       
-                c_{tip} : 1.179      [m]    Horizontal tail tip chord                        
+           c_{{root}_h} : 5.896      [m]    Horizontal tail root chord                       
+            c_{{tip}_h} : 1.179      [m]    Horizontal tail tip chord                        
                     e_h : 0.9874            Oswald efficiency factor                         
-             f(\lambda) : 0.003309          Empirical efficiency function of taper           
+           f(\lambda_h) : 0.003309          Empirical efficiency function of taper           
                     l_h : 17.37      [m]    Horizontal tail moment arm                       
-                      p : 1.4               Substituted variable = 1 + 2*taper               
-                      q : 1.2               Substituted variable = 1 + taper                 
+                 p_{ht} : 1.4               Substituted variable = 1 + 2*taper               
+                 q_{ht} : 1.2               Substituted variable = 1 + taper                 
                     x_w : 22         [m]    Position of wing aerodynamic center              
             y_{\bar{c}} : 3.894      [m]    Vertical location of mean aerodynamic chord      
                                                                                              
@@ -58,7 +58,7 @@ Constants
              \Delta x_w : 2         [m]        Distance from aerodynamic centre to CG                  
            \alpha_{max} : 0.1                  Max angle of attack (htail)                             
          \bar{c}_{wing} : 5         [m]        Mean aerodynamic chord (wing)                           
-                   \eta : 0.97                 Lift efficiency (diff between sectional and actual lift)
+                 \eta_h : 0.97                 Lift efficiency (diff between sectional and actual lift)
                     \mu : 1.4e-05   [N*s/m**2] Dynamic viscosity (35,000ft)                            
                    \rho : 0.38      [kg/m**3]  Air density (35,000 ft)                                 
                  \rho_0 : 1.225     [kg/m**3]  Air density (0 ft)                                      
@@ -105,6 +105,6 @@ WingBox, HorizontalTail |
          \bar{c}_{wing} : 0.0883   Mean aerodynamic chord (wing)                           
              S.M._{min} : 0.0883   Minimum stability margin                                
         \tan(\Lambda_h) : 0.01106  tangent of horizontal tail sweep                        
-                   \eta : -0.7815  Lift efficiency (diff between sectional and actual lift)
+                 \eta_h : -0.7815  Lift efficiency (diff between sectional and actual lift)
                l_{fuse} : -1.912   Fuselage length                                         
 

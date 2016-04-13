@@ -1,6 +1,6 @@
 "Implement HorizontalTail model"
 from numpy import pi, tan
-from gpkit import Variable, Model, SignomialsEnabled
+from gpkit import Variable, Model, SignomialsEnabled, LinkedConstraintSet
 from gpkit.constraints.tight import TightConstraintSet as TCS
 from wingbox import WingBox
 # pylint:disable=bad-whitespace
@@ -25,33 +25,33 @@ class HorizontalTail(Model):
         Cmac    = Variable('|C_{m_{ac}}|', '-', # Absolute value of CMwing
                            'Moment coefficient about aerodynamic centre (wing)')
         chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
-        croot   = Variable('c_{root}', 'm', 'Horizontal tail root chord')
-        ctip    = Variable('c_{tip}', 'm', 'Horizontal tail tip chord')
+        croot   = Variable('c_{{root}_h}', 'm', 'Horizontal tail root chord')
+        ctip    = Variable('c_{{tip}_h}', 'm', 'Horizontal tail tip chord')
         cwma    = Variable('\\bar{c}_{wing}', 'm',
                            'Mean aerodynamic chord (wing)')
         Cmfu    = Variable('C_{m_{fuse}}', '-', 'Moment coefficient (fuselage)')
-        D       = Variable('D_h', 'N', 'Horizontal tail drag')
-        dxlead  = Variable('\\Delta x_{lead}', 'm',
+        D       = Variable('D_{ht}', 'N', 'Horizontal tail drag')
+        dxlead  = Variable('\\Delta x_{{lead}_h}', 'm',
                            'Distance from CG to horizontal tail leading edge')
-        dxtrail = Variable('\\Delta x_{trail}', 'm',
+        dxtrail = Variable('\\Delta x_{{trail}_h}', 'm',
                            'Distance from CG to horizontal tail trailing edge')
         dxw     = Variable('\\Delta x_w', 'm',
                            'Distance from aerodynamic centre to CG')
         e       = Variable('e_h', '-', 'Oswald efficiency factor')
-        eta     = Variable('\\eta', '-',
+        eta     = Variable('\\eta_h', '-',
                            ("Lift efficiency (diff between sectional and "
                             "actual lift)"))
-        fl      = Variable(r"f(\lambda)", '-',
+        fl      = Variable(r"f(\lambda_h)", '-',
                            'Empirical efficiency function of taper')
         Kf      = Variable('K_f', '-',
                            'Empirical factor for fuselage-wing interference')
         lh      = Variable('l_h', 'm', 'Horizontal tail moment arm')
         lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
-        Lmax    = Variable('L_{max}', 'N', 'Maximum load')
+        Lmax    = Variable('L_{{max}_h}', 'N', 'Maximum load')
         mu      = Variable(r'\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
-        p       = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
-        q       = Variable('q', '-', 'Substituted variable = 1 + taper')
-        Rec     = Variable('Re_c', '-',
+        p       = Variable('p_{ht}', '-', 'Substituted variable = 1 + 2*taper')
+        q       = Variable('q_{ht}', '-', 'Substituted variable = 1 + taper')
+        Rec     = Variable('Re_{c_h}', '-',
                            'Cruise Reynolds number (Horizontal tail)')
         rho     = Variable(r'\rho', 'kg/m^3', 'Air density (35,000 ft)')
         rho0    = Variable(r'\rho_0', 'kg/m^3', 'Air density (0 ft)')
@@ -61,12 +61,12 @@ class HorizontalTail(Model):
         SMmin   = Variable('S.M._{min}', '-', 'Minimum stability margin')
         tanLh   = Variable(r'\tan(\Lambda_h)', '-',
                            'tangent of horizontal tail sweep')
-        taper   = Variable(r'\lambda', '-', 'Horizontal tail taper ratio')
-        tau     = Variable(r'\tau', '-',
+        taper   = Variable(r'\lambda_h', '-', 'Horizontal tail taper ratio')
+        tau     = Variable(r'\tau_h', '-',
                            'Horizontal tail thickness/chord ratio')
         Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
         Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
-        W       = Variable('W', 'N', 'Horizontal tail weight')
+        W       = Variable('W_{ht}', 'N', 'Horizontal tail weight')
         wf      = Variable('w_f', 'm', 'Fuselage width')
         xcg     = Variable('x_{CG}', 'm', 'CG location')
         xw      = Variable('x_w', 'm', 'Position of wing aerodynamic center')
@@ -136,9 +136,8 @@ class HorizontalTail(Model):
 
         # References
         # [1] TASOPT code
-
         substitutions = {'\\alpha_{max}': 0.1, # (6 deg)
-                         '\\eta': 0.97,
+                         '\\eta_h': 0.97,
                          'C_{L_{aw}}': 2*pi,
                          'C_{L_{hmax}}': 2.6,
                          'C_{L_w}': 0.5,
@@ -170,7 +169,7 @@ class HorizontalTail(Model):
                        r'\tau': tau,
                        'W_{struct}': W})
 
-        lc = wb.link(constraints)
+        lc = LinkedConstraintSet([constraints, wb])
 
         Model.__init__(self, objective, lc, substitutions, **kwargs)
 
