@@ -1,6 +1,7 @@
 # coding=utf-8
 "Implements an aircraft model composed of multiple sub-models"
 from gpkit import Model, Variable, SignomialsEnabled, LinkedConstraintSet
+from gpkit.constraints.tight import TightConstraintSet as TCS
 from vtail import VerticalTail
 from fuselage import Fuselage
 from landing_gear import LandingGear
@@ -39,9 +40,9 @@ class Aircraft(Model):
             hlc = [# High level constraints
                    D >= Dvt + Dfuse       + Dwing + Dht,
                    W >= Wvt + Wfuse + Wlg + Wwing + Wht + Weng,
+                   TCS([xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
+                               + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng], reltol=1E-2),
                   ]
-            #               xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
-            #                      + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng,
 
             # Subsystem models
             vt = VerticalTail.aircraft_737()
@@ -63,6 +64,13 @@ class Aircraft(Model):
             init.update(fu_sol['variables'])
             init.update(lg_sol['variables'])
             init.update(ht_sol['variables'])
+            init.update({
+                         'x_{CG}': 15,
+                         'x_{CG_{fu}}': 15,
+                         'x_{CG_{ht}}': 38,
+                         'x_{CG_{lg}}': 16,
+                         'x_{CG_{vt}}': 35,
+                        })
 
             self.init = init
 
@@ -70,11 +78,7 @@ class Aircraft(Model):
                          'D_{wing}': 10000,
                          'W_{eng}': 10000,
                          'W_{wing}': 30000,
-                         'x_{CG}': 15,
                          'x_{CG_{eng}}': 15,
-                         'x_{CG_{fu}}': 15,
-                         'x_{CG_{ht}}': 38,
-                         'x_{CG_{vt}}': 35,
                          'x_{CG_{wing}}': 15,
                         }
 

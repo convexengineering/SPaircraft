@@ -115,8 +115,8 @@ class LandingGear(CostedConstraintSet):
 
                            # Geometric constraints relating gear placement with
                            # fore/aft CG locations
-                           TCS([dxn + x_n >= xcg], reltol=1E-5), # [SP]
-                           TCS([dxm + xcg >= x_m]), # [SP]
+                           TCS([dxn + x_n >= xcg], reltol=1E-4), # [SP]
+                           TCS([dxm + xcg >= x_m], reltol=1E-5), # [SP]
                            # TODO forward and aft CG
 
                            # Maximum static loads through main and nose gears
@@ -241,7 +241,7 @@ class LandingGear(CostedConstraintSet):
                            ]
 
             coupledCG = [
-                         TCS([W_lg*xcglg >= W_ng*x_n + W_mg*x_m]),
+                         TCS([W_lg*xcglg >= W_ng*x_n + W_mg*x_m], reltol=1E-1),
                         ]
 
             self.standaloneCG = standaloneCG

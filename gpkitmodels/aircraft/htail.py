@@ -70,6 +70,7 @@ class HorizontalTail(CostedConstraintSet):
         W       = Variable('W_{ht}', 'N', 'Horizontal tail weight')
         wf      = Variable('w_{fuse}', 'm', 'Fuselage width')
         xcg     = Variable('x_{CG}', 'm', 'CG location')
+        xcght   = Variable('x_{CG_{ht}}', 'm', 'Horizontal tail CG location')
         xw      = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{\\bar{c}}', 'm',
                            'Vertical location of mean aerodynamic chord')
@@ -136,6 +137,10 @@ class HorizontalTail(CostedConstraintSet):
                            Lmax == 0.5*rho0*Vne**2*Sh*CLhmax,
                           ]
 
+        CG_constraint = [TCS([xcght >= xcg+(dxlead+dxtrail)/2],
+                             raiseerror=False)]
+        self.CG_constraint = CG_constraint
+
         wb = WingBox()
         wb.subinplace({'A': ARh,
                        'b': bht,
@@ -189,6 +194,8 @@ class HorizontalTail(CostedConstraintSet):
 
         ccs = cls()
 
+        constraints = ccs + ccs.CG_constraint
+
         substitutions = {
                          '\\alpha_{max}': 0.1, # (6 deg)
                          '\\eta_h': 0.97,
@@ -208,7 +215,7 @@ class HorizontalTail(CostedConstraintSet):
                          '\\Delta x_w': 2,
                         }
 
-        m = Model(ccs.cost, ccs, substitutions, name='HorizontalTail')
+        m = Model(ccs.cost, constraints, substitutions, name='HorizontalTail')
         return m
 
     @classmethod

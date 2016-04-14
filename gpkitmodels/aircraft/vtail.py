@@ -148,7 +148,8 @@ class VerticalTail(CostedConstraintSet):
             linking_constraints = [plamv == p,
                                    cvt == croot]
 
-            CG_constraint = [xCGvt >= xCG+(dxlead+dxtrail)/2]
+            CG_constraint = [TCS([xCGvt >= xCG+(dxlead+dxtrail)/2],
+                                 raiseerror=False)]
 
             self.linking_constraints = linking_constraints
             self.CG_constraint = CG_constraint
