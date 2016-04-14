@@ -92,6 +92,7 @@ class LandingGear(CostedConstraintSet):
         x_n     = Variable('x_n', 'm', 'x-location of nose gear')
         x_upswp = Variable('x_{up}', 'm', 'Fuselage upsweep point')
         xcg     = Variable('x_{CG}', 'm', 'x-location of CG incl. LG')
+        xcglg   = Variable('x_{CG_{lg}}', 'm', 'Landing gear CG')
         xcg0    = Variable('x_{CG_0}', 'm', 'x-location of CG excl. LG')
         y_eng   = Variable('y_{eng}', 'm', 'Spanwise loc. of engines')
         y_m     = Variable('y_m', 'm', 'y-location of main gear (symmetric)')
@@ -117,9 +118,6 @@ class LandingGear(CostedConstraintSet):
                            TCS([dxn + x_n >= xcg], reltol=1E-5), # [SP]
                            TCS([dxm + xcg >= x_m]), # [SP]
                            # TODO forward and aft CG
-
-                           # CG location affected by landing gear position
-                           xcg*(W_0 + W_lg) <= W_0*xcg0 + W_ng*x_n + W_mg*x_m,
 
                            # Maximum static loads through main and nose gears
                            L_n == W_0*dxm/B,
@@ -237,6 +235,18 @@ class LandingGear(CostedConstraintSet):
                            W_lg >= W_mg + W_ng,
                           ]
 
+            standaloneCG = [
+                           # CG location affected by landing gear position
+                           TCS([xcg*(W_0 + W_lg) <= W_0*xcg0 + W_ng*x_n + W_mg*x_m]),
+                           ]
+
+            coupledCG = [
+                         TCS([W_lg*xcglg >= W_ng*x_n + W_mg*x_m]),
+                        ]
+
+            self.standaloneCG = standaloneCG
+            self.coupledCG = coupledCG
+
         CostedConstraintSet.__init__(self, objective, constraints)
 
 
@@ -244,6 +254,8 @@ class LandingGear(CostedConstraintSet):
     def standalone_737(cls):
         """Returns a standalone landing gear model"""
         cs = cls()
+
+        constraints = cs + cs.standaloneCG
 
         substitutions = {
                          'E': 205,
@@ -276,13 +288,15 @@ class LandingGear(CostedConstraintSet):
                          'z_{wing}': 0.5,
                         } 
 
-        m =  Model(cs.cost, cs, substitutions)
+        m =  Model(cs.cost, constraints, substitutions)
         return m
 
     @classmethod
     def aircraft_737(cls):
         """Returns a landing gear model for use in a coupled aircraft model"""
         cs = cls()
+
+        constraints = cs + cs.coupledCG
 
         substitutions = {
                          'E': 205,
@@ -313,7 +327,7 @@ class LandingGear(CostedConstraintSet):
                          'z_{wing}': 0.5,
                         } 
 
-        m =  Model(cs.cost, cs, substitutions, name='LandingGear')
+        m =  Model(cs.cost, constraints, substitutions, name='LandingGear')
         return m
         
 
