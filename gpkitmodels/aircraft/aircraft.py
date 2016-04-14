@@ -4,6 +4,7 @@ from gpkit import Model, Variable, SignomialsEnabled, LinkedConstraintSet
 from vtail import VerticalTail
 from fuselage import Fuselage
 from landing_gear import LandingGear
+from htail import HorizontalTail
 
 class Aircraft(Model):
     """
@@ -35,10 +36,10 @@ class Aircraft(Model):
         with SignomialsEnabled():
 
             objective = D + 0.5*W
-            constraints = [# High level constraints
-                           D >= Dvt + Dfuse       + Dwing + Dht,
-                           W >= Wvt + Wfuse + Wlg + Wwing + Wht + Weng,
-                          ]
+            hlc = [# High level constraints
+                   D >= Dvt + Dfuse       + Dwing + Dht,
+                   W >= Wvt + Wfuse + Wlg + Wwing + Wht + Weng,
+                  ]
             #               xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
             #                      + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng,
 
@@ -49,23 +50,25 @@ class Aircraft(Model):
             fus = Fuselage.standalone_737()
             lg = LandingGear.aircraft_737()
             lgs = LandingGear.standalone_737()
+            ht = HorizontalTail.aircraft_737()
+            hts = HorizontalTail.standalone_737()
 
             # Need to initialize solve with solution of uncoupled models
             vt_sol = vts.localsolve(verbosity=0)
             fu_sol = fus.localsolve(verbosity=0)
             lg_sol = lgs.localsolve(verbosity=0)
+            ht_sol = hts.localsolve(verbosity=0)
 
             init = vt_sol['variables'].copy()
             init.update(fu_sol['variables'])
             init.update(lg_sol['variables'])
+            init.update(ht_sol['variables'])
 
             self.init = init
 
         substitutions = {
-                         'D_{ht}': 1000,
                          'D_{wing}': 10000,
                          'W_{eng}': 10000,
-                         'W_{ht}': 5000,
                          'W_{wing}': 30000,
                          'x_{CG}': 15,
                          'x_{CG_{eng}}': 15,
@@ -76,7 +79,7 @@ class Aircraft(Model):
                         }
 
         Model.__init__(self, objective,
-                             LinkedConstraintSet([constraints, vt, fu, lg]),
+                             LinkedConstraintSet([hlc, vt, fu, lg, ht]),
                              substitutions)
 
     def test(self):

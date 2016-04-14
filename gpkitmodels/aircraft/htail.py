@@ -68,7 +68,7 @@ class HorizontalTail(CostedConstraintSet):
         Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
         Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         W       = Variable('W_{ht}', 'N', 'Horizontal tail weight')
-        wf      = Variable('w_f', 'm', 'Fuselage width')
+        wf      = Variable('w_{fuse}', 'm', 'Fuselage width')
         xcg     = Variable('x_{CG}', 'm', 'CG location')
         xw      = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{\\bar{c}}', 'm',
@@ -128,7 +128,8 @@ class HorizontalTail(CostedConstraintSet):
                            # aircraft geometrical parameters"
                            TCS([fl >= (0.0524*taper**4 - 0.15*taper**3
                                        + 0.1659*taper**2
-                                       - 0.0706*taper + 0.0119)], reltol=1E-2),
+                                       - 0.0706*taper + 0.0119)], reltol=0.2),
+                           # NOTE: slightly slack
                            TCS([e*(1 + fl*ARh) <= 1]),
                            taper >= 0.2, # TODO: make less arbitrary
 
@@ -177,7 +178,7 @@ class HorizontalTail(CostedConstraintSet):
                          'V_{ne}': 144,
                          'x_{CG}': 20,
                          '\\Delta x_w': 2,
-                         'w_f': 6,
+                         'w_{fuse}': 6,
                         }
 
         m = Model(ccs.cost, ccs, substitutions)
@@ -197,12 +198,12 @@ class HorizontalTail(CostedConstraintSet):
                          '|C_{m_{ac}}|': 0.1,
                          'C_{m_{fuse}}': 0.05, # [1]
                          '\\bar{c}_{wing}': 5,
+                         '\\mu': 1.4E-5,
                          '\\rho': 0.38,
                          '\\rho_0': 1.225,
                          'S_w': 125,
                          'S.M._{min}': 0.05,
                          '\\tan(\\Lambda_h)': tan(30*pi/180),
-                         'V_{\\infty}': 240,
                          'V_{ne}': 144,
                          '\\Delta x_w': 2,
                         }

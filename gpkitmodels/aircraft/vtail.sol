@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 5 GP solves and 4.44 seconds.
+Solving took 5 GP solves and 4.32 seconds.
 
 Cost
 ----
@@ -26,7 +26,7 @@ Free Variables
  \Delta x_{lead} : 11.53      [m]    Distance from CG to vertical tail leading edge 
 \Delta x_{trail} : 21         [m]    Distance from CG to vertical tail trailing edge
          \bar{c} : 6.677      [m]    Vertical tail mean aero chord                  
-         \lambda : 0.27              Vertical tail taper ratio                      
+    \lambda_{vt} : 0.27              Vertical tail taper ratio                      
             \tau : 0.15              Vertical tail thickness/chord ratio            
             \tau : 0.15              Thickness to chord ratio                       
                b : 13.17      [m]    Vertical tail full span                        

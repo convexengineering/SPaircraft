@@ -64,6 +64,7 @@ Free Variables
       t_{shell} : 0.001259   [m]       Shell thickness                             
        t_{skin} : 0.0009324  [m]       Skin thickness                              
       w_{floor} : 3.125      [m]       Floor width                                 
+       w_{fuse} : 3.71       [m]       Fuselage width                              
      x_{shell1} : 5.2        [m]       Start of cylinder section                   
      x_{shell2} : 29.61      [m]       End of cylinder section                     
          x_{up} : 29.61      [m]       Fuselage upsweep point                      

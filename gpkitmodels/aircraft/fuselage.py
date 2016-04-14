@@ -137,6 +137,7 @@ class Fuselage(CostedConstraintSet):
         tskin    = Variable('t_{skin}', 'm', 'Skin thickness')
         waisle   = Variable('w_{aisle}', 0.51, 'm', 'Aisle width')
         wfloor   = Variable('w_{floor}', 'm', 'Floor width')
+        wfuse    = Variable('w_{fuse}', 'm', 'Fuselage width')
         wseat    = Variable('w_{seat}', 0.5, 'm', 'Seat width')
         wsys     = Variable('w_{sys}', 0.10, 'm',
                             'Width between cabin and skin for systems')
@@ -170,7 +171,8 @@ class Fuselage(CostedConstraintSet):
                             lnose == xshell1,
 
                             # Cross section relations
-                            2*Rfuse >= SPR*wseat + waisle + 2*wsys,
+                            wfuse == 2*Rfuse,
+                            wfuse >= SPR*wseat + waisle + 2*wsys,
                             Askin >= 2*np.pi*Rfuse*tskin, # simplified
                             Afuse >= np.pi*Rfuse**2, # simplified
                             tshell >= tskin*(1 + rE*fstring*rhoskin/rhobend),

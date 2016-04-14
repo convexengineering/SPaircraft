@@ -69,7 +69,7 @@ class VerticalTail(CostedConstraintSet):
         rho_c  = Variable('\\rho_c', 'kg/m^3', 'Air density (35,000ft)')
         tanL   = Variable('\\tan(\\Lambda_{LE})', '-',
                           'Tangent of leading edge sweep (40 deg)')
-        taper  = Variable('\\lambda', '-', 'Vertical tail taper ratio')
+        taper  = Variable('\\lambda_{vt}', '-', 'Vertical tail taper ratio')
         tau    = Variable('\\tau', '-', 'Vertical tail thickness/chord ratio')
         xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
         xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of tail CG')

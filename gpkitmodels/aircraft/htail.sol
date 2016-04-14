@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 4 GP solves and 5 seconds.
+Solving took 4 GP solves and 4.95 seconds.
 
 Cost
 ----
@@ -62,7 +62,7 @@ Constants
             \rho_0 : 1.225     [kg/m**3]  Air density (0 ft)                                      
    \tan(\Lambda_h) : 0.5774               tangent of horizontal tail sweep                        
           l_{fuse} : 40        [m]        Fuselage length                                         
-               w_f : 6         [m]        Fuselage width                                          
+          w_{fuse} : 6         [m]        Fuselage width                                          
             x_{CG} : 20        [m]        CG location                                             
                                                                                                   
            WingBox |                                                                              
@@ -90,7 +90,7 @@ Sensitivities
       \sigma_{max} : -0.5393  Allowable tensile stress                                
                                                                                       
             V_{ne} : 1.298    Never exceed velocity                                   
-               w_f : 1.014    Fuselage width                                          
+          w_{fuse} : 1.014    Fuselage width                                          
                S_w : 0.7947   Wing area                                               
         C_{L_{aw}} : 0.7947   Lift curve slope (wing)                                 
         \Delta x_w : 0.7772   Distance from aerodynamic centre to CG                  
