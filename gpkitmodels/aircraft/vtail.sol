@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 5 GP solves and 4.43 seconds.
+Solving took 5 GP solves and 4.21 seconds.
 
 Cost
 ----
@@ -13,46 +13,38 @@ Free Variables
       C_{L_{vt}} : 0.4231            Vertical tail lift coefficient                 
           D_{vt} : 2114       [N]    Vertical tail viscous drag, cruise             
           D_{wm} : 3112       [N]    Engine out windmill drag                       
-         L_{max} : 2.615e+06  [N]    Maximum load for structural sizing             
-         L_{max} : 2.615e+06  [N]    Maximum wing load                              
+    L_{max_{vt}} : 2.615e+06  [N]    Maximum load for structural sizing             
      L_{v_{max}} : 1.308e+06  [N]    Maximum load for structural sizing             
           L_{vt} : 4.336e+04  [N]    Vertical tail lift in engine out               
-            Re_c : 4.241e+07         Vertical tail reynolds number, cruise          
-               S : 79.2       [m**2] Reference area                                 
+         Re_{vt} : 4.241e+07         Vertical tail reynolds number, cruise          
                S : 79.2       [m**2] Vertical tail reference area (full)            
           S_{vt} : 39.6       [m**2] Vertical tail ref. area (half)                 
       W_{struct} : 1.362e+04  [N]    Full span weight                               
           W_{vt} : 6812       [N]    Vertical tail weight                           
  \Delta x_{lead} : 11.53      [m]    Distance from CG to vertical tail leading edge 
 \Delta x_{trail} : 21         [m]    Distance from CG to vertical tail trailing edge
-         \bar{c} : 6.677      [m]    Vertical tail mean aero chord                  
+    \bar{c}_{vt} : 6.677      [m]    Vertical tail mean aero chord                  
     \lambda_{vt} : 0.27              Vertical tail taper ratio                      
-            \tau : 0.15              Vertical tail thickness/chord ratio            
-            \tau : 0.15              Thickness to chord ratio                       
-               b : 13.17      [m]    Vertical tail full span                        
+       \tau_{vt} : 0.15              Vertical tail thickness/chord ratio            
                b : 13.17      [m]    Span                                           
+               b : 13.17      [m]    Vertical tail full span                        
           b_{vt} : 6.584      [m]    Vertical tail half span                        
-        c_{root} : 9.472      [m]    Vertical tail root chord                       
-         c_{tip} : 2.557      [m]    Vertical tail tip chord                        
+   c_{root_{vt}} : 9.472      [m]    Vertical tail root chord                       
+    c_{tip_{vt}} : 2.557      [m]    Vertical tail tip chord                        
           l_{vt} : 14.72      [m]    Vertical tail moment arm                       
-               p : 1.54              Substituted variable = 1 + 2*taper             
-               q : 1.27              Substituted variable = 1 + taper               
-     z_{\bar{c}} : 1.81       [m]    Vertical location of mean aerodynamic chord    
+          p_{vt} : 1.54              Substituted variable = 1 + 2*taper             
+          q_{vt} : 1.27              Substituted variable = 1 + taper               
+z_{\bar{c}_{vt}} : 1.81       [m]    Vertical location of mean aerodynamic chord    
                                                                                     
          WingBox |                                                                  
                A : 2.189             Aspect ratio                                   
          I_{cap} : 2.457e-06         Non-dim spar cap area moment of inertia        
-         L_{max} : 2.615e+06  [N]    Maximum wing load                              
              M_r : 3.674e+05  [N]    Root moment per root chord                     
-               S : 79.2       [m**2] Reference area                                 
          W_{cap} : 7285       [N]    Weight of spar caps                            
       W_{struct} : 1.362e+04  [N]    Structural weight                              
          W_{web} : 2445       [N]    Weight of shear web                            
              \nu : 0.8327            Dummy variable = $(t^2 + t + 1)/(t+1)$         
-            \tau : 0.15              Thickness to chord ratio                       
                b : 13.17      [m]    Span                                           
-               p : 1.54              Substituted variable = 1 + 2*taper             
-               q : 1.27              Substituted variable = 1 + taper               
          t_{cap} : 0.00052           Non-dim. spar cap thickness                    
          t_{web} : 0.0007758         Non-dim. shear web thickness                   
 

@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 4 GP solves and 5.64 seconds.
+Solving took 4 GP solves and 4.89 seconds.
 
 Cost
 ----
@@ -26,15 +26,15 @@ Free Variables
            \lambda_h : 0.2               Horizontal tail taper ratio                      
               \tau_h : 0.15              Horizontal tail thickness/chord ratio            
               b_{ht} : 13.63      [m]    Horizontal tail span                             
-        c_{{root}_h} : 5.896      [m]    Horizontal tail root chord                       
-         c_{{tip}_h} : 1.179      [m]    Horizontal tail tip chord                        
+          c_{root_h} : 5.896      [m]    Horizontal tail root chord                       
+           c_{tip_h} : 1.179      [m]    Horizontal tail tip chord                        
                  e_h : 0.9874            Oswald efficiency factor                         
         f(\lambda_h) : 0.003309          Empirical efficiency function of taper           
                  l_h : 17.37      [m]    Horizontal tail moment arm                       
               p_{ht} : 1.4               Substituted variable = 1 + 2*taper               
               q_{ht} : 1.2               Substituted variable = 1 + taper                 
                  x_w : 22         [m]    Position of wing aerodynamic center              
-         y_{\bar{c}} : 3.894      [m]    Vertical location of mean aerodynamic chord      
+    y_{\bar{c}_{ht}} : 3.894      [m]    Vertical location of mean aerodynamic chord      
                                                                                           
              WingBox |                                                                    
              I_{cap} : 6.177e-06         Non-dim spar cap area moment of inertia          
@@ -54,7 +54,7 @@ Constants
         V_{\infty} : 240       [m/s]      Freestream velocity                                     
             V_{ne} : 144       [m/s]      Never exceed velocity                                   
         \Delta x_w : 2         [m]        Distance from aerodynamic centre to CG                  
-      \alpha_{max} : 0.1                  Max angle of attack (htail)                             
+    \alpha_{max,h} : 0.1                  Max angle of attack (htail)                             
     \bar{c}_{wing} : 5         [m]        Mean aerodynamic chord (wing)                           
             \eta_h : 0.97                 Lift efficiency (diff between sectional and actual lift)
                \mu : 1.4e-05   [N*s/m**2] Dynamic viscosity (35,000ft)                            

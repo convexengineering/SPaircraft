@@ -13,7 +13,7 @@ class HorizontalTail(CostedConstraintSet):
     def __init__(self, **kwargs):
         alpha   = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
         ARh     = Variable('AR_h', '-', 'Horizontal tail aspect ratio')
-        amax    = Variable('\\alpha_{max}', '-', 'Max angle of attack (htail)')
+        amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack (htail)')
         bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
         CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
         CD0h    = Variable('C_{D_{0_h}}', '-',
@@ -26,8 +26,8 @@ class HorizontalTail(CostedConstraintSet):
         Cmac    = Variable('|C_{m_{ac}}|', '-', # Absolute value of CMwing
                            'Moment coefficient about aerodynamic centre (wing)')
         chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
-        croot   = Variable('c_{{root}_h}', 'm', 'Horizontal tail root chord')
-        ctip    = Variable('c_{{tip}_h}', 'm', 'Horizontal tail tip chord')
+        croot   = Variable('c_{root_h}', 'm', 'Horizontal tail root chord')
+        ctip    = Variable('c_{tip_h}', 'm', 'Horizontal tail tip chord')
         cwma    = Variable('\\bar{c}_{wing}', 'm',
                            'Mean aerodynamic chord (wing)')
         Cmfu    = Variable('C_{m_{fuse}}', '-', 'Moment coefficient (fuselage)')
@@ -72,7 +72,7 @@ class HorizontalTail(CostedConstraintSet):
         xcg     = Variable('x_{CG}', 'm', 'CG location')
         xcght   = Variable('x_{CG_{ht}}', 'm', 'Horizontal tail CG location')
         xw      = Variable('x_w', 'm', 'Position of wing aerodynamic center')
-        ymac    = Variable('y_{\\bar{c}}', 'm',
+        ymac    = Variable('y_{\\bar{c}_{ht}}', 'm',
                            'Vertical location of mean aerodynamic chord')
 
         objective = D + 0.5*W
@@ -164,7 +164,7 @@ class HorizontalTail(CostedConstraintSet):
         # References
         # [1] TASOPT code
         substitutions = {
-                         '\\alpha_{max}': 0.1, # (6 deg)
+                         '\\alpha_{max,h}': 0.1, # (6 deg)
                          '\\eta_h': 0.97,
                          'C_{L_{aw}}': 2*pi,
                          'C_{L_{hmax}}': 2.6,
@@ -197,7 +197,7 @@ class HorizontalTail(CostedConstraintSet):
         constraints = ccs + ccs.CG_constraint
 
         substitutions = {
-                         '\\alpha_{max}': 0.1, # (6 deg)
+                         '\\alpha_{max,h}': 0.1, # (6 deg)
                          '\\eta_h': 0.97,
                          'C_{L_{aw}}': 2*pi,
                          'C_{L_{hmax}}': 2.6,

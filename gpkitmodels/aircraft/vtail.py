@@ -29,12 +29,12 @@ class VerticalTail(CostedConstraintSet):
         CLvt   = Variable('C_{L_{vt}}', '-', 'Vertical tail lift coefficient')
         Dvt    = Variable('D_{vt}', 'N', 'Vertical tail viscous drag, cruise')
         Dwm    = Variable('D_{wm}', 'N', 'Engine out windmill drag')
-        Lmax   = Variable('L_{max}', 'N',
+        Lmax   = Variable('L_{max_{vt}}', 'N',
                           'Maximum load for structural sizing') # fuselage
         Lvmax  = Variable('L_{v_{max}}', 'N',
                           'Maximum load for structural sizing')
         Lvt    = Variable('L_{vt}', 'N', 'Vertical tail lift in engine out')
-        Rec    = Variable('Re_c', '-', 'Vertical tail reynolds number, cruise')
+        Rec    = Variable('Re_{vt}', '-', 'Vertical tail reynolds number, cruise')
         S      = Variable('S', 'm^2', 'Vertical tail reference area (full)')
         Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail ref. area (half)')
         Te     = Variable('T_e', 'N', 'Thrust per engine at takeoff')
@@ -47,9 +47,9 @@ class VerticalTail(CostedConstraintSet):
         bvt    = Variable('b_{vt}', 'm', 'Vertical tail half span')
         clvt   = Variable('c_{l_{vt}}', '-',
                           'Sectional lift force coefficient (engine out)')
-        cma    = Variable('\\bar{c}', 'm', 'Vertical tail mean aero chord')
-        croot  = Variable('c_{root}', 'm', 'Vertical tail root chord')
-        ctip   = Variable('c_{tip}', 'm', 'Vertical tail tip chord')
+        cma    = Variable('\\bar{c}_{vt}', 'm', 'Vertical tail mean aero chord')
+        croot  = Variable('c_{root_{vt}}', 'm', 'Vertical tail root chord')
+        ctip   = Variable('c_{tip_{vt}}', 'm', 'Vertical tail tip chord')
         cvt    = Variable('c_{vt}', 'm', 'Vertical tail root chord') # fuselage
         dfan   = Variable('d_{fan}', 'm', 'Fan diameter')
         dxlead = Variable('\\Delta x_{lead}', 'm',
@@ -61,20 +61,20 @@ class VerticalTail(CostedConstraintSet):
         lvt    = Variable('l_{vt}', 'm', 'Vertical tail moment arm')
         mu     = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
         mu0    = Variable('\\mu_0', 1.8E-5, 'N*s/m^2', 'Dynamic viscosity (SL)')
-        p      = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
+        p      = Variable('p_{vt}', '-', 'Substituted variable = 1 + 2*taper')
         plamv  = Variable('p_{\\lambda_v}', '-',
                           'Dummy variable = 1 + 2\\lambda') # fuselage
-        q      = Variable('q', '-', 'Substituted variable = 1 + taper')
+        q      = Variable('q_{vt}', '-', 'Substituted variable = 1 + taper')
         rho0   = Variable('\\rho_{TO}', 'kg/m^3', 'Air density (SL))')
         rho_c  = Variable('\\rho_c', 'kg/m^3', 'Air density (35,000ft)')
         tanL   = Variable('\\tan(\\Lambda_{LE})', '-',
                           'Tangent of leading edge sweep (40 deg)')
         taper  = Variable('\\lambda_{vt}', '-', 'Vertical tail taper ratio')
-        tau    = Variable('\\tau', '-', 'Vertical tail thickness/chord ratio')
+        tau    = Variable('\\tau_{vt}', '-', 'Vertical tail thickness/chord ratio')
         xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
         xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of tail CG')
         y_eng  = Variable('y_{eng}', 'm', 'Engine moment arm')
-        zmac   = Variable('z_{\\bar{c}}', 'm',
+        zmac   = Variable('z_{\\bar{c}_{vt}}', 'm',
                           'Vertical location of mean aerodynamic chord')
 
 
@@ -157,7 +157,12 @@ class VerticalTail(CostedConstraintSet):
 
         # Incorporate the structural model
         wb = WingBox()
-        wb.subinplace({"taper": taper})
+        wb.subinplace({'L_{max}': Lmax,
+                       'p': p,
+                       'q': q,
+                       'S': S,
+                       'taper': taper,
+                       '\\tau': tau})
         lc = LinkedConstraintSet([constraints, wb])
 
         CostedConstraintSet.__init__(self, objective, lc)

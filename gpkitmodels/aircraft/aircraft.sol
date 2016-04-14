@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 5 GP solves and 111 seconds.
+Solving took 5 GP solves and 102 seconds.
 Warning: x_{CG_{vt}}_Aircraft >= 0.5*\Delta x_{lead}_VerticalTail, Aircraft + 0.5*\Delta x_{trail}_VerticalTail, Aircraft + x_{CG}_Aircraft is not tight
 Warning: x_{CG_{ht}}_Aircraft >= 0.5*\Delta x_{{lead}_h}_HorizontalTail, Aircraft + 0.5*\Delta x_{{trail}_h}_HorizontalTail, Aircraft + x_{CG}_Aircraft is not tight
 
@@ -128,15 +128,15 @@ Free Variables
                       \lambda_h : 0.2                  Horizontal tail taper ratio                      
                          \tau_h : 0.15                 Horizontal tail thickness/chord ratio            
                          b_{ht} : 5.629      [m]       Horizontal tail span                             
-                   c_{{root}_h} : 7.519      [m]       Horizontal tail root chord                       
-                    c_{{tip}_h} : 1.504      [m]       Horizontal tail tip chord                        
+                     c_{root_h} : 7.519      [m]       Horizontal tail root chord                       
+                      c_{tip_h} : 1.504      [m]       Horizontal tail tip chord                        
                             e_h : 0.9959               Oswald efficiency factor                         
                    f(\lambda_h) : 0.0033               Empirical efficiency function of taper           
                             l_h : 47.86      [m]       Horizontal tail moment arm                       
                          p_{ht} : 1.4                  Substituted variable = 1 + 2*taper               
                          q_{ht} : 1.2                  Substituted variable = 1 + taper                 
                             x_w : 20.4       [m]       Position of wing aerodynamic center              
-                    y_{\bar{c}} : 1.608      [m]       Vertical location of mean aerodynamic chord      
+               y_{\bar{c}_{ht}} : 1.608      [m]       Vertical location of mean aerodynamic chord      
                                                                                                         
           LandingGear, Aircraft |                                                                       
                               B : 11.68      [m]       Landing gear base                                
@@ -187,24 +187,24 @@ Free Variables
                     C_{D_{vis}} : 0.005136             Viscous drag coefficient                         
                      C_{L_{vt}} : 0.3741               Vertical tail lift coefficient                   
                          D_{wm} : 3112       [N]       Engine out windmill drag                         
-                        L_{max} : 9.325e+05  [N]       Maximum wing load                                
+                   L_{max_{vt}} : 9.325e+05  [N]       Maximum load for structural sizing               
                          L_{vt} : 1.367e+04  [N]       Vertical tail lift in engine out                 
-                           Re_c : 3.928e+07            Vertical tail reynolds number, cruise            
-                              S : 28.24      [m**2]    Reference area                                   
+                        Re_{vt} : 3.928e+07            Vertical tail reynolds number, cruise            
+                              S : 28.24      [m**2]    Vertical tail reference area (full)              
                          S_{vt} : 14.12      [m**2]    Vertical tail ref. area (half)                   
                      W_{struct} : 1545       [N]       Full span weight                                 
                 \Delta x_{lead} : 44.48      [m]       Distance from CG to vertical tail leading edge   
                \Delta x_{trail} : 53.16      [m]       Distance from CG to vertical tail trailing edge  
-                        \bar{c} : 6.184      [m]       Vertical tail mean aero chord                    
+                   \bar{c}_{vt} : 6.184      [m]       Vertical tail mean aero chord                    
                    \lambda_{vt} : 0.3                  Vertical tail taper ratio                        
-                           \tau : 0.15                 Thickness to chord ratio                         
+                      \tau_{vt} : 0.15                 Vertical tail thickness/chord ratio              
                               b : 5.778      [m]       Span                                             
-                       c_{root} : 8.676      [m]       Vertical tail root chord                         
-                        c_{tip} : 2.603      [m]       Vertical tail tip chord                          
+                  c_{root_{vt}} : 8.676      [m]       Vertical tail root chord                         
+                   c_{tip_{vt}} : 2.603      [m]       Vertical tail tip chord                          
                          l_{vt} : 46.68      [m]       Vertical tail moment arm                         
-                              p : 1.6                  Substituted variable = 1 + 2*taper               
-                              q : 1.3                  Substituted variable = 1 + taper                 
-                    z_{\bar{c}} : 0.7824     [m]       Vertical location of mean aerodynamic chord      
+                         p_{vt} : 1.6                  Substituted variable = 1 + 2*taper               
+                         q_{vt} : 1.3                  Substituted variable = 1 + taper                 
+               z_{\bar{c}_{vt}} : 0.7824     [m]       Vertical location of mean aerodynamic chord      
                                                                                                         
 WingBox, VerticalTail, Aircraft |                                                                       
                               A : 1.182                Aspect ratio                                     
@@ -284,7 +284,7 @@ HorizontalTail, Aircraft |
               S.M._{min} : 0.05                   Minimum stability margin                                
                      S_w : 125        [m**2]      Wing area                                               
               \Delta x_w : 2          [m]         Distance from aerodynamic centre to CG                  
-            \alpha_{max} : 0.1                    Max angle of attack (htail)                             
+          \alpha_{max,h} : 0.1                    Max angle of attack (htail)                             
           \bar{c}_{wing} : 5          [m]         Mean aerodynamic chord (wing)                           
                   \eta_h : 0.97                   Lift efficiency (diff between sectional and actual lift)
                     \rho : 0.38       [kg/m**3]   Air density (35,000 ft)                                 
