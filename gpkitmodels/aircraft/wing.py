@@ -23,7 +23,7 @@ class Wing(CostedConstraintSet):
         croot   = Variable('c_{root}', 'm', 'Wing root chord')
         ctip    = Variable('c_{tip}', 'm', 'Wing tip chord')
         cwma    = Variable('\\bar{c}_{wing}', 'm', 'Mean aerodynamic chord (wing)')
-        D       = Variable('D_w', 'N', 'Wing drag')
+        D       = Variable('D_{wing}', 'N', 'Wing drag')
         e       = Variable('e_w', '-', 'Oswald efficiency factor')
         eta     = Variable('\\eta_w', '-',
                            'Lift efficiency (diff between sectional and actual lift)')
@@ -43,7 +43,7 @@ class Wing(CostedConstraintSet):
         Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         W       = Variable('W', 'N', 'Aircraft weight')
         W0      = Variable('W_0', 'N', 'Weight excluding wing')
-        Ww      = Variable('W_w', 'N', 'Wing weight')
+        Ww      = Variable('W_{wing}', 'N', 'Wing weight')
         #xw      = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{\\bar{c}}', 'm',
                            'Spanwise location of mean aerodynamic chord')
@@ -140,7 +140,7 @@ class Wing(CostedConstraintSet):
                          'V_{ne}': 144,
                         }
 
-        m = Model(ccs.cost, ccs, substitutions)
+        m = Model(ccs.cost, ccs, substitutions, name='Wing')
         return m
 
     @classmethod

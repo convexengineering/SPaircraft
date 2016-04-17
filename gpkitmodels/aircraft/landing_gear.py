@@ -39,7 +39,8 @@ class LandingGear(CostedConstraintSet):
                            'Wheel assembly weight for single main gear wheel')
         WAWn    = Variable('W_{wa,n}', 'lbf',
                            'Wheel assembly weight for single nose gear wheel')
-        W_0     = Variable('W_0', 'N', 'Weight of aircraft excluding landing gear')
+        W_0     = Variable('W_{0_{lg}}', 'N',
+                           'Weight of aircraft excluding landing gear')
         W_lg    = Variable('W_{lg}', 'N', 'Weight of landing gear')
         W_mg    = Variable('W_{mg}', 'N', 'Weight of main gear')
         W_ms    = Variable('W_{ms}', 'N', 'Weight of main struts')
@@ -261,7 +262,7 @@ class LandingGear(CostedConstraintSet):
                          'E': 205,
                          'K': 2,
                          'N_s': 2,
-                         'W_0': 82000*9.81,
+                         'W_{0_{lg}}': 82000*9.81,
                          '\\eta_s': 0.8,
                          '\\eta_t': 0.47,
                          '\\lambda_{LG}': 2.5,
@@ -302,7 +303,7 @@ class LandingGear(CostedConstraintSet):
                          'E': 205,
                          'K': 2,
                          'N_s': 2,
-                         'W_0': 82000*9.81,
+                         'W_{0_{lg}}': 82000*9.81,
                          '\\eta_s': 0.8,
                          '\\eta_t': 0.47,
                          '\\lambda_{LG}': 2.5,

@@ -11,11 +11,11 @@ Free Variables
      C_{D_w} : 0.05881           Drag coefficient                       
      C_{L_w} : 0.3962            Lift coefficient (wing)                
   C_{L_{aw}} : 3.962             Lift curve slope (wing)                
-         D_w : 1.592e+04  [N]    Wing drag                              
+    D_{wing} : 1.592e+04  [N]    Wing drag                              
  L_{max_{w}} : 7.854e+05  [N]    Maximum load                           
          S_w : 24.74      [m**2] Wing area                              
            W : 1.072e+05  [N]    Aircraft weight                        
-         W_w : 7243       [N]    Wing weight                            
+    W_{wing} : 7243       [N]    Wing weight                            
     \alpha_w : 0.1               Wing angle of attack                   
      \lambda : 0.2               Wing taper ratio                       
       \tau_w : 0.15              Wing thickness/chord ratio             
