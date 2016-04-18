@@ -85,11 +85,11 @@ class HorizontalTail(CostedConstraintSet):
 
                            # Trim from UMich AE-481 course notes
                            TCS([CLh*Sh*lh/(Sw*cwma) + Cmac >=
-                                CLw*dxw/cwma + Cmfu]),
+                                CLw*dxw/cwma + Cmfu], reltol=0.02),
 
                            # Moment arm and geometry -- same as for vtail
                            TCS([dxlead + croot <= dxtrail]),
-                           TCS([xcg + dxtrail <= lfuse]),
+                           TCS([xcg + dxtrail <= lfuse], reltol=0.002),
                            TCS([dxlead + ymac*tanLh + 0.25*chma >= lh],
                                reltol=1e-2), # [SP]
                            p >= 1 + 2*taper,
@@ -205,7 +205,6 @@ class HorizontalTail(CostedConstraintSet):
                          '\\mu': 1.4E-5,
                          '\\rho': 0.38,
                          '\\rho_0': 1.225,
-                         'S_w': 125,
                          'S.M._{min}': 0.05,
                          '\\tan(\\Lambda_h)': tan(30*pi/180),
                          'V_{ne}': 144,
