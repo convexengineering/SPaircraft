@@ -6,6 +6,7 @@ from vtail import VerticalTail
 from fuselage import Fuselage
 from landing_gear import LandingGear
 from htail import HorizontalTail
+from wing import Wing
 
 class Aircraft(Model):
     """
@@ -53,6 +54,7 @@ class Aircraft(Model):
             lgs = LandingGear.standalone_737()
             ht = HorizontalTail.aircraft_737()
             hts = HorizontalTail.standalone_737()
+            wi = Wing.aircraft_737()
 
             # Need to initialize solve with solution of uncoupled models
             vt_sol = vts.localsolve(verbosity=0)
@@ -75,15 +77,14 @@ class Aircraft(Model):
             self.init = init
 
         substitutions = {
-                         'D_{wing}': 10000,
                          'W_{eng}': 10000,
-                         'W_{wing}': 30000,
                          'x_{CG_{eng}}': 15,
                          'x_{CG_{wing}}': 15,
                         }
 
+        lc = LinkedConstraintSet([hlc, vt, fu, lg, ht, wi])
         Model.__init__(self, objective,
-                             LinkedConstraintSet([hlc, vt, fu, lg, ht]),
+                             lc,
                              substitutions)
 
     def test(self):

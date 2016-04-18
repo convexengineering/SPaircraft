@@ -199,12 +199,9 @@ class HorizontalTail(CostedConstraintSet):
         substitutions = {
                          '\\alpha_{max,h}': 0.1, # (6 deg)
                          '\\eta_h': 0.97,
-                         'C_{L_{aw}}': 2*pi,
                          'C_{L_{hmax}}': 2.6,
-                         'C_{L_w}': 0.5,
                          '|C_{m_{ac}}|': 0.1,
                          'C_{m_{fuse}}': 0.05, # [1]
-                         '\\bar{c}_{wing}': 5,
                          '\\mu': 1.4E-5,
                          '\\rho': 0.38,
                          '\\rho_0': 1.225,
