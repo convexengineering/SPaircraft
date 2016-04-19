@@ -89,7 +89,8 @@ class HorizontalTail(CostedConstraintSet):
 
                            # Moment arm and geometry -- same as for vtail
                            TCS([dxlead + croot <= dxtrail]),
-                           TCS([xcg + dxtrail <= lfuse], reltol=0.002),
+                           TCS([xcg + dxtrail <= lfuse], reltol=0.002,
+                               raiseerror=False),
                            TCS([dxlead + ymac*tanLh + 0.25*chma >= lh],
                                reltol=1e-2), # [SP]
                            p >= 1 + 2*taper,
