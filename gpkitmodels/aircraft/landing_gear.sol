@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 7 GP solves and 4.55 seconds.
+Solving took 7 GP solves and 2.39 seconds.
 
 Cost
 ----
@@ -56,7 +56,7 @@ Constants
                 E : 205        [GPa]       Modulus of elasticity, 4340 steel          
                 K : 2                      Column effective length factor             
               N_s : 2                      Factor of safety                           
-              W_0 : 8.044e+05  [N]         Weight of aircraft excluding landing gear  
+       W_{0_{lg}} : 8.044e+05  [N]         Weight of aircraft excluding landing gear  
            \eta_s : 0.8                    Shock absorber efficiency                  
      \lambda_{LG} : 2.5                    Ratio of max to static load                
         \rho_{st} : 7850       [kg/m**3]   Density of 4340 Steel                      
@@ -84,7 +84,7 @@ Constants
 
 Sensitivities
 -------------
-             W_0 : 0.8196   Weight of aircraft excluding landing gear
+      W_{0_{lg}} : 0.8196   Weight of aircraft excluding landing gear
        f_{add,m} : 0.4872   Proportional added weight, main          
          n_{wps} : 0.1804   Number of wheels per strut               
           n_{mg} : 0.1438   Number of main gear struts               

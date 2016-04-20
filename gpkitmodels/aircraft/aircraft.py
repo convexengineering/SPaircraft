@@ -7,6 +7,7 @@ from fuselage import Fuselage
 from landing_gear import LandingGear
 from htail import HorizontalTail
 from wing import Wing
+from wingbox import WingBox
 from gpkit.tools import te_exp_minus1
 
 class Aircraft(Model):
@@ -57,7 +58,7 @@ class Aircraft(Model):
                    Wfuel/We >= te_exp_minus1(z_bre, nterm=3),
                    TCS([xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
                                + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng],
-                       reltol=1E-2),
+                       reltol=1E-2, raiseerror=False),
                   ]
 
             # Subsystem models
@@ -70,6 +71,7 @@ class Aircraft(Model):
             ht = HorizontalTail.aircraft_737()
             hts = HorizontalTail.standalone_737()
             wi = Wing.aircraft_737()
+            wb = WingBox()
 
             # Need to initialize solve with solution of uncoupled models
             vt_sol = vts.localsolve(verbosity=0)
@@ -100,7 +102,8 @@ class Aircraft(Model):
                          'x_{CG_{wing}}': 15,
                         }
 
-        lc = LinkedConstraintSet([hlc, vt, fu, lg, ht, wi])
+        lc = LinkedConstraintSet([hlc, vt, fu, lg, ht, wi],
+                                 exclude=[vk.name for vk in wb.varkeys])
         Model.__init__(self, objective,
                              lc,
                              substitutions)
