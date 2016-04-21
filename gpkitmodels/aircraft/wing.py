@@ -10,42 +10,44 @@ class Wing(CostedConstraintSet):
     Wing sizing
     """
     def __init__(self, **kwargs):
-        alpha   = Variable('\\alpha_w', '-', 'Wing angle of attack')
         AR      = Variable('AR', '-', 'Wing aspect ratio')
-        amax    = Variable('\\alpha_{max,w}', '-', 'Max angle of attack')
-        b       = Variable('b_w', 'm', 'Wing span')
-        CDw     = Variable('C_{D_w}', '-', 'Drag coefficient')
         CD0w    = Variable('C_{D_{0_w}}', '-',
                            'Wing parasitic drag coefficient')
+        CDw     = Variable('C_{D_w}', '-', 'Drag coefficient')
         CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
         CLw     = Variable('C_{L_w}', '-', 'Lift coefficient (wing)')
         CLwmax  = Variable('C_{L_{wmax}}', '-', 'Lift coefficient (wing)')
-        Lw      = Variable('L_w', 'N', 'Wing lift')
-        croot   = Variable('c_{root}', 'm', 'Wing root chord')
-        ctip    = Variable('c_{tip}', 'm', 'Wing tip chord')
-        cwma    = Variable('\\bar{c}_{wing}', 'm', 'Mean aerodynamic chord (wing)')
         D       = Variable('D_{wing}', 'N', 'Wing drag')
-        e       = Variable('e_w', '-', 'Oswald efficiency factor')
-        eta     = Variable('\\eta_w', '-',
-                           'Lift efficiency (diff between sectional and actual lift)')
-        fl      = Variable('f(\\lambda_w)', '-', 'Empirical efficiency function of taper')
         Lmax    = Variable('L_{max_{w}}', 'N', 'Maximum load')
-        mu      = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
-        p       = Variable('p_w', '-', 'Substituted variable = 1 + 2*taper')
-        q       = Variable('q_w', '-', 'Substituted variable = 1 + taper')
+        Lw      = Variable('L_w', 'N', 'Wing lift')
         Rec     = Variable('Re_w', '-', 'Cruise Reynolds number (Wing)')
-        rho     = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
-        rho0    = Variable('\\rho_0', 'kg/m^3', 'Air density (0 ft)')
         Sw      = Variable('S_w', 'm^2', 'Wing area')
-        tanL    = Variable('\\tan(\\Lambda)', '-', 'tangent of wing sweep')
-        taper   = Variable('\\lambda', '-', 'Wing taper ratio')
-        tau     = Variable('\\tau_w', '-', 'Wing thickness/chord ratio')
         Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
         Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         W       = Variable('W', 'N', 'Aircraft weight')
         W0      = Variable('W_0', 'N', 'Weight excluding wing')
         Ww      = Variable('W_{wing}', 'N', 'Wing weight')
-        #xw      = Variable('x_w', 'm', 'Position of wing aerodynamic center')
+        alpha   = Variable('\\alpha_w', '-', 'Wing angle of attack')
+        amax    = Variable('\\alpha_{max,w}', '-', 'Max angle of attack')
+        b       = Variable('b_w', 'm', 'Wing span')
+        croot   = Variable('c_{root}', 'm', 'Wing root chord')
+        ctip    = Variable('c_{tip}', 'm', 'Wing tip chord')
+        cwma    = Variable('\\bar{c}_{wing}', 'm',
+                           'Mean aerodynamic chord (wing)')
+        e       = Variable('e_w', '-', 'Oswald efficiency factor')
+        eta     = Variable('\\eta_w', '-',
+                           'Lift efficiency (diff b/w sectional, actual lift)')
+        fl      = Variable('f(\\lambda_w)', '-',
+                           'Empirical efficiency function of taper')
+        mu      = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
+        p       = Variable('p_w', '-', 'Substituted variable = 1 + 2*taper')
+        q       = Variable('q_w', '-', 'Substituted variable = 1 + taper')
+        rho     = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
+        rho0    = Variable('\\rho_0', 'kg/m^3', 'Air density (0 ft)')
+        tanL    = Variable('\\tan(\\Lambda)', '-', 'tangent of wing sweep')
+        taper   = Variable('\\lambda', '-', 'Wing taper ratio')
+        tau     = Variable('\\tau_w', '-', 'Wing thickness/chord ratio')
+        #xw     = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{\\bar{c}}', 'm',
                            'Spanwise location of mean aerodynamic chord')
 
@@ -110,17 +112,17 @@ class Wing(CostedConstraintSet):
         constraints = ccs + ccs.standalone_constraints
 
         substitutions = {
-                         '\\alpha_{max,w}': 0.1, # (6 deg)
-                         '\\eta_w': 0.97,
                          'C_{D_{0_w}}': 0.05,
                          'C_{L_{wmax}}': 2.5,
+                         'V_{\\infty}': 240,
+                         'V_{ne}': 144,
+                         'W_0': 1E5,
+                         '\\alpha_{max,w}': 0.1, # (6 deg)
+                         '\\eta_w': 0.97,
                          '\\mu': 1.4E-5,
                          '\\rho': 0.38,
                          '\\rho_0': 1.225,
                          '\\tan(\\Lambda)': tan(30*pi/180),
-                         'V_{\\infty}': 240,
-                         'V_{ne}': 144,
-                         'W_0': 1E5,
                         }
 
         m = Model(ccs.cost, constraints, substitutions)
@@ -131,15 +133,15 @@ class Wing(CostedConstraintSet):
         ccs = cls()
 
         substitutions = {
-                         '\\alpha_{max,w}': 0.1, # (6 deg)
-                         '\\eta_w': 0.97,
                          'C_{D_{0_w}}': 0.05,
                          'C_{L_{wmax}}': 2.5,
+                         'V_{ne}': 144,
+                         '\\alpha_{max,w}': 0.1, # (6 deg)
+                         '\\eta_w': 0.97,
                          '\\mu': 1.4E-5,
                          '\\rho': 0.38,
                          '\\rho_0': 1.225,
                          '\\tan(\\Lambda)': tan(30*pi/180),
-                         'V_{ne}': 144,
                         }
 
         m = Model(ccs.cost, ccs, substitutions, name='Wing')

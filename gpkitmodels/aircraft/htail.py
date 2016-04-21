@@ -11,13 +11,10 @@ class HorizontalTail(CostedConstraintSet):
     Horizontal tail sizing
     """
     def __init__(self, **kwargs):
-        alpha   = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
         ARh     = Variable('AR_h', '-', 'Horizontal tail aspect ratio')
-        amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack (htail)')
-        bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
-        CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
         CD0h    = Variable('C_{D_{0_h}}', '-',
                            'Horizontal tail parasitic drag coefficient')
+        CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
         CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
         CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
         CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
@@ -25,13 +22,29 @@ class HorizontalTail(CostedConstraintSet):
         CLw     = Variable('C_{L_w}', '-', 'Lift coefficient (wing)')
         Cmac    = Variable('|C_{m_{ac}}|', '-', # Absolute value of CMwing
                            'Moment coefficient about aerodynamic centre (wing)')
+        Cmfu    = Variable('C_{m_{fuse}}', '-', 'Moment coefficient (fuselage)')
+        D       = Variable('D_{ht}', 'N', 'Horizontal tail drag')
+        Kf      = Variable('K_f', '-',
+                           'Empirical factor for fuselage-wing interference')
+        Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
+        Lmax    = Variable('L_{{max}_h}', 'N', 'Maximum load')
+        Rec     = Variable('Re_{c_h}', '-',
+                           'Cruise Reynolds number (Horizontal tail)')
+        SM      = Variable('S.M.', '-', 'Stability margin')
+        SMmin   = Variable('S.M._{min}', '-', 'Minimum stability margin')
+        Sh      = Variable('S_h', 'm^2', 'Horizontal tail area')
+        Sw      = Variable('S_w', 'm^2', 'Wing area')
+        Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
+        Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
+        W       = Variable('W_{ht}', 'N', 'Horizontal tail weight')
+        alpha   = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
+        amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack (htail)')
+        bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
         chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
         croot   = Variable('c_{root_h}', 'm', 'Horizontal tail root chord')
         ctip    = Variable('c_{tip_h}', 'm', 'Horizontal tail tip chord')
         cwma    = Variable('\\bar{c}_{wing}', 'm',
                            'Mean aerodynamic chord (wing)')
-        Cmfu    = Variable('C_{m_{fuse}}', '-', 'Moment coefficient (fuselage)')
-        D       = Variable('D_{ht}', 'N', 'Horizontal tail drag')
         dxlead  = Variable('\\Delta x_{{lead}_h}', 'm',
                            'Distance from CG to horizontal tail leading edge')
         dxtrail = Variable('\\Delta x_{{trail}_h}', 'm',
@@ -44,31 +57,18 @@ class HorizontalTail(CostedConstraintSet):
                             "actual lift)"))
         fl      = Variable(r"f(\lambda_h)", '-',
                            'Empirical efficiency function of taper')
-        Kf      = Variable('K_f', '-',
-                           'Empirical factor for fuselage-wing interference')
-        lh      = Variable('l_h', 'm', 'Horizontal tail moment arm')
         lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
-        Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
-        Lmax    = Variable('L_{{max}_h}', 'N', 'Maximum load')
+        lh      = Variable('l_h', 'm', 'Horizontal tail moment arm')
         mu      = Variable(r'\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
         p       = Variable('p_{ht}', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q_{ht}', '-', 'Substituted variable = 1 + taper')
-        Rec     = Variable('Re_{c_h}', '-',
-                           'Cruise Reynolds number (Horizontal tail)')
         rho     = Variable(r'\rho', 'kg/m^3', 'Air density (35,000 ft)')
         rho0    = Variable(r'\rho_0', 'kg/m^3', 'Air density (0 ft)')
-        Sh      = Variable('S_h', 'm^2', 'Horizontal tail area')
-        Sw      = Variable('S_w', 'm^2', 'Wing area')
-        SM      = Variable('S.M.', '-', 'Stability margin')
-        SMmin   = Variable('S.M._{min}', '-', 'Minimum stability margin')
         tanLh   = Variable(r'\tan(\Lambda_h)', '-',
                            'tangent of horizontal tail sweep')
         taper   = Variable(r'\lambda_h', '-', 'Horizontal tail taper ratio')
         tau     = Variable(r'\tau_h', '-',
                            'Horizontal tail thickness/chord ratio')
-        Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
-        Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
-        W       = Variable('W_{ht}', 'N', 'Horizontal tail weight')
         wf      = Variable('w_{fuse}', 'm', 'Fuselage width')
         xcg     = Variable('x_{CG}', 'm', 'CG location')
         xcght   = Variable('x_{CG_{ht}}', 'm', 'Horizontal tail CG location')
@@ -169,26 +169,26 @@ class HorizontalTail(CostedConstraintSet):
         # References
         # [1] TASOPT code
         substitutions = {
-                         '\\alpha_{max,h}': 0.1, # (6 deg)
-                         '\\eta_h': 0.97,
+                         'C_{L_w}': 0.5,
                          'C_{L_{aw}}': 2*pi,
                          'C_{L_{hmax}}': 2.6,
-                         'C_{L_w}': 0.5,
-                         '|C_{m_{ac}}|': 0.1,
                          'C_{m_{fuse}}': 0.05, # [1]
+                         'S.M._{min}': 0.05,
+                         'S_w': 125,
+                         'V_{\\infty}': 240,
+                         'V_{ne}': 144,
+                         '\\Delta x_w': 2,
+                         '\\alpha_{max,h}': 0.1, # (6 deg)
                          '\\bar{c}_{wing}': 5,
-                         'l_{fuse}': 40,
+                         '\\eta_h': 0.97,
                          '\\mu': 1.4E-5,
                          '\\rho': 0.38,
                          '\\rho_0': 1.225,
-                         'S_w': 125,
-                         'S.M._{min}': 0.05,
                          '\\tan(\\Lambda_h)': tan(30*pi/180),
-                         'V_{\\infty}': 240,
-                         'V_{ne}': 144,
-                         'x_{CG}': 20,
-                         '\\Delta x_w': 2,
+                         'l_{fuse}': 40,
                          'w_{fuse}': 6,
+                         'x_{CG}': 20,
+                         '|C_{m_{ac}}|': 0.1,
                         }
 
         m = Model(ccs.cost, ccs, substitutions)
@@ -202,18 +202,18 @@ class HorizontalTail(CostedConstraintSet):
         constraints = ccs + ccs.CG_constraint
 
         substitutions = {
+                         'C_{L_{hmax}}': 2.6,
+                         'C_{m_{fuse}}': 0.05, # [1]
+                         'S.M._{min}': 0.05,
+                         'V_{ne}': 144,
+                         '\\Delta x_w': 2,
                          '\\alpha_{max,h}': 0.1, # (6 deg)
                          '\\eta_h': 0.97,
-                         'C_{L_{hmax}}': 2.6,
-                         '|C_{m_{ac}}|': 0.1,
-                         'C_{m_{fuse}}': 0.05, # [1]
                          '\\mu': 1.4E-5,
                          '\\rho': 0.38,
                          '\\rho_0': 1.225,
-                         'S.M._{min}': 0.05,
                          '\\tan(\\Lambda_h)': tan(30*pi/180),
-                         'V_{ne}': 144,
-                         '\\Delta x_w': 2,
+                         '|C_{m_{ac}}|': 0.1,
                         }
 
         m = Model(ccs.cost, constraints, substitutions, name='HorizontalTail')

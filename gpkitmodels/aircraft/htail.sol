@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 4 GP solves and 0.484 seconds.
+Solving took 4 GP solves and 0.493 seconds.
 
 Cost
 ----
@@ -93,13 +93,13 @@ Sensitivities
 \sigma_{max,shear} : -0.1096  Allowable shear stress                                  
       \sigma_{max} : -0.5393  Allowable tensile stress                                
                                                                                       
-            x_{CG} : 2.348    CG location                                             
             V_{ne} : 1.298    Never exceed velocity                                   
           w_{fuse} : 1.014    Fuselage width                                          
                S_w : 0.7947   Wing area                                               
         C_{L_{aw}} : 0.7947   Lift curve slope (wing)                                 
         \Delta x_w : 0.7772   Distance from aerodynamic centre to CG                  
         V_{\infty} : 0.7162   Freestream velocity                                     
+            x_{CG} : 0.7088   CG location                                             
             \rho_0 : 0.649    Air density (0 ft)                                      
       C_{L_{hmax}} : 0.649    Max lift coefficient                                    
               \rho : 0.3546   Air density (35,000 ft)                                 
