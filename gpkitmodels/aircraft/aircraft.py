@@ -63,6 +63,9 @@ class Aircraft(Model):
                    TCS([xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
                                + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng],
                        reltol=1E-2, raiseerror=False),
+                   TCS([0.99*xCG*W <= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
+                               + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng],
+                       reltol=1E-2, raiseerror=False),
                    xw == xCGwing,
                    xCGeng == xCGwing,
                   ]

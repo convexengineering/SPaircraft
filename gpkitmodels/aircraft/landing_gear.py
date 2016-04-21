@@ -242,8 +242,9 @@ class LandingGear(CostedConstraintSet):
                            ]
 
             coupledCG = [
-                         TCS([W_lg*xcglg >= W_ng*x_n + W_mg*x_m], reltol=1E-1,
+                         TCS([W_lg*xcglg >= W_ng*x_n + W_mg*x_m], reltol=1E-2,
                              raiseerror=False),
+                         x_m >= xcglg,
                         ]
 
             self.standaloneCG = standaloneCG
