@@ -46,6 +46,7 @@ class Aircraft(Model):
         xCGlg  = Variable('x_{CG_{lg}}', 'm', 'x-location of landing gear CG')
         xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of vtail CG') 
         xCGwing = Variable('x_{CG_{wing}}', 'm', 'x-location of wing CG')
+        xw     = Variable('x_w', 'm', 'x-location of wing aerodynamic center')
         z_bre  = Variable('z_{bre}', '-', 'Breguet parameter')
 
         with SignomialsEnabled():
@@ -62,6 +63,7 @@ class Aircraft(Model):
                    TCS([xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
                                + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng],
                        reltol=1E-2, raiseerror=False),
+                   xw == xCGwing,
                   ]
 
             # Subsystem models
@@ -102,7 +104,6 @@ class Aircraft(Model):
                          'V_{\\infty}': 234,
                          'W_{eng}': 10000,
                          'x_{CG_{eng}}': 15,
-                         'x_{CG_{wing}}': 15,
                         }
 
         lc = LinkedConstraintSet([hlc, vt, fu, lg, ht, wi],
