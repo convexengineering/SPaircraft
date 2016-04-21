@@ -1,9 +1,9 @@
 Beginning signomial solve.
-Solving took 9 GP solves and 351 seconds.
-Warning: Constraint W_Aircraft*x_{CG}_Aircraft >= W_{eng}_Aircraft*x_{CG_{eng}}_Aircraft + W_{fuse}_Aircraft*x_{CG_{fu}}_Aircraft + W_{ht}_Aircraft*x_{CG_{ht}}_Aircraft + W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft + W_{vt}_Aircraft*x_{CG_{vt}}_Aircraft + W_{wing}_Aircraft*x_{CG_{wing}}_Aircraft is not tight because W_Aircraft*x_{CG}_Aircraft [N*m] evaluated to 6527207.52944 meter * newton but W_{eng}_Aircraft*x_{CG_{eng}}_Aircraft + W_{fuse}_Aircraft*x_{CG_{fu}}_Aircraft + W_{ht}_Aircraft*x_{CG_{ht}}_Aircraft + W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft + W_{vt}_Aircraft*x_{CG_{vt}}_Aircraft + W_{wing}_Aircraft*x_{CG_{wing}}_Aircraft [N*m] evaluated to 6089487.22628 meter * newton
-Warning: Constraint x_{CG_{vt}}_Aircraft >= 0.5*\Delta x_{lead}_VerticalTail, Aircraft + 0.5*\Delta x_{trail}_VerticalTail, Aircraft + x_{CG}_Aircraft is not tight because x_{CG_{vt}}_Aircraft [m] evaluated to 125.909865149 meter but 0.5*\Delta x_{lead}_VerticalTail, Aircraft + 0.5*\Delta x_{trail}_VerticalTail, Aircraft + x_{CG}_Aircraft [m] evaluated to 52.9004953982 meter
-Warning: Constraint W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft >= W_{mg}_LandingGear, Aircraft*x_m_LandingGear, Aircraft + W_{ng}_LandingGear, Aircraft*x_n_LandingGear, Aircraft is not tight because W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft [N*m] evaluated to 414447.64512 meter * newton but W_{mg}_LandingGear, Aircraft*x_m_LandingGear, Aircraft + W_{ng}_LandingGear, Aircraft*x_n_LandingGear, Aircraft [N*m] evaluated to 318148.634398 meter * newton
-Warning: Constraint x_{CG_{ht}}_Aircraft >= 0.5*\Delta x_{{lead}_h}_HorizontalTail, Aircraft + 0.5*\Delta x_{{trail}_h}_HorizontalTail, Aircraft + x_{CG}_Aircraft is not tight because x_{CG_{ht}}_Aircraft [m] evaluated to 141.220982169 meter but 0.5*\Delta x_{{lead}_h}_HorizontalTail, Aircraft + 0.5*\Delta x_{{trail}_h}_HorizontalTail, Aircraft + x_{CG}_Aircraft [m] evaluated to 56.3100346781 meter
+Solving took 9 GP solves and 3.54 seconds.
+Warning: Constraint W_Aircraft*x_{CG}_Aircraft >= W_{eng}_Aircraft*x_{CG_{eng}}_Aircraft + W_{fuse}_Aircraft*x_{CG_{fu}}_Aircraft + W_{ht}_Aircraft*x_{CG_{ht}}_Aircraft + W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft + W_{vt}_Aircraft*x_{CG_{vt}}_Aircraft + W_{wing}_Aircraft*x_{CG_{wing}}_Aircraft is not tight because W_Aircraft*x_{CG}_Aircraft [N*m] evaluated to 6527207.52941 meter * newton but W_{eng}_Aircraft*x_{CG_{eng}}_Aircraft + W_{fuse}_Aircraft*x_{CG_{fu}}_Aircraft + W_{ht}_Aircraft*x_{CG_{ht}}_Aircraft + W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft + W_{vt}_Aircraft*x_{CG_{vt}}_Aircraft + W_{wing}_Aircraft*x_{CG_{wing}}_Aircraft [N*m] evaluated to 6089828.59684 meter * newton
+Warning: Constraint x_{CG_{vt}}_Aircraft >= 0.5*\Delta x_{lead}_VerticalTail, Aircraft + 0.5*\Delta x_{trail}_VerticalTail, Aircraft + x_{CG}_Aircraft is not tight because x_{CG_{vt}}_Aircraft [m] evaluated to 126.007705096 meter but 0.5*\Delta x_{lead}_VerticalTail, Aircraft + 0.5*\Delta x_{trail}_VerticalTail, Aircraft + x_{CG}_Aircraft [m] evaluated to 52.9004953975 meter
+Warning: Constraint W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft >= W_{mg}_LandingGear, Aircraft*x_m_LandingGear, Aircraft + W_{ng}_LandingGear, Aircraft*x_n_LandingGear, Aircraft is not tight because W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft [N*m] evaluated to 414431.329161 meter * newton but W_{mg}_LandingGear, Aircraft*x_m_LandingGear, Aircraft + W_{ng}_LandingGear, Aircraft*x_n_LandingGear, Aircraft [N*m] evaluated to 318148.634396 meter * newton
+Warning: Constraint x_{CG_{ht}}_Aircraft >= 0.5*\Delta x_{{lead}_h}_HorizontalTail, Aircraft + 0.5*\Delta x_{{trail}_h}_HorizontalTail, Aircraft + x_{CG}_Aircraft is not tight because x_{CG_{ht}}_Aircraft [m] evaluated to 141.346908685 meter but 0.5*\Delta x_{{lead}_h}_HorizontalTail, Aircraft + 0.5*\Delta x_{{trail}_h}_HorizontalTail, Aircraft + x_{CG}_Aircraft [m] evaluated to 56.3100346777 meter
 
 Cost
 ----
@@ -37,9 +37,9 @@ Free Variables
                     p_{\lambda_v} : 1.6                  1 + 2*Tail taper ratio                           
                          w_{fuse} : 3.967      [m]       Fuselage width                                   
                       x_{CG_{fu}} : 26.25      [m]       x-location of fuselage CG                        
-                      x_{CG_{ht}} : 141.2      [m]       Horizontal tail CG location                      
+                      x_{CG_{ht}} : 141.3      [m]       Horizontal tail CG location                      
                       x_{CG_{lg}} : 25.5       [m]       x-location of landing gear CG                    
-                      x_{CG_{vt}} : 125.9      [m]       x-location of tail CG                            
+                      x_{CG_{vt}} : 126        [m]       x-location of tail CG                            
                            x_{CG} : 18.22      [m]       x-location of CG                                 
                            x_{up} : 29.61      [m]       Fuselage upsweep point                           
                           z_{bre} : 0.3554               Breguet parameter                                
@@ -98,7 +98,7 @@ Free Variables
                          t_{skin} : 0.000997   [m]       Skin thickness                                   
                         w_{floor} : 3.426      [m]       Floor width                                      
                            xVbulk : 0.7297     [m**4]    Volume moment of bulkhead                        
-                            xVcyl : 7.043      [m**4]    Volume moment of cylinder                        
+                            xVcyl : 7.045      [m**4]    Volume moment of cylinder                        
                            xVnose : 0.1389     [m**4]    Volume moment of nose                            
                             xWapu : 2.069e+05  [N*m]     Moment of APU                                    
                            xWcone : 4.215e+05  [N*m]     Moment of cone                                   
@@ -107,9 +107,9 @@ Free Variables
                            xWfuse : 4.344e+06  [N*m]     Fuselage moment                                  
                           xWinsul : 1.484e+05  [N*m]     Moment of insulation material                    
                            xWpadd : 1.256e+06  [N*m]     Moment of misc weights                           
-                           xWseat : 5.992e+05  [N*m]     Moment of seats                                  
-                          xWshell : 5.089e+05  [N*m]     Mass moment of shell                             
-                           xWskin : 2.827e+05  [N*m]     Mass moment of skin                              
+                           xWseat : 5.993e+05  [N*m]     Moment of seats                                  
+                          xWshell : 5.091e+05  [N*m]     Mass moment of shell                             
+                           xWskin : 2.828e+05  [N*m]     Mass moment of skin                              
                          xWwindow : 2.742e+05  [N*m]     Mass moment of windows                           
                        x_{shell1} : 5.2        [m]       Start of cylinder section                        
                        x_{shell2} : 29.61      [m]       End of cylinder section                          
@@ -257,7 +257,7 @@ WingBox, HorizontalTail, Aircraft |
 Constants
 ---------
                          Aircraft |                                                                                
-                            Range : 3000       [nmi]       Range                                                   
+                            Range : 3000       [nmi#exact] Range                                                   
                              TSFC : 0.3        [lb/hr/lbf] Thrust specific fuel consumption                        
                        V_{\infty} : 234        [m/s]       Freestream velocity                                     
                            V_{ne} : 144        [m/s]       Never exceed velocity                                   
