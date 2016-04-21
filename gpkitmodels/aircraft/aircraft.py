@@ -64,6 +64,7 @@ class Aircraft(Model):
                                + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng],
                        reltol=1E-2, raiseerror=False),
                    xw == xCGwing,
+                   xCGeng == xCGwing,
                   ]
 
             # Subsystem models
@@ -103,7 +104,6 @@ class Aircraft(Model):
                          'TSFC': 0.3,
                          'V_{\\infty}': 234,
                          'W_{eng}': 10000,
-                         'x_{CG_{eng}}': 15,
                         }
 
         lc = LinkedConstraintSet([hlc, vt, fu, lg, ht, wi],
