@@ -149,7 +149,8 @@ class VerticalTail(CostedConstraintSet):
                                    cvt == croot]
 
             CG_constraint = [TCS([xCGvt >= xCG+(dxlead+dxtrail)/2],
-                                 raiseerror=False)]
+                                 raiseerror=False),
+                             xCGvt <= lfuse]
 
             self.linking_constraints = linking_constraints
             self.CG_constraint = CG_constraint

@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 4 GP solves and 5.81 seconds.
+Solving took 4 GP solves and 0.484 seconds.
 
 Cost
 ----
@@ -14,6 +14,7 @@ Free Variables
           C_{L_{ah}} : 3.457             Lift curve slope (htail)                         
               D_{ht} : 3285       [N]    Horizontal tail drag                             
                  K_f : 0.7831            Empirical factor for fuselage-wing interference  
+                 L_h : 5.907e+04  [N]    Horizontal tail downforce                        
          L_{{max}_h} : 1.592e+06  [N]    Maximum load                                     
             Re_{c_h} : 2.646e+07         Cruise Reynolds number (Horizontal tail)         
                 S.M. : 0.05              Stability margin                                 
@@ -47,8 +48,10 @@ Free Variables
 
 Constants
 ---------
+           C_{L_w} : 0.5                  Lift coefficient (wing)                                 
         C_{L_{aw}} : 6.283                Lift curve slope (wing)                                 
       C_{L_{hmax}} : 2.6                  Max lift coefficient                                    
+      C_{m_{fuse}} : 0.05                 Moment coefficient (fuselage)                           
         S.M._{min} : 0.05                 Minimum stability margin                                
                S_w : 125       [m**2]     Wing area                                               
         V_{\infty} : 240       [m/s]      Freestream velocity                                     
@@ -64,6 +67,7 @@ Constants
           l_{fuse} : 40        [m]        Fuselage length                                         
           w_{fuse} : 6         [m]        Fuselage width                                          
             x_{CG} : 20        [m]        CG location                                             
+      |C_{m_{ac}}| : 0.1                  Moment coefficient about aerodynamic centre (wing)      
                                                                                                   
            WingBox |                                                                              
           N_{lift} : 2                    Wing loading multiplier                                 
@@ -89,13 +93,13 @@ Sensitivities
 \sigma_{max,shear} : -0.1096  Allowable shear stress                                  
       \sigma_{max} : -0.5393  Allowable tensile stress                                
                                                                                       
+            x_{CG} : 2.348    CG location                                             
             V_{ne} : 1.298    Never exceed velocity                                   
           w_{fuse} : 1.014    Fuselage width                                          
                S_w : 0.7947   Wing area                                               
         C_{L_{aw}} : 0.7947   Lift curve slope (wing)                                 
         \Delta x_w : 0.7772   Distance from aerodynamic centre to CG                  
         V_{\infty} : 0.7162   Freestream velocity                                     
-            x_{CG} : 0.7088   CG location                                             
             \rho_0 : 0.649    Air density (0 ft)                                      
       C_{L_{hmax}} : 0.649    Max lift coefficient                                    
               \rho : 0.3546   Air density (35,000 ft)                                 

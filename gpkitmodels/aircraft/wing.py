@@ -20,6 +20,7 @@ class Wing(CostedConstraintSet):
         CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
         CLw     = Variable('C_{L_w}', '-', 'Lift coefficient (wing)')
         CLwmax  = Variable('C_{L_{wmax}}', '-', 'Lift coefficient (wing)')
+        Lw      = Variable('L_w', 'N', 'Wing lift')
         croot   = Variable('c_{root}', 'm', 'Wing root chord')
         ctip    = Variable('c_{tip}', 'm', 'Wing tip chord')
         cwma    = Variable('\\bar{c}_{wing}', 'm', 'Mean aerodynamic chord (wing)')
@@ -52,7 +53,7 @@ class Wing(CostedConstraintSet):
 
         with SignomialsEnabled():
             constraints = [
-                           W == 0.5*rho*Vinf**2*Sw*CLw,
+                           Lw == 0.5*rho*Vinf**2*Sw*CLw,
 
         #                   p >= 1 + 2*taper,
         #                   2*q >= 1 + p,
@@ -83,7 +84,8 @@ class Wing(CostedConstraintSet):
                            Lmax == 0.5*rho0*Vne**2*Sw*CLwmax,
                           ]
 
-            standalone_constraints = [W >= W0 + Ww,]
+            standalone_constraints = [W >= W0 + Ww,
+                                      Lw == W]
             self.standalone_constraints = standalone_constraints
 
         wb = WingBox()

@@ -48,6 +48,7 @@ class HorizontalTail(CostedConstraintSet):
                            'Empirical factor for fuselage-wing interference')
         lh      = Variable('l_h', 'm', 'Horizontal tail moment arm')
         lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
+        Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
         Lmax    = Variable('L_{{max}_h}', 'N', 'Maximum load')
         mu      = Variable(r'\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
         p       = Variable('p_{ht}', '-', 'Substituted variable = 1 + 2*taper')
@@ -86,6 +87,7 @@ class HorizontalTail(CostedConstraintSet):
                            # Trim from UMich AE-481 course notes
                            TCS([CLh*Sh*lh/(Sw*cwma) + Cmac >=
                                 CLw*dxw/cwma + Cmfu], reltol=0.02),
+                           Lh == 0.5*rho*Vinf**2*Sh*CLh,
 
                            # Moment arm and geometry -- same as for vtail
                            TCS([dxlead + croot <= dxtrail]),
@@ -139,7 +141,9 @@ class HorizontalTail(CostedConstraintSet):
                           ]
 
         CG_constraint = [TCS([xcght >= xcg+(dxlead+dxtrail)/2],
-                             raiseerror=False)]
+                             raiseerror=False),
+                         xcght <= lfuse
+                        ]
         self.CG_constraint = CG_constraint
 
         wb = WingBox()

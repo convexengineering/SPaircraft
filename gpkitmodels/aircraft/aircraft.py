@@ -23,6 +23,8 @@ class Aircraft(Model):
         Dvt    = Variable('D_{vt}', 'N', 'Vertical tail drag')
         Dwing  = Variable('D_{wing}', 'N', 'Wing drag')
         LD     = Variable('\\frac{L}{D}', '-', 'Lift/drag ratio')
+        Lh     = Variable('L_h', 'N', 'Horizontal tail downforce')
+        Lw     = Variable('L_w', 'N', 'Wing lift')
         R      = Variable('Range', 'nautical_miles', 'Range')
         TSFC   = Variable('TSFC', 'lb/lbf/hr',
                           'Thrust specific fuel consumption')
@@ -54,7 +56,8 @@ class Aircraft(Model):
                    We >= Wvt + Wfuse + Wlg + Wwing + Wht + Weng,
                    W >= We + Wfuel,
                    R <= z_bre*LD*V/(TSFC*g),
-                   LD == W/D,
+                   LD == Lw/D,
+                   Lw >= W, # TODO: add Lh
                    Wfuel/We >= te_exp_minus1(z_bre, nterm=3),
                    TCS([xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
                                + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng],
@@ -110,8 +113,9 @@ class Aircraft(Model):
 
     def test(self):
         sol = self.localsolve(x0=self.init)
+        return sol
 
 if __name__ == "__main__":
     a = Aircraft()
-    a.test()
+    sol = a.test()
 

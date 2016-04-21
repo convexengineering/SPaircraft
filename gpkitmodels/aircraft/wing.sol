@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 4 GP solves and 1.49 seconds.
+Solving took 4 GP solves and 0.266 seconds.
 
 Cost
 ----
@@ -12,6 +12,7 @@ Free Variables
      C_{L_w} : 0.3962            Lift coefficient (wing)                
   C_{L_{aw}} : 3.962             Lift curve slope (wing)                
     D_{wing} : 1.592e+04  [N]    Wing drag                              
+         L_w : 1.072e+05  [N]    Wing lift                              
  L_{max_{w}} : 7.854e+05  [N]    Maximum load                           
          S_w : 24.74      [m**2] Wing area                              
            W : 1.072e+05  [N]    Aircraft weight                        
