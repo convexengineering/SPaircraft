@@ -1,5 +1,6 @@
 Beginning signomial solve.
-Solving took 4 GP solves and 0.329 seconds.
+Solving took 4 GP solves and 0.384 seconds.
+Warning: Constraint 0.667*\lambda**2*c_{root}*q_w**-1 + 0.667*\lambda*c_{root}*q_w**-1 + 0.667*c_{root}*q_w**-1 >= \bar{c}_{wing} is not tight because 0.667*\lambda**2*c_{root}*q_w**-1 + 0.667*\lambda*c_{root}*q_w**-1 + 0.667*c_{root}*q_w**-1 [m] evaluated to 2.37598177812 meter but \bar{c}_{wing} [m] evaluated to 1.0 meter
 
 Cost
 ----
@@ -7,35 +8,37 @@ Cost
 
 Free Variables
 --------------
-          AR : 5.776             Wing aspect ratio                      
-     C_{D_w} : 0.05881           Drag coefficient                       
-     C_{L_w} : 0.3962            Lift coefficient (wing)                
-  C_{L_{aw}} : 3.962             Lift curve slope (wing)                
-    D_{wing} : 1.592e+04  [N]    Wing drag                              
-         L_w : 1.072e+05  [N]    Wing lift                              
- L_{max_{w}} : 7.854e+05  [N]    Maximum load                           
-         S_w : 24.74      [m**2] Wing area                              
-           W : 1.072e+05  [N]    Aircraft weight                        
-    W_{wing} : 7243       [N]    Wing weight                            
-    \alpha_w : 0.1               Wing angle of attack                   
-     \lambda : 0.2               Wing taper ratio                       
-      \tau_w : 0.15              Wing thickness/chord ratio             
-         b_w : 11.95      [m]    Wing span                              
-    c_{root} : 3.449      [m]    Wing root chord                        
-     c_{tip} : 0.6898     [m]    Wing tip chord                         
-         e_w : 0.9812            Oswald efficiency factor               
-f(\lambda_w) : 0.003309          Empirical efficiency function of taper 
-         p_w : 1.4               Substituted variable = 1 + 2*taper     
-         q_w : 1.2               Substituted variable = 1 + taper       
-                                                                        
-     WingBox |                                                          
-     I_{cap} : 1.335e-05         Non-dim spar cap area moment of inertia
-         M_r : 2.646e+05  [N]    Root moment per root chord             
-     W_{cap} : 4558       [N]    Weight of spar caps                    
-     W_{web} : 615.5      [N]    Weight of shear web                    
-         \nu : 0.8612            Dummy variable = $(t^2 + t + 1)/(t+1)$ 
-     t_{cap} : 0.002928          Non-dim. spar cap thickness            
-     t_{web} : 0.001757          Non-dim. shear web thickness           
+            AR : 5.776             Wing aspect ratio                          
+       C_{D_w} : 0.05881           Drag coefficient                           
+       C_{L_w} : 0.3962            Lift coefficient (wing)                    
+    C_{L_{aw}} : 3.962             Lift curve slope (wing)                    
+      D_{wing} : 1.592e+04  [N]    Wing drag                                  
+           L_w : 1.072e+05  [N]    Wing lift                                  
+   L_{max_{w}} : 7.854e+05  [N]    Maximum load                               
+           S_w : 24.74      [m**2] Wing area                                  
+             W : 1.072e+05  [N]    Aircraft weight                            
+      W_{wing} : 7243       [N]    Wing weight                                
+      \alpha_w : 0.1               Wing angle of attack                       
+\bar{c}_{wing} : 1          [m]    Mean aerodynamic chord (wing)              
+       \lambda : 0.2               Wing taper ratio                           
+        \tau_w : 0.15              Wing thickness/chord ratio                 
+           b_w : 11.95      [m]    Wing span                                  
+      c_{root} : 3.449      [m]    Wing root chord                            
+       c_{tip} : 0.6898     [m]    Wing tip chord                             
+           e_w : 0.9812            Oswald efficiency factor                   
+  f(\lambda_w) : 0.003309          Empirical efficiency function of taper     
+           p_w : 1.4               Substituted variable = 1 + 2*taper         
+           q_w : 1.2               Substituted variable = 1 + taper           
+   y_{\bar{c}} : 3.415      [m]    Spanwise location of mean aerodynamic chord
+                                                                              
+       WingBox |                                                              
+       I_{cap} : 1.335e-05         Non-dim spar cap area moment of inertia    
+           M_r : 2.646e+05  [N]    Root moment per root chord                 
+       W_{cap} : 4558       [N]    Weight of spar caps                        
+       W_{web} : 615.5      [N]    Weight of shear web                        
+           \nu : 0.8612            Dummy variable = $(t^2 + t + 1)/(t+1)$     
+       t_{cap} : 0.002928          Non-dim. spar cap thickness                
+       t_{web} : 0.001757          Non-dim. shear web thickness               
 
 Constants
 ---------

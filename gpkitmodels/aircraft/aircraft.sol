@@ -1,8 +1,9 @@
 Beginning signomial solve.
-Solving took 21 GP solves and 11 seconds.
-Warning: Constraint x_{CG_{vt}}_Aircraft >= 0.5*\Delta x_{lead}_VerticalTail, Aircraft + 0.5*\Delta x_{trail}_VerticalTail, Aircraft + x_{CG}_Aircraft is not tight because x_{CG_{vt}}_Aircraft [m] evaluated to 57.7276609857 meter but 0.5*\Delta x_{lead}_VerticalTail, Aircraft + 0.5*\Delta x_{trail}_VerticalTail, Aircraft + x_{CG}_Aircraft [m] evaluated to 54.3541487455 meter
-Warning: Constraint W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft >= W_{mg}_LandingGear, Aircraft*x_m_LandingGear, Aircraft + W_{ng}_LandingGear, Aircraft*x_n_LandingGear, Aircraft is not tight because W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft [N*m] evaluated to 333628.988139 meter * newton but W_{mg}_LandingGear, Aircraft*x_m_LandingGear, Aircraft + W_{ng}_LandingGear, Aircraft*x_n_LandingGear, Aircraft [N*m] evaluated to 327089.561269 meter * newton
-Warning: Constraint x_{CG_{ht}}_Aircraft >= 0.5*\Delta x_{{lead}_h}_HorizontalTail, Aircraft + 0.5*\Delta x_{{trail}_h}_HorizontalTail, Aircraft + x_{CG}_Aircraft is not tight because x_{CG_{ht}}_Aircraft [m] evaluated to 58.7126361186 meter but 0.5*\Delta x_{{lead}_h}_HorizontalTail, Aircraft + 0.5*\Delta x_{{trail}_h}_HorizontalTail, Aircraft + x_{CG}_Aircraft [m] evaluated to 58.0477726868 meter
+Solving took 21 GP solves and 10.7 seconds.
+Warning: Constraint x_{CG_{vt}}_Aircraft >= 0.5*\Delta x_{lead}_VerticalTail, Aircraft + 0.5*\Delta x_{trail}_VerticalTail, Aircraft + x_{CG}_Aircraft is not tight because x_{CG_{vt}}_Aircraft [m] evaluated to 57.7292649299 meter but 0.5*\Delta x_{lead}_VerticalTail, Aircraft + 0.5*\Delta x_{trail}_VerticalTail, Aircraft + x_{CG}_Aircraft [m] evaluated to 54.3541487586 meter
+Warning: Constraint W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft >= W_{mg}_LandingGear, Aircraft*x_m_LandingGear, Aircraft + W_{ng}_LandingGear, Aircraft*x_n_LandingGear, Aircraft is not tight because W_{lg}_Aircraft*x_{CG_{lg}}_Aircraft [N*m] evaluated to 333628.389918 meter * newton but W_{mg}_LandingGear, Aircraft*x_m_LandingGear, Aircraft + W_{ng}_LandingGear, Aircraft*x_n_LandingGear, Aircraft [N*m] evaluated to 327089.561308 meter * newton
+Warning: Constraint x_{CG_{ht}}_Aircraft >= 0.5*\Delta x_{{lead}_h}_HorizontalTail, Aircraft + 0.5*\Delta x_{{trail}_h}_HorizontalTail, Aircraft + x_{CG}_Aircraft is not tight because x_{CG_{ht}}_Aircraft [m] evaluated to 58.7126768468 meter but 0.5*\Delta x_{{lead}_h}_HorizontalTail, Aircraft + 0.5*\Delta x_{{trail}_h}_HorizontalTail, Aircraft + x_{CG}_Aircraft [m] evaluated to 58.0477726924 meter
+Warning: Constraint 0.667*\lambda_Wing, Aircraft**2*c_{root}_Wing, Aircraft*q_w_Wing, Aircraft**-1 + 0.667*\lambda_Wing, Aircraft*c_{root}_Wing, Aircraft*q_w_Wing, Aircraft**-1 + 0.667*c_{root}_Wing, Aircraft*q_w_Wing, Aircraft**-1 >= \bar{c}_{wing}_Aircraft is not tight because 0.667*\lambda_Wing, Aircraft**2*c_{root}_Wing, Aircraft*q_w_Wing, Aircraft**-1 + 0.667*\lambda_Wing, Aircraft*c_{root}_Wing, Aircraft*q_w_Wing, Aircraft**-1 + 0.667*c_{root}_Wing, Aircraft*q_w_Wing, Aircraft**-1 [m] evaluated to 4.03055418223 meter but \bar{c}_{wing}_Aircraft [m] evaluated to 2.14774024252e-13 meter
 
 Cost
 ----
@@ -29,6 +30,7 @@ Free Variables
                            W_{lg} : 1.632e+04  [N]       Weight of landing gear                           
                            W_{vt} : 1324       [N]       Vertical tail weight                             
                          W_{wing} : 5.714e+04  [N]       Wing weight                                      
+                   \bar{c}_{wing} : 2.148e-13  [m]       Mean aerodynamic chord (wing)                    
                       \frac{L}{D} : 5.541                Lift/drag ratio                                  
                            b_{vt} : 3.401      [m]       Vertical tail span                               
                            c_{vt} : 9.166      [m]       Vertical tail root chord                         
@@ -101,19 +103,19 @@ Free Variables
                          t_{skin} : 0.0009974  [m]       Skin thickness                                   
                         w_{floor} : 3.428      [m]       Floor width                                      
                            xVbulk : 0.7305     [m**4]    Volume moment of bulkhead                        
-                            xVcyl : 7.757      [m**4]    Volume moment of cylinder                        
+                            xVcyl : 7.793      [m**4]    Volume moment of cylinder                        
                            xVnose : 0.139      [m**4]    Volume moment of nose                            
                             xWapu : 2.069e+05  [N*m]     Moment of APU                                    
-                           xWcone : 4.671e+05  [N*m]     Moment of cone                                   
+                           xWcone : 4.674e+05  [N*m]     Moment of cone                                   
                             xWfix : 2.802e+04  [N*m]     Moment of fixed weights                          
-                          xWfloor : 3.286e+05  [N*m]     Moment of floor weight                           
-                           xWfuse : 4.978e+06  [N*m]     Fuselage moment                                  
-                          xWinsul : 1.74e+05   [N*m]     Moment of insulation material                    
+                          xWfloor : 3.292e+05  [N*m]     Moment of floor weight                           
+                           xWfuse : 4.977e+06  [N*m]     Fuselage moment                                  
+                          xWinsul : 1.752e+05  [N*m]     Moment of insulation material                    
                            xWpadd : 1.315e+06  [N*m]     Moment of misc weights                           
-                           xWseat : 6.47e+05   [N*m]     Moment of seats                                  
-                          xWshell : 6.004e+05  [N*m]     Mass moment of shell                             
-                           xWskin : 3.335e+05  [N*m]     Mass moment of skin                              
-                         xWwindow : 3.09e+05   [N*m]     Mass moment of windows                           
+                           xWseat : 6.471e+05  [N*m]     Moment of seats                                  
+                          xWshell : 6.035e+05  [N*m]     Mass moment of shell                             
+                           xWskin : 3.353e+05  [N*m]     Mass moment of skin                              
+                         xWwindow : 3.097e+05  [N*m]     Mass moment of windows                           
                        x_{shell1} : 5.2        [m]       Start of cylinder section                        
                        x_{shell2} : 29.61      [m]       End of cylinder section                          
                                                                                                           
@@ -133,7 +135,6 @@ Free Variables
              \Delta x_{{trail}_h} : 39.58      [m]       Distance from CG to horizontal tail trailing edge
                            \alpha : 0.06363              Horizontal tail angle of attack                  
                      \bar{c}_{ht} : 1.226      [m]       Mean aerodynamic chord (ht)                      
-                   \bar{c}_{wing} : 2.136e-10  [m]       Mean aerodynamic chord (wing)                    
                         \lambda_h : 0.2                  Horizontal tail taper ratio                      
                            \tau_h : 0.15                 Horizontal tail thickness/chord ratio            
                            b_{ht} : 6.464      [m]       Horizontal tail span                             
@@ -152,7 +153,7 @@ Free Variables
                           F_{w_m} : 7161                 Weight factor (main)                             
                           F_{w_n} : 643.8                Weight factor (nose)                             
                               I_m : 7.323e-06  [m**4]    Area moment of inertia (main strut)              
-                              I_n : 1.293e-06  [m**4]    Area moment of inertia (nose strut)              
+                              I_n : 1.294e-06  [m**4]    Area moment of inertia (nose strut)              
                               L_m : 6.437e+05  [N]       Max static load through main gear                
                               L_n : 1.609e+05  [N]       Min static load through nose gear                
                       L_{n_{dyn}} : 1.683e+05  [N]       Dyn. braking load, nose gear                     
@@ -228,6 +229,7 @@ Free Variables
                      f(\lambda_w) : 0.0033               Empirical efficiency function of taper           
                               p_w : 1.4                  Substituted variable = 1 + 2*taper               
                               q_w : 1.2                  Substituted variable = 1 + taper                 
+                      y_{\bar{c}} : 6.802      [m]       Spanwise location of mean aerodynamic chord      
                                                                                                           
 WingBox, HorizontalTail, Aircraft |                                                                       
                           I_{cap} : 1.526e-05            Non-dim spar cap area moment of inertia          
