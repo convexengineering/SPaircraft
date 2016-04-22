@@ -1,6 +1,6 @@
 Beginning signomial solve.
-Solving took 4 GP solves and 0.384 seconds.
-Warning: Constraint 0.667*\lambda**2*c_{root}*q_w**-1 + 0.667*\lambda*c_{root}*q_w**-1 + 0.667*c_{root}*q_w**-1 >= \bar{c}_{wing} is not tight because 0.667*\lambda**2*c_{root}*q_w**-1 + 0.667*\lambda*c_{root}*q_w**-1 + 0.667*c_{root}*q_w**-1 [m] evaluated to 2.37598177812 meter but \bar{c}_{wing} [m] evaluated to 1.0 meter
+Solving took 10 GP solves and 1.02 seconds.
+Warning: Constraint 1.01*\bar{c}_{wing} >= 0.667*\lambda**2*c_{root}*q_w**-1 + 0.667*\lambda*c_{root}*q_w**-1 + 0.667*c_{root}*q_w**-1 is not tight because 1.01*\bar{c}_{wing} [m] evaluated to 2.40771730829 meter but 0.667*\lambda**2*c_{root}*q_w**-1 + 0.667*\lambda*c_{root}*q_w**-1 + 0.667*c_{root}*q_w**-1 [m] evaluated to 2.38387852305 meter
 
 Cost
 ----
@@ -19,14 +19,14 @@ Free Variables
              W : 1.072e+05  [N]    Aircraft weight                            
       W_{wing} : 7243       [N]    Wing weight                                
       \alpha_w : 0.1               Wing angle of attack                       
-\bar{c}_{wing} : 1          [m]    Mean aerodynamic chord (wing)              
+\bar{c}_{wing} : 2.384      [m]    Mean aerodynamic chord (wing)              
        \lambda : 0.2               Wing taper ratio                           
         \tau_w : 0.15              Wing thickness/chord ratio                 
            b_w : 11.95      [m]    Wing span                                  
-      c_{root} : 3.449      [m]    Wing root chord                            
-       c_{tip} : 0.6898     [m]    Wing tip chord                             
-           e_w : 0.9812            Oswald efficiency factor                   
-  f(\lambda_w) : 0.003309          Empirical efficiency function of taper     
+      c_{root} : 3.46       [m]    Wing root chord                            
+       c_{tip} : 0.6921     [m]    Wing tip chord                             
+           e_w : 0.9813            Oswald efficiency factor                   
+  f(\lambda_w) : 0.0033            Empirical efficiency function of taper     
            p_w : 1.4               Substituted variable = 1 + 2*taper         
            q_w : 1.2               Substituted variable = 1 + taper           
    y_{\bar{c}} : 3.415      [m]    Spanwise location of mean aerodynamic chord
@@ -86,5 +86,5 @@ Sensitivities
               \rho : -0.4012  Air density (35,000 ft)                          
             \eta_w : -0.7003  Lift efficiency (diff b/w sectional, actual lift)
         V_{\infty} : -0.8023  Freestream velocity                              
-    \alpha_{max,w} : -0.9716  Max angle of attack                              
+    \alpha_{max,w} : -0.9717  Max angle of attack                              
 

@@ -60,9 +60,11 @@ class Wing(CostedConstraintSet):
                            p >= 1 + 2*taper,
                            2*q >= 1 + p,
                            ymac == (b/3)*q/p,
-                           TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cwma]), # [SP]
+                           TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cwma], reltol=1E-2), # [SP]
+                           TCS([(2./3)*(1 + taper + taper**2)*croot/q <= 1.01*cwma], reltol=1E-2),
                            taper == ctip/croot,
-                           TCS([Sw <= b*(croot + ctip)/2]), # [SP]
+                           TCS([Sw <= b*(croot + ctip)/2], reltol=1E-2), # [SP]
+                           TCS([1.01*Sw >= b*(croot + ctip)/2], reltol=1E-2), # [SP]
 
                            # DATCOM formula (Mach number makes it SP)
                            TCS([(AR/eta)**2 * (1 + tanL**2) + 8*pi*AR/CLaw
@@ -73,7 +75,7 @@ class Wing(CostedConstraintSet):
                            # Drag
                            D == 0.5*rho*Vinf**2*Sw*CDw,
                            CDw >= CD0w + CLw**2/(pi*e*AR),
-                           #Rec == rho*Vinf*chma/mu,
+                           #Rec == rho*Vinf*cwma/mu,
 
                            # Oswald efficiency
                            # Nita, Scholz, "Estimating the Oswald factor from basic
