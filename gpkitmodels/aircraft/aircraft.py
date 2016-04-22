@@ -17,6 +17,8 @@ class Aircraft(Model):
 
     def __init__(self):
 
+        CL     = Variable('C_L', '-', 'Lift coefficient')
+        CD     = Variable('C_D', '-', 'Drag coefficient')
         D      = Variable('D', 'N', 'Total aircraft drag (cruise)')
         Dfuse  = Variable('D_{fuse}', 'N', 'Fuselage drag')
         Dht    = Variable('D_{ht}', 'N', 'Horizontal tail drag')
@@ -26,7 +28,8 @@ class Aircraft(Model):
         Lh     = Variable('L_h', 'N', 'Horizontal tail downforce')
         Lw     = Variable('L_w', 'N', 'Wing lift')
         R      = Variable('Range', 'nautical_miles', 'Range')
-        ct     = Variable('c_t', '1/s',
+        Sw     = Variable('S_w', 'm**2', 'Wing reference area')
+        TSFC   = Variable('TSFC', 'lb/lbf/hr',
                           'Thrust specific fuel consumption')
         V      = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
         W      = Variable('W', 'N', 'Total aircraft weight')
@@ -38,8 +41,8 @@ class Aircraft(Model):
         Wlg    = Variable('W_{lg}', 'N', 'Landing gear weight')
         Wvt    = Variable('W_{vt}', 'N', 'Vertical tail weight')
         Wwing  = Variable('W_{wing}', 'N', 'Wing weight')
-        Zbre   = Variable('Z_{bre}', 'm**0.5*s/kg**0.5', 'Breguet parameter')
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
+        rho    = Variable('\\rho', 'kg/m^3', 'Air density')
         xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
         xCGeng = Variable('x_{CG_{eng}}', 'm', 'x-location of engine CG')
         xCGfu  = Variable('x_{CG_{fu}}', 'm', 'x-location of fuselage CG')
@@ -48,26 +51,25 @@ class Aircraft(Model):
         xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of vtail CG') 
         xCGwing = Variable('x_{CG_{wing}}', 'm', 'x-location of wing CG')
         xw     = Variable('x_w', 'm', 'x-location of wing aerodynamic center')
-        rho    = Variable('\\rho', 'kg/m^3', 'Air density')
-        Sw     = Variable('S_w', 'm**2', 'Wing reference area')
-        CL     = Variable('C_{L_w}', '-', 'Lift coefficient')
-        CD     = Variable('C_D', '-', 'Drag coefficient')
-
+        z_bre  = Variable('z_{bre}', '-', 'Breguet parameter')
 
         with SignomialsEnabled():
 
             objective = Wfuel
             hlc = [# High level constraints
+
+                   # Drag and weight buildup
                    D >= Dvt + Dfuse       + Dwing + Dht,
                    We >= Wvt + Wfuse + Wlg + Wwing + Wht + Weng,
-                   TCS([Wfuel >= W - We]), # [SP]
+                   W >= We + Wfuel,
 
                    # Range equation for a jet
-                   TCS([R + Zbre*We**0.5 <= Zbre*W**0.5]),
-                   Zbre == 2*(2/(rho*Sw))**0.5*(1/ct)*CL**0.5/CD, 
                    D == 0.5*rho*V**2*Sw*CD,
                    W == 0.5*rho*V**2*Sw*CL,
+                   LD == CL/CD,
                    Lw >= W, # TODO: add Lh
+                   R <= z_bre*LD*V/(TSFC*g),
+                   Wfuel/We >= te_exp_minus1(z_bre, nterm=3),
 
                    # CG relationships
                    TCS([xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
@@ -114,7 +116,7 @@ class Aircraft(Model):
 
         substitutions = {
                          'Range': 3000,
-                         'c_t': 9E-5, # [1/s] CF6 (wiki)
+                         'TSFC': 0.3,
                          'V_{\\infty}': 234,
                          'W_{eng}': 10000,
                         }
