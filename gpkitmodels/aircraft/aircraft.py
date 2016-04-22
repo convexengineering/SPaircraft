@@ -26,7 +26,7 @@ class Aircraft(Model):
         Lh     = Variable('L_h', 'N', 'Horizontal tail downforce')
         Lw     = Variable('L_w', 'N', 'Wing lift')
         R      = Variable('Range', 'nautical_miles', 'Range')
-        TSFC   = Variable('TSFC', 'lb/lbf/hr',
+        ct     = Variable('c_t', '1/s',
                           'Thrust specific fuel consumption')
         V      = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
         W      = Variable('W', 'N', 'Total aircraft weight')
@@ -38,6 +38,7 @@ class Aircraft(Model):
         Wlg    = Variable('W_{lg}', 'N', 'Landing gear weight')
         Wvt    = Variable('W_{vt}', 'N', 'Vertical tail weight')
         Wwing  = Variable('W_{wing}', 'N', 'Wing weight')
+        Zbre   = Variable('Z_{bre}', 'm**0.5*s/kg**0.5', 'Breguet parameter')
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
         xCGeng = Variable('x_{CG_{eng}}', 'm', 'x-location of engine CG')
@@ -47,7 +48,11 @@ class Aircraft(Model):
         xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of vtail CG') 
         xCGwing = Variable('x_{CG_{wing}}', 'm', 'x-location of wing CG')
         xw     = Variable('x_w', 'm', 'x-location of wing aerodynamic center')
-        z_bre  = Variable('z_{bre}', '-', 'Breguet parameter')
+        rho    = Variable('\\rho', 'kg/m^3', 'Air density')
+        Sw     = Variable('S_w', 'm**2', 'Wing reference area')
+        CL     = Variable('C_{L_w}', '-', 'Lift coefficient')
+        CD     = Variable('C_D', '-', 'Drag coefficient')
+
 
         with SignomialsEnabled():
 
@@ -55,11 +60,16 @@ class Aircraft(Model):
             hlc = [# High level constraints
                    D >= Dvt + Dfuse       + Dwing + Dht,
                    We >= Wvt + Wfuse + Wlg + Wwing + Wht + Weng,
-                   W >= We + Wfuel,
-                   R <= z_bre*LD*V/(TSFC*g),
-                   LD == Lw/D,
+                   TCS([Wfuel >= W - We]), # [SP]
+
+                   # Range equation for a jet
+                   TCS([R + Zbre*We**0.5 <= Zbre*W**0.5]),
+                   Zbre == 2*(2/(rho*Sw))**0.5*(1/ct)*CL**0.5/CD, 
+                   D == 0.5*rho*V**2*Sw*CD,
+                   W == 0.5*rho*V**2*Sw*CL,
                    Lw >= W, # TODO: add Lh
-                   Wfuel/We >= te_exp_minus1(z_bre, nterm=3),
+
+                   # CG relationships
                    TCS([xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
                                + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng],
                        reltol=1E-2, raiseerror=False),
@@ -104,7 +114,7 @@ class Aircraft(Model):
 
         substitutions = {
                          'Range': 3000,
-                         'TSFC': 0.3,
+                         'c_t': 9E-5, # [1/s] CF6 (wiki)
                          'V_{\\infty}': 234,
                          'W_{eng}': 10000,
                         }
