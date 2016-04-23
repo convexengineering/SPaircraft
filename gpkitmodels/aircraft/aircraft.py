@@ -33,14 +33,15 @@ class Aircraft(Model):
                           'Thrust specific fuel consumption')
         V      = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
         W      = Variable('W', 'N', 'Total aircraft weight')
-        We     = Variable('W_{empty}', 'N', 'Empty aircraft weight')
         Weng   = Variable('W_{eng}', 'N', 'Engine weight')
-        Wfuse  = Variable('W_{fuse}', 'N', 'Fuselage weight')
         Wfuel  = Variable('W_{fuel}', 'N', 'Fuel weight')
+        Wfuse  = Variable('W_{fuse}', 'N', 'Fuselage weight')
         Wht    = Variable('W_{ht}', 'N', 'Horizontal tail weight')
         Wlg    = Variable('W_{lg}', 'N', 'Landing gear weight')
+        Wpay   = Variable('W_{pay}', 'N', 'Payload weight')
         Wvt    = Variable('W_{vt}', 'N', 'Vertical tail weight')
         Wwing  = Variable('W_{wing}', 'N', 'Wing weight')
+        Wzf     = Variable('W_{zf}', 'N', 'Zero fuel weight')
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         rho    = Variable('\\rho', 'kg/m^3', 'Air density')
         xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
@@ -60,8 +61,8 @@ class Aircraft(Model):
 
                    # Drag and weight buildup
                    D >= Dvt + Dfuse       + Dwing + Dht,
-                   We >= Wvt + Wfuse + Wlg + Wwing + Wht + Weng,
-                   W >= We + Wfuel,
+                   Wzf >= Wvt + Wfuse + Wlg + Wwing + Wht + Weng + Wpay,
+                   W >= Wzf + Wfuel,
 
                    # Range equation for a jet
                    D == 0.5*rho*V**2*Sw*CD,
@@ -69,7 +70,7 @@ class Aircraft(Model):
                    LD == CL/CD,
                    Lw >= W, # TODO: add Lh
                    R <= z_bre*LD*V/(TSFC*g),
-                   Wfuel/We >= te_exp_minus1(z_bre, nterm=3),
+                   Wfuel/Wzf >= te_exp_minus1(z_bre, nterm=3),
 
                    # CG relationships
                    TCS([xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
