@@ -99,7 +99,8 @@ class Aircraft(Model):
                         }
 
         lc = LinkedConstraintSet([hlc, vt, fu, lg, ht, wi],
-                                 exclude=[vk.name for vk in wb.varkeys])
+                                 exclude=[vk.name for vk in wb.varkeys
+                                          if not vk.value])
         Model.__init__(self, objective,
                              lc,
                              substitutions)

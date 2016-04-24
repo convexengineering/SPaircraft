@@ -1,10 +1,10 @@
 Beginning signomial solve.
-Solving took 22 GP solves and 16.1 seconds.
-Warning: Constraint [x_{CG_{vt}}_Aircraft >= 0.5*\D...] is not tight because the left hand side evaluated to 59.0815798861 meter but the right hand side evaluated to 55.6692843046 meter (Allowable error: 0.0001%, Actual error: 6.1%)
+Solving took 22 GP solves and 10.9 seconds.
+Warning: Constraint [x_{CG_{vt}}_Aircraft >= 0.5*\D...] is not tight because the left hand side evaluated to 59.0815798661 meter but the right hand side evaluated to 55.6692843233 meter (Allowable error: 0.0001%, Actual error: 6.1%)
 
-Warning: Constraint [W_{lg}_Aircraft*x_{CG_{lg}}_Ai...] is not tight because the left hand side evaluated to 330016.070785 meter * newton but the right hand side evaluated to 319089.97531 meter * newton (Allowable error: 1.0%, Actual error: 3.4%)
+Warning: Constraint [W_{lg}_Aircraft*x_{CG_{lg}}_Ai...] is not tight because the left hand side evaluated to 330016.070913 meter * newton but the right hand side evaluated to 319089.975448 meter * newton (Allowable error: 1.0%, Actual error: 3.4%)
 
-Warning: Constraint [x_{CG_{ht}}_Aircraft >= 0.5*\D...] is not tight because the left hand side evaluated to 59.9521208961 meter but the right hand side evaluated to 58.9397095679 meter (Allowable error: 0.0001%, Actual error: 1.7%)
+Warning: Constraint [x_{CG_{ht}}_Aircraft >= 0.5*\D...] is not tight because the left hand side evaluated to 59.952120912 meter but the right hand side evaluated to 58.9397095864 meter (Allowable error: 0.0001%, Actual error: 1.7%)
 
 
 Cost
@@ -265,164 +265,126 @@ WingBox, HorizontalTail, Aircraft |
 
 Constants
 ---------
-                         Aircraft |                                                                                
-                            Range : 3000       [nmi]       Range                                                   
-                             TSFC : 0.3        [lb/hr/lbf] Thrust specific fuel consumption                        
-                       V_{\infty} : 234        [m/s]       Freestream velocity                                     
-                           V_{ne} : 144        [m/s]       Never exceed velocity                                   
-                          W_{eng} : 1e+04      [N]         Engine weight                                           
-                              \mu : 1.4e-05    [N*s/m**2]  Dynamic viscosity (35,000ft)                            
-                             \rho : 0.38       [kg/m**3]   Air density                                             
-                           \rho_0 : 1.225      [kg/m**3]   Air density (0 ft)                                      
-                          d_{fan} : 1.75       [m]         Fan diameter                                            
-                                g : 9.81       [m/s**2]    Gravitational acceleration                              
-                          y_{eng} : 4.83       [m]         Engine moment arm                                       
-                                                                                                                   
-               Fuselage, Aircraft |                                                                                
-                               LF : 0.898                  Load factor                                             
-                         N_{land} : 6                      Emergency landing load factor                           
-                                R : 287        [J/K/kg]    Universal gas constant                                  
-                              SPR : 6                      Number of seats per row                                 
-                        T_{cabin} : 300        [K]         Cabin temperature                                       
-                      W''_{floor} : 60         [N/m**2]    Floor weight/area density                               
-                      W''_{insul} : 22         [N/m**2]    Weight/area density of insulation material              
-                        W'_{seat} : 150        [N]         Weight per seat                                         
-                      W'_{window} : 435        [N/m]       Weight/length density of windows                        
-                    W_{avg. pass} : 180        [lbf]       Average passenger weight                                
-                        W_{cargo} : 1e+04      [N]         Cargo weight                                            
-                     W_{carry on} : 15         [lbf]       Ave. carry-on weight                                    
-                      W_{checked} : 40         [lbf]       Ave. checked bag weight                                 
-                          W_{fix} : 3000       [lbf]       Fixed weights (pilots, cockpit seats, navcom)           
-                         \Delta h : 1          [m]         Distance from floor to widest part of fuselage          
-                         \Delta p : 5.2e+04    [Pa]        Pressure difference across fuselage skin                
-                    \rho_{\infty} : 0.38       [kg/m**3]   Air density (35,000ft)                                  
-                      \rho_{bend} : 2700       [kg/m**3]   Stringer density                                        
-                     \rho_{cargo} : 150        [kg/m**3]   Cargo density                                           
-                      \rho_{cone} : 2700       [kg/m**3]   Cone material density                                   
-                     \rho_{floor} : 2700       [kg/m**3]   Floor material density                                  
-                      \rho_{lugg} : 100        [kg/m**3]   Luggage density                                         
-                      \rho_{skin} : 2700       [kg/m**3]   Skin density                                            
-                   \sigma_{floor} : 2.069e+08  [N/m**2]    Max allowable cap stress                                
-                    \sigma_{skin} : 1.034e+08  [N/m**2]    Max allowable skin stress                               
-                     \tau_{floor} : 2.069e+08  [N/m**2]    Max allowable shear web stress                          
-                          f_{apu} : 0.035                  APU weight as fraction of payload weight                
-                         f_{fadd} : 0.2                    Fractional added weight of local reinforcements         
-                        f_{frame} : 0.25                   Fractional frame weight                                 
-                       f_{lugg,1} : 0.4                    Proportion of passengers with one suitcase              
-                       f_{lugg,2} : 0.1                    Proportion of passengers with two suitcases             
-                         f_{padd} : 0.4                    Other misc weight as fraction of payload weight         
-                       f_{string} : 0.35                   Fractional weight of stringers                          
-                                g : 9.81       [m/s**2]    Gravitational acceleration                              
-                         n_{seat} : 186                     Number of seats                                        
-                              p_s : 31         [in]        Seat pitch                                              
-                        p_{cabin} : 7.5e+04    [Pa]        Cabin air pressure (8,000ft)                            
-                              r_E : 1                      Ratio of stringer/skin moduli                           
-                        w_{aisle} : 0.51       [m]         Aisle width                                             
-                         w_{seat} : 0.5        [m]         Seat width                                              
-                          w_{sys} : 0.1        [m]         Width between cabin and skin for systems                
-                             xapu : 120        [ft]        x-location of APU                                       
-                             xfix : 2.1        [m]         x-location of fixed weight                              
-                                                                                                                   
-         HorizontalTail, Aircraft |                                                                                
-                     C_{L_{hmax}} : 2.6                    Max lift coefficient                                    
-                     C_{m_{fuse}} : 0.05                   Moment coefficient (fuselage)                           
-                       S.M._{min} : 0.05                   Minimum stability margin                                
-                       \Delta x_w : 2          [m]         Distance from aerodynamic centre to CG                  
-                   \alpha_{max,h} : 0.1                    Max angle of attack (htail)                             
-                           \eta_h : 0.97                   Lift efficiency (diff between sectional and actual lift)
-                  \tan(\Lambda_h) : 0.5774                 tangent of horizontal tail sweep                        
-                     |C_{m_{ac}}| : 0.1                    Moment coefficient about aerodynamic centre (wing)      
-                                                                                                                   
-            LandingGear, Aircraft |                                                                                
-                                E : 205        [GPa]       Modulus of elasticity, 4340 steel                       
-                                K : 2                      Column effective length factor                          
-                              N_s : 2                      Factor of safety                                        
-                       W_{0_{lg}} : 8.044e+05  [N]         Weight of aircraft excluding landing gear               
-                           \eta_s : 0.8                    Shock absorber efficiency                               
-                     \lambda_{LG} : 2.5                    Ratio of max to static load                             
-                        \rho_{st} : 7850       [kg/m**3]   Density of 4340 Steel                                   
-                     \sigma_{y_c} : 4.7e+08    [Pa]        Compressive yield strength 4340 steel                   
-                     \tan(\gamma) : 0.08749                Tangent, dihedral angle                                 
-                 \tan(\phi_{min}) : 0.2679                 Lower bound on phi                                      
-                 \tan(\psi_{max}) : 1.963                  Upper bound on psi                                      
-                \tan(\theta_{TO}) : 0.2679                 Takeoff pitch angle                                     
-                        f_{add,m} : 1.5                    Proportional added weight, main                         
-                        f_{add,n} : 1.5                    Proportional added weight, nose                         
-                                g : 9.81       [m/s**2]    Gravitational acceleration                              
-                      h_{nacelle} : 0.5        [m]         Min. nacelle clearance                                  
-                           n_{mg} : 2                      Number of main gear struts                              
-                          n_{wps} : 2                      Number of wheels per strut                              
-                         p_{oleo} : 1800       [lbf/in**2] Oleo pressure                                           
-                      t_{nacelle} : 0.15       [m]         Nacelle thickness                                       
-                          w_{ult} : 10         [ft/s]      Ultimate velocity of descent                            
-                           z_{CG} : 2          [m]         CG height relative to bottom of fuselage                
-                         z_{wing} : 0.5        [m]         Height of wing relative to base of fuselage             
-                                                                                                                   
-           VerticalTail, Aircraft |                                                                                
-                       C_{D_{wm}} : 0.5                    Windmill drag coefficient                               
-                     C_{L_{vmax}} : 2.6                    Max lift coefficient                                    
-                              T_e : 1.29e+05   [N]         Thrust per engine at takeoff                            
-                              V_1 : 65         [m/s]       Minimum takeoff velocity                                
-                              V_c : 234        [m/s]       Cruise velocity                                         
-                           \rho_c : 0.38       [kg/m**3]   Air density (35,000ft)                                  
-                        \rho_{TO} : 1.225      [kg/m**3]   Air density (SL))                                       
-               \tan(\Lambda_{LE}) : 0.8391                 Tangent of leading edge sweep (40 deg)                  
-                       c_{l_{vt}} : 0.5                    Sectional lift force coefficient (engine out)           
-                                e : 0.8                    Span efficiency of vertical tail                        
-                                                                                                                   
-                   Wing, Aircraft |                                                                                
-                      C_{D_{0_w}} : 0.05                   Wing parasitic drag coefficient                         
-                     C_{L_{wmax}} : 2.5                    Lift coefficient (wing)                                 
-                   \alpha_{max,w} : 0.1                    Max angle of attack                                     
-                           \eta_w : 0.97                   Lift efficiency (diff b/w sectional, actual lift)       
-                    \tan(\Lambda) : 0.5774                 tangent of wing sweep                                   
-                                                                                                                   
-WingBox, HorizontalTail, Aircraft |                                                                                
-                         N_{lift} : 2                      Wing loading multiplier                                 
-                       \rho_{cap} : 2700       [kg/m**3]   Density of spar cap material                            
-                       \rho_{web} : 2700       [kg/m**3]   Density of shear web material                           
-               \sigma_{max,shear} : 1.67e+08   [Pa]        Allowable shear stress                                  
-                     \sigma_{max} : 2.5e+08    [Pa]        Allowable tensile stress                                
-                        f_{w,add} : 0.4                    Wing added weight fraction                              
-                                g : 9.81       [m/s**2]    Gravitational acceleration                              
-                              r_h : 0.75                   Fractional wing thickness at spar web                   
-                                w : 0.5                    Wingbox-width-to-chord ratio                            
-                                                                                                                   
-  WingBox, VerticalTail, Aircraft |                                                                                
-                         N_{lift} : 2                      Wing loading multiplier                                 
-                       \rho_{cap} : 2700       [kg/m**3]   Density of spar cap material                            
-                       \rho_{web} : 2700       [kg/m**3]   Density of shear web material                           
-               \sigma_{max,shear} : 1.67e+08   [Pa]        Allowable shear stress                                  
-                     \sigma_{max} : 2.5e+08    [Pa]        Allowable tensile stress                                
-                        f_{w,add} : 0.4                    Wing added weight fraction                              
-                                g : 9.81       [m/s**2]    Gravitational acceleration                              
-                              r_h : 0.75                   Fractional wing thickness at spar web                   
-                                w : 0.5                    Wingbox-width-to-chord ratio                            
-                                                                                                                   
-          WingBox, Wing, Aircraft |                                                                                
-                         N_{lift} : 2                      Wing loading multiplier                                 
-                       \rho_{cap} : 2700       [kg/m**3]   Density of spar cap material                            
-                       \rho_{web} : 2700       [kg/m**3]   Density of shear web material                           
-               \sigma_{max,shear} : 1.67e+08   [Pa]        Allowable shear stress                                  
-                     \sigma_{max} : 2.5e+08    [Pa]        Allowable tensile stress                                
-                        f_{w,add} : 0.4                    Wing added weight fraction                              
-                                g : 9.81       [m/s**2]    Gravitational acceleration                              
-                              r_h : 0.75                   Fractional wing thickness at spar web                   
-                                w : 0.5                    Wingbox-width-to-chord ratio                            
+                Aircraft |                                                                                
+                N_{lift} : 2                      Wing loading multiplier                                 
+                   Range : 3000       [nmi]       Range                                                   
+                    TSFC : 0.3        [lb/hr/lbf] Thrust specific fuel consumption                        
+              V_{\infty} : 234        [m/s]       Freestream velocity                                     
+                  V_{ne} : 144        [m/s]       Never exceed velocity                                   
+                 W_{eng} : 1e+04      [N]         Engine weight                                           
+                     \mu : 1.4e-05    [N*s/m**2]  Dynamic viscosity (35,000ft)                            
+                    \rho : 0.38       [kg/m**3]   Air density                                             
+                  \rho_0 : 1.225      [kg/m**3]   Air density (0 ft)                                      
+              \rho_{cap} : 2700       [kg/m**3]   Density of spar cap material                            
+              \rho_{web} : 2700       [kg/m**3]   Density of shear web material                           
+      \sigma_{max,shear} : 1.67e+08   [Pa]        Allowable shear stress                                  
+            \sigma_{max} : 2.5e+08    [Pa]        Allowable tensile stress                                
+                 d_{fan} : 1.75       [m]         Fan diameter                                            
+               f_{w,add} : 0.4                    Wing added weight fraction                              
+                       g : 9.81       [m/s**2]    Gravitational acceleration                              
+                     r_h : 0.75                   Fractional wing thickness at spar web                   
+                       w : 0.5                    Wingbox-width-to-chord ratio                            
+                 y_{eng} : 4.83       [m]         Engine moment arm                                       
+                                                                                                          
+      Fuselage, Aircraft |                                                                                
+                      LF : 0.898                  Load factor                                             
+                N_{land} : 6                      Emergency landing load factor                           
+                       R : 287        [J/K/kg]    Universal gas constant                                  
+                     SPR : 6                      Number of seats per row                                 
+               T_{cabin} : 300        [K]         Cabin temperature                                       
+             W''_{floor} : 60         [N/m**2]    Floor weight/area density                               
+             W''_{insul} : 22         [N/m**2]    Weight/area density of insulation material              
+               W'_{seat} : 150        [N]         Weight per seat                                         
+             W'_{window} : 435        [N/m]       Weight/length density of windows                        
+           W_{avg. pass} : 180        [lbf]       Average passenger weight                                
+               W_{cargo} : 1e+04      [N]         Cargo weight                                            
+            W_{carry on} : 15         [lbf]       Ave. carry-on weight                                    
+             W_{checked} : 40         [lbf]       Ave. checked bag weight                                 
+                 W_{fix} : 3000       [lbf]       Fixed weights (pilots, cockpit seats, navcom)           
+                \Delta h : 1          [m]         Distance from floor to widest part of fuselage          
+                \Delta p : 5.2e+04    [Pa]        Pressure difference across fuselage skin                
+           \rho_{\infty} : 0.38       [kg/m**3]   Air density (35,000ft)                                  
+             \rho_{bend} : 2700       [kg/m**3]   Stringer density                                        
+            \rho_{cargo} : 150        [kg/m**3]   Cargo density                                           
+             \rho_{cone} : 2700       [kg/m**3]   Cone material density                                   
+            \rho_{floor} : 2700       [kg/m**3]   Floor material density                                  
+             \rho_{lugg} : 100        [kg/m**3]   Luggage density                                         
+             \rho_{skin} : 2700       [kg/m**3]   Skin density                                            
+          \sigma_{floor} : 2.069e+08  [N/m**2]    Max allowable cap stress                                
+           \sigma_{skin} : 1.034e+08  [N/m**2]    Max allowable skin stress                               
+            \tau_{floor} : 2.069e+08  [N/m**2]    Max allowable shear web stress                          
+                 f_{apu} : 0.035                  APU weight as fraction of payload weight                
+                f_{fadd} : 0.2                    Fractional added weight of local reinforcements         
+               f_{frame} : 0.25                   Fractional frame weight                                 
+              f_{lugg,1} : 0.4                    Proportion of passengers with one suitcase              
+              f_{lugg,2} : 0.1                    Proportion of passengers with two suitcases             
+                f_{padd} : 0.4                    Other misc weight as fraction of payload weight         
+              f_{string} : 0.35                   Fractional weight of stringers                          
+                n_{seat} : 186                     Number of seats                                        
+                     p_s : 31         [in]        Seat pitch                                              
+               p_{cabin} : 7.5e+04    [Pa]        Cabin air pressure (8,000ft)                            
+                     r_E : 1                      Ratio of stringer/skin moduli                           
+               w_{aisle} : 0.51       [m]         Aisle width                                             
+                w_{seat} : 0.5        [m]         Seat width                                              
+                 w_{sys} : 0.1        [m]         Width between cabin and skin for systems                
+                    xapu : 120        [ft]        x-location of APU                                       
+                    xfix : 2.1        [m]         x-location of fixed weight                              
+                                                                                                          
+HorizontalTail, Aircraft |                                                                                
+            C_{L_{hmax}} : 2.6                    Max lift coefficient                                    
+            C_{m_{fuse}} : 0.05                   Moment coefficient (fuselage)                           
+              S.M._{min} : 0.05                   Minimum stability margin                                
+              \Delta x_w : 2          [m]         Distance from aerodynamic centre to CG                  
+          \alpha_{max,h} : 0.1                    Max angle of attack (htail)                             
+                  \eta_h : 0.97                   Lift efficiency (diff between sectional and actual lift)
+         \tan(\Lambda_h) : 0.5774                 tangent of horizontal tail sweep                        
+            |C_{m_{ac}}| : 0.1                    Moment coefficient about aerodynamic centre (wing)      
+                                                                                                          
+   LandingGear, Aircraft |                                                                                
+                       E : 205        [GPa]       Modulus of elasticity, 4340 steel                       
+                       K : 2                      Column effective length factor                          
+                     N_s : 2                      Factor of safety                                        
+              W_{0_{lg}} : 8.044e+05  [N]         Weight of aircraft excluding landing gear               
+                  \eta_s : 0.8                    Shock absorber efficiency                               
+            \lambda_{LG} : 2.5                    Ratio of max to static load                             
+               \rho_{st} : 7850       [kg/m**3]   Density of 4340 Steel                                   
+            \sigma_{y_c} : 4.7e+08    [Pa]        Compressive yield strength 4340 steel                   
+            \tan(\gamma) : 0.08749                Tangent, dihedral angle                                 
+        \tan(\phi_{min}) : 0.2679                 Lower bound on phi                                      
+        \tan(\psi_{max}) : 1.963                  Upper bound on psi                                      
+       \tan(\theta_{TO}) : 0.2679                 Takeoff pitch angle                                     
+               f_{add,m} : 1.5                    Proportional added weight, main                         
+               f_{add,n} : 1.5                    Proportional added weight, nose                         
+             h_{nacelle} : 0.5        [m]         Min. nacelle clearance                                  
+                  n_{mg} : 2                      Number of main gear struts                              
+                 n_{wps} : 2                      Number of wheels per strut                              
+                p_{oleo} : 1800       [lbf/in**2] Oleo pressure                                           
+             t_{nacelle} : 0.15       [m]         Nacelle thickness                                       
+                 w_{ult} : 10         [ft/s]      Ultimate velocity of descent                            
+                  z_{CG} : 2          [m]         CG height relative to bottom of fuselage                
+                z_{wing} : 0.5        [m]         Height of wing relative to base of fuselage             
+                                                                                                          
+  VerticalTail, Aircraft |                                                                                
+              C_{D_{wm}} : 0.5                    Windmill drag coefficient                               
+            C_{L_{vmax}} : 2.6                    Max lift coefficient                                    
+                     T_e : 1.29e+05   [N]         Thrust per engine at takeoff                            
+                     V_1 : 65         [m/s]       Minimum takeoff velocity                                
+                     V_c : 234        [m/s]       Cruise velocity                                         
+                  \rho_c : 0.38       [kg/m**3]   Air density (35,000ft)                                  
+               \rho_{TO} : 1.225      [kg/m**3]   Air density (SL))                                       
+      \tan(\Lambda_{LE}) : 0.8391                 Tangent of leading edge sweep (40 deg)                  
+              c_{l_{vt}} : 0.5                    Sectional lift force coefficient (engine out)           
+                       e : 0.8                    Span efficiency of vertical tail                        
+                                                                                                          
+          Wing, Aircraft |                                                                                
+             C_{D_{0_w}} : 0.05                   Wing parasitic drag coefficient                         
+            C_{L_{wmax}} : 2.5                    Lift coefficient (wing)                                 
+          \alpha_{max,w} : 0.1                    Max angle of attack                                     
+                  \eta_w : 0.97                   Lift efficiency (diff b/w sectional, actual lift)       
+           \tan(\Lambda) : 0.5774                 tangent of wing sweep                                   
 
 Sensitivities
 -------------
- WingBox, Wing, Aircraft |                                                           
-                N_{lift} : 0.3771   Wing loading multiplier                          
-                       g : 0.3616   Gravitational acceleration                       
-              \rho_{cap} : 0.3194   Density of spar cap material                     
-               f_{w,add} : 0.1033   Wing added weight fraction                       
-                     r_h : 0.04222  Fractional wing thickness at spar web            
-              \rho_{web} : 0.04222  Density of shear web material                    
-                       w : -0.01549 Wingbox-width-to-chord ratio                     
-      \sigma_{max,shear} : -0.04222 Allowable shear stress                           
-            \sigma_{max} : -0.3349  Allowable tensile stress                         
-                                                                                     
           Wing, Aircraft |                                                           
              C_{D_{0_w}} : 0.9663   Wing parasitic drag coefficient                  
             C_{L_{wmax}} : 0.3771   Lift coefficient (wing)                          
@@ -459,7 +421,6 @@ HorizontalTail, Aircraft |
                 \Delta h : 0.172    Distance from floor to widest part of fuselage   
                      p_s : 0.1435   Seat pitch                                       
            \rho_{\infty} : 0.1149   Air density (35,000ft)                           
-                       g : 0.0928   Gravitational acceleration                       
                W'_{seat} : 0.08308  Weight per seat                                  
              W_{checked} : 0.07553  Ave. checked bag weight                          
              \rho_{skin} : 0.05268  Skin density                                     
@@ -481,14 +442,22 @@ HorizontalTail, Aircraft |
                      SPR : -0.1435  Number of seats per row                          
                                                                                      
                 Aircraft |                                                           
-                       g : 1.303    Gravitational acceleration                       
+                       g : 1.775    Gravitational acceleration                       
                     TSFC : 1.303    Thrust specific fuel consumption                 
                    Range : 1.303    Range                                            
                   V_{ne} : 0.8098   Never exceed velocity                            
+                N_{lift} : 0.3862   Wing loading multiplier                          
                   \rho_0 : 0.3828   Air density (0 ft)                               
+              \rho_{cap} : 0.3263   Density of spar cap material                     
+               f_{w,add} : 0.1059   Wing added weight fraction                       
+                     r_h : 0.04425  Fractional wing thickness at spar web            
+              \rho_{web} : 0.04425  Density of shear web material                    
                  y_{eng} : 0.0428   Engine moment arm                                
                  W_{eng} : 0.02892  Engine weight                                    
                      \mu : 0.02725  Dynamic viscosity (35,000ft)                     
+                       w : -0.01564 Wingbox-width-to-chord ratio                     
+      \sigma_{max,shear} : -0.04425 Allowable shear stress                           
+            \sigma_{max} : -0.3419  Allowable tensile stress                         
                     \rho : -0.5476  Air density                                      
               V_{\infty} : -2.133   Freestream velocity                              
 
