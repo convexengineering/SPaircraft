@@ -85,35 +85,11 @@ class Aircraft(Model):
 
             # Subsystem models
             vt = VerticalTail.aircraft_737()
-            vts = VerticalTail.standalone_737()
             fu = Fuselage.aircraft_737()
-            fus = Fuselage.standalone_737()
             lg = LandingGear.aircraft_737()
-            lgs = LandingGear.standalone_737()
             ht = HorizontalTail.aircraft_737()
-            hts = HorizontalTail.standalone_737()
             wi = Wing.aircraft_737()
             wb = WingBox()
-
-            # Need to initialize solve with solution of uncoupled models
-            vt_sol = vts.localsolve(verbosity=0)
-            fu_sol = fus.localsolve(verbosity=0)
-            lg_sol = lgs.localsolve(verbosity=0)
-            ht_sol = hts.localsolve(verbosity=0)
-
-            init = vt_sol['variables'].copy()
-            init.update(fu_sol['variables'])
-            init.update(lg_sol['variables'])
-            init.update(ht_sol['variables'])
-            init.update({
-                         'x_{CG}': 15,
-                         'x_{CG_{fu}}': 15,
-                         'x_{CG_{ht}}': 38,
-                         'x_{CG_{lg}}': 16,
-                         'x_{CG_{vt}}': 35,
-                        })
-
-            self.init = init
 
         substitutions = {
                          'Range': 3000,
@@ -129,7 +105,7 @@ class Aircraft(Model):
                              substitutions)
 
     def test(self):
-        sol = self.localsolve(x0=self.init)
+        sol = self.localsolve()
         return sol
 
 if __name__ == "__main__":
