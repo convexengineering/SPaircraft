@@ -82,10 +82,8 @@ class Aircraft(Model):
 
                    # CG relationships
                    TCS([xCG*W >= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
-                               + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng],
-                       reltol=1E-2, raiseerror=False),
-                   TCS([0.99*xCG*W <= Wvt*xCGvt + Wfuse*xCGfu + Wlg*xCGlg
-                               + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng],
+                               + Wwing*xCGwing + Wht*xCGht + Weng*xCGeng
+                               + Wfuel*xCGwing + Wpay*xCGfu],
                        reltol=1E-2, raiseerror=False),
                    xw == xCGwing,
                    xCGeng == xCGwing,
