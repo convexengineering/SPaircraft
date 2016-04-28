@@ -1,10 +1,10 @@
 Beginning signomial solve.
-Solving took 22 GP solves and 10.9 seconds.
-Warning: Constraint [x_{CG_{vt}}_Aircraft >= 0.5*\D...] is not tight because the left hand side evaluated to 59.0815798661 meter but the right hand side evaluated to 55.6692843233 meter (Allowable error: 0.0001%, Actual error: 6.1%)
+Solving took 22 GP solves and 15.2 seconds.
+Warning: Constraint [x_{CG_{vt}}_Aircraft >= 0.5*\D...] is not tight because the left hand side evaluated to 59.084882457 meter but the right hand side evaluated to 55.6692839631 meter (Allowable error: 0.0001%, Actual error: 6.1%)
 
-Warning: Constraint [W_{lg}_Aircraft*x_{CG_{lg}}_Ai...] is not tight because the left hand side evaluated to 330016.070913 meter * newton but the right hand side evaluated to 319089.975448 meter * newton (Allowable error: 1.0%, Actual error: 3.4%)
+Warning: Constraint [W_{lg}_Aircraft*x_{CG_{lg}}_Ai...] is not tight because the left hand side evaluated to 330011.289125 meter * newton but the right hand side evaluated to 319089.973057 meter * newton (Allowable error: 1.0%, Actual error: 3.4%)
 
-Warning: Constraint [x_{CG_{ht}}_Aircraft >= 0.5*\D...] is not tight because the left hand side evaluated to 59.952120912 meter but the right hand side evaluated to 58.9397095864 meter (Allowable error: 0.0001%, Actual error: 1.7%)
+Warning: Constraint [x_{CG_{ht}}_Aircraft >= 0.5*\D...] is not tight because the left hand side evaluated to 59.9522967927 meter but the right hand side evaluated to 58.9397092401 meter (Allowable error: 0.0001%, Actual error: 1.7%)
 
 
 Cost
@@ -26,6 +26,7 @@ Free Variables
                               L_w : 6.718e+05  [N]       Wing lift                                        
                       L_{v_{max}} : 6.392e+05  [N]       Maximum load for structural sizing               
                               S_w : 162.1      [m**2]    Wing reference area                              
+                           V_{TO} : 62.43      [m/s]     Takeoff speed                                    
                                 W : 6.718e+05  [N]       Total aircraft weight                            
                          W_{fuel} : 1.91e+05   [N]       Fuel weight                                      
                          W_{fuse} : 1.647e+05  [N]       Fuselage weight                                  
@@ -37,6 +38,7 @@ Free Variables
                            W_{zf} : 4.807e+05  [N]       Zero fuel weight                                 
                    \bar{c}_{wing} : 6.083      [m]       Mean aerodynamic chord (wing)                    
                       \frac{L}{D} : 5.909                Lift/drag ratio                                  
+                              \xi : 0.2022               Takeoff parameter                                
                            b_{vt} : 3.218      [m]       Vertical tail span                               
                            c_{vt} : 9.254      [m]       Vertical tail root chord                         
                          h_{hold} : 0.9042     [m]       Hold height                                      
@@ -51,7 +53,9 @@ Free Variables
                       x_{CG_{vt}} : 59.08      [m]       x-location of tail CG                            
                     x_{CG_{wing}} : 20.47      [m]       x-location of wing CG                            
                            x_{CG} : 18.47      [m]       x-location of CG                                 
+                           x_{TO} : 1524       [m]       Takeoff distance                                 
                            x_{up} : 29.61      [m]       Fuselage upsweep point                           
+                                y : 0.3721               Takeoff parameter                                
                           z_{bre} : 0.335                Breguet parameter                                
                                                                                                           
                Fuselage, Aircraft |                                                                       
@@ -107,19 +111,19 @@ Free Variables
                          t_{skin} : 0.0009979  [m]       Skin thickness                                   
                         w_{floor} : 3.43       [m]       Floor width                                      
                            xVbulk : 0.7317     [m**4]    Volume moment of bulkhead                        
-                            xVcyl : 10.55      [m**4]    Volume moment of cylinder                        
+                            xVcyl : 10.39      [m**4]    Volume moment of cylinder                        
                            xVnose : 0.1392     [m**4]    Volume moment of nose                            
                             xWapu : 2.069e+05  [N*m]     Moment of APU                                    
-                           xWcone : 6.648e+05  [N*m]     Moment of cone                                   
+                           xWcone : 6.611e+05  [N*m]     Moment of cone                                   
                             xWfix : 2.802e+04  [N*m]     Moment of fixed weights                          
-                          xWfloor : 5.01e+05   [N*m]     Moment of floor weight                           
+                          xWfloor : 4.966e+05  [N*m]     Moment of floor weight                           
                            xWfuse : 9.022e+06  [N*m]     Fuselage moment                                  
-                          xWinsul : 2.813e+05  [N*m]     Moment of insulation material                    
-                           xWpadd : 1.687e+06  [N*m]     Moment of misc weights                           
-                           xWseat : 9.119e+05  [N*m]     Moment of seats                                  
-                          xWshell : 1.047e+06  [N*m]     Mass moment of shell                             
-                           xWskin : 5.817e+05  [N*m]     Mass moment of skin                              
-                         xWwindow : 4.757e+05  [N*m]     Mass moment of windows                           
+                          xWinsul : 2.759e+05  [N*m]     Moment of insulation material                    
+                           xWpadd : 1.688e+06  [N*m]     Moment of misc weights                           
+                           xWseat : 9.095e+05  [N*m]     Moment of seats                                  
+                          xWshell : 1.029e+06  [N*m]     Mass moment of shell                             
+                           xWskin : 5.717e+05  [N*m]     Mass moment of skin                              
+                         xWwindow : 4.711e+05  [N*m]     Mass moment of windows                           
                        x_{shell1} : 5.2        [m]       Start of cylinder section                        
                        x_{shell2} : 29.61      [m]       End of cylinder section                          
                                                                                                           
@@ -266,14 +270,16 @@ WingBox, HorizontalTail, Aircraft |
 Constants
 ---------
                 Aircraft |                                                                                
+             C_{L_{max}} : 2.5                    Max lift coefficient                                    
                 N_{lift} : 2                      Wing loading multiplier                                 
                    Range : 3000       [nmi]       Range                                                   
                     TSFC : 0.3        [lb/hr/lbf] Thrust specific fuel consumption                        
+                     T_e : 1.29e+05   [N]         Engine thrust at takeoff                                
               V_{\infty} : 234        [m/s]       Freestream velocity                                     
                   V_{ne} : 144        [m/s]       Never exceed velocity                                   
                  W_{eng} : 1e+04      [N]         Engine weight                                           
                      \mu : 1.4e-05    [N*s/m**2]  Dynamic viscosity (35,000ft)                            
-                    \rho : 0.38       [kg/m**3]   Air density                                             
+                    \rho : 0.38       [kg/m**3]   Air density (35,000 ft)                                 
                   \rho_0 : 1.225      [kg/m**3]   Air density (0 ft)                                      
               \rho_{cap} : 2700       [kg/m**3]   Density of spar cap material                            
               \rho_{web} : 2700       [kg/m**3]   Density of shear web material                           
@@ -282,6 +288,7 @@ Constants
                  d_{fan} : 1.75       [m]         Fan diameter                                            
                f_{w,add} : 0.4                    Wing added weight fraction                              
                        g : 9.81       [m/s**2]    Gravitational acceleration                              
+                     l_r : 5000       [ft]        Runway length                                           
                      r_h : 0.75                   Fractional wing thickness at spar web                   
                        w : 0.5                    Wingbox-width-to-chord ratio                            
                  y_{eng} : 4.83       [m]         Engine moment arm                                       
@@ -367,7 +374,6 @@ HorizontalTail, Aircraft |
   VerticalTail, Aircraft |                                                                                
               C_{D_{wm}} : 0.5                    Windmill drag coefficient                               
             C_{L_{vmax}} : 2.6                    Max lift coefficient                                    
-                     T_e : 1.29e+05   [N]         Thrust per engine at takeoff                            
                      V_1 : 65         [m/s]       Minimum takeoff velocity                                
                      V_c : 234        [m/s]       Cruise velocity                                         
                   \rho_c : 0.38       [kg/m**3]   Air density (35,000ft)                                  
@@ -393,7 +399,6 @@ Sensitivities
           \alpha_{max,w} : -1.347   Max angle of attack                              
                                                                                      
   VerticalTail, Aircraft |                                                           
-                     T_e : 0.04364  Thrust per engine at takeoff                     
                      V_c : 0.02287  Cruise velocity                                  
             C_{L_{vmax}} : 0.02208  Max lift coefficient                             
                   \rho_c : 0.01141  Air density (35,000ft)                           
@@ -452,12 +457,13 @@ HorizontalTail, Aircraft |
                f_{w,add} : 0.1059   Wing added weight fraction                       
                      r_h : 0.04425  Fractional wing thickness at spar web            
               \rho_{web} : 0.04425  Density of shear web material                    
+                     T_e : 0.04364  Engine thrust at takeoff                         
                  y_{eng} : 0.0428   Engine moment arm                                
                  W_{eng} : 0.02892  Engine weight                                    
                      \mu : 0.02725  Dynamic viscosity (35,000ft)                     
                        w : -0.01564 Wingbox-width-to-chord ratio                     
       \sigma_{max,shear} : -0.04425 Allowable shear stress                           
             \sigma_{max} : -0.3419  Allowable tensile stress                         
-                    \rho : -0.5476  Air density                                      
+                    \rho : -0.5476  Air density (35,000 ft)                          
               V_{\infty} : -2.133   Freestream velocity                              
 

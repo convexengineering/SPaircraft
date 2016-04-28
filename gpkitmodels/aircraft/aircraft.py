@@ -18,6 +18,7 @@ class Aircraft(Model):
     def __init__(self):
 
         CL     = Variable('C_L', '-', 'Lift coefficient')
+        CLmax  = Variable('C_{L_{max}}', '-', 'Max lift coefficient')
         CD     = Variable('C_D', '-', 'Drag coefficient')
         D      = Variable('D', 'N', 'Total aircraft drag (cruise)')
         Dfuse  = Variable('D_{fuse}', 'N', 'Fuselage drag')
@@ -29,9 +30,11 @@ class Aircraft(Model):
         Lw     = Variable('L_w', 'N', 'Wing lift')
         R      = Variable('Range', 'nautical_miles', 'Range')
         Sw     = Variable('S_w', 'm**2', 'Wing reference area')
+        Te     = Variable('T_e', 'N', 'Engine thrust at takeoff')
         TSFC   = Variable('TSFC', 'lb/lbf/hr',
                           'Thrust specific fuel consumption')
         V      = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
+        VTO    = Variable('V_{TO}', 'm/s', 'Takeoff speed')
         W      = Variable('W', 'N', 'Total aircraft weight')
         Weng   = Variable('W_{eng}', 'N', 'Engine weight')
         Wfuel  = Variable('W_{fuel}', 'N', 'Fuel weight')
@@ -43,7 +46,9 @@ class Aircraft(Model):
         Wwing  = Variable('W_{wing}', 'N', 'Wing weight')
         Wzf     = Variable('W_{zf}', 'N', 'Zero fuel weight')
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
-        rho    = Variable('\\rho', 'kg/m^3', 'Air density')
+        lr     = Variable('l_r', 5000, 'ft', 'Runway length')
+        rho    = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
+        rho0   = Variable('\\rho_0', 'kg/m^3', 'Air density (sea level)')
         xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
         xCGeng = Variable('x_{CG_{eng}}', 'm', 'x-location of engine CG')
         xCGfu  = Variable('x_{CG_{fu}}', 'm', 'x-location of fuselage CG')
@@ -51,7 +56,10 @@ class Aircraft(Model):
         xCGlg  = Variable('x_{CG_{lg}}', 'm', 'x-location of landing gear CG')
         xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of vtail CG') 
         xCGwing = Variable('x_{CG_{wing}}', 'm', 'x-location of wing CG')
+        xTO    = Variable('x_{TO}', 'm', 'Takeoff distance')
+        xi     = Variable('\\xi', '-', 'Takeoff parameter')
         xw     = Variable('x_w', 'm', 'x-location of wing aerodynamic center')
+        y      = Variable('y', '-', 'Takeoff parameter')
         z_bre  = Variable('z_{bre}', '-', 'Breguet parameter')
 
         with SignomialsEnabled():
@@ -81,6 +89,13 @@ class Aircraft(Model):
                        reltol=1E-2, raiseerror=False),
                    xw == xCGwing,
                    xCGeng == xCGwing,
+
+                   #Takeoff relationships
+                   xi >= 0.5*rho0*VTO**2*Sw*CD/Te,
+                   4*g*xTO*Te/(W*VTO**2) >= 1 + y,
+                   1 >= 0.0464*xi**2.73/y**2.88 + 1.044*xi**0.296/y**0.049,
+                   VTO == 1.2*(2*W/(rho0*Sw*CLmax))**0.5,
+                   xTO <= lr,
                   ]
 
             # Subsystem models
@@ -92,6 +107,7 @@ class Aircraft(Model):
             wb = WingBox()
 
         substitutions = {
+                         'C_{L_{max}}': 2.5,
                          'Range': 3000,
                          'TSFC': 0.3,
                          'V_{\\infty}': 234,
