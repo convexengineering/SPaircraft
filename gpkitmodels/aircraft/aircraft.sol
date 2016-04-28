@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 8 GP solves and 4.83 seconds.
+Solving took 8 GP solves and 4.26 seconds.
 
 Cost
 ----

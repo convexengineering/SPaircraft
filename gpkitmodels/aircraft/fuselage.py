@@ -351,7 +351,7 @@ class Fuselage(CostedConstraintSet):
         return m
 
     @classmethod
-    def aircraft_737(cls):
+    def coupled_737(cls):
         """Creates instance of fuselage model for use in full aircraft model"""
 
         ccs = cls()

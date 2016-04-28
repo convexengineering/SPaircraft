@@ -295,7 +295,7 @@ class LandingGear(CostedConstraintSet):
         return m
 
     @classmethod
-    def aircraft_737(cls):
+    def coupled_737(cls):
         """Returns a landing gear model for use in a coupled aircraft model"""
         cs = cls()
 

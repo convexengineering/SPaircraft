@@ -196,7 +196,7 @@ class VerticalTail(CostedConstraintSet):
         return m
 
     @classmethod
-    def aircraft_737(cls):
+    def coupled_737(cls):
 
         ccs = cls()
 

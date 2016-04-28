@@ -97,11 +97,11 @@ class Aircraft(Model):
                   ]
 
             # Subsystem models
-            vt = VerticalTail.aircraft_737()
-            fu = Fuselage.aircraft_737()
-            lg = LandingGear.aircraft_737()
-            ht = HorizontalTail.aircraft_737()
-            wi = Wing.aircraft_737()
+            vt = VerticalTail.coupled_737()
+            fu = Fuselage.coupled_737()
+            lg = LandingGear.coupled_737()
+            ht = HorizontalTail.coupled_737()
+            wi = Wing.coupled_737()
             wb = WingBox()
 
         substitutions = {
