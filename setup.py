@@ -44,7 +44,7 @@ setup(
     url="https://www.github.com/hoburg/gpkit-models",
     install_requires=["numpy", "scipy", "pint"],
     version="0.0.0.0",
-    packages=["gpkit-models"],
+    packages=["gpkitmodels"],
     package_data={},
     license=LICENSE,
     long_description=LONG_DESCRIPTION,
