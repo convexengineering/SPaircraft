@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 5 GP solves and 0.49 seconds.
+Solving took 5 GP solves and 0.581 seconds.
 
 Cost
 ----
@@ -90,6 +90,7 @@ Sensitivities
 \sigma_{max,shear} : -0.1551 Allowable shear stress                       
       \sigma_{max} : -0.4655 Allowable tensile stress                     
                                                                           
+            x_{CG} : 2.368   x-location of CG                             
            y_{eng} : 1.66    Engine moment arm                            
                T_e : 1.62    Thrust per engine at takeoff                 
             V_{ne} : 1.241   Never exceed velocity                        

@@ -168,10 +168,8 @@ class VerticalTail(CostedConstraintSet):
 
         CostedConstraintSet.__init__(self, objective, lc)
 
-    @classmethod
-    def standalone_737(cls):
 
-        ccs = cls()
+    def default737subs(self):
 
         substitutions = {
                          'C_{D_{wm}}': 0.5, # [2]
@@ -191,40 +189,36 @@ class VerticalTail(CostedConstraintSet):
                          'x_{CG}': 18,
                          'y_{eng}': 4.83, # [3]
                          }
+        return substitutions
+
+    @classmethod
+    def standalone737(cls):
+
+        ccs = cls()
+ 
+        substitutions = ccs.default737subs()
 
         m = Model(ccs.cost, ccs, substitutions)
         return m
 
     @classmethod
-    def coupled_737(cls):
+    def coupled737(cls):
 
         ccs = cls()
 
         constraints = ccs + ccs.CG_constraint + ccs.linking_constraints
 
-        substitutions = {
-                         'C_{D_{wm}}': 0.5, # [2]
-                         'C_{L_{vmax}}': 2.6, # [2]
-                         'T_e': 1.29e5, # [4]
-                         'V_1': 65,
-                         'V_c': 234, # [7]
-                         'V_{ne}': 144, # [2]
-                         '\\mu': 1.4e-5, # [5]
-                         '\\rho_c': 0.38, # [6]
-                         '\\rho_{TO}': 1.225,
-                         '\\tan(\\Lambda_{LE})': np.tan(40*np.pi/180),
-                         'c_{l_{vt}}': 0.5, # [2]
-                         'd_{fan}': 1.75, # [1]
-                         'e': 0.8,
-                         'y_{eng}': 4.83, # [3]
-                         }
+        dsubs = ccs.default737subs()
+        linkedsubs = ['l_{fuse}', 'x_{CG}']
+        substitutions = {key: value for key, value in dsubs.items()
+                                    if key not in linkedsubs}
 
         m = Model(ccs.cost, constraints, substitutions, name='VerticalTail')
         return m
 
     @classmethod
     def test(cls):
-        vt = cls.standalone_737()
+        vt = cls.standalone737()
         sol = vt.localsolve()
 
 if __name__ == "__main__":

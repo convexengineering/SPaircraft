@@ -107,11 +107,7 @@ class Wing(CostedConstraintSet):
 
         CostedConstraintSet.__init__(self, objective, lc, **kwargs)
 
-    @classmethod
-    def standalone_737(cls):
-        ccs = cls()
-
-        constraints = ccs + ccs.standalone_constraints
+    def default737subs(self):
 
         substitutions = {
                          'C_{D_{0_w}}': 0.05,
@@ -127,31 +123,34 @@ class Wing(CostedConstraintSet):
                          '\\tan(\\Lambda)': tan(30*pi/180),
                         }
 
+        return substitutions
+
+    @classmethod
+    def standalone737(cls):
+        ccs = cls()
+
+        constraints = ccs + ccs.standalone_constraints
+
+        substitutions = ccs.default737subs()
+
         m = Model(ccs.cost, constraints, substitutions)
         return m
 
     @classmethod
-    def coupled_737(cls):
+    def coupled737(cls):
         ccs = cls()
 
-        substitutions = {
-                         'C_{D_{0_w}}': 0.05,
-                         'C_{L_{wmax}}': 2.5,
-                         'V_{ne}': 144,
-                         '\\alpha_{max,w}': 0.1, # (6 deg)
-                         '\\eta_w': 0.97,
-                         '\\mu': 1.4E-5,
-                         '\\rho': 0.38,
-                         '\\rho_0': 1.225,
-                         '\\tan(\\Lambda)': tan(30*pi/180),
-                        }
+        dsubs = ccs.default737subs()
+        linkedsubs = ['V_{\\infty}', 'W_0']
+        substitutions = {key: value for key, value in dsubs.items()
+                                    if key not in linkedsubs}
 
         m = Model(ccs.cost, ccs, substitutions, name='Wing')
         return m
 
     @classmethod
     def test(cls):
-        w = cls.standalone_737()
+        w = cls.standalone737()
         sol = w.localsolve()
 
 if __name__ == "__main__":

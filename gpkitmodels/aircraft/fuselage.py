@@ -292,11 +292,8 @@ class Fuselage(CostedConstraintSet):
 
         CostedConstraintSet.__init__(self, objective, constraints)
 
-    @classmethod
-    def standalone_737(cls):
-        """Create standalone instance of fuselage model"""
 
-        ccs = cls()
+    def default737subs(self):
 
         substitutions = {
                          'LF': 0.898,
@@ -347,69 +344,38 @@ class Fuselage(CostedConstraintSet):
                          'xfix': 2.1
                         }
 
+        return substitutions
+
+    @classmethod
+    def standalone737(cls):
+        """Create standalone instance of fuselage model"""
+
+        ccs = cls()
+
+        substitutions = ccs.default737subs()
+
         m = Model(ccs.cost, ccs, substitutions)
         return m
 
     @classmethod
-    def coupled_737(cls):
+    def coupled737(cls):
         """Creates instance of fuselage model for use in full aircraft model"""
 
         ccs = cls()
 
         constraints = ccs + ccs.CG_constraints
-
-        substitutions = {
-                         'LF': 0.898,
-                         'N_{land}': 6.0, # [TAS]
-                         'SPR': 6,
-                         'T_{cabin}': 300,
-                         'V_{\\infty}': 234,
-                         'W\'\'_{floor}': 60, # [TAS]
-                         'W\'\'_{insul}': 22, # [TAS]
-                         'W\'_{seat}': 150, # Boeing
-                         'W\'_{window}': 145.*3, # [TAS]
-                         'W_{avg. pass}': 180,
-                         'W_{cargo}': 10000,
-                         'W_{carry on}': 15,
-                         'W_{checked}': 40,
-                         'W_{fix}': 3000,
-                         '\\Delta h': 1,
-                         '\\Delta p': 52000,
-                         '\\rho_{\\infty}': 0.38,
-                         '\\rho_{bend}': 2700, # [TAS]
-                         '\\rho_{cargo}': 150, # b757 freight doc
-                         '\\rho_{cone}': 2700, # [TAS]
-                         '\\rho_{floor}': 2700, # [TAS]
-                         '\\rho_{lugg}': 100,
-                         '\\rho_{skin}': 2700, # [TAS]
-                         '\\sigma_{floor}': 30000/0.000145, # [TAS]
-                         '\\sigma_{skin}': 15000/0.000145, # [TAS]
-                         '\\tau_{floor}': 30000/0.000145, # [TAS]
-                         'f_{apu}': 0.035, # [TAS]
-                         'f_{fadd}': 0.20, # [TAS]
-                         'f_{frame}': 0.25,
-                         'f_{lugg,1}': 0.4,
-                         'f_{lugg,2}': 0.1,
-                         'f_{padd}': 0.4, # [TAS]
-                         'f_{seat}': 0.10,
-                         'f_{string}': 0.35, # [TAS]
-                         'n_{seat}': 186,
-                         'p_s': 31,
-                         'p_{cabin}': 75000,
-                         'r_E': 1.0, # [TAS]
-                         'w_{aisle}': 0.51, # Boeing
-                         'w_{seat}': 0.5,
-                         'w_{sys}': 0.10,
-                         'xapu': 120,
-                         'xfix': 2.1
-                        }
+ 
+        dsubs = ccs.default737subs()
+        linkedsubs = ['L_{v_{max}}', 'b_{vt}', 'c_{vt}']
+        substitutions = {key: value for key, value in dsubs.items()
+                                    if key not in linkedsubs}
 
         m = Model(ccs.cost, constraints, substitutions, name='Fuselage')
         return m
 
     @classmethod
     def test(cls):
-        fu = cls.standalone_737()
+        fu = cls.standalone737()
         sol = fu.localsolve()
 
 

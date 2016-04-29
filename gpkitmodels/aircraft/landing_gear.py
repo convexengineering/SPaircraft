@@ -253,12 +253,7 @@ class LandingGear(CostedConstraintSet):
         CostedConstraintSet.__init__(self, objective, constraints)
 
 
-    @classmethod
-    def standalone_737(cls):
-        """Returns a standalone landing gear model"""
-        cs = cls()
-
-        constraints = cs + cs.standaloneCG
+    def default737subs(self):
 
         substitutions = {
                          'E': 205,
@@ -291,53 +286,40 @@ class LandingGear(CostedConstraintSet):
                          'z_{wing}': 0.5,
                         } 
 
-        m =  Model(cs.cost, constraints, substitutions)
+        return substitutions
+
+    @classmethod
+    def standalone737(cls):
+        """Returns a standalone landing gear model"""
+        ccs = cls()
+
+        constraints = ccs + ccs.standaloneCG
+ 
+        substitutions = ccs.default737subs()
+
+        m =  Model(ccs.cost, constraints, substitutions)
         return m
 
     @classmethod
-    def coupled_737(cls):
+    def coupled737(cls):
         """Returns a landing gear model for use in a coupled aircraft model"""
-        cs = cls()
+        ccs = cls()
 
-        constraints = cs + cs.coupledCG
+        constraints = ccs + ccs.coupledCG
 
-        substitutions = {
-                         'E': 205,
-                         'K': 2,
-                         'N_s': 2,
-                         'W_{0_{lg}}': 82000*9.81,
-                         '\\eta_s': 0.8,
-                         '\\eta_t': 0.47,
-                         '\\lambda_{LG}': 2.5,
-                         '\\rho_{st}': 7850,
-                         '\\sigma_{y_c}': 470E6,
-                         '\\tan(\\gamma)': np.tan(5*np.pi/180),
-                         '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
-                         '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
-                         '\\tan(\\theta_{TO})': np.tan(15*np.pi/180),
-                         'd_{fan}': 1.75,
-                         'f_{add,m}': 1.5,
-                         'f_{add,n}': 1.5,
-                         'h_{nacelle}': 0.5,
-                         'n_{mg}': 2,
-                         'n_{wps}': 2,
-                         'p_{oleo}': 1800,
-                         't_{nacelle}': 0.15,
-                         'w_{ult}': 10,
-                         'x_{CG_0}': 18,
-                         'y_{eng}': 4.83,
-                         'z_{CG}': 2,
-                         'z_{wing}': 0.5,
-                        } 
+        dsubs = ccs.default737subs()
+        linkedsubs = ['h_{hold}', 'x_{up}']
+        substitutions = {key: value for key, value in dsubs.items()
+                                    if key not in linkedsubs}
 
-        m =  Model(cs.cost, constraints, substitutions, name='LandingGear')
+        m =  Model(ccs.cost, constraints, substitutions, name='LandingGear')
         return m
         
 
     @classmethod
     def test(cls):
         """Tests the standalone landing gear model"""
-        m = cls.standalone_737()
+        m = cls.standalone737()
         sol = m.localsolve()
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 Beginning signomial solve.
-Solving took 10 GP solves and 1.02 seconds.
-Warning: Constraint 1.01*\bar{c}_{wing} >= 0.667*\lambda**2*c_{root}*q_w**-1 + 0.667*\lambda*c_{root}*q_w**-1 + 0.667*c_{root}*q_w**-1 is not tight because 1.01*\bar{c}_{wing} [m] evaluated to 2.40771730829 meter but 0.667*\lambda**2*c_{root}*q_w**-1 + 0.667*\lambda*c_{root}*q_w**-1 + 0.667*c_{root}*q_w**-1 [m] evaluated to 2.38387852305 meter
+Solving took 10 GP solves and 0.984 seconds.
+Warning: Constraint [1.01*\bar{c}_{wing} >= 0.667*\...] is not tight because the left hand side evaluated to 2.40771730829 meter but the right hand side evaluated to 2.38387852306 meter (Allowable error: 1.0%, Actual error: 1%)
+
 
 Cost
 ----

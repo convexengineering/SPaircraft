@@ -161,10 +161,7 @@ class HorizontalTail(CostedConstraintSet):
 
         CostedConstraintSet.__init__(self, objective, lc, **kwargs)
 
-    @classmethod
-    def standalone_737(cls):
-
-        ccs = cls()
+    def default737subs(self):
 
         # References
         # [1] TASOPT code
@@ -190,38 +187,37 @@ class HorizontalTail(CostedConstraintSet):
                          'x_{CG}': 20,
                          '|C_{m_{ac}}|': 0.1,
                         }
+        return substitutions
+
+    @classmethod
+    def standalone737(cls):
+
+        ccs = cls()
+
+        substitutions = ccs.default737subs()
 
         m = Model(ccs.cost, ccs, substitutions)
         return m
 
     @classmethod
-    def coupled_737(cls):
+    def coupled737(cls):
 
         ccs = cls()
 
         constraints = ccs + ccs.CG_constraint
 
-        substitutions = {
-                         'C_{L_{hmax}}': 2.6,
-                         'C_{m_{fuse}}': 0.05, # [1]
-                         'S.M._{min}': 0.05,
-                         'V_{ne}': 144,
-                         '\\Delta x_w': 2,
-                         '\\alpha_{max,h}': 0.1, # (6 deg)
-                         '\\eta_h': 0.97,
-                         '\\mu': 1.4E-5,
-                         '\\rho': 0.38,
-                         '\\rho_0': 1.225,
-                         '\\tan(\\Lambda_h)': tan(30*pi/180),
-                         '|C_{m_{ac}}|': 0.1,
-                        }
+        dsubs = ccs.default737subs()
+        linkedsubs = ['C_{L_w}', 'C_{L_{aw}}', 'S_w', 'V_{\\infty}',
+                      '\\bar{c}_{wing}', 'l_{fuse}', 'w_{fuse}', 'x_{CG}']
+        substitutions = {key: value for key, value in dsubs.items()
+                                    if key not in linkedsubs}
 
         m = Model(ccs.cost, constraints, substitutions, name='HorizontalTail')
         return m
 
     @classmethod
     def test(cls):
-        ht = cls.standalone_737()
+        ht = cls.standalone737()
         sol = ht.localsolve()
 
 if __name__ == "__main__":
