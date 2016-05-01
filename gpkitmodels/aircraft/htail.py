@@ -91,8 +91,7 @@ class HorizontalTail(CostedConstraintSet):
 
                            # Moment arm and geometry -- same as for vtail
                            TCS([dxlead + croot <= dxtrail]),
-                           TCS([xcg + dxtrail <= lfuse], reltol=0.002,
-                               raiseerror=False),
+                           TCS([xcg + dxtrail <= lfuse], reltol=0.002),
                            TCS([dxlead + ymac*tanLh + 0.25*chma >= lh],
                                reltol=1e-2), # [SP]
                            p >= 1 + 2*taper,
@@ -138,10 +137,11 @@ class HorizontalTail(CostedConstraintSet):
                            taper >= 0.2, # TODO: make less arbitrary
 
                            Lmax == 0.5*rho0*Vne**2*Sh*CLhmax,
+
+                           # TODO: add correction due to wing downwash (kroo)
                           ]
 
-        CG_constraint = [TCS([xcght >= xcg+(dxlead+dxtrail)/2],
-                             raiseerror=False),
+        CG_constraint = [TCS([xcght >= xcg+(dxlead+dxtrail)/2]),
                          xcght <= lfuse
                         ]
         self.CG_constraint = CG_constraint
