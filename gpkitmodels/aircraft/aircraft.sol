@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 8 GP solves and 4.07 seconds.
+Solving took 6 GP solves and 2.96 seconds.
 
 Cost
 ----
@@ -49,7 +49,7 @@ Free Variables
                            x_{CG} : 20.04      [m]       x-location of CG                                 
                            x_{TO} : 1524       [m]       Takeoff distance                                 
                            x_{up} : 29.61      [m]       Fuselage upsweep point                           
-                                y : 0.3701               Takeoff parameter                                
+                                y : 0.3984               Takeoff parameter                                
                           z_{bre} : 0.3363               Breguet parameter                                
                                                                                                           
                Fuselage, Aircraft |                                                                       
@@ -77,7 +77,7 @@ Free Variables
                          V_{nose} : 0.0535     [m**3]    Nose skin volume                                 
                           W_{apu} : 5657       [N]       APU weight                                       
                          W_{buoy} : 1742       [N]       Buoyancy weight                                  
-                         W_{cone} : 6218       [N]       Cone weight                                      
+                         W_{cone} : 6219       [N]       Cone weight                                      
                         W_{floor} : 1.152e+04  [N]       Floor weight                                     
                         W_{insul} : 4631       [N]       Insulation material weight                       
                          W_{lugg} : 1.79e+04   [N]       Passenger luggage weight                         
@@ -144,7 +144,7 @@ Free Variables
                         c_{tip_h} : 0.5595     [m]       Horizontal tail tip chord                        
                               e_h : 0.9855               Oswald efficiency factor                         
                      f(\lambda_h) : 0.0033               Empirical efficiency function of taper           
-                              l_h : 41.28      [m]       Horizontal tail moment arm                       
+                              l_h : 41.27      [m]       Horizontal tail moment arm                       
                            p_{ht} : 1.4                  Substituted variable = 1 + 2*taper               
                            q_{ht} : 1.2                  Substituted variable = 1 + taper                 
                  y_{\bar{c}_{ht}} : 2.136      [m]       Vertical location of mean aerodynamic chord      
@@ -155,7 +155,7 @@ Free Variables
                           F_{w_m} : 7159                 Weight factor (main)                             
                           F_{w_n} : 643.7                Weight factor (nose)                             
                               I_m : 7.17e-06   [m**4]    Area moment of inertia (main strut)              
-                              I_n : 1.099e-06  [m**4]    Area moment of inertia (nose strut)              
+                              I_n : 1.098e-06  [m**4]    Area moment of inertia (nose strut)              
                               L_m : 6.435e+05  [N]       Max static load through main gear                
                               L_n : 1.609e+05  [N]       Min static load through nose gear                
                       L_{n_{dyn}} : 5.8e+04    [N]       Dyn. braking load, nose gear                     
@@ -183,13 +183,13 @@ Free Variables
                               l_n : 1.627      [m]       Length of nose gear                              
                          l_{oleo} : 0.7399     [m]       Length of oleo shock absorber                    
                               r_m : 0.04323    [m]       Radius of main gear struts                       
-                              r_n : 0.04857    [m]       Radius of nose gear struts                       
-                              t_m : 0.02826    [m]       Thickness of main gear strut wall                
-                              t_n : 0.003052   [m]       Thickness of nose gear strut wall                
+                              r_n : 0.04856    [m]       Radius of nose gear struts                       
+                              t_m : 0.02825    [m]       Thickness of main gear strut wall                
+                              t_n : 0.003053   [m]       Thickness of nose gear strut wall                
                           w_{t_m} : 0.4088     [m]       Width of main tires                              
                           w_{t_n} : 0.327      [m]       Width of nose tires                              
                               x_m : 23.81      [m]       x-location of main gear                          
-                              x_n : 5.002      [m]       x-location of nose gear                          
+                              x_n : 5.001      [m]       x-location of nose gear                          
                               y_m : 2.817      [m]       y-location of main gear (symmetric)              
                                                                                                           
            VerticalTail, Aircraft |                                                                       
@@ -409,7 +409,7 @@ Sensitivities
                  n_{wps} : -0.0667  Number of wheels per strut                       
                                                                                      
 HorizontalTail, Aircraft |                                                           
-              \Delta x_w : 0.02239  Distance from aerodynamic centre to CG           
+              \Delta x_w : 0.0224   Distance from aerodynamic centre to CG           
                                                                                      
       Fuselage, Aircraft |                                                           
                 n_{seat} : 0.8458    Number of seats                                 
@@ -428,7 +428,7 @@ HorizontalTail, Aircraft |
                  W_{fix} : 0.03599  Fixed weights (pilots, cockpit seats, navcom)    
              W'_{window} : 0.03058  Weight/length density of windows                 
               f_{lugg,2} : 0.02514  Proportion of passengers with two suitcases      
-             \rho_{cone} : 0.02003  Cone material density                            
+             \rho_{cone} : 0.02004  Cone material density                            
                  f_{apu} : 0.01759  APU weight as fraction of payload weight         
              W''_{floor} : 0.01681  Floor weight/area density                        
                 N_{land} : 0.01636  Emergency landing load factor                    

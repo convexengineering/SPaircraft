@@ -60,11 +60,12 @@ class Wing(CostedConstraintSet):
                            p >= 1 + 2*taper,
                            2*q >= 1 + p,
                            ymac == (b/3)*q/p,
-                           TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cwma], reltol=1E-2), # [SP]
-                           TCS([(2./3)*(1 + taper + taper**2)*croot/q <= 1.01*cwma], reltol=1E-2),
+                           TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cwma],
+                               reltol=1E-2), # [SP]
                            taper == ctip/croot,
                            TCS([Sw <= b*(croot + ctip)/2], reltol=1E-2), # [SP]
-                           TCS([1.01*Sw >= b*(croot + ctip)/2], reltol=1E-2), # [SP]
+                           # NOTE: Forced equality constraint
+                           TCS([1.01*Sw >= b*(croot + ctip)/2], reltol=1E-2),
 
                            # DATCOM formula (Mach number makes it SP)
                            TCS([(AR/eta)**2 * (1 + tanL**2) + 8*pi*AR/CLaw
@@ -78,10 +79,11 @@ class Wing(CostedConstraintSet):
                            #Rec == rho*Vinf*cwma/mu,
 
                            # Oswald efficiency
-                           # Nita, Scholz, "Estimating the Oswald factor from basic
-                           # aircraft geometrical parameters"
-                           TCS([fl >= 0.0524*taper**4 - 0.15*taper**3 + 0.1659*taper**2
-                                    - 0.0706*taper + 0.0119], reltol=1E-2),
+                           # Nita, Scholz, "Estimating the Oswald factor from
+                           # basic aircraft geometrical parameters"
+                           TCS([fl >= 0.0524*taper**4 - 0.15*taper**3
+                                    + 0.1659*taper**2 - 0.0706*taper + 0.0119],
+                               reltol=1E-2),
                            TCS([e*(1 + fl*AR) <= 1]),
                            taper >= 0.2, # TODO
 
@@ -89,7 +91,11 @@ class Wing(CostedConstraintSet):
                           ]
 
             standalone_constraints = [W >= W0 + Ww,
-                                      Lw == W]
+                                      Lw == W,
+                                      # NOTE: Forced equality constraint
+                                      TCS([(2./3)*(1+taper+taper**2)*croot/q
+                                           <= 1.01*cwma], reltol=1E-2),
+                                      ]
             self.standalone_constraints = standalone_constraints
 
         wb = WingBox()
@@ -114,7 +120,7 @@ class Wing(CostedConstraintSet):
                          'C_{L_{wmax}}': 2.5,
                          'V_{\\infty}': 240,
                          'V_{ne}': 144,
-                         'W_0': 1E5,
+                         'W_0': 5E5,
                          '\\alpha_{max,w}': 0.1, # (6 deg)
                          '\\eta_w': 0.97,
                          '\\mu': 1.4E-5,
