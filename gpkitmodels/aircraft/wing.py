@@ -71,10 +71,7 @@ class Wing(CostedConstraintSet):
                            p >= 1 + 2*taper,
                            2*q >= 1 + p,
                            ymac == (b/3)*q/p,
-                           TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cwma],
-                               reltol=1E-2), # [SP]
-                           # NOTE: Forced equality constraint
-                           TCS([(2./3)*(1+taper+taper**2)*croot/q <= 1.01*cwma],
+                           TCS([(2./3)*(1+taper+taper**2)*croot/q <= cwma],
                                reltol=1E-2),
                            taper == ctip/croot,
                            TCS([Sw <= b*(croot + ctip)/2], reltol=1E-2), # [SP]
