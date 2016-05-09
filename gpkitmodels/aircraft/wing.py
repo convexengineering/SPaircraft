@@ -1,7 +1,7 @@
 from gpkit import Variable, Model, SignomialsEnabled, LinkedConstraintSet
 from gpkit.constraints.costed import CostedConstraintSet
 from gpkit.constraints.tight import TightConstraintSet as TCS
-from numpy import pi, tan
+from numpy import cos, pi, tan
 from wingbox import WingBox
 # pylint:disable=bad-whitespace
 
@@ -10,6 +10,7 @@ class Wing(CostedConstraintSet):
     Wing sizing
     """
     def __init__(self, **kwargs):
+        Afuel   = Variable('\\bar{A}_{fuel}', '-', 'Non-dim. fuel area')
         AR      = Variable('AR', '-', 'Wing aspect ratio')
         CD0w    = Variable('C_{D_{0_w}}', '-',
                            'Wing parasitic drag coefficient')
@@ -23,13 +24,17 @@ class Wing(CostedConstraintSet):
         Rec     = Variable('Re_w', '-', 'Cruise Reynolds number (Wing)')
         Sw      = Variable('S_w', 'm^2', 'Wing area')
         Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
+        Vfuel   = Variable('V_{fuel}', 'm^3', 'Available fuel volume')
         Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         W       = Variable('W', 'N', 'Aircraft weight')
         W0      = Variable('W_0', 'N', 'Weight excluding wing')
+        Wfuel   = Variable('W_{fuel}', 'N', 'Fuel weight')
+        Wfuelmax= Variable('W_{fuel,max}', 'N', 'Max fuel weight')
         Ww      = Variable('W_{wing}', 'N', 'Wing weight')
         alpha   = Variable('\\alpha_w', '-', 'Wing angle of attack')
         amax    = Variable('\\alpha_{max,w}', '-', 'Max angle of attack')
         b       = Variable('b_w', 'm', 'Wing span')
+        cosL    = Variable('\\cos(\\Lambda)', '-', 'cosine of sweep angle')
         croot   = Variable('c_{root}', 'm', 'Wing root chord')
         ctip    = Variable('c_{tip}', 'm', 'Wing tip chord')
         cwma    = Variable('\\bar{c}_{wing}', 'm',
@@ -39,17 +44,23 @@ class Wing(CostedConstraintSet):
                            'Lift efficiency (diff b/w sectional, actual lift)')
         fl      = Variable('f(\\lambda_w)', '-',
                            'Empirical efficiency function of taper')
+        g       = Variable('g', 'm/s^2', 'Gravitational acceleration')
         mu      = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
         p       = Variable('p_w', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q_w', '-', 'Substituted variable = 1 + taper')
         rho     = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
         rho0    = Variable('\\rho_0', 'kg/m^3', 'Air density (0 ft)')
+        rhofuel = Variable('\\rho_{fuel}', 'kg/m^3', 'Density of fuel')
         tanL    = Variable('\\tan(\\Lambda)', '-', 'tangent of wing sweep')
         taper   = Variable('\\lambda', '-', 'Wing taper ratio')
         tau     = Variable('\\tau_w', '-', 'Wing thickness/chord ratio')
+        tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
+        tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
+        w       = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
         #xw     = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{\\bar{c}}', 'm',
                            'Spanwise location of mean aerodynamic chord')
+
 
         objective = D + 0.5*Ww
 
@@ -88,9 +99,16 @@ class Wing(CostedConstraintSet):
                            taper >= 0.2, # TODO
 
                            Lmax == 0.5*rho0*Vne**2*Sw*CLwmax,
+
+                           # Fuel volume [TASOPT doc]
+                           Afuel <= w*0.92*tau,
+                           # GP approx of the signomial constraint:
+                           # Afuel <= (w - 2*tweb)*(0.92*tau - 2*tcap),
+                           Vfuel <= croot**2 * (b/6) * (1+taper+taper**2)*cosL,
+                           Wfuel <= rhofuel*Afuel*Vfuel*g,
                           ]
 
-            standalone_constraints = [W >= W0 + Ww,
+            standalone_constraints = [W >= W0 + Ww + Wfuel,
                                       Lw == W,
                                       # NOTE: Forced equality constraint
                                       TCS([(2./3)*(1+taper+taper**2)*croot/q
@@ -115,18 +133,24 @@ class Wing(CostedConstraintSet):
 
     def default737subs(self):
 
+        sweep = 30 # [deg]
+
         substitutions = {
                          'C_{D_{0_w}}': 0.05,
                          'C_{L_{wmax}}': 2.5,
                          'V_{\\infty}': 240,
                          'V_{ne}': 144,
                          'W_0': 5E5,
+                         'W_{fuel}': 1E5,
                          '\\alpha_{max,w}': 0.1, # (6 deg)
+                         '\\cos(\\Lambda)': cos(sweep*pi/180),
                          '\\eta_w': 0.97,
                          '\\mu': 1.4E-5,
                          '\\rho': 0.38,
                          '\\rho_0': 1.225,
-                         '\\tan(\\Lambda)': tan(30*pi/180),
+                         '\\rho_{fuel}': 817, # Kerosene [TASOPT]
+                         '\\tan(\\Lambda)': tan(sweep*pi/180),
+                         'g': 9.81,
                         }
 
         return substitutions
@@ -147,7 +171,7 @@ class Wing(CostedConstraintSet):
         ccs = cls()
 
         dsubs = ccs.default737subs()
-        linkedsubs = ['V_{\\infty}', 'W_0']
+        linkedsubs = ['V_{\\infty}', 'W_0', 'W_{fuel}']
         substitutions = {key: value for key, value in dsubs.items()
                                     if key not in linkedsubs}
 

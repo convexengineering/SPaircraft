@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 6 GP solves and 2.96 seconds.
+Solving took 6 GP solves and 2.97 seconds.
 
 Cost
 ----
@@ -49,7 +49,7 @@ Free Variables
                            x_{CG} : 20.04      [m]       x-location of CG                                 
                            x_{TO} : 1524       [m]       Takeoff distance                                 
                            x_{up} : 29.61      [m]       Fuselage upsweep point                           
-                                y : 0.3984               Takeoff parameter                                
+                                y : 0.3993               Takeoff parameter                                
                           z_{bre} : 0.3363               Breguet parameter                                
                                                                                                           
                Fuselage, Aircraft |                                                                       
@@ -221,7 +221,9 @@ Free Variables
                                AR : 5.875                Wing aspect ratio                                
                           C_{D_w} : 0.05875              Drag coefficient                                 
                       L_{max_{w}} : 5.149e+06  [N]       Maximum load                                     
+                         V_{fuel} : 346.4      [m**3]    Available fuel volume                            
                          \alpha_w : 0.1                  Wing angle of attack                             
+                   \bar{A}_{fuel} : 0.069                Non-dim. fuel area                               
                           \lambda : 0.2                  Wing taper ratio                                 
                            \tau_w : 0.15                 Wing thickness/chord ratio                       
                               b_w : 30.87      [m]       Wing span                                        
@@ -380,7 +382,9 @@ HorizontalTail, Aircraft |
              C_{D_{0_w}} : 0.05                   Wing parasitic drag coefficient                         
             C_{L_{wmax}} : 2.5                    Lift coefficient (wing)                                 
           \alpha_{max,w} : 0.1                    Max angle of attack                                     
+           \cos(\Lambda) : 0.866                  cosine of sweep angle                                   
                   \eta_w : 0.97                   Lift efficiency (diff b/w sectional, actual lift)       
+             \rho_{fuel} : 817        [kg/m**3]   Density of fuel                                         
            \tan(\Lambda) : 0.5774                 tangent of wing sweep                                   
 
 Sensitivities
