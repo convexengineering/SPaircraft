@@ -10,9 +10,9 @@ class Wing(CostedConstraintSet):
     Wing sizing
     """
     def __init__(self, **kwargs):
-        Afuel   = Variable('\\bar{A}_{fuel}', '-', 'Non-dim. fuel area')
+        Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
         AR      = Variable('AR', '-', 'Wing aspect ratio')
-        CD0w    = Variable('C_{D_{0_w}}', '-',
+        CDp     = Variable('C_{D_{p_w}}', '-',
                            'Wing parasitic drag coefficient')
         CDw     = Variable('C_{D_w}', '-', 'Drag coefficient')
         CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
@@ -21,10 +21,10 @@ class Wing(CostedConstraintSet):
         D       = Variable('D_{wing}', 'N', 'Wing drag')
         Lmax    = Variable('L_{max_{w}}', 'N', 'Maximum load')
         Lw      = Variable('L_w', 'N', 'Wing lift')
-        Rec     = Variable('Re_w', '-', 'Cruise Reynolds number (Wing)')
+        Re      = Variable('Re_w', '-', 'Cruise Reynolds number (wing)')
         Sw      = Variable('S_w', 'm^2', 'Wing area')
         Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
-        Vfuel   = Variable('V_{fuel}', 'm^3', 'Available fuel volume')
+        Vfuel   = Variable('V_{fuel, max}', 'm^3', 'Available fuel volume')
         Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         W       = Variable('W', 'N', 'Aircraft weight')
         W0      = Variable('W_0', 'N', 'Weight excluding wing')
@@ -73,10 +73,11 @@ class Wing(CostedConstraintSet):
                            ymac == (b/3)*q/p,
                            TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cwma],
                                reltol=1E-2), # [SP]
+                           # NOTE: Forced equality constraint
+                           TCS([(2./3)*(1+taper+taper**2)*croot/q <= 1.01*cwma],
+                               reltol=1E-2),
                            taper == ctip/croot,
                            TCS([Sw <= b*(croot + ctip)/2], reltol=1E-2), # [SP]
-                           # NOTE: Forced equality constraint
-                           TCS([1.01*Sw >= b*(croot + ctip)/2], reltol=1E-2),
 
                            # DATCOM formula (Mach number makes it SP)
                            TCS([(AR/eta)**2 * (1 + tanL**2) + 8*pi*AR/CLaw
@@ -86,8 +87,13 @@ class Wing(CostedConstraintSet):
 
                            # Drag
                            D == 0.5*rho*Vinf**2*Sw*CDw,
-                           CDw >= CD0w + CLw**2/(pi*e*AR),
-                           #Rec == rho*Vinf*cwma/mu,
+                           CDw >= CDp + CLw**2/(pi*e*AR),
+                           Re == rho*Vinf*cwma/mu,
+                           1 >= (2.56*CLw**5.88/(Re**1.54*tau**3.32*CDp**2.62)
+                              + 3.8e-9*tau**6.23/(CLw**0.92*Re**1.38*CDp**9.57)
+                              + 2.2e-3*Re**0.14*tau**0.033/(CLw**0.01*CDp**0.73)
+                              + 6.14e-6*CLw**6.53/(Re**0.99*tau**0.52*CDp**5.19)
+                              + 1.19e4*CLw**9.78*tau**1.76/(Re*CDp**0.91)),
 
                            # Oswald efficiency
                            # Nita, Scholz, "Estimating the Oswald factor from
@@ -110,10 +116,8 @@ class Wing(CostedConstraintSet):
 
             standalone_constraints = [W >= W0 + Ww + Wfuel,
                                       Lw == W,
-                                      # NOTE: Forced equality constraint
-                                      TCS([(2./3)*(1+taper+taper**2)*croot/q
-                                           <= 1.01*cwma], reltol=1E-2),
                                       ]
+
             self.standalone_constraints = standalone_constraints
 
         wb = WingBox()
@@ -136,7 +140,6 @@ class Wing(CostedConstraintSet):
         sweep = 30 # [deg]
 
         substitutions = {
-                         'C_{D_{0_w}}': 0.05,
                          'C_{L_{wmax}}': 2.5,
                          'V_{\\infty}': 240,
                          'V_{ne}': 144,
