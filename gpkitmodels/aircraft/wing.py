@@ -62,7 +62,7 @@ class Wing(CostedConstraintSet):
                            'Spanwise location of mean aerodynamic chord')
 
 
-        objective = D + 0.5*Ww
+        objective = D
 
         with SignomialsEnabled():
             constraints = [

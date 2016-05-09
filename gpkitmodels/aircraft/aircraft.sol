@@ -1,5 +1,6 @@
 Beginning signomial solve.
-Solving took 8 GP solves and 4.39 seconds.
+Allowing negative dual variable(s) as small as -1.22144045918e-12.
+Solving took 8 GP solves and 4.45 seconds.
 
 Cost
 ----

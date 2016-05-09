@@ -1,47 +1,47 @@
 Beginning signomial solve.
-Solving took 10 GP solves and 1.16 seconds.
+Solving took 10 GP solves and 1.12 seconds.
 
 Cost
 ----
- 6.904e+04 [N] 
+ 2.597e+04 [N] 
 
 Free Variables
 --------------
-                 AR : 2.768 Wing aspect ratio 
-            C_{D_w} : 0.01695 Drag coefficient  
-        C_{D_{p_w}} : 0.006707 Wing parasitic drag coefficient
-            C_{L_w} : 0.297 Lift coefficient (wing)
-         C_{L_{aw}} : 2.97  Lift curve slope (wing)
-           D_{wing} : 3.78e+04  [N] Wing drag         
-                L_w : 6.625e+05  [N] Wing lift         
-        L_{max_{w}} : 6.471e+06  [N] Maximum load      
-               Re_w : 6.355e+07 Cruise Reynolds number (wing)
-                S_w : 203.8  [m**2] Wing area         
+                 AR : 7.772 Wing aspect ratio 
+            C_{D_w} : 0.01361 Drag coefficient  
+        C_{D_{p_w}} : 0.005989 Wing parasitic drag coefficient
+            C_{L_w} : 0.4259 Lift coefficient (wing)
+         C_{L_{aw}} : 4.259 Lift curve slope (wing)
+           D_{wing} : 2.597e+04  [N] Wing drag         
+                L_w : 8.127e+05  [N] Wing lift         
+        L_{max_{w}} : 5.536e+06  [N] Maximum load      
+               Re_w : 3.508e+07 Cruise Reynolds number (wing)
+                S_w : 174.4  [m**2] Wing area         
       V_{fuel, max} : 180.8  [m**3] Available fuel volume
-                  W : 6.625e+05  [N] Aircraft weight   
-           W_{wing} : 6.249e+04  [N] Wing weight       
+                  W : 8.127e+05  [N] Aircraft weight   
+           W_{wing} : 2.127e+05  [N] Wing weight       
            \alpha_w : 0.1   Wing angle of attack
 \bar{A}_{fuel, max} : 0.069 Non-dim. fuel area
-     \bar{c}_{wing} : 9.755  [m] Mean aerodynamic chord (wing)
+     \bar{c}_{wing} : 5.384  [m] Mean aerodynamic chord (wing)
             \lambda : 0.2   Wing taper ratio  
              \tau_w : 0.15  Wing thickness/chord ratio
-                b_w : 23.75  [m] Wing span         
-           c_{root} : 14.3   [m] Wing root chord   
-            c_{tip} : 2.86   [m] Wing tip chord    
-                e_w : 0.9909 Oswald efficiency factor
+                b_w : 36.81  [m] Wing span         
+           c_{root} : 7.894  [m] Wing root chord   
+            c_{tip} : 1.579  [m] Wing tip chord    
+                e_w : 0.975 Oswald efficiency factor
        f(\lambda_w) : 0.0033 Empirical efficiency function of taper
                 p_w : 1.4   Substituted variable = 1 + 2*taper
                 q_w : 1.2   Substituted variable = 1 + taper
-        y_{\bar{c}} : 6.785  [m] Spanwise location of mean aerodynamic chord
+        y_{\bar{c}} : 10.52  [m] Spanwise location of mean aerodynamic chord
                             
             WingBox |                         
-            I_{cap} : 3.064e-06 Non-dim spar cap area moment of inertia
-                M_r : 1.045e+06  [N] Root moment per root chord
-            W_{cap} : 3.456e+04  [N] Weight of spar caps
-            W_{web} : 1.008e+04  [N] Weight of shear web
+            I_{cap} : 2.417e-05 Non-dim spar cap area moment of inertia
+                M_r : 2.51e+06  [N] Root moment per root chord
+            W_{cap} : 1.386e+05  [N] Weight of spar caps
+            W_{web} : 1.336e+04  [N] Weight of shear web
                 \nu : 0.8612 Dummy variable = $(t^2 + t + 1)/(t+1)$
-            t_{cap} : 0.0006498 Non-dim. spar cap thickness
-            t_{web} : 0.0008419 Non-dim. shear web thickness
+            t_{cap} : 0.005517 Non-dim. spar cap thickness
+            t_{web} : 0.002364 Non-dim. shear web thickness
 
 Constants
 ---------
@@ -74,26 +74,28 @@ Constants
 
 Sensitivities
 -------------
-           WingBox |                               
-          N_{lift} : 0.5939  Wing loading multiplier
-                 g : 0.5895  Gravitational acceleration
-        \rho_{cap} : 0.4564  Density of spar cap material
-         f_{w,add} : 0.1684  Wing added weight fraction
-               r_h : 0.1331  Fractional wing thickness at spar web
-        \rho_{web} : 0.1331  Density of shear web material
-\sigma_{max,shear} : -0.1331 Allowable shear stress
-      \sigma_{max} : -0.4608 Allowable tensile stress
-                             
-            V_{ne} : 1.188   Never exceed velocity 
-               W_0 : 1.096   Weight excluding wing 
-            \rho_0 : 0.5939  Air density (0 ft)    
-      C_{L_{wmax}} : 0.5939  Lift coefficient (wing)
-                 g : 0.5895  Gravitational acceleration
-          W_{fuel} : 0.2192  Fuel weight           
-     \tan(\Lambda) : 0.09544 tangent of wing sweep 
-               \mu : -0.04067 Dynamic viscosity (35,000ft)
-            \eta_w : -0.3818 Lift efficiency (diff b/w sectional, actual lift)
-    \alpha_{max,w} : -0.7936 Max angle of attack   
-              \rho : -0.8639 Air density (35,000 ft)
-        V_{\infty} : -1.769  Freestream velocity   
+           WingBox |                                
+          N_{lift} : 0.486    Wing loading multiplier
+                 g : 0.4472   Gravitational acceleration
+        \rho_{cap} : 0.4079   Density of spar cap material
+         f_{w,add} : 0.1278   Wing added weight fraction
+               r_h : 0.03933  Fractional wing thickness at spar web
+        \rho_{web} : 0.03933  Density of shear web material
+                 w : -0.03882 Wingbox-width-to-chord ratio
+\sigma_{max,shear} : -0.03933 Allowable shear stress
+      \sigma_{max} : -0.4467  Allowable tensile stress
+                              
+               W_0 : 1.051    Weight excluding wing 
+            V_{ne} : 0.9721   Never exceed velocity 
+            \rho_0 : 0.486    Air density (0 ft)    
+      C_{L_{wmax}} : 0.486    Lift coefficient (wing)
+                 g : 0.4472   Gravitational acceleration
+          W_{fuel} : 0.2102   Fuel weight           
+     \tan(\Lambda) : 0.1171   tangent of wing sweep 
+                 w : -0.03882 Wingbox-width-to-chord ratio
+               \mu : -0.07545 Dynamic viscosity (35,000ft)
+            \eta_w : -0.4685  Lift efficiency (diff b/w sectional, actual lift)
+    \alpha_{max,w} : -0.594   Max angle of attack   
+              \rho : -0.6331  Air density (35,000 ft)
+        V_{\infty} : -1.342   Freestream velocity   
 
