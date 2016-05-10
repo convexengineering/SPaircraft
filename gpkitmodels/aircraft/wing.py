@@ -21,7 +21,7 @@ class Wing(CostedConstraintSet):
         D       = Variable('D_{wing}', 'N', 'Wing drag')
         Lmax    = Variable('L_{max_{w}}', 'N', 'Maximum load')
         Lw      = Variable('L_w', 'N', 'Wing lift')
-        M       = Variable('M', '-', 'Mach number')
+        M       = Variable('M', '-', 'Cruise Mach number')
         Re      = Variable('Re_w', '-', 'Cruise Reynolds number (wing)')
         Sw      = Variable('S_w', 'm^2', 'Wing area')
         Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
@@ -32,6 +32,7 @@ class Wing(CostedConstraintSet):
         Wfuel   = Variable('W_{fuel}', 'N', 'Fuel weight')
         Wfuelmax= Variable('W_{fuel,max}', 'N', 'Max fuel weight')
         Ww      = Variable('W_{wing}', 'N', 'Wing weight')
+        a       = Variable('a', 'm/s', 'Speed of sound (35,000 ft)')
         alpha   = Variable('\\alpha_w', '-', 'Wing angle of attack')
         amax    = Variable('\\alpha_{max,w}', '-', 'Max angle of attack')
         b       = Variable('b_w', 'm', 'Wing span')
@@ -114,6 +115,7 @@ class Wing(CostedConstraintSet):
 
             standalone_constraints = [W >= W0 + Ww + Wfuel,
                                       Lw == W,
+                                      M == Vinf/a,
                                       ]
 
             self.standalone_constraints = standalone_constraints
@@ -139,8 +141,7 @@ class Wing(CostedConstraintSet):
 
         substitutions = {
                          'C_{L_{wmax}}': 2.5,
-                         'M': 0.80,
-                         'V_{\\infty}': 240,
+                         'M': 0.78,
                          'V_{ne}': 144,
                          'W_0': 5E5,
                          'W_{fuel}': 1E5,
@@ -152,6 +153,7 @@ class Wing(CostedConstraintSet):
                          '\\rho_0': 1.225,
                          '\\rho_{fuel}': 817, # Kerosene [TASOPT]
                          '\\tan(\\Lambda)': tan(sweep*pi/180),
+                         'a': 297,
                          'g': 9.81,
                         }
 
@@ -173,7 +175,7 @@ class Wing(CostedConstraintSet):
         ccs = cls()
 
         dsubs = ccs.default737subs()
-        linkedsubs = ['V_{\\infty}', 'W_0', 'W_{fuel}']
+        linkedsubs = ['M', 'W_0', 'W_{fuel}']
         substitutions = {key: value for key, value in dsubs.items()
                                     if key not in linkedsubs}
 

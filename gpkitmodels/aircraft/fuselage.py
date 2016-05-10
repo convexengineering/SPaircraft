@@ -39,7 +39,7 @@ class Fuselage(CostedConstraintSet):
         Vcyl     = Variable('V_{cyl}', 'm^3', 'Cylinder skin volume')
         Vfloor   = Variable('V_{floor}', 'm^3', 'Floor volume')
         Vhold    = Variable('V_{hold}', 'm^3', 'Hold volume')
-        Vinf     = Variable('V_{\\infty}', 234, 'm/s', 'Cruise velocity')
+        Vinf     = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
         Vlugg    = Variable('V_{lugg}', 'm^3', 'Luggage volume')
         Vnose    = Variable('V_{nose}', 'm^3', 'Nose skin volume')
         Wapu     = Variable('W_{apu}', 'N', 'APU weight')
@@ -366,7 +366,7 @@ class Fuselage(CostedConstraintSet):
         constraints = ccs + ccs.CG_constraints
  
         dsubs = ccs.default737subs()
-        linkedsubs = ['L_{v_{max}}', 'b_{vt}', 'c_{vt}']
+        linkedsubs = ['L_{v_{max}}', 'V_{\\infty}', 'b_{vt}', 'c_{vt}']
         substitutions = {key: value for key, value in dsubs.items()
                                     if key not in linkedsubs}
 

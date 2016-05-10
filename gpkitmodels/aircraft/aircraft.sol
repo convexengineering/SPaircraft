@@ -1,282 +1,282 @@
 Beginning signomial solve.
-Allowing negative dual variable(s) as small as -8.78096537831e-10.
-Solving took 7 GP solves and 3.85 seconds.
+Allowing negative dual variable(s) as small as -6.56370716892e-14.
+Solving took 7 GP solves and 3.84 seconds.
 
 Cost
 ----
- 5.372e+04 [N] 
+ 5.453e+04 [N] 
 
 Free Variables
 --------------
                          Aircraft | 
-                               AR : 9.621 Wing aspect ratio
-                              C_D : 0.02972 Drag coefficient
-                              C_L : 0.5759 Lift coefficient
-                          C_{L_w} : 0.5759 Lift coefficient (wing)
-                       C_{L_{aw}} : 5.759 Lift curve slope (wing)
-                                D : 3.094e+04  [N] Total aircraft drag (cruise)
-                         D_{fuse} : 1.12e+04  [N] Fuselage drag
-                           D_{ht} : 1013  [N] Horizontal tail drag
-                           D_{vt} : 1067  [N] Vertical tail drag
-                         D_{wing} : 1.766e+04  [N] Wing drag
-                              L_w : 5.995e+05  [N] Wing lift
-                      L_{v_{max}} : 7.093e+05  [N] Maximum load for structural sizing
-                              S_w : 100.1  [m**2] Wing reference area
-                           V_{TO} : 75.06  [m/s] Takeoff speed
-                                W : 5.995e+05  [N] Total aircraft weight
-                         W_{fuel} : 5.372e+04  [N] Fuel weight
-                         W_{fuse} : 1.691e+05  [N] Fuselage weight
-                           W_{ht} : 5811  [N] Horizontal tail weight
-                           W_{lg} : 1.858e+04  [N] Weight of landing gear
+                               AR : 9.335 Wing aspect ratio
+                              C_D : 0.02899 Drag coefficient
+                              C_L : 0.5621 Lift coefficient
+                          C_{L_w} : 0.5621 Lift coefficient (wing)
+                       C_{L_{aw}} : 5.621 Lift curve slope (wing)
+                                D : 3.109e+04  [N] Total aircraft drag (cruise)
+                         D_{fuse} : 1.102e+04  [N] Fuselage drag
+                           D_{ht} : 1041  [N] Horizontal tail drag
+                           D_{vt} : 1053  [N] Vertical tail drag
+                         D_{wing} : 1.798e+04  [N] Wing drag
+                              L_w : 6.028e+05  [N] Wing lift
+                      L_{v_{max}} : 7.13e+05  [N] Maximum load for structural sizing
+                              S_w : 105.2  [m**2] Wing reference area
+                           V_{TO} : 73.42  [m/s] Takeoff speed
+                       V_{\infty} : 231.7  [m/s] Cruise velocity
+                                W : 6.028e+05  [N] Total aircraft weight
+                         W_{fuel} : 5.453e+04  [N] Fuel weight
+                         W_{fuse} : 1.69e+05  [N] Fuselage weight
+                           W_{ht} : 5846  [N] Horizontal tail weight
+                           W_{lg} : 1.843e+04  [N] Weight of landing gear
                           W_{pay} : 1.616e+05  [N] Payload weight
-                           W_{vt} : 2506  [N] Vertical tail weight
-                         W_{wing} : 1.318e+05  [N] Wing weight
-                           W_{zf} : 4.995e+05  [N] Zero fuel weight
-                   \bar{c}_{wing} : 3.703  [m] Mean aerodynamic chord (wing)
-                      \frac{L}{D} : 19.37 Lift/drag ratio
-                              \xi : 0.07956 Takeoff parameter
-                           b_{vt} : 4.027  [m] Vertical tail span
-                           c_{vt} : 9.574  [m] Vertical tail root chord
-                         h_{hold} : 0.8813  [m] Hold height
-                         l_{fuse} : 53.54  [m] Fuselage length
+                           W_{vt} : 2400  [N] Vertical tail weight
+                         W_{wing} : 1.348e+05  [N] Wing weight
+                           W_{zf} : 5.02e+05  [N] Zero fuel weight
+                   \bar{c}_{wing} : 3.854  [m] Mean aerodynamic chord (wing)
+                      \frac{L}{D} : 19.39 Lift/drag ratio
+                              \xi : 0.07803 Takeoff parameter
+                           b_{vt} : 3.971  [m] Vertical tail span
+                           c_{vt} : 9.621  [m] Vertical tail root chord
+                         h_{hold} : 0.882  [m] Hold height
+                         l_{fuse} : 53.66  [m] Fuselage length
                     p_{\lambda_v} : 1.6 1 + 2*Tail taper ratio
-                         w_{fuse} : 3.861  [m] Fuselage width
-                              x_w : 19.58  [m] Position of wing aerodynamic center
-                     x_{CG_{eng}} : 19.58  [m] x-location of engine CG
+                         w_{fuse} : 3.865  [m] Fuselage width
+                              x_w : 19.6  [m] Position of wing aerodynamic center
+                     x_{CG_{eng}} : 19.6  [m] x-location of engine CG
                       x_{CG_{fu}} : 17.9  [m] x-location of fuselage CG
-                      x_{CG_{ht}} : 52.44  [m] Horizontal tail CG location
-                      x_{CG_{lg}} : 19.46  [m] x-location of landing gear CG
-                      x_{CG_{vt}} : 48.76  [m] x-location of tail CG
-                    x_{CG_{wing}} : 19.58  [m] x-location of wing CG
-                           x_{CG} : 17.58  [m] x-location of CG
+                      x_{CG_{ht}} : 52.5  [m] Horizontal tail CG location
+                      x_{CG_{lg}} : 19.47  [m] x-location of landing gear CG
+                      x_{CG_{vt}} : 48.85  [m] x-location of tail CG
+                    x_{CG_{wing}} : 19.6  [m] x-location of wing CG
+                           x_{CG} : 17.6  [m] x-location of CG
                            x_{TO} : 1524  [m] Takeoff distance
                            x_{up} : 29.61  [m] Fuselage upsweep point
-                                y : 0.1752 Takeoff parameter
-                          z_{bre} : 0.1022 Breguet parameter
+                                y : 0.1493 Takeoff parameter
+                          z_{bre} : 0.1031 Breguet parameter
                                     
                Fuselage, Aircraft | 
-                        A_{floor} : 0.09613  [m**2] Floor beam x-sectional area
-                         A_{fuse} : 11.71  [m**2] Fuselage x-sectional area
-                         A_{hold} : 2.044  [m**2] Cargo hold x-sectional area
-                         A_{skin} : 0.01177  [m**2] Skin cross sectional area
-                     D_{friction} : 1.04e+04  [N] Friction drag
-                      D_{upsweep} : 803  [N] Drag due to fuse upsweep
+                        A_{floor} : 0.09458  [m**2] Floor beam x-sectional area
+                         A_{fuse} : 11.73  [m**2] Fuselage x-sectional area
+                         A_{hold} : 2.048  [m**2] Cargo hold x-sectional area
+                         A_{skin} : 0.01179  [m**2] Skin cross sectional area
+                     D_{friction} : 1.024e+04  [N] Friction drag
+                      D_{upsweep} : 780.5  [N] Drag due to fuse upsweep
                                FF : 1.057 Fuselage form factor
-                        M_{floor} : 4.695e+05  [N*m] Max bending moment in floor beams
+                        M_{floor} : 4.701e+05  [N*m] Max bending moment in floor beams
                         P_{floor} : 1.137e+06  [N] Distributed floor load
-                         R_{fuse} : 1.931  [m] Fuselage radius
-                         S_{bulk} : 23.42  [m**2] Bulkhead surface area
+                         R_{fuse} : 1.932  [m] Fuselage radius
+                         S_{bulk} : 23.46  [m**2] Bulkhead surface area
                         S_{floor} : 5.686e+05  [N] Maximum shear in floor beams
-                         S_{nose} : 52.04  [m**2] Nose surface area
-                         V_{bulk} : 0.02273  [m**3] Bulkhead skin volume
-                        V_{cabin} : 341.8  [m**3] Cabin volume
+                         S_{nose} : 52.08  [m**2] Nose surface area
+                         V_{bulk} : 0.02279  [m**3] Bulkhead skin volume
+                        V_{cabin} : 342.4  [m**3] Cabin volume
                         V_{cargo} : 6.796  [m**3] Cargo volume
-                         V_{cone} : 0.2006  [m**3] Cone skin volume
-                          V_{cyl} : 0.2874  [m**3] Cylinder skin volume
-                        V_{floor} : 0.3175  [m**3] Floor volume
-                         V_{hold} : 49.9  [m**3] Hold volume
+                         V_{cone} : 0.1997  [m**3] Cone skin volume
+                          V_{cyl} : 0.2878  [m**3] Cylinder skin volume
+                        V_{floor} : 0.3127  [m**3] Floor volume
+                         V_{hold} : 49.99  [m**3] Hold volume
                          V_{lugg} : 18.24  [m**3] Luggage volume
-                         V_{nose} : 0.0505  [m**3] Nose skin volume
+                         V_{nose} : 0.05059  [m**3] Nose skin volume
                           W_{apu} : 5657  [N] APU weight
-                         W_{buoy} : 1647  [N] Buoyancy weight
-                         W_{cone} : 9563  [N] Cone weight
-                        W_{floor} : 1.401e+04  [N] Floor weight
-                        W_{insul} : 4496  [N] Insulation material weight
+                         W_{buoy} : 1649  [N] Buoyancy weight
+                         W_{cone} : 9520  [N] Cone weight
+                        W_{floor} : 1.389e+04  [N] Floor weight
+                        W_{insul} : 4500  [N] Insulation material weight
                          W_{lugg} : 1.79e+04  [N] Passenger luggage weight
                          W_{padd} : 6.465e+04  [N] Misc weights (galley, toilets, doors etc.)
                          W_{pass} : 1.337e+05  [N] Passenger weight
                          W_{seat} : 2.79e+04  [N] Seating weight
-                        W_{shell} : 1.719e+04  [N] Shell weight
-                         W_{skin} : 9551  [N] Skin weight
+                        W_{shell} : 1.722e+04  [N] Shell weight
+                         W_{skin} : 9567  [N] Skin weight
                        W_{window} : 1.062e+04  [N] Window weight
                    \lambda_{cone} : 0.4 Tailcone radius taper ratio (xshell2->xtail)
-                             \phi : 0.0784 Upsweep angle
+                             \phi : 0.07809 Upsweep angle
                      \rho_{cabin} : 0.8711  [kg/m**3] Air density in cabin
                          \sigma_x : 3.831e+07  [N/m**2] Axial stress in skin
                   \sigma_{\theta} : 1.034e+08  [N/m**2] Skin hoop stress
                       \tau_{cone} : 1.034e+08  [N/m**2] Shear stress in cone
-                                f : 13.87 Fineness ratio
-                        h_{floor} : 0.04933  [m] Floor I-beam height
-                         l_{cone} : 23.93  [m] Cone length
+                                f : 13.89 Fineness ratio
+                        h_{floor} : 0.05023  [m] Floor I-beam height
+                         l_{cone} : 24.05  [m] Cone length
                         l_{floor} : 28.27  [m] Floor length
                          l_{nose} : 5.2  [m] Nose length
                         l_{shell} : 24.41  [m] Shell length
                          n_{pass} : 167 Number of passengers
                          n_{rows} : 31 Number of rows
-                        t_{shell} : 0.00131  [m] Shell thickness
-                         t_{skin} : 0.0009705  [m] Skin thickness
-                        w_{floor} : 3.303  [m] Floor width
-                           xVbulk : 0.673  [m**4] Volume moment of bulkhead
-                            xVcyl : 5.002  [m**4] Volume moment of cylinder
-                           xVnose : 0.1313  [m**4] Volume moment of nose
+                        t_{shell} : 0.001311  [m] Shell thickness
+                         t_{skin} : 0.0009713  [m] Skin thickness
+                        w_{floor} : 3.307  [m] Floor width
+                           xVbulk : 0.6747  [m**4] Volume moment of bulkhead
+                            xVcyl : 5.01  [m**4] Volume moment of cylinder
+                           xVnose : 0.1315  [m**4] Volume moment of nose
                             xWapu : 2.069e+05  [N*m] Moment of APU
-                           xWcone : 3.976e+05  [N*m] Moment of cone
+                           xWcone : 3.964e+05  [N*m] Moment of cone
                             xWfix : 2.802e+04  [N*m] Moment of fixed weights
-                          xWfloor : 2.439e+05  [N*m] Moment of floor weight
-                           xWfuse : 3.027e+06  [N*m] Fuselage moment
-                          xWinsul : 7.825e+04  [N*m] Moment of insulation material
+                          xWfloor : 2.418e+05  [N*m] Moment of floor weight
+                           xWfuse : 3.024e+06  [N*m] Fuselage moment
+                          xWinsul : 7.832e+04  [N*m] Moment of insulation material
                            xWpadd : 1.125e+06  [N*m] Moment of misc weights
                            xWseat : 4.856e+05  [N*m] Moment of seats
-                          xWshell : 2.768e+05  [N*m] Mass moment of shell
-                           xWskin : 1.538e+05  [N*m] Mass moment of skin
+                          xWshell : 2.773e+05  [N*m] Mass moment of shell
+                           xWskin : 1.54e+05  [N*m] Mass moment of skin
                          xWwindow : 1.848e+05  [N*m] Mass moment of windows
                        x_{shell1} : 5.2  [m] Start of cylinder section
                        x_{shell2} : 29.61  [m] End of cylinder section
                                     
          HorizontalTail, Aircraft | 
-                             AR_h : 8.189 Horizontal tail aspect ratio
-                          C_{D_h} : 0.006723 Horizontal tail drag coefficient
-                      C_{D_{0_h}} : 0.005345 Horizontal tail parasitic drag coefficient
-                          C_{L_h} : 0.1858 Lift coefficient (htail)
-                     C_{L_{ah_0}} : 5.527 Isolated lift curve slope (htail)
-                       C_{L_{ah}} : 3.079 Lift curve slope (htail)
-                              K_f : 0.4306 Empirical factor for fuselage-wing interference
-                              L_h : 2.801e+04  [N] Horizontal tail downforce
-                      L_{{max}_h} : 4.785e+05  [N] Maximum load
-                         Re_{c_h} : 9.7e+06 Cruise Reynolds number (Horizontal tail)
+                             AR_h : 7.831 Horizontal tail aspect ratio
+                          C_{D_h} : 0.006667 Horizontal tail drag coefficient
+                      C_{D_{0_h}} : 0.005346 Horizontal tail parasitic drag coefficient
+                          C_{L_h} : 0.178 Lift coefficient (htail)
+                     C_{L_{ah_0}} : 5.372 Isolated lift curve slope (htail)
+                       C_{L_{ah}} : 2.981 Lift curve slope (htail)
+                              K_f : 0.4298 Empirical factor for fuselage-wing interference
+                              L_h : 2.779e+04  [N] Horizontal tail downforce
+                      L_{{max}_h} : 5.055e+05  [N] Maximum load
+                         Re_{c_h} : 1.009e+07 Cruise Reynolds number (Horizontal tail)
                              S.M. : 0.05 Stability margin
-                              S_h : 14.49  [m**2] Horizontal tail area
-              \Delta x_{{lead}_h} : 33.75  [m] Distance from CG to horizontal tail leading edge
-             \Delta x_{{trail}_h} : 35.96  [m] Distance from CG to horizontal tail trailing edge
-                           \alpha : 0.06034 Horizontal tail angle of attack
-                     \bar{c}_{ht} : 1.527  [m] Mean aerodynamic chord (ht)
+                              S_h : 15.31  [m**2] Horizontal tail area
+              \Delta x_{{lead}_h} : 33.74  [m] Distance from CG to horizontal tail leading edge
+             \Delta x_{{trail}_h} : 36.07  [m] Distance from CG to horizontal tail trailing edge
+                           \alpha : 0.05971 Horizontal tail angle of attack
+                     \bar{c}_{ht} : 1.605  [m] Mean aerodynamic chord (ht)
                         \lambda_h : 0.2 Horizontal tail taper ratio
-                           \tau_h : 0.1494 Horizontal tail thickness/chord ratio
-                           b_{ht} : 10.89  [m] Horizontal tail span
-                       c_{root_h} : 2.217  [m] Horizontal tail root chord
-                        c_{tip_h} : 0.4434  [m] Horizontal tail tip chord
-                              e_h : 0.9737 Oswald efficiency factor
+                           \tau_h : 0.15 Horizontal tail thickness/chord ratio
+                           b_{ht} : 10.95  [m] Horizontal tail span
+                       c_{root_h} : 2.33  [m] Horizontal tail root chord
+                        c_{tip_h} : 0.4661  [m] Horizontal tail tip chord
+                              e_h : 0.9748 Oswald efficiency factor
                      f(\lambda_h) : 0.0033 Empirical efficiency function of taper
-                              l_h : 35.93  [m] Horizontal tail moment arm
+                              l_h : 35.94  [m] Horizontal tail moment arm
                            p_{ht} : 1.4 Substituted variable = 1 + 2*taper
                            q_{ht} : 1.2 Substituted variable = 1 + taper
-                 y_{\bar{c}_{ht}} : 3.112  [m] Vertical location of mean aerodynamic chord
+                 y_{\bar{c}_{ht}} : 3.128  [m] Vertical location of mean aerodynamic chord
                                     
             LandingGear, Aircraft | 
-                                B : 15.72  [m] Landing gear base
+                                B : 15.75  [m] Landing gear base
                          E_{land} : 3.809e+05  [J] Max KE to be absorbed in landing
                           F_{w_m} : 7159 Weight factor (main)
                           F_{w_n} : 643.7 Weight factor (nose)
-                              I_m : 7.211e-06  [m**4] Area moment of inertia (main strut)
-                              I_n : 1.167e-06  [m**4] Area moment of inertia (nose strut)
+                              I_m : 7.177e-06  [m**4] Area moment of inertia (main strut)
+                              I_n : 1.163e-06  [m**4] Area moment of inertia (nose strut)
                               L_m : 6.435e+05  [N] Max static load through main gear
                               L_n : 1.609e+05  [N] Min static load through nose gear
-                      L_{n_{dyn}} : 6.947e+04  [N] Dyn. braking load, nose gear
+                      L_{n_{dyn}} : 6.929e+04  [N] Dyn. braking load, nose gear
                           L_{w_m} : 1.609e+05  [N] Static load per wheel (main)
                           L_{w_n} : 8.044e+04  [N] Static load per wheel (nose)
                              S_sa : 0.2959  [m] Stroke of the shock absorber
-                                T : 5.791  [m] Main landing gear track
-                           W_{mg} : 1.709e+04  [N] Weight of main gear
-                           W_{ms} : 2601  [N] Weight of main struts
+                                T : 5.662  [m] Main landing gear track
+                           W_{mg} : 1.694e+04  [N] Weight of main gear
+                           W_{ms} : 2528  [N] Weight of main struts
                            W_{mw} : 2377  [N] Weight of main wheels (per strut)
                            W_{ng} : 1493  [N] Weight of nose gear
-                           W_{ns} : 122.9  [N] Weight of nose strut
+                           W_{ns} : 122.8  [N] Weight of nose strut
                            W_{nw} : 548.1  [N] Weight of nose wheels (total)
                          W_{wa,m} : 267.2  [lbf] Wheel assembly weight for single main gear wheel
                          W_{wa,n} : 61.61  [lbf] Wheel assembly weight for single nose gear wheel
-                       \Delta x_m : 3.145  [m] Distance b/w main gear and CG
-                       \Delta x_n : 12.58  [m] Distance b/w nose gear and CG
+                       \Delta x_m : 3.149  [m] Distance b/w main gear and CG
+                       \Delta x_n : 12.6  [m] Distance b/w nose gear and CG
                        \tan(\phi) : 0.2679 Angle b/w main gear and CG
                        \tan(\psi) : 1.963 Tip over angles
                       d_{nacelle} : 2.05  [m] Nacelle diameter
                          d_{oleo} : 0.3735  [m] Diameter of oleo shock absorber
                           d_{t_m} : 44.5  [in] Diameter of main gear tires
                           d_{t_n} : 35.6  [in] Diameter of nose gear tires
-                              l_m : 2.381  [m] Length of main gear
+                              l_m : 2.375  [m] Length of main gear
                               l_n : 1.627  [m] Length of nose gear
                          l_{oleo} : 0.7399  [m] Length of oleo shock absorber
-                              r_m : 0.03188  [m] Radius of main gear struts
-                              r_n : 0.04879  [m] Radius of nose gear struts
-                              t_m : 0.07082  [m] Thickness of main gear strut wall
-                              t_n : 0.003197  [m] Thickness of nose gear strut wall
+                              r_m : 0.03222  [m] Radius of main gear struts
+                              r_n : 0.04872  [m] Radius of nose gear struts
+                              t_m : 0.06828  [m] Thickness of main gear strut wall
+                              t_n : 0.003199  [m] Thickness of nose gear strut wall
                           w_{t_m} : 0.4088  [m] Width of main tires
                           w_{t_n} : 0.327  [m] Width of nose tires
-                              x_m : 20.72  [m] x-location of main gear
+                              x_m : 20.75  [m] x-location of main gear
                               x_n : 5  [m] x-location of nose gear
-                              y_m : 2.896  [m] y-location of main gear (symmetric)
+                              y_m : 2.831  [m] y-location of main gear (symmetric)
                                     
            VerticalTail, Aircraft | 
                           A_{fan} : 2.405  [m**2] Engine reference area
-                           A_{vt} : 0.7549 Vertical tail aspect ratio
-                      C_{D_{vis}} : 0.004775 Viscous drag coefficient
-                       C_{L_{vt}} : 0.3957 Vertical tail lift coefficient
+                           A_{vt} : 0.7302 Vertical tail aspect ratio
+                      C_{D_{vis}} : 0.004781 Viscous drag coefficient
+                       C_{L_{vt}} : 0.3929 Vertical tail lift coefficient
                            D_{wm} : 3112  [N] Engine out windmill drag
-                     L_{max_{vt}} : 1.419e+06  [N] Maximum load for structural sizing
-                           L_{vt} : 2.199e+04  [N] Vertical tail lift in engine out
-                          Re_{vt} : 4.334e+07 Vertical tail reynolds number, cruise
-                                S : 42.96  [m**2] Vertical tail reference area (full)
-                           S_{vt} : 21.48  [m**2] Vertical tail ref. area (half)
-                       W_{struct} : 5012  [N] Full span weight
-                  \Delta x_{lead} : 26.39  [m] Distance from CG to vertical tail leading edge
-                 \Delta x_{trail} : 35.96  [m] Distance from CG to vertical tail trailing edge
-                     \bar{c}_{vt} : 6.824  [m] Vertical tail mean aero chord
+                     L_{max_{vt}} : 1.426e+06  [N] Maximum load for structural sizing
+                           L_{vt} : 2.196e+04  [N] Vertical tail lift in engine out
+                          Re_{vt} : 4.312e+07 Vertical tail reynolds number, cruise
+                                S : 43.18  [m**2] Vertical tail reference area (full)
+                           S_{vt} : 21.59  [m**2] Vertical tail ref. area (half)
+                       W_{struct} : 4801  [N] Full span weight
+                  \Delta x_{lead} : 26.44  [m] Distance from CG to vertical tail leading edge
+                 \Delta x_{trail} : 36.07  [m] Distance from CG to vertical tail trailing edge
+                     \bar{c}_{vt} : 6.858  [m] Vertical tail mean aero chord
                      \lambda_{vt} : 0.3 Vertical tail taper ratio
-                        \tau_{vt} : 0.09822 Vertical tail thickness/chord ratio
-                                b : 8.053  [m] Span
-                    c_{root_{vt}} : 9.574  [m] Vertical tail root chord
-                     c_{tip_{vt}} : 2.872  [m] Vertical tail tip chord
-                           l_{vt} : 29.01  [m] Vertical tail moment arm
+                        \tau_{vt} : 0.09934 Vertical tail thickness/chord ratio
+                                b : 7.942  [m] Span
+                    c_{root_{vt}} : 9.621  [m] Vertical tail root chord
+                     c_{tip_{vt}} : 2.886  [m] Vertical tail tip chord
+                           l_{vt} : 29.06  [m] Vertical tail moment arm
                            p_{vt} : 1.6 Substituted variable = 1 + 2*taper
                            q_{vt} : 1.3 Substituted variable = 1 + taper
-                 z_{\bar{c}_{vt}} : 1.091  [m] Vertical location of mean aerodynamic chord
+                 z_{\bar{c}_{vt}} : 1.075  [m] Vertical location of mean aerodynamic chord
                                     
                    Wing, Aircraft | 
-                          C_{D_w} : 0.01697 Drag coefficient
-                      C_{D_{p_w}} : 0.005647 Wing parasitic drag coefficient
-                      L_{max_{w}} : 3.177e+06  [N] Maximum load
-                             Re_w : 2.352e+07 Cruise Reynolds number (wing)
-                    V_{fuel, max} : 97.14  [m**3] Available fuel volume
+                          C_{D_w} : 0.01677 Drag coefficient
+                      C_{D_{p_w}} : 0.005662 Wing parasitic drag coefficient
+                      L_{max_{w}} : 3.339e+06  [N] Maximum load
+                             Re_w : 2.423e+07 Cruise Reynolds number (wing)
+                    V_{fuel, max} : 98.61  [m**3] Available fuel volume
                          \alpha_w : 0.1 Wing angle of attack
               \bar{A}_{fuel, max} : 0.069 Non-dim. fuel area
                           \lambda : 0.2 Wing taper ratio
                            \tau_w : 0.15 Wing thickness/chord ratio
-                              b_w : 31.03  [m] Wing span
-                         c_{root} : 5.375  [m] Wing root chord
-                          c_{tip} : 1.075  [m] Wing tip chord
-                              e_w : 0.9692 Oswald efficiency factor
+                              b_w : 31.33  [m] Wing span
+                         c_{root} : 5.594  [m] Wing root chord
+                          c_{tip} : 1.119  [m] Wing tip chord
+                              e_w : 0.9701 Oswald efficiency factor
                      f(\lambda_w) : 0.0033 Empirical efficiency function of taper
                               p_w : 1.4 Substituted variable = 1 + 2*taper
                               q_w : 1.2 Substituted variable = 1 + taper
-                      y_{\bar{c}} : 8.865  [m] Spanwise location of mean aerodynamic chord
+                      y_{\bar{c}} : 8.952  [m] Spanwise location of mean aerodynamic chord
                                     
 WingBox, HorizontalTail, Aircraft | 
-                          I_{cap} : 2.779e-05 Non-dim spar cap area moment of inertia
-                              M_r : 2.285e+05  [N] Root moment per root chord
-                          W_{cap} : 3809  [N] Weight of spar caps
-                          W_{web} : 341.7  [N] Weight of shear web
+                          I_{cap} : 2.551e-05 Non-dim spar cap area moment of inertia
+                              M_r : 2.309e+05  [N] Root moment per root chord
+                          W_{cap} : 3813  [N] Weight of spar caps
+                          W_{web} : 362.9  [N] Weight of shear web
                               \nu : 0.8612 Dummy variable = $(t^2 + t + 1)/(t+1)$
-                          t_{cap} : 0.006498 Non-dim. spar cap thickness
-                          t_{web} : 0.002601 Non-dim. shear web thickness
+                          t_{cap} : 0.005856 Non-dim. spar cap thickness
+                          t_{web} : 0.002477 Non-dim. shear web thickness
                                     
   WingBox, VerticalTail, Aircraft | 
-                                A : 1.51 Aspect ratio
-                          I_{cap} : 8.329e-07 Non-dim spar cap area moment of inertia
-                              M_r : 1.428e+05  [N] Root moment per root chord
-                          W_{cap} : 2741  [N] Weight of spar caps
-                          W_{web} : 839.5  [N] Weight of shear web
+                                A : 1.46 Aspect ratio
+                          I_{cap} : 7.883e-07 Non-dim spar cap area moment of inertia
+                              M_r : 1.388e+05  [N] Root moment per root chord
+                          W_{cap} : 2597  [N] Weight of spar caps
+                          W_{web} : 832.3  [N] Weight of shear web
                               \nu : 0.8225 Dummy variable = $(t^2 + t + 1)/(t+1)$
-                          t_{cap} : 0.0004117 Non-dim. spar cap thickness
-                          t_{web} : 0.000856 Non-dim. shear web thickness
+                          t_{cap} : 0.0003807 Non-dim. spar cap thickness
+                          t_{web} : 0.0008188 Non-dim. shear web thickness
                                     
           WingBox, Wing, Aircraft | 
-                          I_{cap} : 3.704e-05 Non-dim spar cap area moment of inertia
-                              M_r : 1.783e+06  [N] Root moment per root chord
-                          W_{cap} : 8.771e+04  [N] Weight of spar caps
-                          W_{web} : 6464  [N] Weight of shear web
+                          I_{cap} : 3.486e-05 Non-dim spar cap area moment of inertia
+                              M_r : 1.818e+06  [N] Root moment per root chord
+                          W_{cap} : 8.94e+04  [N] Weight of spar caps
+                          W_{web} : 6860  [N] Weight of shear web
                               \nu : 0.8612 Dummy variable = $(t^2 + t + 1)/(t+1)$
-                          t_{cap} : 0.008936 Non-dim. spar cap thickness
-                          t_{web} : 0.002927 Non-dim. shear web thickness
+                          t_{cap} : 0.008327 Non-dim. spar cap thickness
+                          t_{web} : 0.00284 Non-dim. shear web thickness
 
 Constants
 ---------
                 Aircraft | 
              C_{L_{max}} : 2.5 Max lift coefficient
-                       M : 0.8 Mach number
+                       M : 0.78 Cruise Mach number
                 N_{lift} : 2 Wing loading multiplier
                    Range : 3000  [nmi] Range
                     TSFC : 0.3  [lb/hr/lbf] Thrust specific fuel consumption
                      T_e : 1.29e+05  [N] Engine thrust at takeoff
-              V_{\infty} : 234  [m/s] Freestream velocity
                   V_{ne} : 144  [m/s] Never exceed velocity
                  W_{eng} : 1e+04  [N] Engine weight
                      \mu : 1.4e-05  [N*s/m**2] Dynamic viscosity (35,000ft)
@@ -286,6 +286,7 @@ Constants
               \rho_{web} : 2700  [kg/m**3] Density of shear web material
       \sigma_{max,shear} : 1.67e+08  [Pa] Allowable shear stress
             \sigma_{max} : 2.5e+08  [Pa] Allowable tensile stress
+                       a : 297  [m/s] Speed of sound (35,000 ft)
                  d_{fan} : 1.75  [m] Fan diameter
                f_{w,add} : 0.4 Wing added weight fraction
                        g : 9.81  [m/s**2] Gravitational acceleration
@@ -377,7 +378,6 @@ HorizontalTail, Aircraft |
               C_{D_{wm}} : 0.5 Windmill drag coefficient
             C_{L_{vmax}} : 2.6 Max lift coefficient
                      V_1 : 65  [m/s] Minimum takeoff velocity
-                     V_c : 234  [m/s] Cruise velocity
                   \rho_c : 0.38  [kg/m**3] Air density (35,000ft)
                \rho_{TO} : 1.225  [kg/m**3] Air density (SL))
       \tan(\Lambda_{LE}) : 0.8391 Tangent of leading edge sweep (40 deg)
@@ -395,83 +395,82 @@ HorizontalTail, Aircraft |
 Sensitivities
 -------------
           Wing, Aircraft | 
-            C_{L_{wmax}} : 0.3073 Lift coefficient (wing)
-           \tan(\Lambda) : 0.06292 tangent of wing sweep
-                  \eta_w : -0.1309 Lift efficiency (diff b/w sectional, actual lift)
-          \alpha_{max,w} : -0.2233 Max angle of attack
+            C_{L_{wmax}} : 0.3171 Lift coefficient (wing)
+           \tan(\Lambda) : 0.06784 tangent of wing sweep
+                  \eta_w : -0.1475 Lift efficiency (diff b/w sectional, actual lift)
+          \alpha_{max,w} : -0.2492 Max angle of attack
                            
   VerticalTail, Aircraft | 
-                     V_c : 0.07281 Cruise velocity
-                  \rho_c : 0.03653 Air density (35,000ft)
-            C_{L_{vmax}} : 0.02428 Max lift coefficient
-                       e : -0.01492 Span efficiency of vertical tail
-               \rho_{TO} : -0.04555 Air density (SL))
-              c_{l_{vt}} : -0.0566 Sectional lift force coefficient (engine out)
-                     V_1 : -0.1397 Minimum takeoff velocity
+                  \rho_c : 0.03597 Air density (35,000ft)
+            C_{L_{vmax}} : 0.02581 Max lift coefficient
+                       e : -0.01568 Span efficiency of vertical tail
+               \rho_{TO} : -0.04572 Air density (SL))
+              c_{l_{vt}} : -0.05757 Sectional lift force coefficient (engine out)
+                     V_1 : -0.1431 Minimum takeoff velocity
                            
    LandingGear, Aircraft | 
-              W_{0_{lg}} : 0.1603 Weight of aircraft excluding landing gear
-       \tan(\theta_{TO}) : 0.03133 Takeoff pitch angle
-                       K : 0.02086 Column effective length factor
-               f_{add,m} : 0.01429 Proportional added weight, main
-               \rho_{st} : 0.01067 Density of 4340 Steel
-                       E : -0.01043 Modulus of elasticity, 4340 steel
-                  n_{mg} : -0.1137 Number of main gear struts
-                 n_{wps} : -0.1231 Number of wheels per strut
+              W_{0_{lg}} : 0.1588 Weight of aircraft excluding landing gear
+       \tan(\theta_{TO}) : 0.02527 Takeoff pitch angle
+                       K : 0.02077 Column effective length factor
+               f_{add,m} : 0.01464 Proportional added weight, main
+               \rho_{st} : 0.01063 Density of 4340 Steel
+                       E : -0.01038 Modulus of elasticity, 4340 steel
+                  n_{mg} : -0.1117 Number of main gear struts
+                 n_{wps} : -0.121 Number of wheels per strut
                            
 HorizontalTail, Aircraft | 
-              \Delta x_w : 0.04478 Distance from aerodynamic centre to CG
-            C_{L_{hmax}} : 0.01292 Max lift coefficient
-         \tan(\Lambda_h) : 0.01043 tangent of horizontal tail sweep
-                  \eta_h : -0.02705 Lift efficiency (diff between sectional and actual lift)
-               \eta_{ht} : -0.03724 Tail efficiency
+              \Delta x_w : 0.04763 Distance from aerodynamic centre to CG
+            C_{L_{hmax}} : 0.01367 Max lift coefficient
+         \tan(\Lambda_h) : 0.0104 tangent of horizontal tail sweep
+                  \eta_h : -0.02848 Lift efficiency (diff between sectional and actual lift)
+               \eta_{ht} : -0.03952 Tail efficiency
                            
       Fuselage, Aircraft | 
-                n_{seat} : 0.6902  Number of seats
-                      LF : 0.4494 Load factor
-           W_{avg. pass} : 0.3966 Average passenger weight
-                \Delta h : 0.3109 Distance from floor to widest part of fuselage
-           \rho_{\infty} : 0.3075 Air density (35,000ft)
-                     p_s : 0.1823 Seat pitch
-                f_{padd} : 0.1296 Other misc weight as fraction of payload weight
-               W'_{seat} : 0.0584 Weight per seat
-             W_{checked} : 0.05287 Ave. checked bag weight
-              f_{lugg,1} : 0.03525 Proportion of passengers with one suitcase
-             \rho_{skin} : 0.03445 Skin density
-                \Delta p : 0.03445 Pressure difference across fuselage skin
-               W_{cargo} : 0.02965 Cargo weight
-                 W_{fix} : 0.0267 Fixed weights (pilots, cockpit seats, navcom)
-             W'_{window} : 0.02128 Weight/length density of windows
-             \rho_{cone} : 0.01922 Cone material density
-              f_{lugg,2} : 0.01762 Proportion of passengers with two suitcases
-                N_{land} : 0.01686 Emergency landing load factor
-            \rho_{floor} : 0.01686 Floor material density
-                 f_{apu} : 0.01136 APU weight as fraction of payload weight
-             W''_{floor} : 0.01123 Floor weight/area density
-              f_{string} : 0.01044 Fractional weight of stringers
-          \sigma_{floor} : -0.01613 Max allowable cap stress
-           \sigma_{skin} : -0.05367 Max allowable skin stress
-                     SPR : -0.1823 Number of seats per row
+                n_{seat} : 0.6904  Number of seats
+                      LF : 0.4588 Load factor
+           W_{avg. pass} : 0.4049 Average passenger weight
+                \Delta h : 0.3059 Distance from floor to widest part of fuselage
+           \rho_{\infty} : 0.3019 Air density (35,000ft)
+                     p_s : 0.172 Seat pitch
+                f_{padd} : 0.1321 Other misc weight as fraction of payload weight
+               W'_{seat} : 0.05949 Weight per seat
+             W_{checked} : 0.05398 Ave. checked bag weight
+              f_{lugg,1} : 0.03599 Proportion of passengers with one suitcase
+             \rho_{skin} : 0.03507 Skin density
+                \Delta p : 0.03507 Pressure difference across fuselage skin
+               W_{cargo} : 0.03027 Cargo weight
+                 W_{fix} : 0.02619 Fixed weights (pilots, cockpit seats, navcom)
+             W'_{window} : 0.02169 Weight/length density of windows
+             \rho_{cone} : 0.02066 Cone material density
+              f_{lugg,2} : 0.01799 Proportion of passengers with two suitcases
+                N_{land} : 0.01692 Emergency landing load factor
+            \rho_{floor} : 0.01692 Floor material density
+                 f_{apu} : 0.01213 APU weight as fraction of payload weight
+             W''_{floor} : 0.01146 Floor weight/area density
+              f_{string} : 0.01084 Fractional weight of stringers
+          \sigma_{floor} : -0.01619 Max allowable cap stress
+           \sigma_{skin} : -0.05573 Max allowable skin stress
+                     SPR : -0.172 Number of seats per row
                            
                 Aircraft | 
-                       g : 1.417 Gravitational acceleration
-                    TSFC : 1.052 Thrust specific fuel consumption
-                   Range : 1.052 Range
-                  V_{ne} : 0.689 Never exceed velocity
-                N_{lift} : 0.3253 Wing loading multiplier
-                  \rho_0 : 0.3202 Air density (0 ft)
-              \rho_{cap} : 0.2607 Density of spar cap material
-               f_{w,add} : 0.08028 Wing added weight fraction
-                 y_{eng} : 0.07146 Engine moment arm
-                     T_e : 0.06984 Engine thrust at takeoff
-                     \mu : 0.04583 Dynamic viscosity (35,000ft)
-                     r_h : 0.02028 Fractional wing thickness at spar web
-              \rho_{web} : 0.02028 Density of shear web material
-                 W_{eng} : 0.02005 Engine weight
-      \sigma_{max,shear} : -0.02028 Allowable shear stress
-                       w : -0.0443 Wingbox-width-to-chord ratio
-                       M : -0.1458 Mach number
-            \sigma_{max} : -0.305 Allowable tensile stress
-                    \rho : -0.3935 Air density (35,000 ft)
-              V_{\infty} : -1.173 Freestream velocity
+                       g : 1.436 Gravitational acceleration
+                    TSFC : 1.055 Thrust specific fuel consumption
+                   Range : 1.055 Range
+                  V_{ne} : 0.7132 Never exceed velocity
+                N_{lift} : 0.3359 Wing loading multiplier
+                  \rho_0 : 0.3308 Air density (0 ft)
+              \rho_{cap} : 0.2719 Density of spar cap material
+               f_{w,add} : 0.08398 Wing added weight fraction
+                 y_{eng} : 0.07207 Engine moment arm
+                     T_e : 0.07153 Engine thrust at takeoff
+                     \mu : 0.04277 Dynamic viscosity (35,000ft)
+                     r_h : 0.02202 Fractional wing thickness at spar web
+              \rho_{web} : 0.02202 Density of shear web material
+                 W_{eng} : 0.0205 Engine weight
+      \sigma_{max,shear} : -0.02202 Allowable shear stress
+                       w : -0.04202 Wingbox-width-to-chord ratio
+            \sigma_{max} : -0.3139 Allowable tensile stress
+                    \rho : -0.4117 Air density (35,000 ft)
+                       a : -1.155 Speed of sound (35,000 ft)
+                       M : -1.303 Cruise Mach number
 

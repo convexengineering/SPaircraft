@@ -39,7 +39,7 @@ class VerticalTail(CostedConstraintSet):
         Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail ref. area (half)')
         Te     = Variable('T_e', 'N', 'Thrust per engine at takeoff')
         V1     = Variable('V_1', 'm/s', 'Minimum takeoff velocity')
-        Vc     = Variable('V_c', 'm/s', 'Cruise velocity')
+        Vinf   = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
         Vne    = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         Wstruct= Variable('W_{struct}', 'N', 'Full span weight')
         Wvt    = Variable('W_{vt}', 'N', 'Vertical tail weight')
@@ -122,7 +122,7 @@ class VerticalTail(CostedConstraintSet):
                            # TODO: Constrain taper by tip Reynolds number
                            # source: b737.org.uk
 
-                           Dvt >= 0.5*rho_c*Vc**2*Svt*CDvis,
+                           Dvt >= 0.5*rho_c*Vinf**2*Svt*CDvis,
                            CDvis**0.125 >= 0.19*(tau)**0.0075 *(Rec)**0.0017
                                         + 1.83e+04*(tau)**3.54*(Rec)**-0.494
                                         + 0.118*(tau)**0.0082 *(Rec)**0.00165
@@ -130,7 +130,7 @@ class VerticalTail(CostedConstraintSet):
                            # Vertical tail viscous drag in cruise
                            # Data fit from Xfoil
 
-                           Rec == rho_c*Vc*cma/mu,
+                           Rec == rho_c*Vinf*cma/mu,
                            # Cruise Reynolds number
 
                            S == Svt*2,
@@ -176,7 +176,7 @@ class VerticalTail(CostedConstraintSet):
                          'C_{L_{vmax}}': 2.6, # [2]
                          'T_e': 1.29e5, # [4]
                          'V_1': 65,
-                         'V_c': 234, # [7]
+                         'V_{\\infty}': 234, # [7]
                          'V_{ne}': 144, # [2]
                          '\\mu': 1.4e-5, # [5]
                          '\\rho_c': 0.38, # [6]
@@ -209,7 +209,7 @@ class VerticalTail(CostedConstraintSet):
         constraints = ccs + ccs.CG_constraint + ccs.linking_constraints
 
         dsubs = ccs.default737subs()
-        linkedsubs = ['l_{fuse}', 'x_{CG}']
+        linkedsubs = ['V_{\\infty}', 'l_{fuse}', 'x_{CG}']
         substitutions = {key: value for key, value in dsubs.items()
                                     if key not in linkedsubs}
 

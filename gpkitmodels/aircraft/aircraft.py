@@ -28,6 +28,7 @@ class Aircraft(Model):
         LD     = Variable('\\frac{L}{D}', '-', 'Lift/drag ratio')
         Lh     = Variable('L_h', 'N', 'Horizontal tail downforce')
         Lw     = Variable('L_w', 'N', 'Wing lift')
+        M      = Variable('M', '-', 'Cruise Mach number')
         R      = Variable('Range', 'nautical_miles', 'Range')
         Sw     = Variable('S_w', 'm**2', 'Wing reference area')
         Te     = Variable('T_e', 'N', 'Engine thrust at takeoff')
@@ -44,7 +45,8 @@ class Aircraft(Model):
         Wpay   = Variable('W_{pay}', 'N', 'Payload weight')
         Wvt    = Variable('W_{vt}', 'N', 'Vertical tail weight')
         Wwing  = Variable('W_{wing}', 'N', 'Wing weight')
-        Wzf     = Variable('W_{zf}', 'N', 'Zero fuel weight')
+        Wzf    = Variable('W_{zf}', 'N', 'Zero fuel weight')
+        a      = Variable('a', 'm/s', 'Speed of sound (35,000 ft)')
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         lr     = Variable('l_r', 5000, 'ft', 'Runway length')
         rho    = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
@@ -65,14 +67,16 @@ class Aircraft(Model):
         with SignomialsEnabled():
 
             objective = Wfuel
-            hlc = [# High level constraints
 
+            # High level constraints
+            hlc = [
                    # Drag and weight buildup
                    D >= Dvt + Dfuse       + Dwing + Dht,
                    Wzf >= Wvt + Wfuse + Wlg + Wwing + Wht + Weng + Wpay,
                    W >= Wzf + Wfuel,
 
                    # Range equation for a jet
+                   V == M*a,
                    D == 0.5*rho*V**2*Sw*CD,
                    W == 0.5*rho*V**2*Sw*CL,
                    LD == CL/CD,
@@ -106,10 +110,11 @@ class Aircraft(Model):
 
         substitutions = {
                          'C_{L_{max}}': 2.5,
+                         'M': 0.78,
                          'Range': 3000,
                          'TSFC': 0.3,
-                         'V_{\\infty}': 234,
                          'W_{eng}': 10000,
+                         'a': 297,
                         }
 
         lc = LinkedConstraintSet([hlc, vt, fu, lg, ht, wi],

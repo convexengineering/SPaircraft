@@ -35,7 +35,7 @@ class HorizontalTail(CostedConstraintSet):
                            'Empirical factor for fuselage-wing interference')
         Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
         Lmax    = Variable('L_{{max}_h}', 'N', 'Maximum load')
-        M       = Variable('M', '-', 'Mach number')
+        M       = Variable('M', '-', 'Cruise Mach number')
         Rec     = Variable('Re_{c_h}', '-',
                            'Cruise Reynolds number (Horizontal tail)')
         SM      = Variable('S.M.', '-', 'Stability margin')
@@ -45,6 +45,7 @@ class HorizontalTail(CostedConstraintSet):
         Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
         Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         W       = Variable('W_{ht}', 'N', 'Horizontal tail weight')
+        a       = Variable('a', 'm/s', 'Speed of sound (35,000 ft)')
         alpha   = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
         amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack, htail')
         bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
@@ -148,13 +149,16 @@ class HorizontalTail(CostedConstraintSet):
                            taper >= 0.2, # TODO: make less arbitrary
 
                            Lmax == 0.5*rho0*Vne**2*Sh*CLhmax,
-
-                           # TODO: add correction due to wing downwash (kroo)
                           ]
+
+        standalone_constraints = [M == Vinf/a,
+                                 ]
 
         CG_constraint = [TCS([xcght >= xcg+(dxlead+dxtrail)/2]),
                          xcght <= lfuse
                         ]
+
+        self.standalone_constraints = standalone_constraints
         self.CG_constraint = CG_constraint
 
         wb = WingBox()
@@ -180,10 +184,9 @@ class HorizontalTail(CostedConstraintSet):
                          'C_{L_{aw}}': 2*pi,
                          'C_{L_{hmax}}': 2.6,
                          'C_{m_{fuse}}': 0.05, # [1]
-                         'M': 0.8,
+                         'M': 0.78,
                          'S.M._{min}': 0.05,
                          'S_w': 125,
-                         'V_{\\infty}': 240,
                          'V_{ne}': 144,
                          '\\Delta x_w': 2,
                          '\\alpha_{max,h}': 0.1, # (6 deg)
@@ -194,6 +197,7 @@ class HorizontalTail(CostedConstraintSet):
                          '\\rho': 0.38,
                          '\\rho_0': 1.225,
                          '\\tan(\\Lambda_h)': tan(30*pi/180),
+                         'a': 297,
                          'l_{fuse}': 40,
                          'w_{fuse}': 6,
                          'x_{CG}': 20,
@@ -206,9 +210,11 @@ class HorizontalTail(CostedConstraintSet):
 
         ccs = cls()
 
+        constraints = ccs + ccs.standalone_constraints
+
         substitutions = ccs.default737subs()
 
-        m = Model(ccs.cost, ccs, substitutions)
+        m = Model(ccs.cost, constraints, substitutions)
         return m
 
     @classmethod
@@ -219,7 +225,7 @@ class HorizontalTail(CostedConstraintSet):
         constraints = ccs + ccs.CG_constraint
 
         dsubs = ccs.default737subs()
-        linkedsubs = ['AR', 'C_{L_w}', 'C_{L_{aw}}', 'S_w', 'V_{\\infty}',
+        linkedsubs = ['AR', 'C_{L_w}', 'C_{L_{aw}}', 'M', 'S_w',
                       '\\bar{c}_{wing}', 'l_{fuse}', 'w_{fuse}', 'x_{CG}']
         substitutions = {key: value for key, value in dsubs.items()
                                     if key not in linkedsubs}
