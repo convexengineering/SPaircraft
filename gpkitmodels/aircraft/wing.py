@@ -21,6 +21,7 @@ class Wing(CostedConstraintSet):
         D       = Variable('D_{wing}', 'N', 'Wing drag')
         Lmax    = Variable('L_{max_{w}}', 'N', 'Maximum load')
         Lw      = Variable('L_w', 'N', 'Wing lift')
+        M       = Variable('M', '-', 'Mach number')
         Re      = Variable('Re_w', '-', 'Cruise Reynolds number (wing)')
         Sw      = Variable('S_w', 'm^2', 'Wing area')
         Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
@@ -77,7 +78,7 @@ class Wing(CostedConstraintSet):
                            TCS([Sw <= b*(croot + ctip)/2], reltol=1E-2), # [SP]
 
                            # DATCOM formula (Mach number makes it SP)
-                           TCS([(AR/eta)**2 * (1 + tanL**2) + 8*pi*AR/CLaw
+                           TCS([(AR/eta)**2*(1 + tanL**2 - M**2) + 8*pi*AR/CLaw
                                 <= (2*pi*AR/CLaw)**2]),
                            CLw == CLaw*alpha,
                            alpha <= amax,
@@ -138,6 +139,7 @@ class Wing(CostedConstraintSet):
 
         substitutions = {
                          'C_{L_{wmax}}': 2.5,
+                         'M': 0.80,
                          'V_{\\infty}': 240,
                          'V_{ne}': 144,
                          'W_0': 5E5,

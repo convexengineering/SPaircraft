@@ -9,13 +9,20 @@ from wingbox import WingBox
 class HorizontalTail(CostedConstraintSet):
     """
     Horizontal tail sizing
+
+    References:
+    [1] TASOPT code
+    [2] http://adg.stanford.edu/aa241/stability/staticstability.html
     """
     def __init__(self, **kwargs):
         ARh     = Variable('AR_h', '-', 'Horizontal tail aspect ratio')
+        ARw     = Variable('AR', '-', 'Wing aspect ratio')
         CD0h    = Variable('C_{D_{0_h}}', '-',
                            'Horizontal tail parasitic drag coefficient')
         CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
         CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
+        CLah0   = Variable('C_{L_{ah_0}}', '-',
+                           'Isolated lift curve slope (htail)')
         CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
         CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
         CLhmax  = Variable('C_{L_{hmax}}', '-', 'Max lift coefficient')
@@ -28,6 +35,7 @@ class HorizontalTail(CostedConstraintSet):
                            'Empirical factor for fuselage-wing interference')
         Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
         Lmax    = Variable('L_{{max}_h}', 'N', 'Maximum load')
+        M       = Variable('M', '-', 'Mach number')
         Rec     = Variable('Re_{c_h}', '-',
                            'Cruise Reynolds number (Horizontal tail)')
         SM      = Variable('S.M.', '-', 'Stability margin')
@@ -38,7 +46,7 @@ class HorizontalTail(CostedConstraintSet):
         Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         W       = Variable('W_{ht}', 'N', 'Horizontal tail weight')
         alpha   = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
-        amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack (htail)')
+        amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack, htail')
         bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
         chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
         croot   = Variable('c_{root_h}', 'm', 'Horizontal tail root chord')
@@ -55,6 +63,7 @@ class HorizontalTail(CostedConstraintSet):
         eta     = Variable('\\eta_h', '-',
                            ("Lift efficiency (diff between sectional and "
                             "actual lift)"))
+        etaht   = Variable('\\eta_{ht}', '-', 'Tail efficiency')
         fl      = Variable(r"f(\lambda_h)", '-',
                            'Empirical efficiency function of taper')
         lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
@@ -103,8 +112,10 @@ class HorizontalTail(CostedConstraintSet):
                            TCS([Sh <= bht*(croot + ctip)/2]), # [SP]
 
                            # DATCOM formula (Mach number makes it SP)
-                           TCS([(ARh/eta)**2 * (1 + tanLh**2) + 8*pi*ARh/CLah
-                                <= (2*pi*ARh/CLah)**2]),
+                           TCS([(ARh/eta)**2*(1+tanLh**2-M**2) + 8*pi*ARh/CLah0
+                                <= (2*pi*ARh/CLah0)**2]),
+                           # Loss of tail effectiveness due to wing downwash
+                           CLah + (2*CLaw/(pi*ARw))*etaht*CLah0 <= CLah0*etaht,
                            CLh == CLah*alpha,
                            alpha <= amax,
 
@@ -163,13 +174,13 @@ class HorizontalTail(CostedConstraintSet):
 
     def default737subs(self):
 
-        # References
-        # [1] TASOPT code
         substitutions = {
+                         'AR': 9,
                          'C_{L_w}': 0.5,
                          'C_{L_{aw}}': 2*pi,
                          'C_{L_{hmax}}': 2.6,
                          'C_{m_{fuse}}': 0.05, # [1]
+                         'M': 0.8,
                          'S.M._{min}': 0.05,
                          'S_w': 125,
                          'V_{\\infty}': 240,
@@ -177,7 +188,8 @@ class HorizontalTail(CostedConstraintSet):
                          '\\Delta x_w': 2,
                          '\\alpha_{max,h}': 0.1, # (6 deg)
                          '\\bar{c}_{wing}': 5,
-                         '\\eta_h': 0.97,
+                         '\\eta_h': 0.97, # [2]
+                         '\\eta_{ht}': 0.9, # [2]
                          '\\mu': 1.4E-5,
                          '\\rho': 0.38,
                          '\\rho_0': 1.225,
@@ -207,7 +219,7 @@ class HorizontalTail(CostedConstraintSet):
         constraints = ccs + ccs.CG_constraint
 
         dsubs = ccs.default737subs()
-        linkedsubs = ['C_{L_w}', 'C_{L_{aw}}', 'S_w', 'V_{\\infty}',
+        linkedsubs = ['AR', 'C_{L_w}', 'C_{L_{aw}}', 'S_w', 'V_{\\infty}',
                       '\\bar{c}_{wing}', 'l_{fuse}', 'w_{fuse}', 'x_{CG}']
         substitutions = {key: value for key, value in dsubs.items()
                                     if key not in linkedsubs}

@@ -109,7 +109,7 @@ class LandingGear(CostedConstraintSet):
 
             constraints = [
                            # Track and Base geometry definitions
-                           TCS([l_n + zwing + y_m*tan_gam >= l_m]), # [SP]
+                           TCS([l_n+zwing+y_m*tan_gam>=l_m], reltol=1E-3), #[SP]
                            T == 2*y_m,
                            TCS([x_n + B <= x_m]),
                            x_n >= 5*units.m, # nose gear after nose
