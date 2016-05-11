@@ -69,7 +69,7 @@ class HorizontalTail(CostedConstraintSet):
                            'Empirical efficiency function of taper')
         lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
         lh      = Variable('l_h', 'm', 'Horizontal tail moment arm')
-        mu      = Variable(r'\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
+        mu      = Variable(r'\mu', 'N*s/m^2', 'Dynamic viscosity (35,000 ft)')
         p       = Variable('p_{ht}', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q_{ht}', '-', 'Substituted variable = 1 + taper')
         rho     = Variable(r'\rho', 'kg/m^3', 'Air density (35,000 ft)')
@@ -84,7 +84,7 @@ class HorizontalTail(CostedConstraintSet):
         xcght   = Variable('x_{CG_{ht}}', 'm', 'Horizontal tail CG location')
         xw      = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{\\bar{c}_{ht}}', 'm',
-                           'Vertical location of mean aerodynamic chord')
+                           'Spanwise location of mean aerodynamic chord')
 
         objective = D + 0.5*W
 

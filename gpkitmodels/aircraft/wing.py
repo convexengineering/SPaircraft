@@ -14,10 +14,10 @@ class Wing(CostedConstraintSet):
         AR      = Variable('AR', '-', 'Wing aspect ratio')
         CDp     = Variable('C_{D_{p_w}}', '-',
                            'Wing parasitic drag coefficient')
-        CDw     = Variable('C_{D_w}', '-', 'Drag coefficient')
-        CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
-        CLw     = Variable('C_{L_w}', '-', 'Lift coefficient (wing)')
-        CLwmax  = Variable('C_{L_{wmax}}', '-', 'Lift coefficient (wing)')
+        CDw     = Variable('C_{D_w}', '-', 'Drag coefficient, wing')
+        CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope, wing')
+        CLw     = Variable('C_{L_w}', '-', 'Lift coefficient, wing')
+        CLwmax  = Variable('C_{L_{wmax}}', '-', 'Max lift coefficient, wing')
         D       = Variable('D_{wing}', 'N', 'Wing drag')
         Lmax    = Variable('L_{max_{w}}', 'N', 'Maximum load')
         Lw      = Variable('L_w', 'N', 'Wing lift')
@@ -47,7 +47,7 @@ class Wing(CostedConstraintSet):
         fl      = Variable('f(\\lambda_w)', '-',
                            'Empirical efficiency function of taper')
         g       = Variable('g', 'm/s^2', 'Gravitational acceleration')
-        mu      = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
+        mu      = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000 ft)')
         p       = Variable('p_w', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q_w', '-', 'Substituted variable = 1 + taper')
         rho     = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')

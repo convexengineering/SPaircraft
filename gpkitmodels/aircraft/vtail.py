@@ -59,7 +59,7 @@ class VerticalTail(CostedConstraintSet):
         e      = Variable('e', '-', 'Span efficiency of vertical tail')
         lfuse  = Variable('l_{fuse}', 'm', 'Length of fuselage')
         lvt    = Variable('l_{vt}', 'm', 'Vertical tail moment arm')
-        mu     = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
+        mu     = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000 ft)')
         mu0    = Variable('\\mu_0', 1.8E-5, 'N*s/m^2', 'Dynamic viscosity (SL)')
         p      = Variable('p_{vt}', '-', 'Substituted variable = 1 + 2*taper')
         plamv  = Variable('p_{\\lambda_v}', '-',

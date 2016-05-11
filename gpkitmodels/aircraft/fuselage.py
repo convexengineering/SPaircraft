@@ -103,7 +103,7 @@ class Fuselage(CostedConstraintSet):
         lnose    = Variable('l_{nose}', 'm', 'Nose length')
         lshell   = Variable('l_{shell}', 'm', 'Shell length')
         mu       = Variable('\\mu', 1.4E-5, 'N*s/m^2',
-                            'Dynamic viscosity (35,000ft)')
+                            'Dynamic viscosity (35,000 ft)')
         npass    = Variable('n_{pass}', '-', 'Number of passengers')
         nrows    = Variable('n_{rows}', '-', 'Number of rows')
         nseat    = Variable('n_{seat}', '-',' Number of seats')
