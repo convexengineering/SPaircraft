@@ -35,6 +35,7 @@ class LandingGear(CostedConstraintSet):
         S_sa    = Variable('S_sa', 'm', 'Stroke of the shock absorber')
         S_t     = Variable('S_t', 'm', 'Tire deflection')
         T       = Variable('T', 'm', 'Main landing gear track')
+        W       = Variable('W', 'N', 'Total aircraft weight')
         WAWm    = Variable('W_{wa,m}', 'lbf',
                            'Wheel assembly weight for single main gear wheel')
         WAWn    = Variable('W_{wa,n}', 'lbf',
@@ -121,17 +122,17 @@ class LandingGear(CostedConstraintSet):
                            # TODO forward and aft CG
 
                            # Maximum static loads through main and nose gears
-                           L_n == W_0*dxm/B,
-                           L_m == W_0*dxn/B,
+                           L_n == W*dxm/B,
+                           L_m == W*dxn/B,
 
                            # Dynamic braking load through nose gear
                            # (assumes deceleration of 10 ft/s^2)
-                           L_n_dyn >= 0.31*((z_CG_0+l_m)/B)*W_0,
+                           L_n_dyn >= 0.31*((z_CG_0+l_m)/B)*W,
 
                            # For steering don't want too much or too little
                            # load on nose gear
-                           L_n/W_0 >= 0.05,
-                           L_n/W_0 <= 0.20,
+                           L_n/W >= 0.05,
+                           L_n/W <= 0.20,
 
                            # Longitudinal tip over (static)
                            x_m >= tan_phi*(z_CG_0+l_m) + xcg,
@@ -169,7 +170,7 @@ class LandingGear(CostedConstraintSet):
                            # sink rate of 10 feet per second at the maximum
                            # design landing weight
                            # Landing condition from Torenbeek p360
-                           Eland >= W_0/(2*g)*w_ult**2, # Torenbeek (10-26)
+                           Eland >= W/(2*g)*w_ult**2, # Torenbeek (10-26)
                            # S_t == 0.5*lam*Lwm/(p*(dtm*bt)**0.5), # (10-30)
                            S_sa == (1/eta_s)*(Eland/(L_m*lam)),# - eta_t*S_t),
                            # [SP] Torenbeek (10-28)
@@ -238,7 +239,8 @@ class LandingGear(CostedConstraintSet):
 
             standaloneCG = [
                            # CG location affected by landing gear position
-                           TCS([xcg*(W_0 + W_lg) <= W_0*xcg0 + W_ng*x_n + W_mg*x_m]),
+                           TCS([xcg*W <= W_0*xcg0 + W_ng*x_n + W_mg*x_m]),
+                           W >= W_0 + W_lg,
                            ]
 
             coupledCG = [
