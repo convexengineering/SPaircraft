@@ -27,11 +27,11 @@ class Fuselage(CostedConstraintSet):
         Qv       = Variable('Q_v', 'N*m', 'Torsion moment imparted by tail')
         R        = Variable('R', 287, 'J/(kg*K)', 'Universal gas constant')
         Rfuse    = Variable('R_{fuse}', 'm', 'Fuselage radius')
-        SPR      = Variable('SPR', 6, '-', 'Number of seats per row')
+        SPR      = Variable('SPR', '-', 'Number of seats per row')
         Sbulk    = Variable('S_{bulk}', 'm^2', 'Bulkhead surface area')
         Sfloor   = Variable('S_{floor}', 'N', 'Maximum shear in floor beams')
         Snose    = Variable('S_{nose}', 'm^2', 'Nose surface area')
-        Tcabin   = Variable('T_{cabin}', 300, 'K', 'Cabin temperature')
+        Tcabin   = Variable('T_{cabin}', 'K', 'Cabin temperature')
         Vbulk    = Variable('V_{bulk}', 'm^3', 'Bulkhead skin volume')
         Vcabin   = Variable('V_{cabin}', 'm^3', 'Cabin volume')
         Vcargo   = Variable('V_{cargo}', 'm^3', 'Cargo volume')
@@ -43,14 +43,13 @@ class Fuselage(CostedConstraintSet):
         Vlugg    = Variable('V_{lugg}', 'm^3', 'Luggage volume')
         Vnose    = Variable('V_{nose}', 'm^3', 'Nose skin volume')
         Wapu     = Variable('W_{apu}', 'N', 'APU weight')
-        Wavgpass = Variable('W_{avg. pass}', 180, 'lbf',
-                            'Average passenger weight')
+        Wavgpass = Variable('W_{avg. pass}', 'lbf', 'Average passenger weight')
         Wbuoy    = Variable('W_{buoy}', 'N', 'Buoyancy weight')
-        Wcargo   = Variable('W_{cargo}', 10000, 'N', 'Cargo weight')
-        Wcarryon = Variable('W_{carry on}', 15, 'lbf', 'Ave. carry-on weight')
-        Wchecked = Variable('W_{checked}', 40, 'lbf', 'Ave. checked bag weight')
+        Wcargo   = Variable('W_{cargo}', 'N', 'Cargo weight')
+        Wcarryon = Variable('W_{carry on}', 'lbf', 'Ave. carry-on weight')
+        Wchecked = Variable('W_{checked}', 'lbf', 'Ave. checked bag weight')
         Wcone    = Variable('W_{cone}', 'N', 'Cone weight')
-        Wfix     = Variable('W_{fix}', 3000, 'lbf',
+        Wfix     = Variable('W_{fix}', 'lbf',
                             'Fixed weights (pilots, cockpit seats, navcom)')
         Wfloor   = Variable('W_{floor}', 'N', 'Floor weight')
         Wfuse    = Variable('W_{fuse}', 'N', 'Fuselage weight')
@@ -60,12 +59,12 @@ class Fuselage(CostedConstraintSet):
                             'Misc weights (galley, toilets, doors etc.)')
         Wpass    = Variable('W_{pass}', 'N', 'Passenger weight')
         Wpay     = Variable('W_{pay}', 'N', 'Payload weight')
-        Wppfloor = Variable('W\'\'_{floor}', 60, 'N/m^2',
+        Wppfloor = Variable('W\'\'_{floor}', 'N/m^2',
                             'Floor weight/area density')
-        Wppinsul = Variable('W\'\'_{insul}', 22, 'N/m^2',
+        Wppinsul = Variable('W\'\'_{insul}', 'N/m^2',
                             'Weight/area density of insulation material')
-        Wpseat   = Variable('W\'_{seat}', 150, 'N', 'Weight per seat')
-        Wpwindow = Variable('W\'_{window}', 145.*3, 'N/m',
+        Wpseat   = Variable('W\'_{seat}', 'N', 'Weight per seat')
+        Wpwindow = Variable('W\'_{window}', 'N/m',
                             'Weight/length density of windows')
         Wseat    = Variable('W_{seat}', 'N', 'Seating weight')
         Wshell   = Variable('W_{shell}', 'N', 'Shell weight')
@@ -102,8 +101,7 @@ class Fuselage(CostedConstraintSet):
         lfuse    = Variable('l_{fuse}', 'm', 'Fuselage length')
         lnose    = Variable('l_{nose}', 'm', 'Nose length')
         lshell   = Variable('l_{shell}', 'm', 'Shell length')
-        mu       = Variable('\\mu', 1.4E-5, 'N*s/m^2',
-                            'Dynamic viscosity (35,000 ft)')
+        mu       = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000 ft)')
         npass    = Variable('n_{pass}', '-', 'Number of passengers')
         nrows    = Variable('n_{rows}', '-', 'Number of rows')
         nseat    = Variable('n_{seat}', '-',' Number of seats')
@@ -112,34 +110,34 @@ class Fuselage(CostedConstraintSet):
         pitch    = Variable('p_s', 'in', 'Seat pitch')
         plamv    = Variable('p_{\\lambda_v}', '-', '1 + 2*Tail taper ratio')
         rE       = Variable('r_E', '-', 'Ratio of stringer/skin moduli')
-        rhobend  = Variable('\\rho_{bend}', 2700, 'kg/m^3', 'Stringer density')
+        rhobend  = Variable('\\rho_{bend}', 'kg/m^3', 'Stringer density')
         rhocabin = Variable('\\rho_{cabin}', 'kg/m^3', 'Air density in cabin')
-        rhocargo = Variable('\\rho_{cargo}', 150, 'kg/m^3', 'Cargo density')
-        rhocone  = Variable('\\rho_{cone}', 2700, 'kg/m^3',
+        rhocargo = Variable('\\rho_{cargo}', 'kg/m^3', 'Cargo density')
+        rhocone  = Variable('\\rho_{cone}', 'kg/m^3',
                             'Cone material density')
-        rhofloor = Variable('\\rho_{floor}', 2700, 'kg/m^3',
+        rhofloor = Variable('\\rho_{floor}', 'kg/m^3',
                             'Floor material density')
-        rhoinf   = Variable('\\rho_{\\infty}', 0.38, 'kg/m^3',
+        rhoinf   = Variable('\\rho_{\\infty}', 'kg/m^3',
                             'Air density (35,000ft)')
-        rholugg  = Variable('\\rho_{lugg}', 100, 'kg/m^3', 'Luggage density')
-        rhoskin  = Variable('\\rho_{skin}', 2700, 'kg/m^3', 'Skin density')
-        sigfloor = Variable('\\sigma_{floor}', 30000/0.000145, 'N/m^2',
+        rholugg  = Variable('\\rho_{lugg}', 'kg/m^3', 'Luggage density')
+        rhoskin  = Variable('\\rho_{skin}', 'kg/m^3', 'Skin density')
+        sigfloor = Variable('\\sigma_{floor}', 'N/m^2',
                             'Max allowable cap stress')
-        sigskin  = Variable('\\sigma_{skin}', 15000/0.000145, 'N/m^2',
+        sigskin  = Variable('\\sigma_{skin}', 'N/m^2',
                             'Max allowable skin stress')
         sigth    = Variable('\\sigma_{\\theta}', 'N/m^2', 'Skin hoop stress')
         sigx     = Variable('\\sigma_x', 'N/m^2', 'Axial stress in skin')
         taucone  = Variable('\\tau_{cone}', 'N/m^2', 'Shear stress in cone')
-        taufloor = Variable('\\tau_{floor}', 30000/0.000145, 'N/m^2',
+        taufloor = Variable('\\tau_{floor}', 'N/m^2',
                             'Max allowable shear web stress')
         tcone    = Variable('t_{cone}', 'm', 'Cone thickness')
         tshell   = Variable('t_{shell}', 'm', 'Shell thickness')
         tskin    = Variable('t_{skin}', 'm', 'Skin thickness')
-        waisle   = Variable('w_{aisle}', 0.51, 'm', 'Aisle width')
+        waisle   = Variable('w_{aisle}', 'm', 'Aisle width')
         wfloor   = Variable('w_{floor}', 'm', 'Floor width')
         wfuse    = Variable('w_{fuse}', 'm', 'Fuselage width')
-        wseat    = Variable('w_{seat}', 0.5, 'm', 'Seat width')
-        wsys     = Variable('w_{sys}', 0.10, 'm',
+        wseat    = Variable('w_{seat}', 'm', 'Seat width')
+        wsys     = Variable('w_{sys}', 'm',
                             'Width between cabin and skin for systems')
         xCGfu    = Variable('x_{CG_{fu}}', 'm', 'x-location of fuselage CG')
         xVbulk   = Variable('xVbulk', 'm^4', 'Volume moment of bulkhead')
@@ -157,9 +155,9 @@ class Fuselage(CostedConstraintSet):
         xWskin   = Variable('xWskin', 'N*m', 'Mass moment of skin')
         xWwindow = Variable('xWwindow', 'N*m', 'Mass moment of windows')
         x_upswp  = Variable('x_{up}', 'm', 'Fuselage upsweep point')
-        xapu     = Variable('xapu', 120, 'ft', 'x-location of APU')
+        xapu     = Variable('xapu', 'ft', 'x-location of APU')
         xconend  = Variable('xconend', 'm', 'x-location of cone end')
-        xfix     = Variable('xfix', 2.1, 'm', 'x-location of fixed weight')
+        xfix     = Variable('xfix', 'm', 'x-location of fixed weight')
         xshell1  = Variable('x_{shell1}', 'm', 'Start of cylinder section')
         xshell2  = Variable('x_{shell2}', 'm', 'End of cylinder section')
 
@@ -313,6 +311,7 @@ class Fuselage(CostedConstraintSet):
                          'W_{fix}': 3000,
                          '\\Delta h': 1,
                          '\\Delta p': 52000,
+                         '\\mu': 1.4E-5,
                          '\\rho_{\\infty}': 0.38,
                          '\\rho_{bend}': 2700, # [TAS]
                          '\\rho_{cargo}': 150, # b757 freight doc

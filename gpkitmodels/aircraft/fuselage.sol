@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 5 GP solves and 0.884 seconds.
+Solving took 5 GP solves and 0.961 seconds.
 
 Cost
 ----
@@ -89,7 +89,7 @@ Constants
        W_{fix} : 3000       [lbf]      Fixed weights (pilots, cockpit seats, navcom)  
       \Delta h : 1          [m]        Distance from floor to widest part of fuselage 
       \Delta p : 5.2e+04    [Pa]       Pressure difference across fuselage skin       
-           \mu : 1.4e-05    [N*s/m**2] Dynamic viscosity (35,000ft)                   
+           \mu : 1.4e-05    [N*s/m**2] Dynamic viscosity (35,000 ft)                  
  \rho_{\infty} : 0.38       [kg/m**3]  Air density (35,000ft)                         
    \rho_{bend} : 2700       [kg/m**3]  Stringer density                               
   \rho_{cargo} : 150        [kg/m**3]  Cargo density                                  
@@ -131,8 +131,8 @@ W_{avg. pass} : 0.3324   Average passenger weight
     W'_{seat} : 0.158    Weight per seat                                
 \rho_{\infty} : 0.1273   Air density (35,000ft)                         
             g : 0.1001   Gravitational acceleration                     
-  \rho_{skin} : 0.08902  Skin density                                   
      \Delta p : 0.08902  Pressure difference across fuselage skin       
+  \rho_{skin} : 0.08902  Skin density                                   
     w_{aisle} : 0.08619  Aisle width                                    
       W_{fix} : 0.07508  Fixed weights (pilots, cockpit seats, navcom)  
   W'_{window} : 0.05974  Weight/length density of windows               
@@ -143,7 +143,7 @@ W_{avg. pass} : 0.3324   Average passenger weight
   W''_{floor} : 0.02966  Floor weight/area density                      
     W_{cargo} : 0.0267   Cargo weight                                   
   W''_{insul} : 0.02423  Weight/area density of insulation material     
-          \mu : 0.01797  Dynamic viscosity (35,000ft)                   
+          \mu : 0.01797  Dynamic viscosity (35,000 ft)                  
    f_{string} : 0.0177   Fractional weight of stringers                 
    f_{lugg,2} : 0.01642  Proportion of passengers with two suitcases    
     p_{cabin} : 0.01514  Cabin air pressure (8,000ft)                   
