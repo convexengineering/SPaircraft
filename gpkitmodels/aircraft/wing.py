@@ -11,7 +11,7 @@ class Wing(CostedConstraintSet):
     """
     def __init__(self, **kwargs):
         Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
-        AR      = Variable('AR', '-', 'Wing aspect ratio')
+        AR      = Variable('AR_w', '-', 'Wing aspect ratio')
         CDp     = Variable('C_{D_{p_w}}', '-',
                            'Wing parasitic drag coefficient')
         CDw     = Variable('C_{D_w}', '-', 'Drag coefficient, wing')
@@ -36,12 +36,13 @@ class Wing(CostedConstraintSet):
         alpha   = Variable('\\alpha_w', '-', 'Wing angle of attack')
         amax    = Variable('\\alpha_{max,w}', '-', 'Max angle of attack')
         b       = Variable('b_w', 'm', 'Wing span')
-        cosL    = Variable('\\cos(\\Lambda)', '-', 'cosine of sweep angle')
+        cosL    = Variable('\\cos(\\Lambda)', '-',
+                           'Cosine of quarter-chord sweep angle')
         croot   = Variable('c_{root}', 'm', 'Wing root chord')
         ctip    = Variable('c_{tip}', 'm', 'Wing tip chord')
-        cwma    = Variable('\\bar{c}_{wing}', 'm',
+        cwma    = Variable('\\bar{c}_w', 'm',
                            'Mean aerodynamic chord (wing)')
-        e       = Variable('e_w', '-', 'Oswald efficiency factor')
+        e       = Variable('e', '-', 'Oswald efficiency factor')
         eta     = Variable('\\eta_w', '-',
                            'Lift efficiency (diff b/w sectional, actual lift)')
         fl      = Variable('f(\\lambda_w)', '-',
@@ -53,14 +54,15 @@ class Wing(CostedConstraintSet):
         rho     = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
         rho0    = Variable('\\rho_0', 'kg/m^3', 'Air density (0 ft)')
         rhofuel = Variable('\\rho_{fuel}', 'kg/m^3', 'Density of fuel')
-        tanL    = Variable('\\tan(\\Lambda)', '-', 'tangent of wing sweep')
+        tanL    = Variable('\\tan(\\Lambda)', '-',
+                           'Tangent of quarter-chord sweep angle')
         taper   = Variable('\\lambda', '-', 'Wing taper ratio')
         tau     = Variable('\\tau_w', '-', 'Wing thickness/chord ratio')
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
         w       = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
         #xw     = Variable('x_w', 'm', 'Position of wing aerodynamic center')
-        ymac    = Variable('y_{\\bar{c}}', 'm',
+        ymac    = Variable('y_{\\bar{c}_w}', 'm',
                            'Spanwise location of mean aerodynamic chord')
 
 

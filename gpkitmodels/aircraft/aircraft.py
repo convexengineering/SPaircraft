@@ -32,7 +32,7 @@ class Aircraft(Model):
         R      = Variable('Range', 'nautical_miles', 'Range')
         Sw     = Variable('S_w', 'm**2', 'Wing reference area')
         Te     = Variable('T_e', 'N', 'Engine thrust at takeoff')
-        TSFC   = Variable('TSFC', 'lb/lbf/hr',
+        TSFC   = Variable('c_T', 'lb/lbf/hr',
                           'Thrust specific fuel consumption')
         V      = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
         VTO    = Variable('V_{TO}', 'm/s', 'Takeoff speed')
@@ -112,7 +112,7 @@ class Aircraft(Model):
                          'C_{L_{max}}': 2.5,
                          'M': 0.78,
                          'Range': 3000,
-                         'TSFC': 0.3,
+                         'c_T': 0.3,
                          'W_{eng}': 10000,
                          'a': 297,
                         }

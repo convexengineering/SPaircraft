@@ -36,7 +36,7 @@ class VerticalTail(CostedConstraintSet):
         Lvt    = Variable('L_{vt}', 'N', 'Vertical tail lift in engine out')
         Rec    = Variable('Re_{vt}', '-', 'Vertical tail reynolds number, cruise')
         S      = Variable('S', 'm^2', 'Vertical tail reference area (full)')
-        Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail ref. area (half)')
+        Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area (half)')
         Te     = Variable('T_e', 'N', 'Thrust per engine at takeoff')
         V1     = Variable('V_1', 'm/s', 'Minimum takeoff velocity')
         Vinf   = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
@@ -52,11 +52,11 @@ class VerticalTail(CostedConstraintSet):
         ctip   = Variable('c_{tip_{vt}}', 'm', 'Vertical tail tip chord')
         cvt    = Variable('c_{vt}', 'm', 'Vertical tail root chord') # fuselage
         dfan   = Variable('d_{fan}', 'm', 'Fan diameter')
-        dxlead = Variable('\\Delta x_{lead}', 'm',
+        dxlead = Variable('\\Delta x_{lead_v}', 'm',
                           'Distance from CG to vertical tail leading edge')
-        dxtrail= Variable('\\Delta x_{trail}', 'm',
+        dxtrail= Variable('\\Delta x_{trail_v}', 'm',
                           'Distance from CG to vertical tail trailing edge')
-        e      = Variable('e', '-', 'Span efficiency of vertical tail')
+        e      = Variable('e_v', '-', 'Span efficiency of vertical tail')
         lfuse  = Variable('l_{fuse}', 'm', 'Length of fuselage')
         lvt    = Variable('l_{vt}', 'm', 'Vertical tail moment arm')
         mu     = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000 ft)')
@@ -67,7 +67,7 @@ class VerticalTail(CostedConstraintSet):
         q      = Variable('q_{vt}', '-', 'Substituted variable = 1 + taper')
         rho0   = Variable('\\rho_{TO}', 'kg/m^3', 'Air density (SL))')
         rho_c  = Variable('\\rho_c', 'kg/m^3', 'Air density (35,000ft)')
-        tanL   = Variable('\\tan(\\Lambda_{LE})', '-',
+        tanL   = Variable('\\tan(\\Lambda_{vt})', '-',
                           'Tangent of leading edge sweep (40 deg)')
         taper  = Variable('\\lambda_{vt}', '-', 'Vertical tail taper ratio')
         tau    = Variable('\\tau_{vt}', '-', 'Vertical tail thickness/chord ratio')
@@ -79,7 +79,7 @@ class VerticalTail(CostedConstraintSet):
 
 
         with SignomialsEnabled():
-            objective = Dvt + 0.5*Wvt
+            objective = Dvt + 0.05*Wvt
             constraints = [
                            Lvt*lvt >= Te*y_eng + Dwm*y_eng,
                            # Force moment balance for one engine out condition
@@ -158,7 +158,8 @@ class VerticalTail(CostedConstraintSet):
 
         # Incorporate the structural model
         wb = WingBox()
-        wb.subinplace({'L_{max}': Lmax,
+        wb.subinplace({'b': b,
+                       'L_{max}': Lmax,
                        'p': p,
                        'q': q,
                        'S': S,
@@ -175,16 +176,16 @@ class VerticalTail(CostedConstraintSet):
                          'C_{D_{wm}}': 0.5, # [2]
                          'C_{L_{vmax}}': 2.6, # [2]
                          'T_e': 1.29e5, # [4]
-                         'V_1': 65,
+                         'V_1': 70,
                          'V_{\\infty}': 234, # [7]
                          'V_{ne}': 144, # [2]
                          '\\mu': 1.4e-5, # [5]
                          '\\rho_c': 0.38, # [6]
                          '\\rho_{TO}': 1.225,
-                         '\\tan(\\Lambda_{LE})': np.tan(40*np.pi/180),
+                         '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
                          'c_{l_{vt}}': 0.5, # [2]
                          'd_{fan}': 1.75, # [1]
-                         'e': 0.8,
+                         'e_v': 0.8,
                          'l_{fuse}': 39,
                          'x_{CG}': 18,
                          'y_{eng}': 4.83, # [3]

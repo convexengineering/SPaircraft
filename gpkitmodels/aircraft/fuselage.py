@@ -92,7 +92,7 @@ class Fuselage(CostedConstraintSet):
                             'Seat weight as fraction of payload weight')
         fstring  = Variable('f_{string}', '-','Fractional weight of stringers')
         g        = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
-        hfloor   = Variable('h_{floor}', 'm', 'Floor I-beam height')
+        hfloor   = Variable('h_{floor}', 'm', 'Floor beam height')
         hhold    = Variable('h_{hold}', 'm', 'Height of the cargo hold')
         lamcone  = Variable('\\lambda_{cone}', '-',
                             'Tailcone radius taper ratio (xshell2->xtail)')

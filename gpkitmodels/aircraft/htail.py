@@ -16,7 +16,7 @@ class HorizontalTail(CostedConstraintSet):
     """
     def __init__(self, **kwargs):
         ARh     = Variable('AR_h', '-', 'Horizontal tail aspect ratio')
-        ARw     = Variable('AR', '-', 'Wing aspect ratio')
+        ARw     = Variable('AR_w', '-', 'Wing aspect ratio')
         CD0h    = Variable('C_{D_{0_h}}', '-',
                            'Horizontal tail parasitic drag coefficient')
         CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
@@ -52,7 +52,7 @@ class HorizontalTail(CostedConstraintSet):
         chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
         croot   = Variable('c_{root_h}', 'm', 'Horizontal tail root chord')
         ctip    = Variable('c_{tip_h}', 'm', 'Horizontal tail tip chord')
-        cwma    = Variable('\\bar{c}_{wing}', 'm',
+        cwma    = Variable('\\bar{c}_w', 'm',
                            'Mean aerodynamic chord (wing)')
         dxlead  = Variable('\\Delta x_{{lead}_h}', 'm',
                            'Distance from CG to horizontal tail leading edge')
@@ -68,13 +68,13 @@ class HorizontalTail(CostedConstraintSet):
         fl      = Variable(r"f(\lambda_h)", '-',
                            'Empirical efficiency function of taper')
         lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
-        lh      = Variable('l_h', 'm', 'Horizontal tail moment arm')
+        lht     = Variable('l_{ht}', 'm', 'Horizontal tail moment arm')
         mu      = Variable(r'\mu', 'N*s/m^2', 'Dynamic viscosity (35,000 ft)')
         p       = Variable('p_{ht}', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q_{ht}', '-', 'Substituted variable = 1 + taper')
         rho     = Variable(r'\rho', 'kg/m^3', 'Air density (35,000 ft)')
         rho0    = Variable(r'\rho_0', 'kg/m^3', 'Air density (0 ft)')
-        tanLh   = Variable(r'\tan(\Lambda_h)', '-',
+        tanLh   = Variable(r'\tan(\Lambda_{ht})', '-',
                            'tangent of horizontal tail sweep')
         taper   = Variable(r'\lambda_h', '-', 'Horizontal tail taper ratio')
         tau     = Variable(r'\tau_h', '-',
@@ -86,23 +86,23 @@ class HorizontalTail(CostedConstraintSet):
         ymac    = Variable('y_{\\bar{c}_{ht}}', 'm',
                            'Spanwise location of mean aerodynamic chord')
 
-        objective = D + 0.5*W
+        objective = D + 0.1*W
 
         with SignomialsEnabled():
                            # Stability from UMich AE-481 course notes
             constraints = [TCS([SM + dxw/cwma + Kf*wf**2*lfuse/(CLaw*Sw*cwma)
-                                <= CLah*Sh*lh/(CLaw*Sw*cwma)]),
+                                <= CLah*Sh*lht/(CLaw*Sw*cwma)]),
                            SM >= SMmin,
 
                            # Trim from UMich AE-481 course notes
-                           TCS([CLh*Sh*lh/(Sw*cwma) + Cmac >=
+                           TCS([CLh*Sh*lht/(Sw*cwma) + Cmac >=
                                 CLw*dxw/cwma + Cmfu], reltol=0.02),
                            Lh == 0.5*rho*Vinf**2*Sh*CLh,
 
                            # Moment arm and geometry -- same as for vtail
                            TCS([dxlead + croot <= dxtrail]),
                            TCS([xcg + dxtrail <= lfuse], reltol=0.002),
-                           TCS([dxlead + ymac*tanLh + 0.25*chma >= lh],
+                           TCS([dxlead + ymac*tanLh + 0.25*chma >= lht],
                                reltol=1e-2), # [SP]
                            p >= 1 + 2*taper,
                            2*q >= 1 + p,
@@ -179,10 +179,10 @@ class HorizontalTail(CostedConstraintSet):
     def default737subs(self):
 
         substitutions = {
-                         'AR': 9,
+                         'AR_w': 9,
                          'C_{L_w}': 0.5,
-                         'C_{L_{aw}}': 2*pi,
-                         'C_{L_{hmax}}': 2.6,
+                         'C_{L_{aw}}': 5,
+                         'C_{L_{hmax}}': 2.5,
                          'C_{m_{fuse}}': 0.05, # [1]
                          'M': 0.78,
                          'S.M._{min}': 0.05,
@@ -190,17 +190,17 @@ class HorizontalTail(CostedConstraintSet):
                          'V_{ne}': 144,
                          '\\Delta x_w': 2,
                          '\\alpha_{max,h}': 0.1, # (6 deg)
-                         '\\bar{c}_{wing}': 5,
+                         '\\bar{c}_w': 5,
                          '\\eta_h': 0.97, # [2]
                          '\\eta_{ht}': 0.9, # [2]
                          '\\mu': 1.4E-5,
                          '\\rho': 0.38,
                          '\\rho_0': 1.225,
-                         '\\tan(\\Lambda_h)': tan(30*pi/180),
+                         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
                          'a': 297,
                          'l_{fuse}': 40,
                          'w_{fuse}': 6,
-                         'x_{CG}': 20,
+                         'x_{CG}': 17,
                          '|C_{m_{ac}}|': 0.1,
                         }
         return substitutions
@@ -225,8 +225,8 @@ class HorizontalTail(CostedConstraintSet):
         constraints = ccs + ccs.CG_constraint
 
         dsubs = ccs.default737subs()
-        linkedsubs = ['AR', 'C_{L_w}', 'C_{L_{aw}}', 'M', 'S_w',
-                      '\\bar{c}_{wing}', 'l_{fuse}', 'w_{fuse}', 'x_{CG}']
+        linkedsubs = ['AR_w', 'C_{L_w}', 'C_{L_{aw}}', 'M', 'S_w',
+                      '\\bar{c}_w', 'l_{fuse}', 'w_{fuse}', 'x_{CG}']
         substitutions = {key: value for key, value in dsubs.items()
                                     if key not in linkedsubs}
 

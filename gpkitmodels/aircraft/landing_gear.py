@@ -32,7 +32,7 @@ class LandingGear(CostedConstraintSet):
         Lwm     = Variable('L_{w_m}', 'N', 'Static load per wheel (main)')
         Lwn     = Variable('L_{w_n}', 'N', 'Static load per wheel (nose)')
         N_s     = Variable('N_s', '-', 'Factor of safety')
-        S_sa    = Variable('S_sa', 'm', 'Stroke of the shock absorber')
+        S_sa    = Variable('S_{sa}', 'm', 'Stroke of the shock absorber')
         S_t     = Variable('S_t', 'm', 'Tire deflection')
         T       = Variable('T', 'm', 'Main landing gear track')
         W       = Variable('W', 'N', 'Total aircraft weight')
@@ -83,10 +83,10 @@ class LandingGear(CostedConstraintSet):
         t_nac   = Variable('t_{nacelle}', 'm', 'Nacelle thickness')
         tan_15  = Variable('\\tan(\\phi_{min})', '-', 'Lower bound on phi')
         tan_63  = Variable('\\tan(\\psi_{max})', '-', 'Upper bound on psi')
-        tan_gam = Variable('\\tan(\\gamma)', '-', 'Tangent, dihedral angle')
+        tan_gam = Variable('\\tan(\\gamma)', '-', 'Dihedral angle')
         tan_phi = Variable('\\tan(\\phi)', '-', 'Angle b/w main gear and CG')
-        tan_psi = Variable('\\tan(\\psi)', '-', 'Tip over angles')
-        tan_th0 = Variable('\\tan(\\theta_{TO})', '-', 'Takeoff pitch angle')
+        tan_psi = Variable('\\tan(\\psi)', '-', 'Tip over angle')
+        tan_th  = Variable('\\tan(\\theta_{max})', '-', 'Max rotation angle')
         w_ult   = Variable('w_{ult}', 'ft/s', 'Ultimate velocity of descent')
         wtm     = Variable('w_{t_m}', 'm', 'Width of main tires')
         wtn     = Variable('w_{t_n}', 'm', 'Width of nose tires')
@@ -150,7 +150,7 @@ class LandingGear(CostedConstraintSet):
                            # takeoff, landing (Raymer says 10-15 degrees)
                            # TODO?: 2 cases:(i) upsweep angle > rotation angle,
                            # (ii) upsweep angle < rotation ang
-                           x_upswp - x_m <= l_m/tan_th0, # [SP]
+                           x_upswp - x_m <= l_m/tan_th, # [SP]
 
                            # Engine ground clearance
                            d_nac >= d_fan + 2*t_nac,
@@ -269,7 +269,7 @@ class LandingGear(CostedConstraintSet):
                          '\\tan(\\gamma)': np.tan(5*np.pi/180),
                          '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
                          '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
-                         '\\tan(\\theta_{TO})': np.tan(15*np.pi/180),
+                         '\\tan(\\theta_{max})': np.tan(15*np.pi/180),
                          '\\sigma_{y_c}': 470E6,
                          'd_{fan}': 1.75,
                          'f_{add,m}': 1.5,
