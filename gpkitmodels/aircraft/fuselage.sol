@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 5 GP solves and 0.961 seconds.
+Solving took 5 GP solves and 0.876 seconds.
 
 Cost
 ----
@@ -51,7 +51,7 @@ Free Variables
 \sigma_{\theta} : 1.034e+08  [N/m**2]  Skin hoop stress                            
     \tau_{cone} : 1.034e+08  [N/m**2]  Shear stress in cone                        
               f : 10.68                Fineness ratio                              
-      h_{floor} : 0.3712     [m]       Floor I-beam height                         
+      h_{floor} : 0.3712     [m]       Floor beam height                           
        h_{hold} : 0.4838     [m]       Height of the cargo hold                    
        l_{cone} : 10         [m]       Cone length                                 
       l_{floor} : 28.12      [m]       Floor length                                
@@ -131,8 +131,8 @@ W_{avg. pass} : 0.3324   Average passenger weight
     W'_{seat} : 0.158    Weight per seat                                
 \rho_{\infty} : 0.1273   Air density (35,000ft)                         
             g : 0.1001   Gravitational acceleration                     
-     \Delta p : 0.08902  Pressure difference across fuselage skin       
   \rho_{skin} : 0.08902  Skin density                                   
+     \Delta p : 0.08902  Pressure difference across fuselage skin       
     w_{aisle} : 0.08619  Aisle width                                    
       W_{fix} : 0.07508  Fixed weights (pilots, cockpit seats, navcom)  
   W'_{window} : 0.05974  Weight/length density of windows               

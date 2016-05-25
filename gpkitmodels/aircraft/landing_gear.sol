@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 7 GP solves and 1.1 seconds.
+Solving took 7 GP solves and 1.07 seconds.
 
 Cost
 ----
@@ -18,7 +18,7 @@ Free Variables
 L_{n_{dyn}} : 8.289e+04  [N]    Dyn. braking load, nose gear                    
     L_{w_m} : 1.639e+05  [N]    Static load per wheel (main)                    
     L_{w_n} : 8.193e+04  [N]    Static load per wheel (nose)                    
-       S_sa : 0.2959     [m]    Stroke of the shock absorber                    
+     S_{sa} : 0.2959     [m]    Stroke of the shock absorber                    
           T : 5.7        [m]    Main landing gear track                         
           W : 8.193e+05  [N]    Total aircraft weight                           
      W_{lg} : 1.486e+04  [N]    Weight of landing gear                          
@@ -33,7 +33,7 @@ L_{n_{dyn}} : 8.289e+04  [N]    Dyn. braking load, nose gear
  \Delta x_m : 2.682      [m]    Distance b/w main gear and CG                   
  \Delta x_n : 10.73      [m]    Distance b/w nose gear and CG                   
  \tan(\phi) : 0.2679            Angle b/w main gear and CG                      
- \tan(\psi) : 1.963             Tip over angles                                 
+ \tan(\psi) : 1.963             Tip over angle                                  
 d_{nacelle} : 2.05       [m]    Nacelle diameter                                
    d_{oleo} : 0.3769     [m]    Diameter of oleo shock absorber                 
     d_{t_m} : 44.75      [in]   Diameter of main gear tires                     
@@ -54,34 +54,34 @@ d_{nacelle} : 2.05       [m]    Nacelle diameter
 
 Constants
 ---------
-                E : 205        [GPa]       Modulus of elasticity, 4340 steel          
-                K : 2                      Column effective length factor             
-              N_s : 2                      Factor of safety                           
-       W_{0_{lg}} : 8.044e+05  [N]         Weight of aircraft excluding landing gear  
-           \eta_s : 0.8                    Shock absorber efficiency                  
-     \lambda_{LG} : 2.5                    Ratio of max to static load                
-        \rho_{st} : 7850       [kg/m**3]   Density of 4340 Steel                      
-     \sigma_{y_c} : 4.7e+08    [Pa]        Compressive yield strength 4340 steel      
-     \tan(\gamma) : 0.08749                Tangent, dihedral angle                    
- \tan(\phi_{min}) : 0.2679                 Lower bound on phi                         
- \tan(\psi_{max}) : 1.963                  Upper bound on psi                         
-\tan(\theta_{TO}) : 0.2679                 Takeoff pitch angle                        
-          d_{fan} : 1.75       [m]         Fan diameter                               
-        f_{add,m} : 1.5                    Proportional added weight, main            
-        f_{add,n} : 1.5                    Proportional added weight, nose            
-                g : 9.81       [m/s**2]    Gravitational acceleration                 
-         h_{hold} : 1          [m]         Hold height                                
-      h_{nacelle} : 0.5        [m]         Min. nacelle clearance                     
-           n_{mg} : 2                      Number of main gear struts                 
-          n_{wps} : 2                      Number of wheels per strut                 
-         p_{oleo} : 1800       [lbf/in**2] Oleo pressure                              
-      t_{nacelle} : 0.15       [m]         Nacelle thickness                          
-          w_{ult} : 10         [ft/s]      Ultimate velocity of descent               
-         x_{CG_0} : 18         [m]         x-location of CG excl. LG                  
-           x_{up} : 28         [m]         Fuselage upsweep point                     
-          y_{eng} : 4.83       [m]         Spanwise loc. of engines                   
-           z_{CG} : 2          [m]         CG height relative to bottom of fuselage   
-         z_{wing} : 0.5        [m]         Height of wing relative to base of fuselage
+                 E : 205        [GPa]       Modulus of elasticity, 4340 steel          
+                 K : 2                      Column effective length factor             
+               N_s : 2                      Factor of safety                           
+        W_{0_{lg}} : 8.044e+05  [N]         Weight of aircraft excluding landing gear  
+            \eta_s : 0.8                    Shock absorber efficiency                  
+      \lambda_{LG} : 2.5                    Ratio of max to static load                
+         \rho_{st} : 7850       [kg/m**3]   Density of 4340 Steel                      
+      \sigma_{y_c} : 4.7e+08    [Pa]        Compressive yield strength 4340 steel      
+      \tan(\gamma) : 0.08749                Dihedral angle                             
+  \tan(\phi_{min}) : 0.2679                 Lower bound on phi                         
+  \tan(\psi_{max}) : 1.963                  Upper bound on psi                         
+\tan(\theta_{max}) : 0.2679                 Max rotation angle                         
+           d_{fan} : 1.75       [m]         Fan diameter                               
+         f_{add,m} : 1.5                    Proportional added weight, main            
+         f_{add,n} : 1.5                    Proportional added weight, nose            
+                 g : 9.81       [m/s**2]    Gravitational acceleration                 
+          h_{hold} : 1          [m]         Hold height                                
+       h_{nacelle} : 0.5        [m]         Min. nacelle clearance                     
+            n_{mg} : 2                      Number of main gear struts                 
+           n_{wps} : 2                      Number of wheels per strut                 
+          p_{oleo} : 1800       [lbf/in**2] Oleo pressure                              
+       t_{nacelle} : 0.15       [m]         Nacelle thickness                          
+           w_{ult} : 10         [ft/s]      Ultimate velocity of descent               
+          x_{CG_0} : 18         [m]         x-location of CG excl. LG                  
+            x_{up} : 28         [m]         Fuselage upsweep point                     
+           y_{eng} : 4.83       [m]         Spanwise loc. of engines                   
+            z_{CG} : 2          [m]         CG height relative to bottom of fuselage   
+          z_{wing} : 0.5        [m]         Height of wing relative to base of fuselage
 
 Sensitivities
 -------------
