@@ -1,5 +1,5 @@
 Beginning signomial solve.
-Solving took 5 GP solves and 1.39 seconds.
+Solving took 5 GP solves and 0.876 seconds.
 
 Cost
 ----
@@ -11,8 +11,8 @@ Free Variables
        A_{fuse} : 10.81      [m**2]    Fuselage x-sectional area                   
        A_{hold} : 1.026      [m**2]    Cargo hold x-sectional area                 
        A_{skin} : 0.01087    [m**2]    Skin cross sectional area                   
-              D : 1.35e+04   [N]       Total drag in cruise                        
    D_{friction} : 7988       [N]       Friction drag                               
+       D_{fuse} : 1.35e+04   [N]       Total drag in cruise                        
     D_{upsweep} : 5513       [N]       Drag due to fuse upsweep                    
              FF : 1.076                Fuselage form factor                        
       M_{floor} : 4.442e+05  [N*m]     Max bending moment in floor beams           
@@ -51,7 +51,7 @@ Free Variables
 \sigma_{\theta} : 1.034e+08  [N/m**2]  Skin hoop stress                            
     \tau_{cone} : 1.034e+08  [N/m**2]  Shear stress in cone                        
               f : 10.68                Fineness ratio                              
-      h_{floor} : 0.3712     [m]       Floor I-beam height                         
+      h_{floor} : 0.3712     [m]       Floor beam height                           
        h_{hold} : 0.4838     [m]       Height of the cargo hold                    
        l_{cone} : 10         [m]       Cone length                                 
       l_{floor} : 28.12      [m]       Floor length                                
@@ -64,6 +64,7 @@ Free Variables
       t_{shell} : 0.001259   [m]       Shell thickness                             
        t_{skin} : 0.0009324  [m]       Skin thickness                              
       w_{floor} : 3.125      [m]       Floor width                                 
+       w_{fuse} : 3.71       [m]       Fuselage width                              
      x_{shell1} : 5.2        [m]       Start of cylinder section                   
      x_{shell2} : 29.61      [m]       End of cylinder section                     
          x_{up} : 29.61      [m]       Fuselage upsweep point                      
@@ -88,7 +89,7 @@ Constants
        W_{fix} : 3000       [lbf]      Fixed weights (pilots, cockpit seats, navcom)  
       \Delta h : 1          [m]        Distance from floor to widest part of fuselage 
       \Delta p : 5.2e+04    [Pa]       Pressure difference across fuselage skin       
-           \mu : 1.4e-05    [N*s/m**2] Dynamic viscosity (35,000ft)                   
+           \mu : 1.4e-05    [N*s/m**2] Dynamic viscosity (35,000 ft)                  
  \rho_{\infty} : 0.38       [kg/m**3]  Air density (35,000ft)                         
    \rho_{bend} : 2700       [kg/m**3]  Stringer density                               
   \rho_{cargo} : 150        [kg/m**3]  Cargo density                                  
@@ -142,7 +143,7 @@ W_{avg. pass} : 0.3324   Average passenger weight
   W''_{floor} : 0.02966  Floor weight/area density                      
     W_{cargo} : 0.0267   Cargo weight                                   
   W''_{insul} : 0.02423  Weight/area density of insulation material     
-          \mu : 0.01797  Dynamic viscosity (35,000ft)                   
+          \mu : 0.01797  Dynamic viscosity (35,000 ft)                  
    f_{string} : 0.0177   Fractional weight of stringers                 
    f_{lugg,2} : 0.01642  Proportion of passengers with two suitcases    
     p_{cabin} : 0.01514  Cabin air pressure (8,000ft)                   

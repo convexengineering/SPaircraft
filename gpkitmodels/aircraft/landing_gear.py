@@ -1,10 +1,9 @@
 # coding=utf-8
 "Implements Landing Gear model"
 import numpy as np
-import numpy.testing as npt
 from gpkit import Variable, Model, SignomialsEnabled, units
 from gpkit.constraints.costed import CostedConstraintSet
-from gpkit.small_scripts import mag
+from gpkit.constraints.tight import TightConstraintSet as TCS
 
 class LandingGear(CostedConstraintSet):
     """
@@ -33,16 +32,16 @@ class LandingGear(CostedConstraintSet):
         Lwm     = Variable('L_{w_m}', 'N', 'Static load per wheel (main)')
         Lwn     = Variable('L_{w_n}', 'N', 'Static load per wheel (nose)')
         N_s     = Variable('N_s', '-', 'Factor of safety')
-        S_sa    = Variable('S_sa', 'm', 'Stroke of the shock absorber')
+        S_sa    = Variable('S_{sa}', 'm', 'Stroke of the shock absorber')
         S_t     = Variable('S_t', 'm', 'Tire deflection')
         T       = Variable('T', 'm', 'Main landing gear track')
+        W       = Variable('W', 'N', 'Total aircraft weight')
         WAWm    = Variable('W_{wa,m}', 'lbf',
                            'Wheel assembly weight for single main gear wheel')
         WAWn    = Variable('W_{wa,n}', 'lbf',
                            'Wheel assembly weight for single nose gear wheel')
-        Waddm   = Variable('W_{add_m}', 'N', 'Proportional added weight, main')
-        Waddn   = Variable('W_{add_n}', 'N', 'Proportional added weight, nose')
-        W_0     = Variable('W_0', 'N', 'Weight of aircraft excluding landing gear')
+        W_0     = Variable('W_{0_{lg}}', 'N',
+                           'Weight of aircraft excluding landing gear')
         W_lg    = Variable('W_{lg}', 'N', 'Weight of landing gear')
         W_mg    = Variable('W_{mg}', 'N', 'Weight of main gear')
         W_ms    = Variable('W_{ms}', 'N', 'Weight of main struts')
@@ -60,6 +59,8 @@ class LandingGear(CostedConstraintSet):
         eta_s   = Variable('\\eta_s', '-', 'Shock absorber efficiency')
         eta_t   = Variable('\\eta_t', '-',
                            'Efficiency of tire in shock absorption')
+        faddm   = Variable('f_{add,m}', '-', 'Proportional added weight, main')
+        faddn   = Variable('f_{add,n}', '-', 'Proportional added weight, nose')
         g       = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         h_nac   = Variable('h_{nacelle}', 'm', 'Min. nacelle clearance')
         hhold   = Variable('h_{hold}', 'm', 'Hold height')
@@ -82,18 +83,18 @@ class LandingGear(CostedConstraintSet):
         t_nac   = Variable('t_{nacelle}', 'm', 'Nacelle thickness')
         tan_15  = Variable('\\tan(\\phi_{min})', '-', 'Lower bound on phi')
         tan_63  = Variable('\\tan(\\psi_{max})', '-', 'Upper bound on psi')
-        tan_gam = Variable('\\tan(\\gamma)', '-', 'Tangent, dihedral angle')
+        tan_gam = Variable('\\tan(\\gamma)', '-', 'Dihedral angle')
         tan_phi = Variable('\\tan(\\phi)', '-', 'Angle b/w main gear and CG')
-        tan_psi = Variable('\\tan(\\psi)', '-', 'Tip over angles')
-        tan_th0 = Variable('\\tan(\\theta_{TO})', '-', 'Takeoff pitch angle')
+        tan_psi = Variable('\\tan(\\psi)', '-', 'Tip over angle')
+        tan_th  = Variable('\\tan(\\theta_{max})', '-', 'Max rotation angle')
         w_ult   = Variable('w_{ult}', 'ft/s', 'Ultimate velocity of descent')
         wtm     = Variable('w_{t_m}', 'm', 'Width of main tires')
         wtn     = Variable('w_{t_n}', 'm', 'Width of nose tires')
-        xCGlg   = Variable('x_{CG_{lg}}', 'm', 'x-location of landing gear CG')
         x_m     = Variable('x_m', 'm', 'x-location of main gear')
         x_n     = Variable('x_n', 'm', 'x-location of nose gear')
         x_upswp = Variable('x_{up}', 'm', 'Fuselage upsweep point')
         xcg     = Variable('x_{CG}', 'm', 'x-location of CG incl. LG')
+        xcglg   = Variable('x_{CG_{lg}}', 'm', 'Landing gear CG')
         xcg0    = Variable('x_{CG_0}', 'm', 'x-location of CG excl. LG')
         y_eng   = Variable('y_{eng}', 'm', 'Spanwise loc. of engines')
         y_m     = Variable('y_m', 'm', 'y-location of main gear (symmetric)')
@@ -109,33 +110,29 @@ class LandingGear(CostedConstraintSet):
 
             constraints = [
                            # Track and Base geometry definitions
-                           l_n + zwing + y_m*tan_gam >= l_m, # [SP]
+                           TCS([l_n+zwing+y_m*tan_gam>=l_m], reltol=1E-3), #[SP]
                            T == 2*y_m,
-                           x_n + B <= x_m,
+                           TCS([x_n + B <= x_m]),
                            x_n >= 5*units.m, # nose gear after nose
 
                            # Geometric constraints relating gear placement with
                            # fore/aft CG locations
-                           dxn + x_n >= xcg, # [SP] Needs to be tight
-                           dxm + xcg >= x_m, # [SP] Needs to be tight
+                           TCS([dxn + x_n >= xcg], reltol=1E-3), # [SP]
+                           TCS([dxm + xcg >= x_m], reltol=1E-4), # [SP]
                            # TODO forward and aft CG
 
-                           # CG location affected by landing gear position
-#                           xCGlg >= (W_ng*x_n + W_mg*x_m)/W_lg,
-                           xcg*(W_0 + W_lg) <= W_0*xcg0 + W_ng*x_n + W_mg*x_m,
-
                            # Maximum static loads through main and nose gears
-                           L_n == W_0*dxm/B,
-                           L_m == W_0*dxn/B,
+                           L_n == W*dxm/B,
+                           L_m == W*dxn/B,
 
                            # Dynamic braking load through nose gear
                            # (assumes deceleration of 10 ft/s^2)
-                           L_n_dyn >= 0.31*((z_CG_0+l_m)/B)*W_0,
+                           L_n_dyn >= 0.31*((z_CG_0+l_m)/B)*W,
 
                            # For steering don't want too much or too little
                            # load on nose gear
-                           L_n/W_0 >= 0.05,
-                           L_n/W_0 <= 0.20,
+                           L_n/W >= 0.05,
+                           L_n/W <= 0.20,
 
                            # Longitudinal tip over (static)
                            x_m >= tan_phi*(z_CG_0+l_m) + xcg,
@@ -153,7 +150,7 @@ class LandingGear(CostedConstraintSet):
                            # takeoff, landing (Raymer says 10-15 degrees)
                            # TODO?: 2 cases:(i) upsweep angle > rotation angle,
                            # (ii) upsweep angle < rotation ang
-                           x_upswp - x_m <= l_m/tan_th0, # [SP]
+                           x_upswp - x_m <= l_m/tan_th, # [SP]
 
                            # Engine ground clearance
                            d_nac >= d_fan + 2*t_nac,
@@ -173,7 +170,7 @@ class LandingGear(CostedConstraintSet):
                            # sink rate of 10 feet per second at the maximum
                            # design landing weight
                            # Landing condition from Torenbeek p360
-                           Eland >= W_0/(2*g)*w_ult**2, # Torenbeek (10-26)
+                           Eland >= W/(2*g)*w_ult**2, # Torenbeek (10-26)
                            # S_t == 0.5*lam*Lwm/(p*(dtm*bt)**0.5), # (10-30)
                            S_sa == (1/eta_s)*(Eland/(L_m*lam)),# - eta_t*S_t),
                            # [SP] Torenbeek (10-28)
@@ -235,26 +232,36 @@ class LandingGear(CostedConstraintSet):
                            2*wtn + 2*r_n <= 0.8*units.m, #TODO improve this
 
                            # Weight accounting
-                           Waddm == 1.5*W_mw, # Currey p264
-                           Waddn == 1.5*W_nw,
-                           W_mg >= n_mg*(W_ms + W_mw + Waddm),
-                           W_ng >= W_ns + W_nw + Waddn,
+                           W_mg >= n_mg*(W_ms + W_mw*(1 + faddm)),# Currey p264
+                           W_ng >= W_ns + W_nw*(1 + faddn),
                            W_lg >= W_mg + W_ng,
                           ]
+
+            standaloneCG = [
+                           # CG location affected by landing gear position
+                           TCS([xcg*W <= W_0*xcg0 + W_ng*x_n + W_mg*x_m]),
+                           W >= W_0 + W_lg,
+                           ]
+
+            coupledCG = [
+                         TCS([W_lg*xcglg >= W_ng*x_n + W_mg*x_m], reltol=1E-2,
+                             raiseerror=False),
+                         x_m >= xcglg,
+                        ]
+
+            self.standaloneCG = standaloneCG
+            self.coupledCG = coupledCG
 
         CostedConstraintSet.__init__(self, objective, constraints)
 
 
-    @classmethod
-    def standalone_737(cls):
-        """Returns a standalone landing gear model"""
-        cs = cls()
+    def default737subs(self):
 
         substitutions = {
                          'E': 205,
                          'K': 2,
                          'N_s': 2,
-                         'W_0': 82000*9.81,
+                         'W_{0_{lg}}': 82000*9.81,
                          '\\eta_s': 0.8,
                          '\\eta_t': 0.47,
                          '\\lambda_{LG}': 2.5,
@@ -262,9 +269,11 @@ class LandingGear(CostedConstraintSet):
                          '\\tan(\\gamma)': np.tan(5*np.pi/180),
                          '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
                          '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
-                         '\\tan(\\theta_{TO})': np.tan(15*np.pi/180),
+                         '\\tan(\\theta_{max})': np.tan(15*np.pi/180),
                          '\\sigma_{y_c}': 470E6,
                          'd_{fan}': 1.75,
+                         'f_{add,m}': 1.5,
+                         'f_{add,n}': 1.5,
                          'h_{hold}': 1,
                          'h_{nacelle}': 0.5,
                          'n_{mg}': 2,
@@ -279,64 +288,41 @@ class LandingGear(CostedConstraintSet):
                          'z_{wing}': 0.5,
                         } 
 
-        m =  Model(cs.cost, cs, substitutions)
+        return substitutions
+
+    @classmethod
+    def standalone737(cls):
+        """Returns a standalone landing gear model"""
+        ccs = cls()
+
+        constraints = ccs + ccs.standaloneCG
+ 
+        substitutions = ccs.default737subs()
+
+        m =  Model(ccs.cost, constraints, substitutions)
         return m
 
     @classmethod
-    def aircraft_737(cls):
+    def coupled737(cls):
         """Returns a landing gear model for use in a coupled aircraft model"""
-        cs = cls()
+        ccs = cls()
 
-        substitutions = {
-                         'E': 205,
-                         'K': 2,
-                         'N_s': 2,
-                         'W_0': 82000*9.81,
-                         '\\eta_s': 0.8,
-                         '\\eta_t': 0.47,
-                         '\\lambda_{LG}': 2.5,
-                         '\\rho_{st}': 7850,
-                         '\\sigma_{y_c}': 470E6,
-                         '\\tan(\\gamma)': np.tan(5*np.pi/180),
-                         '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
-                         '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
-                         '\\tan(\\theta_{TO})': np.tan(15*np.pi/180),
-                         'd_{fan}': 1.75,
-                         'h_{nacelle}': 0.5,
-                         'n_{mg}': 2,
-                         'n_{wps}': 2,
-                         'p_{oleo}': 1800,
-                         't_{nacelle}': 0.15,
-                         'w_{ult}': 10,
-                         'x_{CG_0}': 18,
-                         'y_{eng}': 4.83,
-                         'z_{CG}': 2,
-                         'z_{wing}': 0.5,
-                        } 
+        constraints = ccs + ccs.coupledCG
 
-        m =  Model(cs.cost, cs, substitutions, name='LandingGear')
+        dsubs = ccs.default737subs()
+        linkedsubs = ['h_{hold}', 'x_{up}']
+        substitutions = {key: value for key, value in dsubs.items()
+                                    if key not in linkedsubs}
+
+        m =  Model(ccs.cost, constraints, substitutions, name='LandingGear')
         return m
         
 
     @classmethod
     def test(cls):
         """Tests the standalone landing gear model"""
-        m = cls.standalone_737()
+        m = cls.standalone737()
         sol = m.localsolve()
-
-        npt.assert_almost_equal(mag(sol('x_n')) + mag(sol('B')),
-                                mag(sol('x_m')), decimal=5)
-        npt.assert_almost_equal(mag(sol('\Delta x_n')) + mag(sol('x_n')),
-                                mag(sol('x_{CG}')), decimal=1)
-        npt.assert_almost_equal(mag(sol('\Delta x_m')) + mag(sol('x_{CG}')),
-                                mag(sol('x_m')), decimal=4)
-        npt.assert_almost_equal(mag(sol('l_n')) + mag(sol('z_{wing}')) +
-                                mag(sol('y_m')) * mag(sol('\\tan(\\gamma)')),
-                                mag(sol('l_m')), decimal=4)
-        npt.assert_almost_equal(mag(sol('d_{nacelle}')) + mag(sol('h_{nacelle}')),
-                                mag(sol('l_m')) + (mag(sol('y_{eng}')) -
-                                mag(sol('y_m'))) * mag(sol('\\tan(\\gamma)')),
-                                decimal=4)
 
 if __name__ == "__main__":
     LandingGear.test()

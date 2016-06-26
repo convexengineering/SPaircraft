@@ -1,7 +1,6 @@
 # coding=utf-8
 "Implements a Vertical Tail model"
 import numpy as np
-import numpy.testing as npt
 from gpkit import Model, Variable, SignomialsEnabled, LinkedConstraintSet
 from gpkit.constraints.costed import CostedConstraintSet
 from gpkit.constraints.tight import TightConstraintSet as TCS
@@ -28,19 +27,19 @@ class VerticalTail(CostedConstraintSet):
         CDwm   = Variable('C_{D_{wm}}', '-', 'Windmill drag coefficient')
         CLvmax = Variable('C_{L_{vmax}}', '-', 'Max lift coefficient')
         CLvt   = Variable('C_{L_{vt}}', '-', 'Vertical tail lift coefficient')
-        Dvis   = Variable('D_{vis}', 'N', 'Vertical tail viscous drag, cruise')
+        Dvt    = Variable('D_{vt}', 'N', 'Vertical tail viscous drag, cruise')
         Dwm    = Variable('D_{wm}', 'N', 'Engine out windmill drag')
-        Lmax   = Variable('L_{max}', 'N',
+        Lmax   = Variable('L_{max_{vt}}', 'N',
                           'Maximum load for structural sizing') # fuselage
         Lvmax  = Variable('L_{v_{max}}', 'N',
                           'Maximum load for structural sizing')
         Lvt    = Variable('L_{vt}', 'N', 'Vertical tail lift in engine out')
-        Rec    = Variable('Re_c', '-', 'Vertical tail reynolds number, cruise')
+        Rec    = Variable('Re_{vt}', '-', 'Vertical tail reynolds number, cruise')
         S      = Variable('S', 'm^2', 'Vertical tail reference area (full)')
-        Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail ref. area (half)')
+        Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area (half)')
         Te     = Variable('T_e', 'N', 'Thrust per engine at takeoff')
         V1     = Variable('V_1', 'm/s', 'Minimum takeoff velocity')
-        Vc     = Variable('V_c', 'm/s', 'Cruise velocity')
+        Vinf   = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
         Vne    = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         Wstruct= Variable('W_{struct}', 'N', 'Full span weight')
         Wvt    = Variable('W_{vt}', 'N', 'Vertical tail weight')
@@ -48,39 +47,39 @@ class VerticalTail(CostedConstraintSet):
         bvt    = Variable('b_{vt}', 'm', 'Vertical tail half span')
         clvt   = Variable('c_{l_{vt}}', '-',
                           'Sectional lift force coefficient (engine out)')
-        cma    = Variable('\\bar{c}', 'm', 'Vertical tail mean aero chord')
-        croot  = Variable('c_{root}', 'm', 'Vertical tail root chord')
-        ctip   = Variable('c_{tip}', 'm', 'Vertical tail tip chord')
+        cma    = Variable('\\bar{c}_{vt}', 'm', 'Vertical tail mean aero chord')
+        croot  = Variable('c_{root_{vt}}', 'm', 'Vertical tail root chord')
+        ctip   = Variable('c_{tip_{vt}}', 'm', 'Vertical tail tip chord')
         cvt    = Variable('c_{vt}', 'm', 'Vertical tail root chord') # fuselage
         dfan   = Variable('d_{fan}', 'm', 'Fan diameter')
-        dxlead = Variable('\\Delta x_{lead}', 'm',
+        dxlead = Variable('\\Delta x_{lead_v}', 'm',
                           'Distance from CG to vertical tail leading edge')
-        dxtrail= Variable('\\Delta x_{trail}', 'm',
+        dxtrail= Variable('\\Delta x_{trail_v}', 'm',
                           'Distance from CG to vertical tail trailing edge')
-        e      = Variable('e', '-', 'Span efficiency of vertical tail')
+        e      = Variable('e_v', '-', 'Span efficiency of vertical tail')
         lfuse  = Variable('l_{fuse}', 'm', 'Length of fuselage')
         lvt    = Variable('l_{vt}', 'm', 'Vertical tail moment arm')
-        mu     = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000ft)')
+        mu     = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000 ft)')
         mu0    = Variable('\\mu_0', 1.8E-5, 'N*s/m^2', 'Dynamic viscosity (SL)')
-        p      = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
+        p      = Variable('p_{vt}', '-', 'Substituted variable = 1 + 2*taper')
         plamv  = Variable('p_{\\lambda_v}', '-',
                           'Dummy variable = 1 + 2\\lambda') # fuselage
-        q      = Variable('q', '-', 'Substituted variable = 1 + taper')
+        q      = Variable('q_{vt}', '-', 'Substituted variable = 1 + taper')
         rho0   = Variable('\\rho_{TO}', 'kg/m^3', 'Air density (SL))')
         rho_c  = Variable('\\rho_c', 'kg/m^3', 'Air density (35,000ft)')
-        tanL   = Variable('\\tan(\\Lambda_{LE})', '-',
+        tanL   = Variable('\\tan(\\Lambda_{vt})', '-',
                           'Tangent of leading edge sweep (40 deg)')
-        taper  = Variable('\\lambda', '-', 'Vertical tail taper ratio')
-        tau    = Variable('\\tau', '-', 'Vertical tail thickness/chord ratio')
+        taper  = Variable('\\lambda_{vt}', '-', 'Vertical tail taper ratio')
+        tau    = Variable('\\tau_{vt}', '-', 'Vertical tail thickness/chord ratio')
         xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
         xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of tail CG')
         y_eng  = Variable('y_{eng}', 'm', 'Engine moment arm')
-        zmac   = Variable('z_{\\bar{c}}', 'm',
+        zmac   = Variable('z_{\\bar{c}_{vt}}', 'm',
                           'Vertical location of mean aerodynamic chord')
 
 
         with SignomialsEnabled():
-            objective = Dvis + 0.5*Wvt
+            objective = Dvt + 0.05*Wvt
             constraints = [
                            Lvt*lvt >= Te*y_eng + Dwm*y_eng,
                            # Force moment balance for one engine out condition
@@ -110,7 +109,6 @@ class VerticalTail(CostedConstraintSet):
                            # Tail geometry constraint
 
                            lfuse >= dxtrail + xCG,
-                           #TCS([lfuse >= dxtrail + xCG]),
                            # Fuselage length constrains the tail trailing edge
 
                            p >= 1 + 2*taper,
@@ -124,7 +122,7 @@ class VerticalTail(CostedConstraintSet):
                            # TODO: Constrain taper by tip Reynolds number
                            # source: b737.org.uk
 
-                           Dvis >= 0.5*rho_c*Vc**2*Svt*CDvis,
+                           Dvt >= 0.5*rho_c*Vinf**2*Svt*CDvis,
                            CDvis**0.125 >= 0.19*(tau)**0.0075 *(Rec)**0.0017
                                         + 1.83e+04*(tau)**3.54*(Rec)**-0.494
                                         + 0.118*(tau)**0.0082 *(Rec)**0.00165
@@ -132,7 +130,7 @@ class VerticalTail(CostedConstraintSet):
                            # Vertical tail viscous drag in cruise
                            # Data fit from Xfoil
 
-                           Rec == rho_c*Vc*cma/mu,
+                           Rec == rho_c*Vinf*cma/mu,
                            # Cruise Reynolds number
 
                            S == Svt*2,
@@ -150,7 +148,9 @@ class VerticalTail(CostedConstraintSet):
             linking_constraints = [plamv == p,
                                    cvt == croot]
 
-            CG_constraint = [xCGvt >= xCG+(dxlead+dxtrail)/2]
+            CG_constraint = [TCS([xCGvt >= xCG+(dxlead+dxtrail)/2],
+                                 raiseerror=False),
+                             xCGvt <= lfuse]
 
             self.linking_constraints = linking_constraints
             self.CG_constraint = CG_constraint
@@ -158,68 +158,68 @@ class VerticalTail(CostedConstraintSet):
 
         # Incorporate the structural model
         wb = WingBox()
-        wb.subinplace({"taper": taper})
+        wb.subinplace({'b': b,
+                       'L_{max}': Lmax,
+                       'p': p,
+                       'q': q,
+                       'S': S,
+                       'taper': taper,
+                       '\\tau': tau})
         lc = LinkedConstraintSet([constraints, wb])
 
         CostedConstraintSet.__init__(self, objective, lc)
 
-    @classmethod
-    def standalone_737(cls):
 
-        ccs = cls()
+    def default737subs(self):
 
         substitutions = {
                          'C_{D_{wm}}': 0.5, # [2]
                          'C_{L_{vmax}}': 2.6, # [2]
                          'T_e': 1.29e5, # [4]
-                         'V_1': 65,
-                         'V_c': 234, # [7]
+                         'V_1': 70,
+                         'V_{\\infty}': 234, # [7]
                          'V_{ne}': 144, # [2]
                          '\\mu': 1.4e-5, # [5]
                          '\\rho_c': 0.38, # [6]
                          '\\rho_{TO}': 1.225,
-                         '\\tan(\\Lambda_{LE})': np.tan(40*np.pi/180),
+                         '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
                          'c_{l_{vt}}': 0.5, # [2]
                          'd_{fan}': 1.75, # [1]
-                         'e': 0.8,
+                         'e_v': 0.8,
                          'l_{fuse}': 39,
                          'x_{CG}': 18,
                          'y_{eng}': 4.83, # [3]
                          }
+        return substitutions
+
+    @classmethod
+    def standalone737(cls):
+
+        ccs = cls()
+ 
+        substitutions = ccs.default737subs()
 
         m = Model(ccs.cost, ccs, substitutions)
         return m
 
     @classmethod
-    def aircraft_737(cls):
+    def coupled737(cls):
 
         ccs = cls()
 
         constraints = ccs + ccs.CG_constraint + ccs.linking_constraints
 
-        substitutions = {
-                         'C_{D_{wm}}': 0.5, # [2]
-                         'C_{L_{vmax}}': 2.6, # [2]
-                         'T_e': 1.29e5, # [4]
-                         'V_1': 65,
-                         'V_c': 234, # [7]
-                         'V_{ne}': 144, # [2]
-                         '\\mu': 1.4e-5, # [5]
-                         '\\rho_c': 0.38, # [6]
-                         '\\rho_{TO}': 1.225,
-                         '\\tan(\\Lambda_{LE})': np.tan(40*np.pi/180),
-                         'c_{l_{vt}}': 0.5, # [2]
-                         'd_{fan}': 1.75, # [1]
-                         'e': 0.8,
-                         'y_{eng}': 4.83, # [3]
-                         }
+        dsubs = ccs.default737subs()
+        linkedsubs = ['V_{\\infty}', 'l_{fuse}', 'x_{CG}']
+        substitutions = {key: value for key, value in dsubs.items()
+                                    if key not in linkedsubs}
 
         m = Model(ccs.cost, constraints, substitutions, name='VerticalTail')
         return m
 
     @classmethod
     def test(cls):
-        vt = cls.standalone_737()
+        vt = cls.standalone737()
         sol = vt.localsolve()
 
 if __name__ == "__main__":
