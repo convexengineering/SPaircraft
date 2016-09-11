@@ -16,20 +16,11 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 
 """
-minimizes the aircraft total weight, must specify all weights except fuel weight, so in effect
-we are minimizing the fuel weight
+minimizes the aircraft total weight, must specify the number of passtengers,
+the fusealge area per passenger (recommended to use 1 m^2 based on research), and the
+engine weight
 Rate of climb equation taken from John Anderson's Aircraft Performance and Design (eqn 5.85)
 """
-#TODO
-#link in with engine
-#fix indicies on the TSFC vector variables
-
-#figure out if minimizing total weight is the same as minimizing fuel weight
-
-#---------------------------------------------------------------------
-
-#temporary args
-#pass in a 1 for testing climb segment 1
 
 class CommericalMissionConstraints(Model):
     """
@@ -135,82 +126,74 @@ class CommericalMissionConstraints(Model):
             AR == (span**2)/S,
             span <= span_max,
 
+            #estimate based on TASOPT 737 model
             W_e == .75*W_payload,
 
             #compute fuselage area for drag approximation
             A_fuse == pax_area * n_pax,
-               
+
+            #altitude buildup constraints for climb segment 1
+            TCS([hftClimb1[0] >= 1500 * units('ft') + dhftClimb1[0]]),
+            hftClimb1 <= alt10k,
+            
+            #altitude buildup constraints for climb segment 2
+            TCS([hftClimb2[0] >= hftClimb1[Nclimb1-1] + dhftClimb2[0]]),
+            hftClimb2 <= htoc,
             ])
-        
+                        
+        for i in range(0, Nclimb1):
+            constraints.extend([
+                #constrain the geometric weight average
+                W_avgClimb1[i] == (W_startClimb1[i]*W_endClimb1[i])**.5,
+                TCS([W_startClimb1[i] >= W_endClimb1[i] + W_fuelClimb1[i]]),                
+                ])
+
+        for i in range(1, Nclimb1):
+            constraints.extend([
+                TCS([W_startClimb1[i] == W_endClimb1[i-1]]),
+                TCS([hftClimb1[i] >= hftClimb1[i-1] + dhftClimb1[i]]),
+                ])
+
+        for i in range(1, Nclimb2):
+            constraints.extend([
+                TCS([W_startClimb2[i] == W_endClimb2[i-1]]),
+                TCS([hftClimb2[i] >= hftClimb2[i-1] + dhftClimb2[i]]),
+                ])
+
+        for i in range(1, Ncruise2):
+            constraints.extend([
+                TCS([W_startCruise2[i] == W_endCruise2[i-1]]),
+                ])
+
+        for i in range(0, Nclimb2):
+            constraints.extend([
+                W_avgClimb2[i] == (W_startClimb2[i]*W_endClimb2[i])**.5,
+                TCS([W_startClimb2[i] >= W_endClimb2[i] + W_fuelClimb2[i]]),
+                ])
+
+        for i in range(0, Ncruise2):
+            constraints.extend([
+                W_avgCruise2[i] == (W_startCruise2[i]*W_endCruise2[i])**.5,
+                TCS([W_startCruise2[i] >= W_endCruise2[i] + W_fuelCruise2[i]]),
+                ])
+
         with gpkit.SignomialsEnabled():
             if signomial == True:
                 constraints.extend([
                     #range constraints
                     TCS([sum(RngClimb1) + sum(RngClimb2) + ReqRngCruise >= ReqRng]),
-##                    dhClimb2==20000*units('ft'),
-##                    TCS([dhClimb2 + alt10k >= htoc]),
-                    ])
-            if signomial == False:
-                 constraints.extend([
-                     ReqRngCruise >= ReqRng,
-##                    TCS([sum(RngClimb1) + sum(RngClimb2) >= ReqRng]),
-##                    TCS([ReqRngCruise   >= sum(RngCruise)]),
-##                    TCS([dhClimb2 + alt10k >= htoc])
-                    ])
-            for i in range(0, Nclimb1):
-                constraints.extend([
-                    #constrain the geometric weight average
-                    W_avgClimb1[i] == (W_startClimb1[i]*W_endClimb1[i])**.5,
-                    TCS([W_startClimb1[i] >= W_endClimb1[i] + W_fuelClimb1[i]]),
-
-
-                    
                     ])
                 
-            #altitude buildup constraints for climb segment 1
+            if signomial == False:
+                 constraints.extend([
+                     TCS([ReqRngCruise >= ReqRng]),
+                    ])
+                 
             constraints.extend([
-                TCS([hftClimb1[0] >= 1500 * units('ft') + dhftClimb1[i]]),
-                hftClimb1 <= alt10k,
-                ])
-
-            for i in range(1, Nclimb1):
-                constraints.extend([
-                    TCS([W_startClimb1[i] == W_endClimb1[i-1]]),
-                    TCS([hftClimb1[i] >= hftClimb1[i-1] + dhftClimb1[i]]),
-                    ])
-
-            for i in range(1, Nclimb2):
-                constraints.extend([
-                    TCS([W_startClimb2[i] == W_endClimb2[i-1]]),
-                    TCS([hftClimb2[i] >= hftClimb2[i-1] + dhftClimb2[i]]),
-                    ])
-
-            for i in range(1, Ncruise2):
-                constraints.extend([
-                    TCS([W_startCruise2[i] == W_endCruise2[i-1]]),
-                    ])
-
-            for i in range(0, Nclimb2):
-                constraints.extend([
-                    W_avgClimb2[i] == (W_startClimb2[i]*W_endClimb2[i])**.5,
-                    TCS([W_startClimb2[i] >= W_endClimb2[i] + W_fuelClimb2[i]]),
-                    ])
-
-            #altitude buildup constraints for climb segment 2
-            constraints.extend([
-                TCS([hftClimb2[0] >= hftClimb1[Nclimb1-1] + dhftClimb2[i]]),
-                hftClimb2[i] <= htoc,
-
                 #compute hdclimb2
                 htoc <= dhClimb2 + alt10k,
                 ])
 
-            for i in range(0, Ncruise2):
-                constraints.extend([
-                    W_avgCruise2[i] == (W_startCruise2[i]*W_endCruise2[i])**.5,
-                    TCS([W_startCruise2[i] >= W_endCruise2[i] + W_fuelCruise2[i]]),
-                    ])
-        
         Model.__init__(self, W_ftotal, constraints, **kwargs)
         
 #---------------------------------------
@@ -360,10 +343,6 @@ class Climb1(Model):
                 ])
         
         Model.__init__(self, None, constraints, **kwargs)
-        
-#--------------------------------------
-#transition between climb 1 and 2 if desired
-
             
 class Climb2(Model):
     """
@@ -478,7 +457,7 @@ class Climb2(Model):
             tminClimb2 == thoursClimb2,
             #compute the distance traveled for each segment
             #takes into account two terms of a cosine expansion
-            RngClimb2[icl2] <= thoursClimb2[icl2]*VClimb2[icl2],
+            RngClimb2[icl2] == thoursClimb2[icl2]*VClimb2[icl2],
 
             W_avgClimb2[icl2] == .5*CLClimb2[icl2]*S*rhoClimb2[icl2]*VClimb2[icl2]**2,      
             WLoadClimb2[icl2] == .5*CLClimb2[icl2]*S*rhoClimb2[icl2]*VClimb2[icl2]**2/S,
@@ -698,12 +677,11 @@ class CommercialAircraft(Model):
         for i in range(Nseg):
             atmvec.append(Atmosphere())
             
-##        hcruise = 40000
         substitutions = {      
             'V_{stall}': 120,
             'ReqRng': 2000,
             'K': 0.05,
-##            'h_{toc}': ('sweep', np.linspace(20000,40000,4)),
+            'h_{toc}': 40000,#('sweep', np.linspace(20000,40000,4)),
             'speedlimit': 250,
             'numeng': 2,
             'W_{Load_max}': 6664,
