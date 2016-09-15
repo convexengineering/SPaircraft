@@ -15,7 +15,7 @@ class Atmosphere(Model):
         p_atm = Variable("P_{atm}", "Pa", "air pressure")
         TH = (g*M_atm/R_atm/L_atm).value
 
-        rho = Variable('\rho', 'kg/m^3', 'Density of air')
+        rho = Variable('\\rho', 'kg/m^3', 'Density of air')
 
         h = Variable("h", "ft", "Altitude")
 
