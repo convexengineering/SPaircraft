@@ -16,15 +16,20 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 
 """
-minimizes the aircraft total weight, must specify the number of passtengers,
-the fusealge area per passenger (recommended to use 1 m^2 based on research), and the
-engine weight
-Rate of climb equation taken from John Anderson's Aircraft Performance and Design (eqn 5.85)
+Minimizes the aircraft total fuel weight. Rate of climb equation taken from John
+Anderson's Aircraft Performance and Design (eqn 5.85).
+
+Inputs
+-----
+
+- Number of passtengers,
+- Fusealge area per passenger (recommended to use 1 m^2 based on research)
+- Engine weight
 """
 
 class CommericalMissionConstraints(Model):
     """
-    class that is general constraints that apply across the mission
+    General constraints that apply across the mission (weight build up, alatitude build up)
     """
     def __init__(self, Nclimb, Ncruise, **kwargs):
 
@@ -266,15 +271,13 @@ class Climb(Model):
             WLoadClimb <= WLoadmax,
 
             thrustcl <= 2 * thrustcr[0],
-
-            TSFCcl[0] == .7*units('1/hr'),
-            TSFCcl[1] == .6*units('1/hr'),
             ])
 
         for i in range(0, Nclimb):
             constraints.extend([
                 #speed of sound
                 aClimb[i]  == (gamma * R * TClimb[i])**.5,
+                TSFCcl[i] == .7*units('1/hr'),
                 ])
         
         Model.__init__(self, None, constraints, **kwargs)
@@ -404,9 +407,6 @@ class Cruise(Model):
 
             #altitude constraint
             hCruise == 40000*units('ft'),
-
-            TSFCcr[0] == .5*units('1/hr'),
-            TSFCcr[1] == .5*units('1/hr'),
             ])
         
         #constraint on the aircraft meeting the required range
@@ -419,6 +419,7 @@ class Cruise(Model):
             constraints.extend([
                 #speed of sound
                 aCruise[i]  == (gamma * R * TCruise[i])**.5,
+                TSFCcr[i] ==  .5*units('1/hr'),
                 ])
             
         Model.__init__(self, None, constraints, **kwargs)
@@ -432,8 +433,8 @@ class CommercialAircraft(Model):
     """
     def __init__(self, **kwargs):
         #defining the number of segments
-        Nclimb = 2
-        Ncruise = 2
+        Nclimb = 4
+        Ncruise = 4
 
         #make the segment range
         Nseg = Nclimb + Ncruise
@@ -452,7 +453,7 @@ class CommercialAircraft(Model):
             'V_{stall}': 120,
             'ReqRng': 2000,
             'K': 0.05,
-##            'h_{toc}': 40000, #('sweep', np.linspace(20000,40000,4)),
+            'h_{toc}': 40000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 2,
             'W_{Load_max}': 6664,
             'W_{engine}': 1000,
@@ -539,7 +540,7 @@ class CommercialAircraft(Model):
     
 if __name__ == '__main__':
     m = CommercialAircraft()
-##    sol = m.localsolve(solver="mosek", verbosity = 4, iteration_limit=100, skipsweepfailures=True)
+    sol = m.localsolve(solver="mosek", verbosity = 4, iteration_limit=100, skipsweepfailures=True)
     
-    sol, solhold = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+##    sol, solhold = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
     
