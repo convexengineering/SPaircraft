@@ -47,13 +47,13 @@ class CommericalMissionConstraints(Model):
         W_wing = Variable('W_{wing}', 'N', 'Wing Weight')
         W_total = Variable('W_{total}', 'N', 'Total Aircraft Weight')
         W_startClimb = VectorVariable(Nclimb, 'W_{startClimb}', 'N', 'Segment Start Weight')
-        W_fuelClimb = VectorVariable(Nclimb, 'W_{fuelClimb2}', 'N', 'Segment Fuel Weight')
+        W_fuelClimb = VectorVariable(Nclimb, 'W_{fuelClimb}', 'N', 'Segment Fuel Weight')
         W_endClimb = VectorVariable(Nclimb, 'W_{enDClimb}', 'N', 'Segment End Weight')
-        W_avgClimb = VectorVariable(Nclimb, 'W_{avgClimb2}', 'N', 'Geometric Average of Segment Start and End Weight')
+        W_avgClimb = VectorVariable(Nclimb, 'W_{avgClimb}', 'N', 'Geometric Average of Segment Start and End Weight')
         W_startCruise = VectorVariable(Ncruise, 'W_{startCruise}', 'N', 'Segment Start Weight')
-        W_fuelCruise = VectorVariable(Ncruise, 'W_{fuelCruise2}', 'N', 'Segment Fuel Weight')
+        W_fuelCruise = VectorVariable(Ncruise, 'W_{fuelCruise}', 'N', 'Segment Fuel Weight')
         W_endCruise = VectorVariable(Ncruise, 'W_{endCruise}', 'N', 'Segment End Weight')
-        W_avgCruise = VectorVariable(Ncruise, 'W_{avgCruise2}', 'N', 'Geometric Average of Segment Start and End Weight')
+        W_avgCruise = VectorVariable(Ncruise, 'W_{avgCruise}', 'N', 'Geometric Average of Segment Start and End Weight')
         W_pax = Variable('W_{pax}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
 
         #number of passengers
@@ -452,7 +452,7 @@ class CommercialAircraft(Model):
             'V_{stall}': 120,
             'ReqRng': 2000,
             'K': 0.05,
-            'h_{toc}': 40000, #('sweep', np.linspace(20000,40000,4)),
+##            'h_{toc}': 40000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 2,
             'W_{Load_max}': 6664,
             'W_{engine}': 1000,
@@ -488,7 +488,7 @@ class CommercialAircraft(Model):
         for i in range(Ncruise):
             subs.update({
                 cruise["\\rhoCruise"][i]: atmvec[i + Nclimb]["\\rho"], cruise["TCruise"][i]:atmvec[i + Nclimb]["T_{atm}"],
-                cmc['hCruise'][i]: atmvec[i + Nclimb]["h"]
+                cruise['hCruise'][i]: atmvec[i + Nclimb]["h"]
                 })
 
         constraints.subinplace(subs)
