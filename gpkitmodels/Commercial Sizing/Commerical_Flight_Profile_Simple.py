@@ -68,7 +68,7 @@ class CommericalMissionConstraints(Model):
 
         #number of engines
         numeng = Variable('numeng', '-', 'Number of Engines')
-        
+
         #physical constants
         g = Variable('g', 9.81, 'm/s^2', 'Gravitational Acceleration')
         gamma = Variable('\gamma', 1.4, '-', 'Air Specific Heat Ratio')
@@ -78,21 +78,21 @@ class CommericalMissionConstraints(Model):
         A_fuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
         #Estimated fuselage are per passenger
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
-        
+
         constraints = []
         constraints.extend([
             #convert m to ft
             hftClimb  == hClimb,
             hftCruise  == hCruise,
-            
+
             #constraints on the various weights
             W_payload == n_pax * W_pax,
-            
+
             TCS([W_e + W_payload + W_ftotal + numeng * W_engine + W_wing <= W_total]),
- 
+
             W_startClimb[0] == W_total,
             W_startCruise[0] == W_endClimb[Nclimb-1],
-   
+
             TCS([W_e + W_payload + numeng * W_engine + W_wing <= W_endCruise[Ncruise-1]]),
             TCS([W_ftotal >= sum(W_fuelClimb) + sum(W_fuelCruise)]),
 
@@ -109,10 +109,10 @@ class CommericalMissionConstraints(Model):
 
             #compute fuselage area for drag approximation
             A_fuse == pax_area * n_pax,
-            
+
             #altitude buildup constraints for climb segment 2
             TCS([hftClimb[0] >= dhftClimb[0]]),
-            
+
             hftClimb <= hCruise,
             ])
 
@@ -140,7 +140,7 @@ class CommericalMissionConstraints(Model):
                 ])
 
         Model.__init__(self, W_ftotal, constraints, **kwargs)
-            
+
 class Climb(Model):
     """
     Class to model the climb portion of the flight (from zero alt to cruise alt)
@@ -159,13 +159,13 @@ class Climb(Model):
         K = Variable('K', '-', 'K for Parametric Drag Model')
         e = Variable('e', '-', 'Oswald Span Efficiency Factor')
         AR = Variable('AR', '-', 'Aspect Ratio')
-        
+
         #atmosphere
         aClimb = VectorVariable(Nclimb, 'aClimb', 'm/s', 'Speed of Sound')
         rhoClimb = VectorVariable(Nclimb, '\\rhoClimb', 'kg/m^3', 'Air Density')
         pClimb = VectorVariable(Nclimb, 'pClimb', 'kPa', 'Pressure')
         TClimb = VectorVariable(Nclimb, 'TClimb', 'K', 'Air Temperature')
- 
+
         #number of engines
         numeng = Variable('numeng', '-', 'Number of Engines')
 
@@ -216,7 +216,7 @@ class Climb(Model):
         icl = map(int, np.linspace(0, Nclimb - 1, Nclimb))
 
         constraints = []
-        
+
         constraints.extend([            
             #set the velocity limits
             #needs to be replaced by an actual Vne and a mach number
@@ -277,13 +277,13 @@ class Climb(Model):
         Model.__init__(self, None, constraints, **kwargs)
         
 class Cruise(Model):
-       """
+    """
     Models the cruise portion of a commercial flight
     
     Model is based off of a discretized Breguet Range equation
     """
     def __init__(self, Nclimb, Ncruise, **kwargs):
-        
+
         #aero
         CLCruise = VectorVariable(Ncruise, 'C_{L_{Cruise}}', '-', 'Lift Coefficient')
         WLoadCruise = VectorVariable(Ncruise, 'W_{Load_{Cruise}}', 'N/m^2', 'Wing Loading')
@@ -341,7 +341,7 @@ class Cruise(Model):
         W_avgCruise = VectorVariable(Ncruise, 'W_{avgCruise}', 'N', 'Geometric Average of Segment Start and End Weight')
         W_avgClimb = VectorVariable(Nclimb, 'W_{avgClimb}', 'N', 'Geometric Average of Segment Start and End Weight')
         W_endCruise = VectorVariable(Ncruise, 'W_{endCruise}', 'N', 'Segment End Weight')
-            
+
         #Fuselage area
         A_fuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
 
@@ -350,7 +350,7 @@ class Cruise(Model):
         icr = map(int, np.linspace(0, Ncruise - 1, Ncruise))
 
         constraints = []
-            
+
         constraints.extend([
 ##            MCruise[icr] == 0.8,
 
@@ -366,12 +366,12 @@ class Cruise(Model):
                 2.85612227e-13 * CLCruise[icr]**1.2774976672501526 * MCruise[icr]**6.2534328002723703 +
                 2.08095341e-14 * CLCruise[icr]**0.8825277088649582 * MCruise[icr]**0.0273667615730107 +
                 1.94411925e+06 * CLCruise[icr]**5.6547413360261691 * MCruise[icr]**146.51920742858428),
-            
+
             DCruise[icr] == numeng * thrustcr[icr],
 
             W_avgCruise[icr] == .5 * CLCruise[icr] * S * rhoCruise[icr] * VCruise[icr]**2,
             WLoadCruise[icr] == .5 * CLCruise[icr] * S * rhoCruise[icr] * VCruise[icr]**2 / S,
-            
+
             #taylor series expansion to get the weight term
             TCS([W_fuelCruise[icr]/W_endCruise[icr] >= te_exp_minus1(z_bre[icr], nterm=3)]),
 
@@ -385,7 +385,7 @@ class Cruise(Model):
             #constrain the max wing loading
             WLoadCruise <= WLoadmax,
             ])
-        
+
         #constraint on the aircraft meeting the required range
         for i in range(min(icr), max(icr)+1):
             constraints.extend([
@@ -398,7 +398,7 @@ class Cruise(Model):
                 aCruise[i]  == (gamma * R * TCruise[i])**.5,
                 TSFCcr[i] ==  .5*units('1/hr'),
                 ])
-            
+
         Model.__init__(self, None, constraints, **kwargs)
 
 #-------------------------------------
@@ -422,10 +422,10 @@ class CommercialAircraft(Model):
         cruise = Cruise(Nclimb, Ncruise)
 
         atmvec = []
-        
+
         for i in range(Nseg):
             atmvec.append(Atmosphere())
-            
+
         substitutions = {      
             'V_{stall}': 120,
             'ReqRng': ('sweep', np.linspace(500,2000,4)),
@@ -447,7 +447,7 @@ class CommercialAircraft(Model):
             "M_{atm}":.0289644,
             "R_{atm}": 8.31447
             }
-        
+
         submodels = [cmc, climb, cruise]
 
         for i in range(len(atmvec)):
@@ -469,7 +469,7 @@ class CommercialAircraft(Model):
                 })
 
         constraints.subinplace(subs)
-        
+
         lc = LinkedConstraintSet(constraints, exclude={"T_{atm}", "P_{atm}", '\\rho', "h"})
 
         Model.__init__(self, cmc.cost, lc, substitutions, **kwargs)
@@ -487,7 +487,6 @@ class CommercialAircraft(Model):
         m = Model(model.cost, [constraints, model], model.substitutions)
         m.bound_all = {"lb": lb, "ub": ub, "varkeys": freevks}
         return m
-
 
     # pylint: disable=too-many-locals
     def determine_unbounded_variables(self, model, solver=None, verbosity=0,
@@ -513,10 +512,8 @@ class CommercialAircraft(Model):
                 out["value near upper bound"].append(varkey)
         return out, solhold
 
-    
 if __name__ == '__main__':
     m = CommercialAircraft()
     sol = m.localsolve(solver="mosek", verbosity = 4, iteration_limit=100, skipsweepfailures=True)
-    
+
 ##    sol, solhold = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
-    
