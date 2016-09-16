@@ -143,7 +143,9 @@ class CommericalMissionConstraints(Model):
             
 class Climb(Model):
     """
-    class to model the climb portion of the flight (from zero alt to cruise alt)
+    Class to model the climb portion of the flight (from zero alt to cruise alt)
+
+    Climb equation from Anderson's Aircraft Performance and Design (eqn 5.85).
     """
     def __init__(self, Nclimb, Ncruise, **kwargs):
         #aero
@@ -275,17 +277,13 @@ class Climb(Model):
         Model.__init__(self, None, constraints, **kwargs)
         
 class Cruise(Model):
-    """
-    class to model the second cruise portion of a flight (if the flight is
-    long enough to mandate two cruise portions)
+       """
+    Models the cruise portion of a commercial flight
+    
     Model is based off of a discretized Breguet Range equation
     """
     def __init__(self, Nclimb, Ncruise, **kwargs):
-        """
-    class to model the second cruise portion of a flight (if the flight is
-    long enough to mandate two cruise portions)
-    Model is based off of a discretized Breguet Range equation
-    """
+        
         #aero
         CLCruise = VectorVariable(Ncruise, 'C_{L_{Cruise}}', '-', 'Lift Coefficient')
         WLoadCruise = VectorVariable(Ncruise, 'W_{Load_{Cruise}}', 'N/m^2', 'Wing Loading')
@@ -430,8 +428,8 @@ class CommercialAircraft(Model):
             
         substitutions = {      
             'V_{stall}': 120,
-            'ReqRng': 2000,
-##            'hftCruise': 20000, #('sweep', np.linspace(20000,40000,4)),
+            'ReqRng': ('sweep', np.linspace(500,2000,4)),
+##            'hftCruise': 30000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 2,
             'W_{Load_max}': 6664,
             'W_{engine}': 1000,
