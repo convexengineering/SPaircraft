@@ -1,4 +1,4 @@
-from gpkit import Variable, Model, SignomialsEnabled, LinkedConstraintSet
+from gpkit import Variable, Model, SignomialsEnabled, LinkedConstraintSet, VectorVariable
 from gpkit.constraints.costed import CostedConstraintSet
 from gpkit.constraints.tight import TightConstraintSet as TCS
 from numpy import cos, pi, tan
@@ -8,32 +8,24 @@ from wingbox import WingBox
 class Wing(CostedConstraintSet):
     """
     Wing sizing
+
+    Arguments
+    ---------
+    N - number of flight segments in a vectorized model, default value is 1
     """
-    def __init__(self, **kwargs):
+    def __init__(self, N = 1, **kwargs):
+
+        #Variables
         Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
         AR      = Variable('AR_w', '-', 'Wing aspect ratio')
-        CDp     = Variable('C_{D_{p_w}}', '-',
-                           'Wing parasitic drag coefficient')
-        CDw     = Variable('C_{D_w}', '-', 'Drag coefficient, wing')
-        CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope, wing')
-        CLw     = Variable('C_{L_w}', '-', 'Lift coefficient, wing')
         CLwmax  = Variable('C_{L_{wmax}}', '-', 'Max lift coefficient, wing')
-        D       = Variable('D_{wing}', 'N', 'Wing drag')
         Lmax    = Variable('L_{max_{w}}', 'N', 'Maximum load')
-        Lw      = Variable('L_w', 'N', 'Wing lift')
-        M       = Variable('M', '-', 'Cruise Mach number')
-        Re      = Variable('Re_w', '-', 'Cruise Reynolds number (wing)')
         Sw      = Variable('S_w', 'm^2', 'Wing area')
-        Vinf    = Variable('V_{\\infty}', 'm/s', 'Freestream velocity')
         Vfuel   = Variable('V_{fuel, max}', 'm^3', 'Available fuel volume')
         Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
-        W       = Variable('W', 'N', 'Aircraft weight')
-        W0      = Variable('W_0', 'N', 'Weight excluding wing')
         Wfuel   = Variable('W_{fuel}', 'N', 'Fuel weight')
         Wfuelmax= Variable('W_{fuel,max}', 'N', 'Max fuel weight')
         Ww      = Variable('W_{wing}', 'N', 'Wing weight')
-        a       = Variable('a', 'm/s', 'Speed of sound (35,000 ft)')
-        alpha   = Variable('\\alpha_w', '-', 'Wing angle of attack')
         amax    = Variable('\\alpha_{max,w}', '-', 'Max angle of attack')
         b       = Variable('b_w', 'm', 'Wing span')
         cosL    = Variable('\\cos(\\Lambda)', '-',
@@ -41,17 +33,13 @@ class Wing(CostedConstraintSet):
         croot   = Variable('c_{root}', 'm', 'Wing root chord')
         ctip    = Variable('c_{tip}', 'm', 'Wing tip chord')
         cwma    = Variable('\\bar{c}_w', 'm',
-                           'Mean aerodynamic chord (wing)')
+                          'Mean aerodynamic chord (wing)')
         e       = Variable('e', '-', 'Oswald efficiency factor')
-        eta     = Variable('\\eta_w', '-',
-                           'Lift efficiency (diff b/w sectional, actual lift)')
-        fl      = Variable('f(\\lambda_w)', '-',
-                           'Empirical efficiency function of taper')
+        eta     = Variable('\\eta_w', '-',                         'Lift efficiency (diff b/w sectional, actual lift)')
+        fl      = Variable('f(\\lambda_w)', '-',                          'Empirical efficiency function of taper')
         g       = Variable('g', 'm/s^2', 'Gravitational acceleration')
-        mu      = Variable('\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000 ft)')
         p       = Variable('p_w', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q_w', '-', 'Substituted variable = 1 + taper')
-        rho     = Variable('\\rho', 'kg/m^3', 'Air density (35,000 ft)')
         rho0    = Variable('\\rho_0', 'kg/m^3', 'Air density (0 ft)')
         rhofuel = Variable('\\rho_{fuel}', 'kg/m^3', 'Density of fuel')
         tanL    = Variable('\\tan(\\Lambda)', '-',
@@ -65,6 +53,23 @@ class Wing(CostedConstraintSet):
         ymac    = Variable('y_{\\bar{c}_w}', 'm',
                            'Spanwise location of mean aerodynamic chord')
 
+        #Vector Variables (quantities which change from one flight segment to another)
+        rho     = VectorVariable(N, '\\rho', 'kg/m^3', 'Air density (35,000 ft)')
+        a       = VectorVariable(N, 'a', 'm/s', 'Speed of sound (35,000 ft)')
+        alpha   = VectorVariable(N, '\\alpha_w', '-', 'Wing angle of attack')
+        W       = VectorVariable(N, 'W', 'N', 'Aircraft weight')
+        W0      = VectorVariable(N, 'W_0', 'N', 'Weight excluding wing')
+        M       = VectorVariable(N, 'M', '-', 'Cruise Mach number')
+        Re      = VectorVariable(N, 'Re_w', '-', 'Reynolds number (wing)')
+        CDp     = VectorVariable(N, 'C_{D_{p_w}}', '-',
+                           'Wing parasitic drag coefficient')
+        CDw     = VectorVariable(N, 'C_{D_w}', '-', 'Drag coefficient, wing')
+        CLw     = VectorVariable(N, 'C_{L_w}', '-', 'Lift coefficient, wing')
+        CLaw    = VectorVariable(N, 'C_{L_{aw}}', '-', 'Lift curve slope, wing')
+        D       = VectorVariable(N, 'D_{wing}', 'N', 'Wing drag')
+        Lw      = VectorVariable(N, 'L_w', 'N', 'Wing lift')
+        Vinf    = VectorVariable(N, 'V_{\\infty}', 'm/s', 'Freestream velocity')
+        mu      = VectorVariable(N, '\\mu', 'N*s/m^2', 'Dynamic viscosity (35,000 ft)')
 
         objective = D
 
