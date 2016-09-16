@@ -2,7 +2,7 @@
 from numpy import pi
 import gpkit
 import numpy as np
-from gpkit import VectorVariable, Variable, Model, units, ConstraintSet, LinkedConstraintSet, SignomialEquality
+from gpkit import VectorVariable, Variable, Model, units, ConstraintSet, LinkedConstraintSet
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
 import matplotlib.pyplot as plt
@@ -34,15 +34,11 @@ class CommericalMissionConstraints(Model):
     def __init__(self, Nclimb, Ncruise, **kwargs):
 
         #altitude variables
-        dhTakeoff = Variable('dh_{takeoff}', 1500, 'feet', 'Total Altitude Change During Takeoff Profile')
         dhftClimb = VectorVariable(Nclimb, 'dhftClimb', 'feet', 'Change in Altitude Per Climb Segment [feet]')
-        hClimb = VectorVariable(Nclimb, 'hClimb', 'm', 'Altitude [meters]')
-        hftClimb = VectorVariable(Nclimb, 'hftClimb', 'feet', 'Altitude [feet]')
-        hCruise = VectorVariable(Ncruise, 'hCruise', 'm', 'Altitude [meters]')
-        hftCruise = VectorVariable(Ncruise, 'hftCruise', 'feet', 'Altitude [feet]')
-
-        #alttidue at the top of climb
-        htoc = Variable('h_{toc}', 'feet', 'Altitude at Top of Climb')
+        hClimb = VectorVariable(Nclimb, 'hClimb', 'm', 'Climb Segment Altitude [meters]')
+        hftClimb = VectorVariable(Nclimb, 'hftClimb', 'feet', 'Climb Segment altitude [feet]')
+        hCruise = Variable('hCruise', 'm', 'Altitude [meters]')
+        hftCruise = Variable('hftCruise', 'feet', 'Altitude [feet]')
 
         #weight variables
         W_payload = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
@@ -80,6 +76,7 @@ class CommericalMissionConstraints(Model):
 
         #Fuselage area
         A_fuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
+        #Estimated fuselage are per passenger
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
         
         constraints = []
@@ -116,7 +113,7 @@ class CommericalMissionConstraints(Model):
             #altitude buildup constraints for climb segment 2
             TCS([hftClimb[0] >= dhftClimb[0]]),
             
-            hftClimb <= htoc,
+            hftClimb <= hCruise,
             ])
 
         for i in range(1, Nclimb):
@@ -156,7 +153,6 @@ class Climb(Model):
         DClimb = VectorVariable(Nclimb, 'DragClimb', 'N', 'Drag')
         Vstall = Variable('V_{stall}', 'knots', 'Aircraft Stall Speed')
         Cdwc = VectorVariable(Nclimb, 'C_{d_wc}', '-', 'Cd for a NC130 Airfoil at Re=2e7')
-        cdp_rc = VectorVariable(Nclimb, 'cdp_rc', '-', 'Hold Variable for Drag Fit')
         Cdfuse = Variable('C_{d_fuse}', '-', 'Fuselage Drag Coefficient')
         K = Variable('K', '-', 'K for Parametric Drag Model')
         e = Variable('e', '-', 'Oswald Span Efficiency Factor')
@@ -179,9 +175,6 @@ class Climb(Model):
         gamma = Variable('\gamma', 1.4, '-', 'Air Specific Heat Ratio')
         R = Variable('R', 287, 'J/kg/K', 'Gas Constant for Air')
 
-        #thrust
-        thrustClimb = Variable('thrustClimb', 'N', 'Engine Thrust')
-
         #excess power during climb
         excesspClimb = VectorVariable(Nclimb, 'Excess Power Climb', 'W', 'Excess Power During Climb')
 
@@ -202,14 +195,15 @@ class Climb(Model):
 
         #altitude
         dhftClimb = VectorVariable(Nclimb, 'dhftClimb', 'feet', 'Change in Altitude Per Climb Segment [feet]') 
-        htoc = Variable('h_{toc}', 'feet', 'Altitude at Top of Climb')
+        hftCruise = Variable('hftCruise', 'feet', 'Altitude [feet]')
 
+        #Weights
         W_fuelClimb = VectorVariable(Nclimb, 'W_{fuelClimb}', 'N', 'Segment Fuel Weight')
         W_avgClimb = VectorVariable(Nclimb, 'W_{avgClimb}', 'N', 'Geometric Average of Segment Start and End Weight')
-        
+
+        #Engine
         TSFCcl = VectorVariable(Nclimb, 'TSFC_{cl}', '1/hr', 'Thrust Specific Fuel Consumption During Climb2')
         thrustcl = VectorVariable(Nclimb, 'thrust_{cl}', 'N', 'Thrust During Climb Segment #2')
-
         thrustcr = VectorVariable(Ncruise, 'thrust_{cr}', 'N', 'Thrust During Cruise Segment #2')
 
         #Fuselage area
@@ -238,12 +232,10 @@ class Climb(Model):
             
             K == (pi * e * AR)**-1,
             
-            cdp_rc[icl] >= (1.02458748e10 * CLClimb[icl]**15.587947404823325 * MClimb[icl]**156.86410659495155 +
+            Cdwc[icl]**6.5 >= (1.02458748e10 * CLClimb[icl]**15.587947404823325 * MClimb[icl]**156.86410659495155 +
                 2.85612227e-13 * CLClimb[icl]**1.2774976672501526 * MClimb[icl]**6.2534328002723703 +
                 2.08095341e-14 * CLClimb[icl]**0.8825277088649582 * MClimb[icl]**0.0273667615730107 +
                 1.94411925e+06 * CLClimb[icl]**5.6547413360261691 * MClimb[icl]**146.51920742858428),
-
-            Cdwc[icl]**6.5 >= cdp_rc[icl],
             
             RCClimb[icl] == excesspClimb[icl]/W_avgClimb[icl],
             RCClimb[icl] >= 500*units('ft/min'),
@@ -265,7 +257,7 @@ class Climb(Model):
             W_fuelClimb[icl]  == numeng*TSFCcl[icl] * thoursClimb[icl] * thrustcl[icl],
 
             #compute the dh
-            dhftClimb[icl] == htoc/Nclimb,
+            dhftClimb[icl] == hftCruise/Nclimb,
 
             #constrain the max wing loading
             WLoadClimb <= WLoadmax,
@@ -301,7 +293,6 @@ class Cruise(Model):
         DCruise = VectorVariable(Ncruise, 'DragCruise', 'N', 'Drag')
         Vstall = Variable('V_{stall}', 'knots', 'Aircraft Stall Speed')
         Cdwcr = VectorVariable(Ncruise, 'C_{d_wcr}', '-', 'Cd for a NC130 Airfoil at Re=2e7')
-        cdp_rcr = VectorVariable(Ncruise, 'cdp_rcr', '-', 'Hold Variable for Drag Fit')
         Cdfuse = Variable('C_{d_fuse}', '-', 'Fuselage Drag Coefficient')
         K = Variable('K', '-', 'K for Parametric Drag Model')
         e = Variable('e', '-', 'Oswald Span Efficiency Factor')
@@ -331,14 +322,11 @@ class Cruise(Model):
         g = Variable('g', 9.81, 'm/s^2', 'Gravitational Acceleration')
         gamma = Variable('\gamma', 1.4, '-', 'Air Specific Heat Ratio')
         R = Variable('R', 287, 'J/kg/K', 'Gas Constant for Air')
-        
-        TSFCcr = VectorVariable(Ncruise, 'TSFC_{cr}', '1/hr', 'Thrust Specific Fuel Consumption During Cruise2')
-        D = Variable('D', 'N', 'Drag for Cruise')
 
+        #Engine
+        TSFCcr = VectorVariable(Ncruise, 'TSFC_{cr}', '1/hr', 'Thrust Specific Fuel Consumption During Cruise2')
         thrustcr = VectorVariable(Ncruise, 'thrust_{cr}', 'N', 'Thrust During Cruise')
 
-        constraints = []
-        
         #defined here for linking purposes
         T0 = Variable('T_0', 'K', 'Free Stream Stagnation Temperature')
         P0 = Variable('P_0', 'kPa', 'Free Stream Static Pressure')
@@ -348,15 +336,9 @@ class Cruise(Model):
 
         #range variables
         ReqRng = Variable('ReqRng', 'miles', 'Required Mission Range')
-        RngCruise = VectorVariable(Ncruise, 'RngCruise', 'miles', 'Segment Range During Cruise2')
+        RngCruise = VectorVariable(Ncruise, 'RngCruise', 'miles', 'Segment Range During Cruise')
 
-        #altitude
-        hCruise = VectorVariable(Ncruise, 'hCruise', 'm', 'Altitude [meters]')
-        hftCruise = VectorVariable(Ncruise, 'hftCruise', 'feet', 'Altitude [feet]')
-
-        #alttidue at the top of climb
-        htoc = Variable('h_{toc}', 'feet', 'Altitude at Top of Climb')
- 
+        #Weight variables
         W_fuelCruise = VectorVariable(Ncruise, 'W_{fuelCruise}', 'N', 'Segment Fuel Weight')
         W_avgCruise = VectorVariable(Ncruise, 'W_{avgCruise}', 'N', 'Geometric Average of Segment Start and End Weight')
         W_avgClimb = VectorVariable(Nclimb, 'W_{avgClimb}', 'N', 'Geometric Average of Segment Start and End Weight')
@@ -368,6 +350,8 @@ class Cruise(Model):
         #non-GPkit variables
         #cruise 2 lsit
         icr = map(int, np.linspace(0, Ncruise - 1, Ncruise))
+
+        constraints = []
             
         constraints.extend([
 ##            MCruise[icr] == 0.8,
@@ -380,12 +364,10 @@ class Cruise(Model):
 
             K == (pi * e * AR)**-1,
 
-            cdp_rcr[icr] >= (1.02458748e10 * CLCruise[icr]**15.587947404823325 * MCruise[icr]**156.86410659495155 +
+            Cdwcr[icr]**6.5 >= (1.02458748e10 * CLCruise[icr]**15.587947404823325 * MCruise[icr]**156.86410659495155 +
                 2.85612227e-13 * CLCruise[icr]**1.2774976672501526 * MCruise[icr]**6.2534328002723703 +
                 2.08095341e-14 * CLCruise[icr]**0.8825277088649582 * MCruise[icr]**0.0273667615730107 +
                 1.94411925e+06 * CLCruise[icr]**5.6547413360261691 * MCruise[icr]**146.51920742858428),
-
-            Cdwcr[icr]**6.5 >= cdp_rcr[icr],
             
             DCruise[icr] == numeng * thrustcr[icr],
 
@@ -404,9 +386,6 @@ class Cruise(Model):
 
             #constrain the max wing loading
             WLoadCruise <= WLoadmax,
-
-            #altitude constraint
-            hCruise == 40000*units('ft'),
             ])
         
         #constraint on the aircraft meeting the required range
@@ -433,8 +412,8 @@ class CommercialAircraft(Model):
     """
     def __init__(self, **kwargs):
         #defining the number of segments
-        Nclimb = 4
-        Ncruise = 4
+        Nclimb = 3
+        Ncruise = 1
 
         #make the segment range
         Nseg = Nclimb + Ncruise
@@ -453,14 +432,14 @@ class CommercialAircraft(Model):
             'V_{stall}': 120,
             'ReqRng': 2000,
             'K': 0.05,
-            'h_{toc}': 40000, #('sweep', np.linspace(20000,40000,4)),
+            'hftCruise': 36000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 2,
             'W_{Load_max}': 6664,
             'W_{engine}': 1000,
             'W_{pax}': 91 * 9.81,
             'n_{pax}': 150,
             'pax_{area}': 1,
-            'C_{d_fuse}': .005, #assumes turbulent flow, from wikipedia
+            'C_{d_fuse}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,
             'span_{max}': 35,
 
@@ -483,13 +462,13 @@ class CommercialAircraft(Model):
 
         for i in range(Nclimb):
             subs.update({
-                climb["\\rhoClimb"][i]: atmvec[i]["\\rho"], climb["TClimb"][i]: atmvec[i]["T_{atm}"], cmc['hClimb'][i]: atmvec[i]["h"]
+                climb["\\rhoClimb"][i]: atmvec[i]["\\rho"], climb["TClimb"][i]: atmvec[i]["T_{atm}"], cmc['hftClimb'][i]: atmvec[i]["h"]
                 })
 
         for i in range(Ncruise):
             subs.update({
                 cruise["\\rhoCruise"][i]: atmvec[i + Nclimb]["\\rho"], cruise["TCruise"][i]:atmvec[i + Nclimb]["T_{atm}"],
-                cruise['hCruise'][i]: atmvec[i + Nclimb]["h"]
+                cmc['hCruise']: atmvec[i + Nclimb]["h"]
                 })
 
         constraints.subinplace(subs)
