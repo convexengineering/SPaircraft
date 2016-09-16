@@ -16,15 +16,20 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 
 """
-minimizes the aircraft total weight, must specify the number of passtengers,
-the fusealge area per passenger (recommended to use 1 m^2 based on research), and the
-engine weight
-Rate of climb equation taken from John Anderson's Aircraft Performance and Design (eqn 5.85)
+Minimizes the aircraft total fuel weight. Rate of climb equation taken from John
+Anderson's Aircraft Performance and Design (eqn 5.85).
+
+Inputs
+-----
+
+- Number of passtengers,
+- Fusealge area per passenger (recommended to use 1 m^2 based on research)
+- Engine weight
 """
 
 class CommericalMissionConstraints(Model):
     """
-    class that is general constraints that apply across the mission
+    General constraints that apply across the mission
     """
     def __init__(self, Nclimb1, Nclimb2, Ncruise2, signomial=0, **kwargs):
         #variable local to this model
@@ -210,7 +215,7 @@ class Climb1(Model):
 
         #atmosphere
         aClimb1 = VectorVariable(Nclimb1, 'aClimb1', 'm/s', 'Speed of Sound')
-        rhoClimb1 = VectorVariable(Nclimb1, '\rhoClimb1', 'kg/m^3', 'Air Density')
+        rhoClimb1 = VectorVariable(Nclimb1, '\\rhoClimb1', 'kg/m^3', 'Air Density')
         pClimb1 = VectorVariable(Nclimb1, 'pClimb1', 'kPa', 'Pressure')
         muClimb1 = VectorVariable(Nclimb1, '\muClimb1', 'kg/m/s', 'Air Kinematic Viscosity')
         TClimb1 = VectorVariable(Nclimb1, 'TClimb1', 'K', 'Air Temperature')
@@ -330,16 +335,14 @@ class Climb1(Model):
             #constrain the max wing loading
             WLoadClimb1 <= WLoadmax,
 
-            thrustc1 <= 2 * thrustcr2,
-
-            TSFCc1[0] == .7*units('1/hr'),
-            TSFCc1[1] == .7*units('1/hr'),
+            thrustc1 <= 2 * thrustcr2[0],
             ])
 
         for i in range(0, Nclimb1):
             constraints.extend([
                 #speed of sound
                 aClimb1[i]  == (gamma * R * TClimb1[i])**.5,
+                TSFCc1[i] == .7*units('1/hr'),
                 ])
         
         Model.__init__(self, None, constraints, **kwargs)
@@ -364,7 +367,7 @@ class Climb2(Model):
         
         #atmosphere
         aClimb2 = VectorVariable(Nclimb2, 'aClimb2', 'm/s', 'Speed of Sound')
-        rhoClimb2 = VectorVariable(Nclimb2, '\rhoClimb2', 'kg/m^3', 'Air Density')
+        rhoClimb2 = VectorVariable(Nclimb2, '\\rhoClimb2', 'kg/m^3', 'Air Density')
         pClimb2 = VectorVariable(Nclimb2, 'pClimb2', 'kPa', 'Pressure')
         muClimb2 = VectorVariable(Nclimb2, '\muClimb2', 'kg/m/s', 'Air Kinematic Viscosity')
         TClimb2 = VectorVariable(Nclimb2, 'TClimb2', 'K', 'Air Temperature')
@@ -472,15 +475,13 @@ class Climb2(Model):
             WLoadClimb2 <= WLoadmax,
 
             thrustc2 <= 1.5 * thrustcr2[0],
-
-            TSFCc2[0] == .65*units('1/hr'),
-            TSFCc2[1] == .6*units('1/hr'),
             ])
 
         for i in range(0, Nclimb2):
             constraints.extend([
                 #speed of sound
                 aClimb2[i]  == (gamma * R * TClimb2[i])**.5,
+                TSFCc2[i] == .6*units('1/hr'),
                 ])
         
         Model.__init__(self, None, constraints, **kwargs)
@@ -500,11 +501,7 @@ class Cruise2(Model):
     Model is based off of a discretized Breguet Range equation
     """
     def __init__(self, Nclimb2, Ncruise2, **kwargs):
-        """
-    class to model the second cruise portion of a flight (if the flight is
-    long enough to mandate two cruise portions)
-    Model is based off of a discretized Breguet Range equation
-    """
+ 
         #aero
         CLCruise2 = VectorVariable(Ncruise2, 'C_{L_{Cruise2}}', '-', 'Lift Coefficient')
         WLoadCruise2 = VectorVariable(Ncruise2, 'W_{Load_{Cruise2}}', 'N/m^2', 'Wing Loading')
@@ -520,7 +517,7 @@ class Cruise2(Model):
 
         #atmosphere
         aCruise2 = VectorVariable(Ncruise2, 'aCruise2', 'm/s', 'Speed of Sound')
-        rhoCruise2 = VectorVariable(Ncruise2, '\rhoCruise2', 'kg/m^3', 'Air Density')
+        rhoCruise2 = VectorVariable(Ncruise2, '\\rhoCruise2', 'kg/m^3', 'Air Density')
         pCruise2 = VectorVariable(Ncruise2, 'pCruise2', 'kPa', 'Pressure')
         muCruise2 = VectorVariable(Ncruise2, '\muCruise2', 'kg/m/s', 'Air Kinematic Viscosity')
         TCruise2 = VectorVariable(Ncruise2, 'TCruise2', 'K', 'Air Temperature')
@@ -618,9 +615,6 @@ class Cruise2(Model):
 
             #constrain the max wing loading
             WLoadCruise2 <= WLoadmax,
-
-            TSFCcr2[0] == .5*units('1/hr'),
-            TSFCcr2[1] == .5*units('1/hr'),
             ])
         
         #constraint on the aircraft meeting the required range
@@ -633,14 +627,11 @@ class Cruise2(Model):
             constraints.extend([
                 #speed of sound
                 aCruise2[i]  == (gamma * R * TCruise2[i])**.5,
+                TSFCcr2[i] == .5*units('1/hr'),
                 ])
             
         Model.__init__(self, None, constraints, **kwargs)
 
-
-        
-        Model.__init__(self, None, constraints, **kwargs)
-        
 #---------------------------------------
 #decent
 
@@ -680,7 +671,6 @@ class CommercialAircraft(Model):
         substitutions = {      
             'V_{stall}': 120,
             'ReqRng': 2000,
-            'K': 0.05,
             'h_{toc}': 40000,#('sweep', np.linspace(20000,40000,4)),
             'speedlimit': 250,
             'numeng': 2,
@@ -713,23 +703,23 @@ class CommercialAircraft(Model):
 
         for i in range(Nclimb1):
             subs.update({
-                climb1["\rhoClimb1"][i]: atmvec[i]["\rho"], climb1["TClimb1"][i]: atmvec[i]["T_{atm}"], cmc['hClimb1'][i]: atmvec[i]["h"]
+                climb1["\\rhoClimb1"][i]: atmvec[i]["\\rho"], climb1["TClimb1"][i]: atmvec[i]["T_{atm}"], cmc['hClimb1'][i]: atmvec[i]["h"]
                 })
     
         for i in range(Nclimb2):
             subs.update({
-                climb2["\rhoClimb2"][i]: atmvec[i + Nclimb1]["\rho"], climb2["TClimb2"][i]: atmvec[i + Nclimb1]["T_{atm}"], cmc['hClimb2'][i]: atmvec[i + Nclimb1]["h"]
+                climb2["\\rhoClimb2"][i]: atmvec[i + Nclimb1]["\\rho"], climb2["TClimb2"][i]: atmvec[i + Nclimb1]["T_{atm}"], cmc['hClimb2'][i]: atmvec[i + Nclimb1]["h"]
                 })
 
         for i in range(Ncruise2):
             subs.update({
-                cruise2["\rhoCruise2"][i]: atmvec[i + Nclimb1 + Nclimb2]["\rho"], cruise2["TCruise2"][i]:atmvec[i + Nclimb1 + Nclimb2]["T_{atm}"],
+                cruise2["\\rhoCruise2"][i]: atmvec[i + Nclimb1 + Nclimb2]["\\rho"], cruise2["TCruise2"][i]:atmvec[i + Nclimb1 + Nclimb2]["T_{atm}"],
                 cmc['hCruise2'][i]: atmvec[i + Nclimb1 + Nclimb2]["h"]
                 })
 
         constraints.subinplace(subs)
         
-        lc = LinkedConstraintSet(constraints, exclude={"T_{atm}", "P_{atm}", '\rho', "h"})
+        lc = LinkedConstraintSet(constraints, exclude={"T_{atm}", "P_{atm}", '\\rho', "h"})
 
         Model.__init__(self, cmc.cost, lc, substitutions, **kwargs)
 
