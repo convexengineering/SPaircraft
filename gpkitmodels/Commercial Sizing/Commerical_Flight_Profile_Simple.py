@@ -412,8 +412,8 @@ class CommercialAircraft(Model):
     """
     def __init__(self, **kwargs):
         #defining the number of segments
-        Nclimb = 3
-        Ncruise = 1
+        Nclimb = 2
+        Ncruise = 2
 
         #make the segment range
         Nseg = Nclimb + Ncruise
@@ -432,7 +432,7 @@ class CommercialAircraft(Model):
             'V_{stall}': 120,
             'ReqRng': 2000,
             'K': 0.05,
-            'hftCruise': 36000, #('sweep', np.linspace(20000,40000,4)),
+            'hftCruise': 20000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 2,
             'W_{Load_max}': 6664,
             'W_{engine}': 1000,
