@@ -431,8 +431,7 @@ class CommercialAircraft(Model):
         substitutions = {      
             'V_{stall}': 120,
             'ReqRng': 2000,
-            'K': 0.05,
-            'hftCruise': 20000, #('sweep', np.linspace(20000,40000,4)),
+##            'hftCruise': 20000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 2,
             'W_{Load_max}': 6664,
             'W_{engine}': 1000,
