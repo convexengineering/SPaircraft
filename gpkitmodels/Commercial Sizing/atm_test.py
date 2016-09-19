@@ -1,5 +1,6 @@
 from gpkit import Variable, VectorVariable, Model, units, SignomialsEnabled, SignomialEquality
 from gpkit.constraints.set import ConstraintSet
+from gpkit.constraints.tight import TightConstraintSet as TCS
 
 class Atmosphere(Model):
     def __init__(self, **kwargs):
@@ -47,7 +48,8 @@ class Atmosphere(Model):
                 SignomialEquality(T_sl, T_atm + L_atm*h),
 
                 #constraint on mu
-                t_plus_ts_approx * mu == C_1 * T_atm**1.5,
+##                SignomialEquality((T_atm + T_s) * mu, C_1 * T_atm**1.5),
+                TCS([(T_atm + T_s) * mu >= C_1 * T_atm**1.5])
                 ]
 
 
