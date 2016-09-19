@@ -1,5 +1,5 @@
 """Simple commercial aircraft flight profile and aircraft model"""
-from numpy import pi
+from numpy import cos, pi, tan
 import gpkit
 import numpy as np
 from gpkit import VectorVariable, Variable, Model, units, ConstraintSet, LinkedConstraintSet
@@ -8,13 +8,23 @@ from gpkit.constraints.tight import TightConstraintSet as TCS
 import matplotlib.pyplot as plt
 from gpkit.small_scripts import mag
 from atm_test import Atmosphere
-from ..aircraft.wing import Wing
+from wing import Wing
 
 #packages just needed for plotting since this is for sweeps
 import matplotlib.pyplot as plt
 
 #only needed for the local bounded debugging tool
 from collections import defaultdict
+
+#TODO
+#discuss/think about Lmax and Vne
+
+
+"""
+things I need to compute to integrate the wing
+-Re
+-mu....eww
+"""
 
 """
 Minimizes the aircraft total fuel weight. Rate of climb equation taken from John
@@ -97,12 +107,16 @@ class CommericalMissionConstraints(Model):
             TCS([W_e + W_payload + numeng * W_engine + W_wing <= W_endCruise[Ncruise-1]]),
             TCS([W_ftotal >= sum(W_fuelClimb) + sum(W_fuelCruise)]),
 
-            #wing weight constraint
-            #based off of a raymer weight and 737 data from TASOPT output file
-            (S/(124.58*units('m^2')))**.65 == W_wing/(105384.1524*units('N')),
 
+           #---------    Now comes from imported wing model      ------------
+##            #wing weight constraint
+##            #based off of a raymer weight and 737 data from TASOPT output file
+##            (S/(124.58*units('m^2')))**.65 == W_wing/(105384.1524*units('N')),
+
+
+          #---------    Now comes from imported wing model      ------------
             #compute wing span and aspect ratio, subject to a span constraint
-            AR == (span**2)/S,
+##            AR == (span**2)/S,
             span <= span_max,
 
             #estimate based on TASOPT 737 model
@@ -160,18 +174,25 @@ class Climb(Model):
         K = Variable('K', '-', 'K for Parametric Drag Model')
         e = Variable('e', '-', 'Oswald Span Efficiency Factor')
         AR = Variable('AR', '-', 'Aspect Ratio')
+        ReClimb = VectorVariable(Nclimb, 'R_{e_{Climb}}', '-', 'Climb Reynolds Number')
+
+        #drag coefficients from wing model
+        CdwClimb     = VectorVariable(Nclimb, 'C_{D_wClimb}', '-', 'Drag coefficient, wing')
 
         #atmosphere
         aClimb = VectorVariable(Nclimb, 'aClimb', 'm/s', 'Speed of Sound')
         rhoClimb = VectorVariable(Nclimb, '\\rhoClimb', 'kg/m^3', 'Air Density')
         pClimb = VectorVariable(Nclimb, 'pClimb', 'kPa', 'Pressure')
         TClimb = VectorVariable(Nclimb, 'TClimb', 'K', 'Air Temperature')
+        muClimb = VectorVariable(Nclimb, '\\muClimb', 'N*s/m^2', 'Dynamic Viscosity')
 
         #number of engines
         numeng = Variable('numeng', '-', 'Number of Engines')
 
         #aircraft geometry
         S = Variable('S', 'm^2', 'Wing Planform Area')
+        cwma    = Variable('\\bar{c}_w', 'm',
+                          'Mean aerodynamic chord (wing)')
 
         #physical constants
         g = Variable('g', 9.81, 'm/s^2', 'Gravitational Acceleration')
@@ -231,14 +252,15 @@ class Climb(Model):
             #climb rate constraints
             TCS([excesspClimb[icl]+VClimb[icl]*DClimb[icl] <= VClimb[icl]*numeng*thrustcl[icl]]),
             
-            TCS([DClimb[icl] >= (.5*S*rhoClimb[icl]*VClimb[icl]**2)*(Cdwc[icl] + K*CLClimb[icl]**2) + Cdfuse * (.5 * A_fuse * rhoClimb[icl] * VClimb[icl]**2)]),
+            TCS([DClimb[icl] >= (.5*S*rhoClimb[icl]*VClimb[icl]**2)*(CdwClimb[icl] + K*CLClimb[icl]**2) +
+                 Cdfuse * (.5 * A_fuse * rhoClimb[icl] * VClimb[icl]**2)]),
             
             K == (pi * e * AR)**-1,
             
-            Cdwc[icl]**6.5 >= (1.02458748e10 * CLClimb[icl]**15.587947404823325 * MClimb[icl]**156.86410659495155 +
-                2.85612227e-13 * CLClimb[icl]**1.2774976672501526 * MClimb[icl]**6.2534328002723703 +
-                2.08095341e-14 * CLClimb[icl]**0.8825277088649582 * MClimb[icl]**0.0273667615730107 +
-                1.94411925e+06 * CLClimb[icl]**5.6547413360261691 * MClimb[icl]**146.51920742858428),
+##            Cdwc[icl]**6.5 >= (1.02458748e10 * CLClimb[icl]**15.587947404823325 * MClimb[icl]**156.86410659495155 +
+##                2.85612227e-13 * CLClimb[icl]**1.2774976672501526 * MClimb[icl]**6.2534328002723703 +
+##                2.08095341e-14 * CLClimb[icl]**0.8825277088649582 * MClimb[icl]**0.0273667615730107 +
+##                1.94411925e+06 * CLClimb[icl]**5.6547413360261691 * MClimb[icl]**146.51920742858428),
             
             RCClimb[icl] == excesspClimb[icl]/W_avgClimb[icl],
             RCClimb[icl] >= 500*units('ft/min'),
@@ -264,6 +286,9 @@ class Climb(Model):
 
             #constrain the max wing loading
             WLoadClimb <= WLoadmax,
+
+            #compute the Reynolds number
+            ReClimb == rhoClimb * VClimb * cwma / muClimb,
 
             thrustcl <= 2 * thrustcr[0],
             ])
@@ -296,15 +321,22 @@ class Cruise(Model):
         K = Variable('K', '-', 'K for Parametric Drag Model')
         e = Variable('e', '-', 'Oswald Span Efficiency Factor')
         AR = Variable('AR', '-', 'Aspect Ratio')
+        ReCruise = VectorVariable(Nclimb, 'R_{e_{Cruise}}', '-', 'Cruise Reynolds Number')
+
+        #drag coefficients from wing model
+        CdwCruise     = VectorVariable(Ncruise, 'C_{D_wCruise}', '-', 'Drag coefficient, wing')
 
         #atmosphere
         aCruise = VectorVariable(Ncruise, 'aCruise', 'm/s', 'Speed of Sound')
         rhoCruise = VectorVariable(Ncruise, '\\rhoCruise', 'kg/m^3', 'Air Density')
         pCruise = VectorVariable(Ncruise, 'pCruise', 'kPa', 'Pressure')
         TCruise = VectorVariable(Ncruise, 'TCruise', 'K', 'Air Temperature')
+        muCruise = VectorVariable(Ncruise, '\\muCruise', 'N*s/m^2', 'Dynamic Viscosity')
 
         #aircraft geometry
         S = Variable('S', 'm^2', 'Wing Planform Area')
+        cwma    = Variable('\\bar{c}_w', 'm',
+                          'Mean aerodynamic chord (wing)')
 
         #number of engines
         numeng = Variable('numeng', '-', 'Number of Engines')
@@ -358,15 +390,15 @@ class Cruise(Model):
             MCruise * aCruise == VCruise,
             
             TCS([DCruise[icr] >= (.5 * S * rhoCruise[icr] * VCruise[icr]**2) *
-                 (Cdwcr[icr] + K * (W_avgCruise[icr] / (.5 * S * rhoCruise[icr]* VCruise[icr]**2))**2)
+                 (CdwCruise[icr] + K*CLCruise[icr]**2)
                  + Cdfuse * (.5 * A_fuse * rhoCruise[icr] * VCruise[icr]**2)]),
 
             K == (pi * e * AR)**-1,
 
-            Cdwcr[icr]**6.5 >= (1.02458748e10 * CLCruise[icr]**15.587947404823325 * MCruise[icr]**156.86410659495155 +
-                2.85612227e-13 * CLCruise[icr]**1.2774976672501526 * MCruise[icr]**6.2534328002723703 +
-                2.08095341e-14 * CLCruise[icr]**0.8825277088649582 * MCruise[icr]**0.0273667615730107 +
-                1.94411925e+06 * CLCruise[icr]**5.6547413360261691 * MCruise[icr]**146.51920742858428),
+##            Cdwcr[icr]**6.5 >= (1.02458748e10 * CLCruise[icr]**15.587947404823325 * MCruise[icr]**156.86410659495155 +
+##                2.85612227e-13 * CLCruise[icr]**1.2774976672501526 * MCruise[icr]**6.2534328002723703 +
+##                2.08095341e-14 * CLCruise[icr]**0.8825277088649582 * MCruise[icr]**0.0273667615730107 +
+##                1.94411925e+06 * CLCruise[icr]**5.6547413360261691 * MCruise[icr]**146.51920742858428),
 
             DCruise[icr] == numeng * thrustcr[icr],
 
@@ -385,6 +417,9 @@ class Cruise(Model):
 
             #constrain the max wing loading
             WLoadCruise <= WLoadmax,
+
+            #compute the Reynolds number
+            ReCruise == rhoCruise * VCruise * cwma / muCruise,
             ])
 
         #constraint on the aircraft meeting the required range
@@ -421,11 +456,14 @@ class CommercialAircraft(Model):
         cmc = CommericalMissionConstraints(Nclimb, Ncruise)
         climb = Climb(Nclimb, Ncruise)
         cruise = Cruise(Nclimb, Ncruise)
+        wing = Wing(Nseg)
 
         atmvec = []
 
         for i in range(Nseg):
             atmvec.append(Atmosphere())
+
+        sweep = 30 # [deg]
 
         substitutions = {      
             'V_{stall}': 120,
@@ -438,7 +476,7 @@ class CommercialAircraft(Model):
             'n_{pax}': 150,
             'pax_{area}': 1,
             'C_{d_fuse}': .005, #assumes flat plate turbulent flow, from wikipedia
-            'e': .9,
+##            'e': .9,
             'span_{max}': 35,
 
             #atm subs
@@ -446,27 +484,49 @@ class CommercialAircraft(Model):
             "T_{sl}": 288.15,
             "L_{atm}": .0065,
             "M_{atm}":.0289644,
-            "R_{atm}": 8.31447
+            "R_{atm}": 8.31447,
+
+            #wing subs
+##            'C_{L_{wmax}}': 2.5,
+##            'V_{ne}': 144,
+            '\\alpha_{max,w}': 0.1, # (6 deg)
+            '\\cos(\\Lambda)': cos(sweep*pi/180),
+            '\\eta_w': 0.97,
+##            '\\rho_0': 1.225,
+            '\\rho_{fuel}': 817, # Kerosene [TASOPT]
+            '\\tan(\\Lambda)': tan(sweep*pi/180),
+            'g': 9.81,
             }
 
-        submodels = [cmc, climb, cruise]
+        submodels = [cmc, climb, cruise, wing]
 
         for i in range(len(atmvec)):
             submodels.extend(atmvec[i])
 
         constraints = ConstraintSet([submodels])
 
-        subs= {}
+        subs= {climb["AR"]: wing["AR_w"], cruise["AR"]: wing["AR_w"], cruise["S"]: wing["S_w"],
+               climb["S"]: wing["S_w"], wing["W_{fuel}"]: cmc['W_{f_{total}}'],
+               wing["W_{wing}"]: cmc['W_{wing}'], wing["b_w"]: cmc['span']}
 
         for i in range(Nclimb):
             subs.update({
-                climb["\\rhoClimb"][i]: atmvec[i]["\\rho"], climb["TClimb"][i]: atmvec[i]["T_{atm}"], cmc['hftClimb'][i]: atmvec[i]["h"]
+                climb["\\rhoClimb"][i]: atmvec[i]["\\rho"],
+                climb["TClimb"][i]: atmvec[i]["T_{atm}"], cmc['hftClimb'][i]: atmvec[i]["h"],
+                wing["M"][i]: climb["MClimb"][i], climb['C_{D_wClimb}'] : wing['C_{D_w}'][i],
+                climb['C_{L_{Climb}}']: wing["C_{L_w}"][i], climb['\\muClimb'][i]: atmvec[i]["\\mu"]
                 })
 
         for i in range(Ncruise):
             subs.update({
-                cruise["\\rhoCruise"][i]: atmvec[i + Nclimb]["\\rho"], cruise["TCruise"][i]:atmvec[i + Nclimb]["T_{atm}"],
-                cmc['hCruise']: atmvec[i + Nclimb]["h"]
+                cruise["\\rhoCruise"][i]: atmvec[i + Nclimb]["\\rho"],
+                cruise["TCruise"][i]:atmvec[i + Nclimb]["T_{atm}"],
+                cmc['hCruise']: atmvec[i + Nclimb]["h"], 
+                wing["M"][i + Nclimb]: cruise["MCruise"][i],
+                cruise['C_{D_wCruise}']: wing['C_{D_w}'][i +  Nclimb],
+                cruise['C_{L_{Cruise}}'][i]: wing["C_{L_w}"][i + Nclimb],
+                cruise['\\muCruise'][i]: atmvec[i + Nclimb]["\\mu"]
+                
                 })
 
         constraints.subinplace(subs)
