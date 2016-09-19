@@ -19,6 +19,22 @@ class Atmosphere(Model):
 
         h = Variable("h", "ft", "Altitude")
 
+        """
+        Dynamic viscosity (mu) as a function of temperature
+        References:
+        http://www-mdp.eng.cam.ac.uk/web/library/enginfo/aerothermal_dvd_only/aero/
+            atmos/atmos.html
+        http://www.cfd-online.com/Wiki/Sutherland's_law
+        """
+        mu  = Variable('\\mu', 'kg/(m*s)', 'Dynamic viscosity')
+
+        T_s = Variable('T_s', 110.4, "K", "Sutherland Temperature")
+        C_1 = Variable('C_1', 1.458E-6, "kg/(m*s*K^0.5)",
+                       'Sutherland coefficient')
+
+        t_plus_ts_approx = (T_atm + T_s).mono_approximation({T_atm: 288.15,
+                                                         T_s: T_s.value})
+
         with SignomialsEnabled():
             constraints = [
                 # Pressure-altitude relation
@@ -26,11 +42,14 @@ class Atmosphere(Model):
 
                 # Ideal gas law
                 rho == p_atm/(R_atm/M_atm*T_atm),
-                
-                SignomialEquality(T_sl, T_atm + L_atm*h)
-                # T_sl >= T_atm + L_atm*h,     # Temp decreases w/ altitude
+
+                #temperature equation
+                SignomialEquality(T_sl, T_atm + L_atm*h),
+
+                #constraint on mu
+                t_plus_ts_approx * mu == C_1 * T_atm**1.5,
                 ]
-                # http://en.wikipedia.org/wiki/Density_of_air#Altitude
+
 
         Model.__init__(self, T_atm, constraints, **kwargs)
         
