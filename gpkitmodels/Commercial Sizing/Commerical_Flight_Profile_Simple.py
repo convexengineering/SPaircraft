@@ -458,15 +458,35 @@ class CommercialAircraft(Model):
         subs= {}
 
         for i in range(Nclimb):
-            subs.update({
-                climb["\\rhoClimb"][i]: atmvec[i]["\\rho"], climb["TClimb"][i]: atmvec[i]["T_{atm}"], cmc['hftClimb'][i]: atmvec[i]["h"]
-                })
+            for atmvar, climbvar in [("\\rho", "\\rhoClimb"), ("T_{atm}", "TClimb"), ("h", "hftClimb")]:
+                descr = dict(atmvec[i][atmvar].key.descr)
+                model = climb if atmvar != "h" else cmc
+                climbkey = model[climbvar][i]
+                climbdescr = dict(climbkey.key.descr)
+                # new variable is same as atmvar but with extended models, modelnums
+                descr["models"].extend(climbdescr["models"])
+                descr["modelnums"].extend(climbdescr["modelnums"])
+                subs[climbkey] = Variable(**descr)
 
         for i in range(Ncruise):
-            subs.update({
-                cruise["\\rhoCruise"][i]: atmvec[i + Nclimb]["\\rho"], cruise["TCruise"][i]:atmvec[i + Nclimb]["T_{atm}"],
-                cmc['hCruise']: atmvec[i + Nclimb]["h"]
-                })
+            for atmvar, cruisevar in [("\\rho", "\\rhoCruise"), ("T_{atm}", "TCruise"), ("h", "hCruise")]:
+                descr = dict(atmvec[i+Nclimb][atmvar].key.descr)
+                model = cruise if atmvar != "h" else cmc
+                if model == cmc:
+                    cruisekey = model[cruisevar]
+                else:
+                    cruisekey = model[cruisevar]
+                cruisedescr = dict(cruisekey.key.descr)
+                # new variable is same as atmvar but with extended models, modelnums
+                descr["models"].extend(cruisedescr["models"])
+                descr["modelnums"].extend(cruisedescr["modelnums"])
+                subs[cruisekey] = Variable(**descr)
+
+##        for i in range(Ncruise):
+##            subs.update({
+##                cruise["\\rhoCruise"][i]: atmvec[i + Nclimb]["\\rho"], cruise["TCruise"][i]:atmvec[i + Nclimb]["T_{atm}"],
+##                cmc['hCruise']: atmvec[i + Nclimb]["h"]
+##                })
 
         constraints.subinplace(subs)
 
@@ -514,6 +534,6 @@ class CommercialAircraft(Model):
 
 if __name__ == '__main__':
     m = CommercialAircraft()
-    sol = m.localsolve(solver="mosek", verbosity = 4, iteration_limit=100, skipsweepfailures=True)
+##    sol = m.localsolve(solver="mosek", verbosity = 4, iteration_limit=100, skipsweepfailures=True)
 
-##    sol, solhold = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+    sol, solhold = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
