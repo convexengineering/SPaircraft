@@ -70,9 +70,9 @@ class AircraftP(Model):
     def  __init__(self, aircraft, state, **kwargs):
         #make submodels
         self.aircraft = aircraft
-        self.wingP = wingP
-        self.fuseP = fuseP
-        self.engineP = engineP
+        self.wingP = aircraft.wing.dynamic(state)
+        self.fuseP = aircraft.fuse.dynamic(state)
+        self.engineP = aircraft.engine.dynamic(state)
 
         self.Pmodels = [self.wingP, self.fuseP, self.engineP]
 
@@ -221,14 +221,16 @@ class FlightState(Model):
     creates atm model for each flight segment, has variables
     such as veloicty and altitude
     """
-    def __init__(self, atmconstraints = [], **kwargs):
+    def __init__(self,**kwargs):
+        #make an atmosphere model
+        atm = Atmosphere()
+        
         #declare variables
         V = Variable('V', 'kts', 'Aircraft Flight Speed')
         a = Variable('a', 'm/s', 'Speed of Sound')
         h = Variable('h', 'm', 'Segment Altitude [meters]')
         hft = Variable('hft', 'feet', 'Segment Altitude [feet]')
         R = Variable('R', 287, 'J/kg/K', 'Air Specific Heat')
-        T_atm = Variable("T_{atm}", "K", "air temperature")
         gamma = Variable('\\gamma', 1.4, '-', 'Air Specific Heat Ratio')
         M = Variable('M', '-', 'Mach Number')
         self.x = 1
@@ -241,16 +243,16 @@ class FlightState(Model):
             h == hft, #convert the units on altitude
 
             #compute the speed of sound with the state
-            a  == (gamma * R * T_atm)**.5,
+            a  == (gamma * R * atm['T_{atm}'])**.5,
 
             #compute the mach number
             V == M * a,
             ])
 
         #build the model
-        Model.__init__(self, None, constraints + atmconstraints, **kwargs)
+        Model.__init__(self, None, constraints + atm, **kwargs)
         
-class Atmosphere(FlightState):
+class Atmosphere(Model):
     def __init__(self, **kwargs):
         g = Variable('g', 'm/s^2', 'Gravitational acceleration')
         p_sl = Variable("p_{sl}", "Pa", "Pressure at sea level")
@@ -260,13 +262,10 @@ class Atmosphere(FlightState):
                          "Molar mass of dry air")
         p_atm = Variable("P_{atm}", "Pa", "air pressure")
         R_atm = Variable("R_{atm}", "J/mol/K", "air specific heating value")
-        TH = (g*M_atm/R_atm/L_atm).value
+        TH = 5.257386998354459 #(g*M_atm/R_atm/L_atm).value
         rho = Variable('\\rho', 'kg/m^3', 'Density of air')
         T_atm = Variable("T_{atm}", "K", "air temperature")
-
-
-
-        h = Variable("h", "ft", "Altitude")
+        h = Variable("h", "m", "Altitude")
 
         """
         Dynamic viscosity (mu) as a function of temperature
@@ -281,8 +280,8 @@ class Atmosphere(FlightState):
         C_1 = Variable('C_1', 1.458E-6, "kg/(m*s*K^0.5)",
                        'Sutherland coefficient')
         
-        t_plus_ts_approx = (T_atm + T_s).mono_approximation({T_atm: 288.15,
-                                                         T_s: T_s.value})
+##        t_plus_ts_approx = (T_atm + T_s).mono_approximation({T_atm: 288.15,
+##                                                         T_s: T_s.value})
 
         with SignomialsEnabled():
             constraints = [
@@ -294,14 +293,15 @@ class Atmosphere(FlightState):
 
                 #temperature equation
                 SignomialEquality(T_sl, T_atm + L_atm*h),
+##                T_atm == 218*units('K'),
 
                 #constraint on mu
 ##                SignomialEquality((T_atm + T_s) * mu, C_1 * T_atm**1.5),
-                TCS([(T_atm + T_s) * mu >= C_1 * T_atm**1.5])
+##                TCS([(T_atm + T_s) * mu >= C_1 * T_atm**1.5])
                 ]
 
 
-        super(Atmosphere, self).__init__(constraints)
+        Model.__init__(self, None, constraints)
 
 class Engine(Model):
     """
@@ -398,6 +398,12 @@ class WingPerformance(Model):
 
         #constraints
         constraints = []
+
+        print wing['S']
+        print state['\\rho']
+        print state['V']
+        print wing['K']
+        
 
         constraints.extend([
             #airfoild drag constraint
