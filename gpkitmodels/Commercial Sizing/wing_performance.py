@@ -3,6 +3,9 @@ from gpkit.constraints.costed import CostedConstraintSet
 from gpkit.constraints.tight import TightConstraintSet as TCS
 from numpy import cos, pi, tan
 from wingbox import WingBox
+from collections import defaultdict
+from gpkit.small_scripts import mag
+import numpy as np
 # pylint:disable=bad-whitespace
 
 class Wing(Model):
@@ -102,7 +105,7 @@ class Wing(Model):
                 amax == amax,
                 ])
 
-        Model.__init__(self, None, constraints)
+        Model.__init__(self, Ww, constraints)
 
     def dynamic(self, state):
         """
@@ -167,9 +170,7 @@ class WingBox(Model):
     Note - does not have a performance model
     """
 
-    def __init__(self, wing, state, **kwargs):
-        self.wing = wing
-
+    def __init__(self, surface, state, **kwargs):
         # Variables
         Icap    = Variable('I_{cap}', '-',
                            'Non-dim spar cap area moment of inertia')
@@ -202,40 +203,51 @@ class WingBox(Model):
         
         objective = Wstruct
 
+        if isinstance(surface, Wing):
+            AR = surface['AR']
+            b = surface['b']
+            S = surface['S']
+            p = surface['p']
+            q = surface['q']
+            tau = surface['\\tau']
+            Lmax = surface['L_{max}']
+
+ 
+
         constraints = [
                        # Aspect ratio definition
-                       self.wing['AR'] == self.wing['b']**2/self.wing['S'],
+                       AR == b**2/S,
 
                        # Defining taper dummy variables
-                       self.wing['p'] >= 1 + 2*taper,
-                       2*self.wing['q'] >= 1 + self.wing['p'],
+                       p >= 1 + 2*taper,
+                       2*q >= 1 + p,
 
                        # Upper bound on maximum thickness
-                       self.wing['\\tau'] <= 0.15,
+                       tau <= 0.15,
 
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
                        # Assumes lift per unit span proportional to local chord
-                       Mr >= self.wing['L_{max}']*self.wing['AR']*self.wing['p']/24,
+                       Mr >= Lmax*AR*p/24,
 
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
-                       0.92*w*self.wing['\\tau']*tcap**2 + Icap <= 0.92**2/2*w*self.wing['\\tau']**2*tcap,
+                       0.92*w*tau*tcap**2 + Icap <= 0.92**2/2*w*tau**2*tcap,
 
                        # Stress limit
                        # Assumes bending stress carried by caps (Icap >> Iweb)
-                       8 >= Nlift*Mr*self.wing['AR']*self.wing['q']**2*self.wing['\\tau']/(self.wing['S']*Icap*sigmax),
+                       8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax),
 
                        # Shear web sizing
                        # Assumes all shear loads are carried by web and rh=0.75
-                       12 >= self.wing['AR']*self.wing['L_{max}']*Nlift*self.wing['q']**2/(self.wing['\\tau']*self.wing['S']*tweb*sigmaxshear),
+                       12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam^2)
-                       nu**3.94 >= 0.86*self.wing['p']**(-2.38)+ 0.14*self.wing['p']**0.56,
+                       nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56,
 
                        # Weight of spar caps and shear webs
-                       Wcap >= 8*rhocap*g*w*tcap*self.wing['S']**1.5*nu/(3*self.wing['AR']**0.5),
-                       Wweb >= 8*rhoweb*g*rh*self.wing['\\tau']*tweb*self.wing['S']**1.5*nu/(3*self.wing['AR']**0.5),
+                       Wcap >= 8*rhocap*g*w*tcap*S**1.5*nu/(3*AR**0.5),
+                       Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
 
                        # Total wing weight using an additional weight fraction
                        Wstruct >= (1 + fwadd)*(Wweb + Wcap),
@@ -344,9 +356,10 @@ if __name__ == "__main__":
                  '\\tan(\\Lambda)': tan(sweep*pi/180),
                  'a': 297,
 ##                 'g': 9.81,
-                 'C_{L}': 0.5
+##                 'C_{L}': 0.5
+                 'L_w': 1000,
                 }
-
-    m = Model(wing.cost, [wing, state, wingP, wingbox], subs)
+    m = Model(wingP['C_{d_w}'], [wing, state, wingP, wingbox])
+    m.substitutions.update(subs)
 ##    m.localsolve(solver='mosek', verbosity = 4)
     bounds, sol = state.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
