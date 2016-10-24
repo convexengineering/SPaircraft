@@ -358,6 +358,7 @@ if __name__ == "__main__":
 ##                 'g': 9.81,
 ##                 'C_{L}': 0.5
                  'L_w': 1000,
+##                 'I_{cap}': .0001,
                 }
     m = Model(wingP['C_{d_w}'], [wing, state, wingP, wingbox])
     m.substitutions.update(subs)

@@ -237,6 +237,7 @@ class HorizontalTail(CostedConstraintSet):
     def test(cls):
         ht = cls.standalone737()
         sol = ht.localsolve()
+        print sol.table()
 
 if __name__ == "__main__":
     HorizontalTail.test()
