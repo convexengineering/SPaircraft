@@ -106,7 +106,7 @@ class AircraftP(Model):
             WLoad == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2/self.aircraft.wing['S'],
 
             #constraint segment start weight
-            W_start >= W_end + W_burn,
+##            TCS([W_start >= W_end + W_burn]),
 
             #set average weight equal to the geometric avg of start and end weight
             W_avg == (W_start * W_end)**.5,
@@ -150,7 +150,7 @@ class ClimbP(Model):
             self.aircraft['numeng']*self.engineP['thrust'] >= self.aircraftP['D'] + self.aircraftP['W_{avg}'] * theta,
             
             #climb rate constraints
-            TCS([excessP + state['V'] * self.aircraftP['D'] <=  state['V'] * aircraft['numeng'] *self.engineP['thrust']]),
+            TCS([excessP + state['V'] * self.aircraftP['D'] <=  state['V'] * aircraft['numeng'] * self.engineP['thrust']]),
             
             RC == excessP/self.aircraftP['W_{avg}'],
             RC >= 500*units('ft/min'),
@@ -176,14 +176,15 @@ class CruiseP(Model):
         self.wingP = self.aircraftP.wingP
         self.fuseP = self.aircraftP.fuseP
         self.engineP = self.aircraftP.engineP
-                           
+                        
         #variable definitions
         z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
         Rng = Variable('Rng', 'mi', 'Cruise Segment Range')
 
         constraints = []
-        
+
         constraints.extend([
+             state['M'] == .8,
              #steady level flight constraint on D 
              self.aircraftP['D'] == aircraft['numeng'] * self.engineP['thrust'],
 
@@ -255,7 +256,7 @@ class FlightState(Model):
 
         #build the model
         Model.__init__(self, None, constraints + self.atm, **kwargs)
-        
+
 class Atmosphere(Model):
     def __init__(self, **kwargs):
         g = Variable('g', 'm/s^2', 'Gravitational acceleration')
@@ -302,10 +303,23 @@ class Atmosphere(Model):
                 #constraint on mu
 ##                SignomialEquality((T_atm + T_s) * mu, C_1 * T_atm**1.5),
 ##                TCS([(T_atm + T_s) * mu >= C_1 * T_atm**1.5])
+                T_sl == 288.15*units('K'),
+                p_sl == 101325*units('Pa'),
+                R_atm == 8.31447*units('J/mol/K'),
+                M_atm == .0289644*units('kg/mol')
                 ]
 
+##        subs = {
+##                   #atm subs
+##            "p_{sl}": 101325,
+##            "T_{sl}": 288.15,
+####            "L_{atm}": .0065,
+##            "M_{atm}":.0289644,
+##            "R_{atm}": 8.31447,
+##            }
+        subs = None
 
-        Model.__init__(self, None, constraints)
+        Model.__init__(self, None, constraints, subs)
 
 class Engine(Model):
     """
@@ -318,7 +332,7 @@ class Engine(Model):
         constraints = []
 
         constraints.extend([
-            W_engine == 8000 * units('N')
+            W_engine == 1000 * units('N')
             ])
 
         Model.__init__(self, None, constraints)
@@ -341,11 +355,9 @@ class EnginePerformance(Model):
         constraints = []
 
         constraints.extend([
-            TSFC ==  .5*units('1/hr'),
+            TSFC == TSFC,#.5*units('1/hr'),#TSFC, 
 
             thrust == thrust, #want thrust to enter the model
-            thrust >= 10*units('N'),
-            thrust <= 1000000000* units('N')
             ])
 
         Model.__init__(self, None, constraints)
@@ -377,8 +389,8 @@ class Wing(Model):
 
             #compute wing span and aspect ratio, subject to a span constraint
             AR == (span**2)/S,
-##            span <= span_max,
-            span == span_max,
+
+            span <= span_max,
 
             #compute K for the aircraft
             K == (pi * e * AR)**-1,
@@ -408,14 +420,13 @@ class WingPerformance(Model):
 
         constraints.extend([
             #airfoild drag constraint
-##            Cdw**6.5 >= (1.02458748e10 * CL**15.587947404823325 * state['M']**156.86410659495155 +
-##                         2.85612227e-13 * CL**1.2774976672501526 * state['M']**6.2534328002723703 +
-##                         2.08095341e-14 * CL**0.8825277088649582 * state['M']**0.0273667615730107 +
-##                         1.94411925e+06 * CL**5.6547413360261691 * state['M']**146.51920742858428),
-            Cdw == .01,
+            TCS([Cdw**6.5 >= (1.02458748e10 * CL**15.587947404823325 * state['M']**156.86410659495155 +
+                         2.85612227e-13 * CL**1.2774976672501526 * state['M']**6.2534328002723703 +
+                         2.08095341e-14 * CL**0.8825277088649582 * state['M']**0.0273667615730107 +
+                         1.94411925e+06 * CL**5.6547413360261691 * state['M']**146.51920742858428)]),
 
-            Dwing >= (.5*wing['S']*state.atm['\\rho']*state['V']**2)*(Cdw + wing['K']*CL**2),
-##            Dwing >= 1000*units('N')
+
+            TCS([Dwing >= (.5*wing['S']*state.atm['\\rho']*state['V']**2)*(Cdw + wing['K']*CL**2)]),
             ])
 
         Model.__init__(self, None, constraints)
@@ -470,8 +481,9 @@ class FuselagePerformance(Model):
         constraints = []
 
         constraints.extend([
-##            Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
-            Dfuse == 100 * units('N')
+            Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
+
+            Cdfuse == .005,
             ])
 
         Model.__init__(self, None, constraints)
@@ -498,6 +510,8 @@ class Mission(Model):
 
         #declare new variables
         W_ftotal = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
+        W_fclimb = Variable('W_{f_{climb}}', 'N', 'Fuel Weight Burned in Climb')
+        W_fcruise = Variable('W_{f_{cruise}}', 'N', 'Fuel Weight Burned in Cruise')
         W_total = Variable('W_{total}', 'N', 'Total Aircraft Weight')
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'mi', 'Required Cruise Range')
@@ -510,6 +524,32 @@ class Mission(Model):
         #make overall constraints
         constraints = []
 
+        print TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
+        print '\n\n'
+        print cls.climbP.aircraftP['W_{start}'][0] == W_total,
+        print '\n\n'
+        print cls.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
+        print '\n\n'
+        print TCS([cls.climbP.aircraftP['W_{start}'] >= cls.climbP.aircraftP['W_{end}'] + cls.climbP.aircraftP['W_{burn}']]),
+        print '\n\n'
+        print TCS([cls.climbP.aircraftP['W_{end}'][-1] >= ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + W_fcruise]),
+        print '\n\n'
+        print cls.climbP.aircraftP['W_{start}'][1:] == cls.climbP.aircraftP['W_{end}'][:-1],
+        print '\n\n'
+        print crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
+        print '\n\n'
+        print TCS([crs.cruiseP.aircraftP['W_{start}'] >= crs.cruiseP.aircraftP['W_{end}'] + crs.cruiseP.aircraftP['W_{burn}']]),
+        print '\n\n'
+        print TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
+        print '\n\n'
+        print TCS([W_ftotal >=  W_fclimb + W_fcruise]),
+        print '\n\n'
+        print TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
+        print '\n\n'
+        print TCS([W_fcruise >= sum(crs.cruiseP['W_{burn}'])]),
+
+        s = Variable('s', '-', 'slack')
+
         constraints.extend([
             #weight constraints
             TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
@@ -517,15 +557,27 @@ class Mission(Model):
             cls.climbP.aircraftP['W_{start}'][0] == W_total,
             cls.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
 
+            TCS([cls.climbP.aircraftP['W_{start}'] >= cls.climbP.aircraftP['W_{end}'] + cls.climbP.aircraftP['W_{burn}']]),
+
+            TCS([cls.climbP.aircraftP['W_{end}'][-1] >= ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + W_fcruise]),
+
+            cls.climbP.aircraftP['W_{start}'][1:] == s*cls.climbP.aircraftP['W_{end}'][:-1],
+            crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
+            TCS([crs.cruiseP.aircraftP['W_{start}'] >= crs.cruiseP.aircraftP['W_{end}'] + crs.cruiseP.aircraftP['W_{burn}']]),
+
             TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
-            TCS([W_ftotal >= sum(cls.climbP['W_{burn}']) + sum(crs.cruiseP['W_{burn}'])]),
+##            crs.cruiseP.aircraftP['W_{end}'][-1] >= .1*units('N'),
+
+            TCS([W_ftotal >=  W_fclimb + W_fcruise]),
+            TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
+            TCS([W_fcruise >= sum(crs.cruiseP['W_{burn}'])]),
 
             #altitude constraints
             hftCruise == CruiseAlt,
             TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise-1] + dhft]),
             TCS([hftClimb[0] >= dhft[0]]),
             hftClimb[-1] <= hftCruise,
-            
+
             #compute the dh
             dhft == hftCruise/Nclimb,
 
@@ -535,9 +587,13 @@ class Mission(Model):
             #set the range for each cruise segment, doesn't take credit for climb
             #down range disatnce covered
             crs.cruiseP['Rng'] == ReqRng/(Ncruise),
+
+            #set the TSFC
+            cls.climbP.engineP['TSFC'] == .7*units('1/hr'),
+            crs.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
             ])
         
-        Model.__init__(self, W_ftotal, constraints + ac + cls + crs, subs)
+        Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + cls + crs, subs)
 
     def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
         "Returns model with additional constraints bounding all free variables"
@@ -583,7 +639,7 @@ class Mission(Model):
 if __name__ == '__main__':
     substitutions = {      
 ##            'V_{stall}': 120,
-            'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
+            'ReqRng': 100, #('sweep', np.linspace(500,2000,4)),
             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 2,
 ##            'W_{Load_max}': 6664,
@@ -593,15 +649,8 @@ if __name__ == '__main__':
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,
             'b_{max}': 35,
-
-            #atm subs
-            "p_{sl}": 101325,
-            "T_{sl}": 288.15,
-##            "L_{atm}": .0065,
-            "M_{atm}":.0289644,
-            "R_{atm}": 8.31447,
             }
            
     m = Mission(substitutions)
-##    sol = m.solve(solver='mosek', verbosity = 4)
-    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+    sol = m.solve(solver='mosek', verbosity = 4)
+##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
