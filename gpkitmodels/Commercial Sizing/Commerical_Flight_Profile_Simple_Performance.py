@@ -561,7 +561,7 @@ class Mission(Model):
 
             TCS([cls.climbP.aircraftP['W_{end}'][-1] >= ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + W_fcruise]),
 
-            cls.climbP.aircraftP['W_{start}'][1:] == s*cls.climbP.aircraftP['W_{end}'][:-1],
+            cls.climbP.aircraftP['W_{start}'][1:] == cls.climbP.aircraftP['W_{end}'][:-1],
             crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
             TCS([crs.cruiseP.aircraftP['W_{start}'] >= crs.cruiseP.aircraftP['W_{end}'] + crs.cruiseP.aircraftP['W_{burn}']]),
 
@@ -652,5 +652,5 @@ if __name__ == '__main__':
             }
            
     m = Mission(substitutions)
-    sol = m.solve(solver='mosek', verbosity = 4)
-##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+    #sol = m.solve(solver='mosek', verbosity = 4)
+    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
