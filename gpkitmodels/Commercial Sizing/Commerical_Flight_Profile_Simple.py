@@ -536,4 +536,4 @@ if __name__ == '__main__':
     m = CommercialAircraft()
 ##    sol = m.localsolve(solver="mosek", verbosity = 4, iteration_limit=100, skipsweepfailures=True)
 
-    sol, solhold = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+    sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100) #,solhold

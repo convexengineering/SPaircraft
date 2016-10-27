@@ -386,6 +386,7 @@ class Wing(Model):
 
             #compute wing span and aspect ratio, subject to a span constraint
             AR == (span**2)/S,
+            #AR == 9,
 
             span <= span_max,
 
@@ -416,13 +417,11 @@ class WingPerformance(Model):
         constraints = []
 
         constraints.extend([
-            #airfoild drag constraint
+            #airfoil drag constraint
             TCS([Cdw**6.5 >= (1.02458748e10 * CL**15.587947404823325 * state['M']**156.86410659495155 +
                          2.85612227e-13 * CL**1.2774976672501526 * state['M']**6.2534328002723703 +
                          2.08095341e-14 * CL**0.8825277088649582 * state['M']**0.0273667615730107 +
                          1.94411925e+06 * CL**5.6547413360261691 * state['M']**146.51920742858428)]),
-
-
             TCS([Dwing >= (.5*wing['S']*state.atm['\\rho']*state['V']**2)*(Cdw + wing['K']*CL**2)]),
             ])
 
@@ -612,7 +611,7 @@ if __name__ == '__main__':
 ##            'V_{stall}': 120,
             'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
-            'numeng': 2,
+            'numeng': 1,
 ##            'W_{Load_max}': 6664,
             'W_{pax}': 91 * 9.81,
             'n_{pax}': 150,
@@ -623,5 +622,5 @@ if __name__ == '__main__':
             }
            
     m = Mission(substitutions)
-    sol = m.solve(solver='mosek', verbosity = 4)
-##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+    #sol = m.solve(solver='mosek', verbosity = 4)
+    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
