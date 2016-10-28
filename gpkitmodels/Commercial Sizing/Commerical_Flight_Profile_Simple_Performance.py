@@ -434,6 +434,8 @@ class Fuselage(Model):
     def __init__(self, **kwargs):
         #new variables
         n_pax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+        Nland = Variable('N_{land}','-', 'Emergency landing load factor') #[TAS]
+        VNE   = Variable('V_{NE}','m/s','Never-exceed speed') #[Philippe]
                            
         #weight variables
         W_payload = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
@@ -478,7 +480,6 @@ class FuselagePerformance(Model):
 
         constraints.extend([
             Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
-
             Cdfuse == .005,
             ])
 
@@ -609,9 +610,11 @@ class Mission(Model):
 if __name__ == '__main__':
     substitutions = {      
 ##            'V_{stall}': 120,
+            'N_{land}': 6,
+            'V_{NE}': 144,
             'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
-            'numeng': 1,
+            'numeng': 2,
 ##            'W_{Load_max}': 6664,
             'W_{pax}': 91 * 9.81,
             'n_{pax}': 150,
