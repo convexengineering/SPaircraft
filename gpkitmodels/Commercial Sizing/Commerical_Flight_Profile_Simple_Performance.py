@@ -18,7 +18,7 @@ Inputs
 
 - Number of passtengers
 - Passegner weight [N]
-- Fusealge area per passenger (recommended to use 1 m^2 based on research) [m^2]
+- Fuselage area per passenger (recommended to use 1 m^2 based on research) [m^2]
 - Engine weight [N]
 - Number of engines
 - Required mission range [nm]
@@ -436,6 +436,32 @@ class Fuselage(Model):
         n_pax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}','-', 'Emergency landing load factor') #[TAS]
         VNE   = Variable('V_{NE}','m/s','Never-exceed speed') #[Philippe]
+        SPR          = Variable('SPR', '-', 'Number of seats per row')
+        nseat        = Variable('n_{seat}','-','Number of seats')
+
+        # Cross-sectional variables
+        waisle       = Variable('w_{aisle}',0.51, 'm', 'Aisle width') #[Boeing]
+        wfloor       = Variable('w_{floor}', 'm', 'Floor half-width')
+        wfuse        = Variable('w_{fuse}', 'm', 'Fuselage width')
+        wseat        = Variable('w_{seat}',0.5,'m', 'Seat width') #[Philippe]
+        wsys         = Variable('w_{sys}', 0.1,'m', 'Width between cabin and skin for systems') #[Philippe]
+        
+        # Loads 
+
+        #Mfloor       = Variable('M_{floor}', 'N*m', 'Max bending moment in floor beams')
+        #Pfloor       = Variable('P_{floor}','N', 'Distributed floor load')
+        #Sfloor       = Variable('S_{floor}', 'N', 'Maximum shear in floor beams')
+        sigfloor     = Variable('\\sigma_{floor}',30000/0.000145, 'N/m^2', 'Max allowable floor stress') #[TAS]
+
+        # Material properties
+        rE           = Variable('r_E', 1,'-', 'Ratio of stringer/skin moduli') #[TAS]
+        rhocone      = Variable('\\rho_{cone}',2700,'kg/m^3','Cone material density') #[TAS]
+        rhofloor     = Variable('\\rho_{floor}',2700, 'kg/m^3', 'Floor material density') #[TAS]
+        rhoskin      = Variable('\\rho_{skin}',2700,'kg/m^3', 'Skin density') #[TAS]
+        Wppfloor     = Variable('W\'\'_{floor}', 60,'N/m^2', 'Floor weight/area density') #[TAS]
+        Wppinsul     = Variable('W\'\'_{insul}',22,'N/m^2', 'Weight/area density of insulation material') #[TAS]
+        Wpseat       = Variable('W\'_{seat}',150,'N', 'Weight per seat') #[TAS]
+        Wpwindow     = Variable('W\'_{window}', 145.*3,'N/m', 'Weight/length density of windows') #[TAS]
                            
         #weight variables
         W_payload = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
@@ -448,14 +474,20 @@ class Fuselage(Model):
         constraints = []
         
         constraints.extend([
+            Nland == Nland,
+            VNE == VNE,
+            SPR == SPR,
+
             #compute fuselage area for drag approximation
             A_fuse == pax_area * n_pax,
 
             #constraints on the various weights
             W_payload == n_pax * W_pax,
+
+            wfuse >= SPR*wseat + 2*waisle +2*wsys,
             
             #estimate based on TASOPT 737 model
-            W_e == .75*W_payload,
+            W_e >= .75*W_payload + wfuse*100*units('N/m'),
             ])
 
         Model.__init__(self, None, constraints)
@@ -612,6 +644,7 @@ if __name__ == '__main__':
 ##            'V_{stall}': 120,
             'N_{land}': 6,
             'V_{NE}': 144,
+            'SPR':8,
             'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 2,
