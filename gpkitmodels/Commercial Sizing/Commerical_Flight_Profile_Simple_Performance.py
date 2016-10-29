@@ -444,7 +444,11 @@ class Fuselage(Model):
 
         # Cross-sectional variables
         Afuse        = Variable('A_{fuse}', 'm^2', 'Fuselage x-sectional area')
+        hdb          = Variable('h_{db}','m', 'Web half-height')
+        Rfuse        = Variable('R_{fuse}', 'm', 'Fuselage radius') # will assume for now there: no under-fuselage extension deltaR
+        thetadb      = Variable('\\theta_{db}','-','DB fuselage joining angle')
         waisle       = Variable('w_{aisle}',0.51, 'm', 'Aisle width') #[Boeing]
+        wdb          = Variable('w_{db}','m','DB added half-width')
         wfloor       = Variable('w_{floor}', 'm', 'Floor half-width')
         wfuse        = Variable('w_{fuse}', 'm', 'Fuselage width')
         wseat        = Variable('w_{seat}',0.5,'m', 'Seat width') #[Philippe]
@@ -482,6 +486,7 @@ class Fuselage(Model):
         Wcarryon     = Variable('W_{carry on}', 15, 'lbf', 'Ave. carry-on weight') #[Philippe]
         Wchecked     = Variable('W_{checked}', 40, 'lbf', 'Ave. checked bag weight') #[Philippe]
         Wlugg        = Variable('W_{lugg}', 'N', 'Passenger luggage weight')
+        Wpass        = Variable('W_{pass}', 'N', 'Passenger weight')
         Wpay         = Variable('W_{pay}', 'N', 'Payload weight')
 
  
@@ -491,32 +496,37 @@ class Fuselage(Model):
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
 
         constraints = []
-        
-        constraints.extend([
-            Nland == Nland,
-            VNE == VNE,
-            SPR == SPR,
-            pitch == pitch,
+        with SignomialsEnabled():
+            constraints.extend([
+                Nland == Nland,
+                VNE == VNE,
+                SPR == SPR,
+                pitch == pitch,
 
-            # Passenger constraints
-            Wlugg    >= flugg2*npass*2*Wchecked + flugg1*npass*Wchecked + Wcarryon,
-            Wpass    == npass*Wavgpass,
-            Wpay     >= Wpass + Wlugg + Wcargo,
-            nseat    == npass,
-            nrows    == nseat/SPR,
-            lshell   == nrows*pitch,
+                # Passenger constraints
+                Wlugg    >= flugg2*npass*2*Wchecked + flugg1*npass*Wchecked + Wcarryon,
+                Wpass    == npass*Wavgpass,
+                Wpay     >= Wpass + Wlugg + Wcargo,
+                nseat    == npass,
+                nrows    == nseat/SPR,
+                lshell   == nrows*pitch,
 
-            #compute fuselage area for drag approximation
-            Afuse == pax_area * npass,
+                # Fuselage joint angle relations
+                thetadb     == wdb/Rfuse, # first order Taylor works...
+                thetadb     >= 0.05, thetadb <= 0.5, #Temporarily
+                hdb         >= Rfuse*(1.0-.5*thetadb**2), #[SP]
 
-            #constraints on the various weights
-            Wpay == npass * Wpass,
+                #compute fuselage area for drag approximation
+                Afuse == pax_area * npass,
 
-            wfuse >= SPR*wseat + 2*waisle +2*wsys,
+                # Cross-sectional constraints
+
+                wfuse >= SPR*wseat + 2*waisle +2*wsys,
+                wfuse <= 2*(Rfuse + wdb),
             
-            #estimate based on TASOPT 737 model
-            We >= .75*Wpay + (wfuse+lshell)*100*units('N/m'),
-            ])
+                #estimate based on TASOPT 737 model
+                We >= .75*Wpay + (wfuse+lshell+Rfuse)*100*units('N/m'),
+                ])
 
         Model.__init__(self, None, constraints)
 
@@ -645,7 +655,7 @@ class Mission(Model):
                                       eps=1e-30, lower=None, upper=None, **kwargs):
         "Returns labeled dictionary of unbounded variables."
         m = self.bound_all_variables(model, eps, lower, upper)
-        sol = m.solve(solver, verbosity, **kwargs)
+        sol = m.localsolve(solver, verbosity, **kwargs)
         solhold = sol
         lam = sol["sensitivities"]["la"][1:]
         out = defaultdict(list)
