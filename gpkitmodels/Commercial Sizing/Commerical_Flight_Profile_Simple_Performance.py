@@ -16,8 +16,8 @@ Anderson's Aircraft Performance and Design (eqn 5.85).
 Inputs
 -----
 
-- Number of passtengers
-- Passegner weight [N]
+- Number of passengers
+- Passenger weight [N]
 - Fuselage area per passenger (recommended to use 1 m^2 based on research) [m^2]
 - Engine weight [N]
 - Number of engines
@@ -433,6 +433,7 @@ class Fuselage(Model):
     """
     def __init__(self, **kwargs):
         #new variables
+        dPover       = Variable('\\delta_P_{over}','psi','Cabin overpressure')
         npass        = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
         Nland        = Variable('N_{land}','-', 'Emergency landing load factor') #[TAS]
         VNE          = Variable('V_{NE}','m/s','Never-exceed speed') #[Philippe]
@@ -443,11 +444,15 @@ class Fuselage(Model):
 
 
         # Cross-sectional variables
+        Adb          = Variable('A_{db}', 'm^2', 'Web cross sectional area')
         Afuse        = Variable('A_{fuse}', 'm^2', 'Fuselage x-sectional area')
         hdb          = Variable('h_{db}','m', 'Web half-height')
         Rfuse        = Variable('R_{fuse}', 'm', 'Fuselage radius') # will assume for now there: no under-fuselage extension deltaR
+        tdb          = Variable('t_{db}', 'm', 'Web thickness')
         thetadb      = Variable('\\theta_{db}','-','DB fuselage joining angle')
-        waisle       = Variable('w_{aisle}',0.51, 'm', 'Aisle width') #[Boeing]
+        tshell       = Variable('t_{shell}', 'm', 'Shell thickness')
+        tskin        = Variable('t_{skin}', 'm', 'Skin thickness')
+        waisle       = Variable('w_{aisle}', 'm', 'Aisle width') #[Boeing]
         wdb          = Variable('w_{db}','m','DB added half-width')
         wfloor       = Variable('w_{floor}', 'm', 'Floor half-width')
         wfuse        = Variable('w_{fuse}', 'm', 'Fuselage width')
@@ -460,6 +465,10 @@ class Fuselage(Model):
         # Volumes
 
         # Loads 
+        sigfloor     = Variable('\\sigma_{floor}',30000/0.000145, 'N/m^2', 'Max allowable floor stress') #[TAS]
+        sigskin      = Variable('\\sigma_{skin}', 15000/0.000145,'N/m^2', 'Max allowable skin stress') #[TAS] 
+        sigth        = Variable('\\sigma_{\\theta}', 'N/m^2', 'Skin hoop stress')
+        sigx         = Variable('\\sigma_x', 'N/m^2', 'Axial stress in skin')
 
         #Mfloor       = Variable('M_{floor}', 'N*m', 'Max bending moment in floor beams')
         #Pfloor       = Variable('P_{floor}','N', 'Distributed floor load')
@@ -469,6 +478,7 @@ class Fuselage(Model):
         # Material properties
         rE           = Variable('r_E', 1,'-', 'Ratio of stringer/skin moduli') #[TAS]
         rhocone      = Variable('\\rho_{cone}',2700,'kg/m^3','Cone material density') #[TAS]
+        rhobend      = Variable('\\rho_{bend}', 2700, 'kg/m^3', 'Stringer density') #[TAS]
         rhofloor     = Variable('\\rho_{floor}',2700, 'kg/m^3', 'Floor material density') #[TAS]
         rhoskin      = Variable('\\rho_{skin}',2700,'kg/m^3', 'Skin density') #[TAS]
         Wppfloor     = Variable('W\'\'_{floor}', 60,'N/m^2', 'Floor weight/area density') #[TAS]
@@ -476,9 +486,12 @@ class Fuselage(Model):
         Wpseat       = Variable('W\'_{seat}',150,'N', 'Weight per seat') #[TAS]
         Wpwindow     = Variable('W\'_{window}', 145.*3,'N/m', 'Weight/length density of windows') #[TAS]
         
-        # Weight fractions     
+        # Weight fractions   
+        ffadd        = Variable('f_{fadd}',0.2, '-','Fractional added weight of local reinforcements') #[TAS]
+        fframe       = Variable('f_{frame}',0.25,'-', 'Fractional frame weight') #[Philippe]        
         flugg1       = Variable('f_{lugg,1}',0.4,'-','Proportion of passengers with one suitcase') #[Philippe]
         flugg2       = Variable('f_{lugg,2}',0.1, '-','Proportion of passengers with two suitcases') #[Philippe]
+        fstring      = Variable('f_{string}',0.25,'-','Fractional stringer weight') #[Philippe]
                              
         # Weights
         Wavgpass     = Variable('W_{avg. pass}', 180, 'lbf', 'Average passenger weight') #[Philippe]
@@ -502,6 +515,11 @@ class Fuselage(Model):
                 VNE == VNE,
                 SPR == SPR,
                 pitch == pitch,
+                sigskin == sigskin,
+                sigfloor == sigfloor,
+                dPover == dPover,
+                rhobend == rhobend,
+                rhoskin == rhoskin,
 
                 # Passenger constraints
                 Wlugg    >= flugg2*npass*2*Wchecked + flugg1*npass*Wchecked + Wcarryon,
@@ -517,15 +535,26 @@ class Fuselage(Model):
                 hdb         >= Rfuse*(1.0-.5*thetadb**2), #[SP]
 
                 #compute fuselage area for drag approximation
-                Afuse == pax_area * npass,
+                Afuse >= pax_area * npass,
+                
 
                 # Cross-sectional constraints
+                Adb         == (2*hdb)*tdb,
+                #Afuse       >= (pi + 2*thetadb + 2*thetadb*(1-thetadb**2/2))*Rfuse**2, #Bad approx, should improve
+                Afuse       >= (pi + 4*thetadb)*Rfuse**2, #Bad approx, should improve
+                wfuse       >= SPR*wseat + 2*waisle + 2*wsys + tdb,
+                wfuse       <= 2*(Rfuse + wdb),
+                SignomialEquality(tshell,tskin*(1+rE*fstring*rhoskin/rhobend)),
 
-                wfuse >= SPR*wseat + 2*waisle +2*wsys,
-                wfuse <= 2*(Rfuse + wdb),
+                 ## Stress relations
+                #Pressure shell loading
+                tskin    == dPover*Rfuse/sigskin,
+                tdb      == 2*dPover*wdb/sigskin,
+                sigx     == dPover*Rfuse/(2*tshell),
+                sigth    == dPover*Rfuse/tskin,
             
                 #estimate based on TASOPT 737 model
-                We >= .75*Wpay + (wfuse+lshell+Rfuse)*100*units('N/m'),
+                We          >= .75*Wpay + (wfuse+lshell+Rfuse+hdb+(tskin+tshell+tdb)*10)*10*units('N/m'),
                 ])
 
         Model.__init__(self, None, constraints)
@@ -680,6 +709,7 @@ class Mission(Model):
 if __name__ == '__main__':
     substitutions = {      
 ##            'V_{stall}': 120,
+            '\\delta_P_{over}':12,
             'N_{land}': 6,
             'V_{NE}': 144,
             'SPR':8,
@@ -690,6 +720,7 @@ if __name__ == '__main__':
 ##            'W_{Load_max}': 6664,
             'n_{pass}': 150,
             'pax_{area}': 1,
+            'w_{aisle}':0.51,
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,
             'b_{max}': 35,
