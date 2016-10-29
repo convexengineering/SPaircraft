@@ -433,19 +433,28 @@ class Fuselage(Model):
     """
     def __init__(self, **kwargs):
         #new variables
-        n_pax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
-        Nland = Variable('N_{land}','-', 'Emergency landing load factor') #[TAS]
-        VNE   = Variable('V_{NE}','m/s','Never-exceed speed') #[Philippe]
+        npass        = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
+        Nland        = Variable('N_{land}','-', 'Emergency landing load factor') #[TAS]
+        VNE          = Variable('V_{NE}','m/s','Never-exceed speed') #[Philippe]
         SPR          = Variable('SPR', '-', 'Number of seats per row')
+        nrows        = Variable('n_{rows}', '-', 'Number of rows')
         nseat        = Variable('n_{seat}','-','Number of seats')
+        pitch        = Variable('p_s', 'cm', 'Seat pitch')
+
 
         # Cross-sectional variables
+        Afuse        = Variable('A_{fuse}', 'm^2', 'Fuselage x-sectional area')
         waisle       = Variable('w_{aisle}',0.51, 'm', 'Aisle width') #[Boeing]
         wfloor       = Variable('w_{floor}', 'm', 'Floor half-width')
         wfuse        = Variable('w_{fuse}', 'm', 'Fuselage width')
         wseat        = Variable('w_{seat}',0.5,'m', 'Seat width') #[Philippe]
         wsys         = Variable('w_{sys}', 0.1,'m', 'Width between cabin and skin for systems') #[Philippe]
         
+        # Lengths
+        lshell       = Variable('l_{shell}', 'm', 'Shell length')
+
+        # Volumes
+
         # Loads 
 
         #Mfloor       = Variable('M_{floor}', 'N*m', 'Max bending moment in floor beams')
@@ -462,13 +471,23 @@ class Fuselage(Model):
         Wppinsul     = Variable('W\'\'_{insul}',22,'N/m^2', 'Weight/area density of insulation material') #[TAS]
         Wpseat       = Variable('W\'_{seat}',150,'N', 'Weight per seat') #[TAS]
         Wpwindow     = Variable('W\'_{window}', 145.*3,'N/m', 'Weight/length density of windows') #[TAS]
-                           
-        #weight variables
-        W_payload = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
-        W_e = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
-        W_pax = Variable('W_{pax}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
+        
+        # Weight fractions     
+        flugg1       = Variable('f_{lugg,1}',0.4,'-','Proportion of passengers with one suitcase') #[Philippe]
+        flugg2       = Variable('f_{lugg,2}',0.1, '-','Proportion of passengers with two suitcases') #[Philippe]
+                             
+        # Weights
+        Wavgpass     = Variable('W_{avg. pass}', 180, 'lbf', 'Average passenger weight') #[Philippe]
+        Wcargo       = Variable('W_{cargo}', 'N', 'Cargo weight') #[Philippe]        
+        Wcarryon     = Variable('W_{carry on}', 15, 'lbf', 'Ave. carry-on weight') #[Philippe]
+        Wchecked     = Variable('W_{checked}', 40, 'lbf', 'Ave. checked bag weight') #[Philippe]
+        Wlugg        = Variable('W_{lugg}', 'N', 'Passenger luggage weight')
+        Wpay         = Variable('W_{pay}', 'N', 'Payload weight')
 
-        A_fuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
+ 
+        #weight variables
+        We = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
+        Wpass = Variable('W_{pass}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
 
         constraints = []
@@ -477,17 +496,26 @@ class Fuselage(Model):
             Nland == Nland,
             VNE == VNE,
             SPR == SPR,
+            pitch == pitch,
+
+            # Passenger constraints
+            Wlugg    >= flugg2*npass*2*Wchecked + flugg1*npass*Wchecked + Wcarryon,
+            Wpass    == npass*Wavgpass,
+            Wpay     >= Wpass + Wlugg + Wcargo,
+            nseat    == npass,
+            nrows    == nseat/SPR,
+            lshell   == nrows*pitch,
 
             #compute fuselage area for drag approximation
-            A_fuse == pax_area * n_pax,
+            Afuse == pax_area * npass,
 
             #constraints on the various weights
-            W_payload == n_pax * W_pax,
+            Wpay == npass * Wpass,
 
             wfuse >= SPR*wseat + 2*waisle +2*wsys,
             
             #estimate based on TASOPT 737 model
-            W_e >= .75*W_payload + wfuse*100*units('N/m'),
+            We >= .75*Wpay + (wfuse+lshell)*100*units('N/m'),
             ])
 
         Model.__init__(self, None, constraints)
@@ -555,7 +583,7 @@ class Mission(Model):
 
         constraints.extend([
             #weight constraints
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
+            TCS([ac['W_{e}'] + ac['W_{pay}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
 
             cls.climbP.aircraftP['W_{start}'][0] == W_total,
             cls.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
@@ -568,7 +596,7 @@ class Mission(Model):
             cls.climbP.aircraftP['W_{start}'][1:] == cls.climbP.aircraftP['W_{end}'][:-1],
             crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
+            TCS([ac['W_{e}'] + ac['W_{pay}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >=  W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
@@ -645,18 +673,19 @@ if __name__ == '__main__':
             'N_{land}': 6,
             'V_{NE}': 144,
             'SPR':8,
+            'p_s':81.,
             'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 2,
 ##            'W_{Load_max}': 6664,
-            'W_{pax}': 91 * 9.81,
-            'n_{pax}': 150,
+            'n_{pass}': 150,
             'pax_{area}': 1,
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,
             'b_{max}': 35,
+            'W_{cargo}':10000
             }
            
     m = Mission(substitutions)
     #sol = m.solve(solver='mosek', verbosity = 4)
-    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=3, iteration_limit=100)
