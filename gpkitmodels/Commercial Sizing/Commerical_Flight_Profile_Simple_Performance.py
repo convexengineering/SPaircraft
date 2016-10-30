@@ -27,6 +27,8 @@ Inputs
 - Cruise altitude [ft]
 """
 
+g = 9.81*units('m*s**-2')
+
 class Aircraft(Model):
     "Aircraft class"
     def __init__(self, **kwargs):
@@ -446,6 +448,7 @@ class Fuselage(Model):
         # Cross-sectional variables
         Adb          = Variable('A_{db}', 'm^2', 'Web cross sectional area')
         Afuse        = Variable('A_{fuse}', 'm^2', 'Fuselage x-sectional area')
+        Askin        = Variable('A_{skin}', 'm^2', 'Skin cross sectional area')
         hdb          = Variable('h_{db}','m', 'Web half-height')
         Rfuse        = Variable('R_{fuse}', 'm', 'Fuselage radius') # will assume for now there: no under-fuselage extension deltaR
         tdb          = Variable('t_{db}', 'm', 'Web thickness')
@@ -458,11 +461,27 @@ class Fuselage(Model):
         wfuse        = Variable('w_{fuse}', 'm', 'Fuselage width')
         wseat        = Variable('w_{seat}',0.5,'m', 'Seat width') #[Philippe]
         wsys         = Variable('w_{sys}', 0.1,'m', 'Width between cabin and skin for systems') #[Philippe]
-        
-        # Lengths
-        lshell       = Variable('l_{shell}', 'm', 'Shell length')
 
-        # Volumes
+        #Tail cone variables
+        lamcone      = Variable('\\lambda_{cone}',0.4, '-','Tailcone radius taper ratio (xshell2->xtail)')
+        lcone        = Variable('l_{cone}', 'm', 'Cone length')
+        
+        # Lengths (free)
+        lfuse        = Variable('l_{fuse}', 'm', 'Fuselage length')
+        lnose        = Variable('l_{nose}', 'm', 'Nose length')
+        lshell       = Variable('l_{shell}', 'm', 'Shell length')
+        lfloor       = Variable('l_{floor}', 'm', 'Floor length')       
+
+        # Surface areas (free)
+        Sbulk        = Variable('S_{bulk}', 'm^2', 'Bulkhead surface area')
+        Snose        = Variable('S_{nose}', 'm^2', 'Nose surface area')
+        
+        # Volumes (free)
+        Vbulk        = Variable('V_{bulk}', 'm^3', 'Bulkhead skin volume')
+        Vcyl         = Variable('V_{cyl}', 'm^3', 'Cylinder skin volume')   
+        Vdb          = Variable('V_{db}', 'm^3', 'Web volume')
+        Vnose        = Variable('V_{nose}', 'm^3', 'Nose skin volume')
+
 
         # Loads 
         sigfloor     = Variable('\\sigma_{floor}',30000/0.000145, 'N/m^2', 'Max allowable floor stress') #[TAS]
@@ -498,9 +517,12 @@ class Fuselage(Model):
         Wcargo       = Variable('W_{cargo}', 'N', 'Cargo weight') #[Philippe]        
         Wcarryon     = Variable('W_{carry on}', 15, 'lbf', 'Ave. carry-on weight') #[Philippe]
         Wchecked     = Variable('W_{checked}', 40, 'lbf', 'Ave. checked bag weight') #[Philippe]
+        Wdb          = Variable('W_{db}' , 'N', 'Web weight')
         Wlugg        = Variable('W_{lugg}', 'N', 'Passenger luggage weight')
         Wpass        = Variable('W_{pass}', 'N', 'Passenger weight')
         Wpay         = Variable('W_{pay}', 'N', 'Payload weight')
+        Wshell       = Variable('W_{shell}','N','Shell weight')
+        Wskin        = Variable('W_{skin}', 'N', 'Skin weight')
 
  
         #weight variables
@@ -520,6 +542,11 @@ class Fuselage(Model):
                 dPover == dPover,
                 rhobend == rhobend,
                 rhoskin == rhoskin,
+                lamcone == lamcone,
+                fstring == fstring,
+                fframe == fframe,
+                ffadd == ffadd,
+                nseat == nseat,
 
                 # Passenger constraints
                 Wlugg    >= flugg2*npass*2*Wchecked + flugg1*npass*Wchecked + Wcarryon,
@@ -540,11 +567,22 @@ class Fuselage(Model):
 
                 # Cross-sectional constraints
                 Adb         == (2*hdb)*tdb,
-                #Afuse       >= (pi + 2*thetadb + 2*thetadb*(1-thetadb**2/2))*Rfuse**2, #Bad approx, should improve
-                Afuse       >= (pi + 4*thetadb)*Rfuse**2, #Bad approx, should improve
+                Afuse       >= (pi + 2*thetadb + 2*thetadb*(1-thetadb**2/2))*Rfuse**2, #[SP]
+                #Afuse       >= (pi + 4*thetadb)*Rfuse**2, #Bad approx, should improve
+                Askin       >= (2*pi + 4*thetadb)*Rfuse*tskin + Adb, #no delta R for now
+
                 wfuse       >= SPR*wseat + 2*waisle + 2*wsys + tdb,
                 wfuse       <= 2*(Rfuse + wdb),
                 SignomialEquality(tshell,tskin*(1+rE*fstring*rhoskin/rhobend)),
+
+                            # Fuselage surface area relations
+                Snose    >= (2*pi + 4*thetadb)*Rfuse**2 *(1/3 + 2/3*(lnose/Rfuse)**(8/5))**(5/8),
+                Sbulk    >= (2*pi + 4*thetadb)*Rfuse**2,
+            
+                # Fuselage length relations
+                lfuse    >= lnose+lshell+lcone, 
+                lnose    == 0.3*lshell, # Temporarily
+                lcone    == Rfuse/lamcone,  
 
                  ## Stress relations
                 #Pressure shell loading
@@ -553,8 +591,17 @@ class Fuselage(Model):
                 sigx     == dPover*Rfuse/(2*tshell),
                 sigth    == dPover*Rfuse/tskin,
             
-                #estimate based on TASOPT 737 model
-                We          >= .75*Wpay + (wfuse+lshell+Rfuse+hdb+(tskin+tshell+tdb)*10)*10*units('N/m'),
+                # Volume relations
+                Vcyl   == Askin*lshell,
+                Vnose  == Snose*tskin,
+                Vbulk  == Sbulk*tskin,
+                Vdb    == Adb*lshell,
+
+                # Weight estimate (extra items added for convergence)
+                Wdb      == rhoskin*g*Vdb,
+                Wskin    >= rhoskin*g*(Vcyl + Vnose + Vbulk),
+                Wshell   >= Wskin*(1 + fstring + ffadd + fframe) + Wdb, #+ Whbend, #+ Wvbend,
+                We       >= .75*Wpay + Wshell + (lfuse + wfuse+lshell+Rfuse+hdb+(tskin+tshell+tdb)*10)*10*units('N/m'),
                 ])
 
         Model.__init__(self, None, constraints)
