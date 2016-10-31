@@ -8,6 +8,8 @@ from gpkit.small_scripts import mag
 import numpy as np
 # pylint:disable=bad-whitespace
 
+#CONSIDER RIPPING APART THE P AND Q IN THE WING AND WINGBOX, APPARENT SOURCE OF ERROR
+
 class Wing(Model):
     """
     Philippe's thesis wing model
@@ -57,7 +59,6 @@ class Wing(Model):
         Sw      = Variable('S', 'm^2', 'Wing area')
         Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         WfuelWing   = Variable('W_{fuel_{wing}}', 'N', 'Fuel weight')
-        Ww      = Variable('W_{wing}', 'N', 'Wing weight')
         b       = Variable('b', 'm', 'Wing span')
         #the following two variables have the same name in the flight profile and
         #will be automatically linked by the linked constraint set
@@ -92,11 +93,11 @@ class Wing(Model):
                 taper >= 0.2, # TODO
 
                 # Fuel volume [TASOPT doc]
-                Afuel <= w*0.92*tau,
+                TCS([Afuel <= w*0.92*tau]),
                 # GP approx of the signomial constraint:
                 # Afuel <= (w - 2*tweb)*(0.92*tau - 2*tcap),
-                Vfuel <= croot**2 * (b/6) * (1+taper+taper**2)*cosL,
-                WfuelWing <= rhofuel*Afuel*Vfuel*g,
+                TCS([Vfuel <= croot**2 * (b/6) * (1+taper+taper**2)*cosL]),
+                TCS([WfuelWing <= rhofuel*Afuel*Vfuel*g]),
                   
                 Lmax == 0.5*rho0*Vne**2*Sw*CLwmax,
 
@@ -105,7 +106,7 @@ class Wing(Model):
                 amax == amax,
                 ])
 
-        Model.__init__(self, Ww, constraints)
+        Model.__init__(self, None, constraints)
 
     def dynamic(self, state):
         """
@@ -182,7 +183,7 @@ class WingBox(Model):
         Wstruct = Variable('W_{struct}', 'N', 'Structural weight')
 
         # Constants
-        taper = Variable('taper', 0.45, '-', 'Taper ratio')
+        taper = Variable('taper', '-', 'Taper ratio')
         fwadd  = Variable('f_{w,add}', 0.4, '-',
                           'Wing added weight fraction') # TASOPT code (737.tas)
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
@@ -219,8 +220,10 @@ class WingBox(Model):
                        AR == b**2/S,
 
                        # Defining taper dummy variables
-                       p >= 1 + 2*taper,
-                       2*q >= 1 + p,
+##                       TCS([p >= 1 + 2*taper]),
+##                       TCS([2*q >= 1 + p]),
+
+##                       taper >= 0.2,
 
                        # Upper bound on maximum thickness
                        tau <= 0.15,
@@ -254,6 +257,19 @@ class WingBox(Model):
                        ]
         
         Model.__init__(self, objective, constraints, **kwargs)
+
+class StandAlone(Model):
+    """
+    constraints needed to make the model run alone
+    """
+    def __init__(self, wb, wingP):
+        constraints = []
+
+        constraints.append([
+            wingP['L_w'] >= wb['W_{struct}'] + (5E5 + 1E5) * units('N')
+            ])
+
+        Model.__init__(self, None, constraints)
 
 class TestState(Model):
     """
@@ -330,13 +346,14 @@ class TestState(Model):
                 out["value near upper bound"].append(varkey)
         return out, solhold
 
-
 if __name__ == "__main__":
     wing = Wing()
     state= TestState()
 
     wingP = wing.dynamic(state)
     wingbox = WingBox(wing, state)
+
+    standalone = StandAlone(wingbox, wingP)
 
     sweep = 30 #[deg]
 
@@ -357,10 +374,10 @@ if __name__ == "__main__":
                  'a': 297,
 ##                 'g': 9.81,
 ##                 'C_{L}': 0.5
-                 'L_w': 1000,
+##                 'L_w': 1.296e+06,
 ##                 'I_{cap}': .0001,
                 }
-    m = Model(wingP['C_{d_w}'], [wing, state, wingP, wingbox])
+    m = Model(wingP['C_{d_w}'], [wing, state, wingP, wingbox, standalone])
     m.substitutions.update(subs)
-##    m.localsolve(solver='mosek', verbosity = 4)
-    bounds, sol = state.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+    sol = m.localsolve(solver='mosek', verbosity = 4)
+##    bounds, sol = state.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
