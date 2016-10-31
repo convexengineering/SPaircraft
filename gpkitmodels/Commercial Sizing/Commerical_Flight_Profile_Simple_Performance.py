@@ -478,6 +478,7 @@ class Fuselage(Model):
         
         # Volumes (free)
         Vbulk        = Variable('V_{bulk}', 'm^3', 'Bulkhead skin volume')
+        Vcabin       = Variable('V_{cabin}', 'm^3', 'Cabin volume')
         Vcyl         = Variable('V_{cyl}', 'm^3', 'Cylinder skin volume')   
         Vdb          = Variable('V_{db}', 'm^3', 'Web volume')
         Vnose        = Variable('V_{nose}', 'm^3', 'Nose skin volume')
@@ -562,7 +563,7 @@ class Fuselage(Model):
                 hdb         >= Rfuse*(1.0-.5*thetadb**2), #[SP]
 
                 #compute fuselage area for drag approximation
-                Afuse >= pax_area * npass,
+                #Afuse >= pax_area * npass,
                 
 
                 # Cross-sectional constraints
@@ -570,7 +571,7 @@ class Fuselage(Model):
                 Afuse       >= (pi + 2*thetadb + 2*thetadb*(1-thetadb**2/2))*Rfuse**2, #[SP]
                 #Afuse       >= (pi + 4*thetadb)*Rfuse**2, #Bad approx, should improve
                 Askin       >= (2*pi + 4*thetadb)*Rfuse*tskin + Adb, #no delta R for now
-
+                wfloor      == .5*wfuse,
                 wfuse       >= SPR*wseat + 2*waisle + 2*wsys + tdb,
                 wfuse       <= 2*(Rfuse + wdb),
                 SignomialEquality(tshell,tskin*(1+rE*fstring*rhoskin/rhobend)),
@@ -596,6 +597,9 @@ class Fuselage(Model):
                 Vnose  == Snose*tskin,
                 Vbulk  == Sbulk*tskin,
                 Vdb    == Adb*lshell,
+                #TODO Revert to posynomial after debugging
+                SignomialEquality(Vcabin, Afuse*(lshell + 0.67*lnose + 0.67*Rfuse)), #[SP] #[SPEquality]
+
 
                 # Weight estimate (extra items added for convergence)
                 Wdb      == rhoskin*g*Vdb,
@@ -766,7 +770,7 @@ if __name__ == '__main__':
             'numeng': 2,
 ##            'W_{Load_max}': 6664,
             'n_{pass}': 150,
-            'pax_{area}': 1,
+##            'pax_{area}': 1,
             'w_{aisle}':0.51,
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,
