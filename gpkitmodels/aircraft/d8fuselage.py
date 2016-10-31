@@ -24,7 +24,7 @@ from collections import defaultdict
 from gpkit.small_scripts import mag
 
 # Note that sweep has to be True for any sweep to take place. 
-sweep         = False
+sweep         = True
 nsweep        = 10
 
 sweep_thetadb = False
@@ -135,26 +135,26 @@ class Fuselage(Model):
         
         # Weights
         #Wbuoy       = Variable('W_{buoy}', 'N', 'Buoyancy weight')
-        Wapu         = Variable('W_{apu}', 'N', 'APU weight')
+        Wapu         = Variable('W_{apu}', 'lbf', 'APU weight')
         Wavgpass     = Variable('W_{avg. pass}', 180, 'lbf', 'Average passenger weight') #[Philippe]
-        Wcargo       = Variable('W_{cargo}',10000, 'N', 'Cargo weight') #[Philippe]
+        Wcargo       = Variable('W_{cargo}',10000/9.81*.454, 'lbf', 'Cargo weight') #[Philippe]
         Wcarryon     = Variable('W_{carry on}', 15, 'lbf', 'Ave. carry-on weight') #[Philippe]
         Wchecked     = Variable('W_{checked}', 40, 'lbf', 'Ave. checked bag weight') #[Philippe]
-        Wcone        = Variable('W_{cone}', 'N', 'Cone weight')
-        Wdb          = Variable('W_{db}' , 'N', 'Web weight')
+        Wcone        = Variable('W_{cone}', 'lbf', 'Cone weight')
+        Wdb          = Variable('W_{db}' , 'lbf', 'Web weight')
         Wfix         = Variable('W_{fix}', 3000, 'lbf', 'Fixed weights (pilots, cockpit seats, navcom)') #[Philippe]
-        Wfloor       = Variable('W_{floor}', 'N', 'Floor weight')
-        Wfuse        = Variable('W_{fuse}', 'N', 'Fuselage weight')
-        Winsul       = Variable('W_{insul}', 'N', 'Insulation material weight')
-        Wlugg        = Variable('W_{lugg}', 'N', 'Passenger luggage weight')
-        Wpay         = Variable('W_{pay}', 'N', 'Payload weight')
-        Wpass        = Variable('W_{pass}', 'N', 'Passenger weight')
-        Wpadd        = Variable('W_{padd}', 'N', 'Misc weights (galley, toilets, doors etc.)')
-        Wseat        = Variable('W_{seat}', 'N', 'Seating weight')
-        Wshell       = Variable('W_{shell}','N','Shell weight')
-        Wskin        = Variable('W_{skin}', 'N', 'Skin weight')
-        Wwindow      = Variable('W_{window}', 'N', 'Window weight')
-        Wtail        = Variable('W_{tail}','N','Total tail weight')
+        Wfloor       = Variable('W_{floor}', 'lbf', 'Floor weight')
+        Wfuse        = Variable('W_{fuse}', 'lbf', 'Fuselage weight')
+        Winsul       = Variable('W_{insul}', 'lbf', 'Insulation material weight')
+        Wlugg        = Variable('W_{lugg}', 'lbf', 'Passenger luggage weight')
+        Wpay         = Variable('W_{pay}', 'lbf', 'Payload weight')
+        Wpass        = Variable('W_{pass}', 'lbf', 'Passenger weight')
+        Wpadd        = Variable('W_{padd}', 'lbf', 'Misc weights (galley, toilets, doors etc.)')
+        Wseat        = Variable('W_{seat}', 'lbf', 'Seating weight')
+        Wshell       = Variable('W_{shell}','lbf','Shell weight')
+        Wskin        = Variable('W_{skin}', 'lbf', 'Skin weight')
+        Wwindow      = Variable('W_{window}', 'lbf', 'Window weight')
+        Wtail        = Variable('W_{tail}','lbf','Total tail weight')
 
         # Weight fractions and crago densities
         ffadd        = Variable('f_{fadd}',0.2, '-','Fractional added weight of local reinforcements') #[TAS]
@@ -221,7 +221,7 @@ class Fuselage(Model):
         #Vvbend       = Variable('V_{vbend}','m^3','Vertical bending material volume')
         #Vvbendb      = Variable('V_{vbendb}','m^3','Vertical bending material volume b') #back fuselage
         #Vvbendc      = Variable('V_{vbendc}','m^3','Vertical bending material volume c') #center fuselage
-        Whbend       = Variable('W_{hbend}','N','Horizontal bending material weight')
+        Whbend       = Variable('W_{hbend}','lbf','Horizontal bending material weight')
         #Wvbend       = Variable('W_{vbend}','N','Vertical bending material weight')
         xhbend       = Variable('x_{hbend}','m','Horizontal zero bending location')
         #xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
@@ -564,8 +564,182 @@ class Aircraft(Model):
 if __name__ == "__main__":
     M = Aircraft()
     #M = Model(M.cost, BCS(M))
-    
-    #M.substitutions.update({'f_{string}':0.1})
-    #bounds, sol = M.determine_unbounded_variables(M, solver="mosek",verbosity=2, iteration_limit=100)
-    sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50)
-    varVals = sol['variables']
+    if sweep == False:
+        # #M.substitutions.update({'f_{string}':0.1})
+        # #bounds, sol = M.determine_unbounded_variables(M, solver="mosek",verbosity=2, iteration_limit=100)
+        # sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50)
+        # varVals = sol['variables']
+        # print 'Cabin volume        : ' + str(sol('V_{cabin}'))
+        # print 'Fuselage width  : ' + str(sol('w_{fuse}'))
+        # print 'Fuselage length : ' + str(sol('l_{fuse}'))
+        # # print 'Floor area      : ' + str(sol('A_{floor}'))
+        # # print 'Floor height    : ' + str(sol('h_{floor}'))
+        # # print 'Floor length    : ' + str(sol('l_{floor}'))
+        # print 'Floor width     : ' + str(sol('w_{floor}'))
+        # #print 'Fuselage angle : ' + str(sol('\\theta_{db}'))
+        # print 'Fuselage radius: ' + str(sol('R_{fuse}'))
+        # #print 'Floor total loading : ' + str(sol('P_{floor}')) 
+        # print 'Floor weight        : ' + str(sol('W_{floor}'))
+        # print 'Floor volume        : ' + str(sol('V_{floor}'))
+        # print 'Floor bending moment: ' + str(sol('M_{floor}'))
+        # #print 'Shell thickness     : ' + str(sol('t_{shell}'))
+        # #print 'Skin hoop stress    : ' + str(sol('\\sigma_{\\theta}'))
+        # print 'Skin axial stress   : ' + str(sol('\\sigma_x')) 
+        # #print 'Cone weight         : ' + str(sol('W_{cone}'))
+        # #print 'Cone length         : ' + str(sol('l_{cone}'))
+        # #print 'Cone volume         : ' + str(sol('V_{cone}'))
+        # #print 'Tail torsion moment : ' + str(sol('Q_v'))
+        # #print 'Cone taper ratio    : ' + str(sol('\\lambda_{cone}'))
+        # #print 'Max horizontal tail loading:' + str(sol('L_{h_{max}}'))
+        # #print 'Max horizontal tail aero bending load: ' +  str(sol('M_{h_aero}'))
+        # #print 'Max vertical tail aero bending load: ' +  str(sol('M_{v_aero}'))
+        # #print 'Wing location: ' + str(sol('x_{wing}'))
+        # #print 'Tail location: ' + str(sol('x_{tail}'))
+        # print 'Horizontal bending material weight: '+ str(sol('W_{hbend}'))
+        # #print 'Vertical bending material weight: ' + str(sol('W_{vbend}'))
+        # # print 'A2: ' + str(sol('A2'))
+        # # print 'A1: ' + str(sol('A1'))
+        # # print 'A0:  ' + str(sol('A0'))
+        # # print 'B1: ' + str(sol('B1'))
+        # # print 'B0: ' + str(sol('B0'))
+        # #print 'Shell start location: ' + str(sol('x_{shell1}'))
+        # #print 'Shell end location: ' + str(sol('x_{shell2}'))
+        # print 'Zero hbending location: ' + str(sol('x_{hbend}'))
+        # print 'Wing box start location: ' + str(sol('x_b'))
+        # print 'Wing box end location: ' + str(sol('x_f'))
+        # print 'Total weight: ' + str(sol['cost'])
+        # print 'Web area: ' + str(sol('A_{db}'))
+        # print 'Skin thickness: ' + str(sol('t_{skin}'))
+        # print 'Shell thickness: ' + str(sol('t_{shell}'))
+        # print 'Shell horizontal inertia: ' + str(sol('I_{hshell}'))
+        # #print 'Shell vertical inertia: ' + str(sol('I_{vshell}'))
+        # print 'Stringer mass fraction: ' + str(sol('f_{string}'))
+        # #print 'Vhbendf: ' + str(sol('V_{hbendf}'))
+        # #print 'Vhbendb: ' + str(sol('V_{hbendb}'))
+        # # print 'Vhbendc: ' + str(sol('V_{hbendc}'))
+        # # print 'Ahbendf: ' + str(sol('A_{hbendf}'))
+        # # print 'Ahbendb: ' + str(sol('A_{hbendb}'))
+        # # print 'Vvbendb: ' + str(sol('V_{vbendb}'))
+        # # print 'Vvbendc: ' + str(sol('V_{vbendc}'))
+        # # print 'Avbendb: ' + str(sol('A_{hbendb}'))
+        # #print 'Cargo volume: ' + str(sol('V_{cargo}'))
+        # #print 'Hold volume: ' + str(sol('V_{hold}'))
+        # #print 'Hold area: ' + str(sol('V_{hold}')) 
+    if sweep:
+        if sweep_fstring == True:
+            M.substitutions.update({'f_{string}': \
+                ('sweep',np.linspace(fstring_bounds[0],fstring_bounds[1],nsweep))})
+            sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50,skipsweepfailures=True)
+            f_string = sol('f_{string}')
+            Wfuse    = sol('W_{fuse}')
+            Whbend   = sol('W_{hbend}')
+
+            plt.close()
+            plt.plot(f_string, Wfuse)
+            plt.title('W_{fuse} vs. f_{string}')
+            plt.xlabel('f_{string}')
+            plt.ylabel()
+            plt.grid()
+            #plt.axis([fstring_bounds[0], fstring_bounds[1], 0, 10])
+            plt.savefig('Wfuse_vs_fstring.pdf')
+
+            plt.close()
+            plt.plot(f_string,Whbend)
+            plt.title('W_{hbend} vs. f_{string}')
+            plt.xlabel('f_{string}')
+            plt.ylabel('W_{hbend} (lbf)')
+            plt.grid()
+            plt.savefig('Whbend_vs_fstring.pdf')
+
+        if sweep_npass == True:
+            M.substitutions.update({'n_{pass}': \
+                ('sweep',np.linspace(npass_bounds[0],npass_bounds[1],nsweep))})
+            sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50,skipsweepfailures=True)
+            npass = sol('n_{pass}')
+            Wfuse    = sol('W_{fuse}')
+            Wfloor   = sol('W_{floor}')
+            lfuse    = sol('l_{fuse}')
+            fstring  = sol('f_{string}')
+
+            plt.close()
+            plt.plot(npass, Wfuse)
+            plt.title('W_{fuse} vs. n_{pass}')
+            plt.xlabel('n_{pass}')
+            plt.ylabel('W_fuse (lbf)')
+            plt.grid()
+            #plt.axis([fstring_bounds[0], fstring_bounds[1], 0, 10])
+            plt.savefig('Wfuse_vs_npass.pdf')
+
+            plt.close()
+            plt.plot(npass, Wfloor)
+            plt.title('W_{floor} vs. n_{pass}')
+            plt.xlabel('n_{pass}')
+            plt.ylabel('W_{floor} (lbf)')
+            plt.grid()
+            plt.savefig('Wfloor_vs_npass.pdf')
+
+            plt.close()
+            plt.plot(lfuse, fstring)
+            plt.title('f_{string} vs. l_{fuse}')
+            plt.xlabel('l_{fuse} (m)')
+            plt.ylabel('f_{string}')
+            plt.grid()
+            plt.savefig('fstring_vs_lfuse.pdf')
+
+        if sweep_Shtail == True:
+            M.substitutions.update({'S_{htail}':\
+                ('sweep',np.linspace(Shtail_bounds[0],Shtail_bounds[1],nsweep))})
+            sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50,skipsweepfailures=True)
+            fstring = sol('f_{string}')
+            Whbend = sol('W_{hbend}')
+            Shtail = sol('S_{htail}')
+            Lhmax  = sol('L_{h_{max}}')
+
+            plt.close()
+            plt.plot(Lhmax, fstring)
+            plt.title('f_{string} vs. L_{h_{max}}')
+            plt.xlabel('L_{h_{max}} (N)')
+            plt.ylabel('f_{string}')
+            plt.grid()
+            plt.savefig('fstring_vs_Lhmax.pdf')
+
+            plt.close()
+            plt.plot(Lhmax, Whbend)
+            plt.title('W_{hbend} vs. L_{h_{max}}')
+            plt.xlabel('L_{h_{max}} (N)')
+            plt.ylabel('W_{hbend} (lbf)')
+            plt.grid()
+            plt.savefig('Whbend_vs_Lhmax.pdf')
+
+        if sweep_thetadb == True:
+            M.substitutions.update({'\\theta_{db}':\
+                ('sweep',np.linspace(thetadb_bounds[0],thetadb_bounds[1],nsweep))})
+            sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50,skipsweepfailures=True)
+            thetadb = sol('\\theta_{db}')
+            Whbend = sol('W_{hbend}')
+            fstring = sol('f_{string}')
+            Wfuse = sol('W_{fuse}')
+
+            plt.close()
+            plt.plot(thetadb, Wfuse)
+            plt.title('W_{fuse} vs. \\theta_{db}')
+            plt.xlabel('\\theta_{db} (radians)')
+            plt.ylabel('W_{fuse} (lbf)')
+            plt.grid()
+            plt.savefig('Wfuse_vs_thetadb.pdf')
+
+            plt.close()
+            plt.plot(thetadb,fstring)
+            plt.title('f_{string} vs. \\theta_{db}')
+            plt.xlabel('\\theta_{db} (radians)')
+            plt.ylabel('f_{string}')
+            plt.grid()
+            plt.savefig('fstring_vs_thetadb.pdf')
+
+            plt.close()
+            plt.plot(thetadb,Whbend)
+            plt.title('W_{hbend} vs. \\theta_{db}')
+            plt.xlabel('\\theta_{db} (radians)')
+            plt.ylabel('W_{hbend} (lbf)')
+            plt.grid()
+            plt.savefig('Whbend_vs_thetadb.pdf')
