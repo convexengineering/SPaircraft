@@ -459,11 +459,11 @@ class Fuselage(Model):
         wdb          = Variable('w_{db}','m','DB added half-width')
         wfloor       = Variable('w_{floor}', 'm', 'Floor half-width')
         wfuse        = Variable('w_{fuse}', 'm', 'Fuselage width')
-        wseat        = Variable('w_{seat}',0.5,'m', 'Seat width') #[Philippe]
-        wsys         = Variable('w_{sys}', 0.1,'m', 'Width between cabin and skin for systems') #[Philippe]
+        wseat        = Variable('w_{seat}','m', 'Seat width') #[Philippe]
+        wsys         = Variable('w_{sys}','m', 'Width between cabin and skin for systems') #[Philippe]
 
         #Tail cone variables
-        lamcone      = Variable('\\lambda_{cone}',0.4, '-','Tailcone radius taper ratio (xshell2->xtail)')
+        lamcone      = Variable('\\lambda_{cone}', '-','Tailcone radius taper ratio (xshell2->xtail)')
         lcone        = Variable('l_{cone}', 'm', 'Cone length')
         
         # Lengths (free)
@@ -497,27 +497,27 @@ class Fuselage(Model):
 
         # Material properties
         rE           = Variable('r_E', 1,'-', 'Ratio of stringer/skin moduli') #[TAS]
-        rhocone      = Variable('\\rho_{cone}',2700,'kg/m^3','Cone material density') #[TAS]
-        rhobend      = Variable('\\rho_{bend}', 2700, 'kg/m^3', 'Stringer density') #[TAS]
-        rhofloor     = Variable('\\rho_{floor}',2700, 'kg/m^3', 'Floor material density') #[TAS]
-        rhoskin      = Variable('\\rho_{skin}',2700,'kg/m^3', 'Skin density') #[TAS]
-        Wppfloor     = Variable('W\'\'_{floor}', 60,'N/m^2', 'Floor weight/area density') #[TAS]
-        Wppinsul     = Variable('W\'\'_{insul}',22,'N/m^2', 'Weight/area density of insulation material') #[TAS]
-        Wpseat       = Variable('W\'_{seat}',150,'N', 'Weight per seat') #[TAS]
-        Wpwindow     = Variable('W\'_{window}', 145.*3,'N/m', 'Weight/length density of windows') #[TAS]
+        rhocone      = Variable('\\rho_{cone}','kg/m^3','Cone material density') #[TAS]
+        rhobend      = Variable('\\rho_{bend}','kg/m^3', 'Stringer density') #[TAS]
+        rhofloor     = Variable('\\rho_{floor}','kg/m^3', 'Floor material density') #[TAS]
+        rhoskin      = Variable('\\rho_{skin}','kg/m^3', 'Skin density') #[TAS]
+        Wppfloor     = Variable('W\'\'_{floor}','N/m^2', 'Floor weight/area density') #[TAS]
+        Wppinsul     = Variable('W\'\'_{insul}','N/m^2', 'Weight/area density of insulation material') #[TAS]
+        Wpseat       = Variable('W\'_{seat}','N', 'Weight per seat') #[TAS]
+        Wpwindow     = Variable('W\'_{window}','N/m', 'Weight/length density of windows') #[TAS]
         
         # Weight fractions   
-        ffadd        = Variable('f_{fadd}',0.2, '-','Fractional added weight of local reinforcements') #[TAS]
-        fframe       = Variable('f_{frame}',0.25,'-', 'Fractional frame weight') #[Philippe]        
-        flugg1       = Variable('f_{lugg,1}',0.4,'-','Proportion of passengers with one suitcase') #[Philippe]
-        flugg2       = Variable('f_{lugg,2}',0.1, '-','Proportion of passengers with two suitcases') #[Philippe]
-        fstring      = Variable('f_{string}',0.25,'-','Fractional stringer weight') #[Philippe]
+        ffadd        = Variable('f_{fadd}','-','Fractional added weight of local reinforcements') #[TAS]
+        fframe       = Variable('f_{frame}','-', 'Fractional frame weight') #[Philippe]        
+        flugg1       = Variable('f_{lugg,1}','-','Proportion of passengers with one suitcase') #[Philippe]
+        flugg2       = Variable('f_{lugg,2}','-','Proportion of passengers with two suitcases') #[Philippe]
+        fstring      = Variable('f_{string}','-','Fractional stringer weight') #[Philippe]
                              
         # Weights
-        Wavgpass     = Variable('W_{avg. pass}', 180, 'lbf', 'Average passenger weight') #[Philippe]
+        Wavgpass     = Variable('W_{avg. pass}', 'lbf', 'Average passenger weight') #[Philippe]
         Wcargo       = Variable('W_{cargo}', 'N', 'Cargo weight') #[Philippe]        
-        Wcarryon     = Variable('W_{carry on}', 15, 'lbf', 'Ave. carry-on weight') #[Philippe]
-        Wchecked     = Variable('W_{checked}', 40, 'lbf', 'Ave. checked bag weight') #[Philippe]
+        Wcarryon     = Variable('W_{carry on}', 'lbf', 'Ave. carry-on weight') #[Philippe]
+        Wchecked     = Variable('W_{checked}', 'lbf', 'Ave. checked bag weight') #[Philippe]
         Wdb          = Variable('W_{db}' , 'N', 'Web weight')
         Wlugg        = Variable('W_{lugg}', 'N', 'Passenger luggage weight')
         Wpass        = Variable('W_{pass}', 'N', 'Passenger weight')
@@ -536,18 +536,6 @@ class Fuselage(Model):
             constraints.extend([
                 Nland == Nland,
                 VNE == VNE,
-                SPR == SPR,
-                pitch == pitch,
-                sigskin == sigskin,
-                sigfloor == sigfloor,
-                dPover == dPover,
-                rhobend == rhobend,
-                rhoskin == rhoskin,
-                lamcone == lamcone,
-                fstring == fstring,
-                fframe == fframe,
-                ffadd == ffadd,
-                nseat == nseat,
 
                 # Passenger constraints
                 Wlugg    >= flugg2*npass*2*Wchecked + flugg1*npass*Wchecked + Wcarryon,
@@ -770,12 +758,33 @@ if __name__ == '__main__':
             'numeng': 2,
 ##            'W_{Load_max}': 6664,
             'n_{pass}': 150,
+            'W_{avg. pass}': 180,
+            'W_{carry on}': 15,
+            'W_{checked}': 40,
 ##            'pax_{area}': 1,
             'w_{aisle}':0.51,
+            'w_{seat}':0.5,
+            'w_{sys}':0.1,
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
-            'e': .9,
-            'b_{max}': 35,
-            'W_{cargo}':10000
+            'e'            : .9,
+            'b_{max}'      : 35,
+            'W_{cargo}'    : 10000,
+            'r_E'          : 1, #[TAS]
+            '\\lambda_{cone}':0.4,
+#            '\\rho_{cone}' : 2700, #[TAS]
+            '\\rho_{bend}' : 2700, #[TAS]
+#            '\\rho_{floor}':2700, #[TAS]
+            '\\rho_{skin}' :2700, #[TAS]
+#            'W\'\'_{floor}': 60, #[TAS]
+#            'W\'\'_{insul}':22, #[TAS]
+#            'W\'_{seat}'   :150, #[TAS]
+#            'W\'_{window}' : 145.*3, #[TAS]
+            'f_{fadd}'     :0.2, #[TAS]
+            'f_{frame}'    :0.25, #[Philippe]        
+            'f_{lugg,1}'   :0.4, #[Philippe]
+            'f_{lugg,2}'   :0.1, #[Philippe]
+            'f_{string}'   :0.25 #[Philippe]
+                             
             }
            
     m = Mission(substitutions)
