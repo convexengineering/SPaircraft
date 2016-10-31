@@ -25,6 +25,17 @@ Inputs
 - Oswald efficiency factor
 - Max allowed wing span [m]
 - Cruise altitude [ft]
+
+Sources for substitutions:
+-[b757 freight doc]
+-[Boeing]
+-[Philippe]
+-[stdAtm]
+-[TAS]
+
+Other markers:
+-[SP]
+-[SPEquality]
 """
 
 g = 9.81*units('m*s**-2')
