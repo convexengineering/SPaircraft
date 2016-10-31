@@ -20,11 +20,7 @@ class Wing(CostedConstraintSet):
         
         CLwmax  = Variable('C_{L_{wmax}}', '-', 'Max lift coefficient, wing')
         
-        
         Vfuel   = Variable('V_{fuel, max}', 'm^3', 'Available fuel volume')
-        
-        
-        
         
         amax    = Variable('\\alpha_{max,w}', '-', 'Max angle of attack')
         
@@ -32,7 +28,6 @@ class Wing(CostedConstraintSet):
                            'Cosine of quarter-chord sweep angle')
         croot   = Variable('c_{root}', 'm', 'Wing root chord')
         ctip    = Variable('c_{tip}', 'm', 'Wing tip chord')
-        
         
         eta     = Variable('\\eta_w', '-', 'Lift efficiency (diff b/w sectional, actual lift)')
         fl      = Variable('f(\\lambda_w)', '-', 'Empirical efficiency function of taper')
@@ -139,13 +134,13 @@ class Wing(CostedConstraintSet):
                            Wfuel <= rhofuel*Afuel*Vfuel*g,
                           ]
 
-##            standalone_constraints = [
+            standalone_constraints = [
 ##                W >= W0 + Ww + Wfuel,
-##                                      Lw == W,
-##                                      M == Vinf/a,
-##                                      ]
+                                      Lw == W,
+                                      M == Vinf/a,
+                                      ]
 
-##            self.standalone_constraints = standalone_constraints
+            self.standalone_constraints = standalone_constraints
 
         wb = WingBox()
         wb.subinplace({'A': AR,

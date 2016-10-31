@@ -364,7 +364,7 @@ class WingBox(Model):
         w      = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
-        
+
         objective = Wstruct
 
         if isinstance(surface, VerticalTailNoStruct):
