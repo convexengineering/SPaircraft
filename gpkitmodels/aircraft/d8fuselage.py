@@ -24,14 +24,14 @@ from collections import defaultdict
 from gpkit.small_scripts import mag
 
 # Note that sweep has to be True for any sweep to take place. 
-sweep         = True
+sweep         = False
 nsweep        = 10
 
-sweep_thetadb = False
+sweep_thetadb = True
 thetadb_bounds=[0.0,0.5]
 
-sweep_npass   = False
-npass_bounds  = [160, 232]
+sweep_npass   = True
+npass_bounds  = [120, 396]
 
 sweep_Shtail   = False
 Shtail_bounds  = [10,50]
@@ -250,7 +250,7 @@ class Fuselage(Model):
             
             # Fuselage joint angle relations
             thetadb     == wdb/Rfuse, # first order Taylor works...
-            thetadb     >= 0.05, thetadb <= 0.5, #Temporarily
+            thetadb <= 0.5, #Temporarily
             hdb         >= Rfuse*(1.0-.5*thetadb**2), #[SP]
             
             # Fuselage cross-sectional relations
@@ -562,13 +562,13 @@ class Aircraft(Model):
         # xCGwing = Variable('x_{CG_{wing}}', 15, 'm', 'x-location of wing CG')
 
 if __name__ == "__main__":
-    M = Aircraft()
     #M = Model(M.cost, BCS(M))
     if sweep == False:
-        # #M.substitutions.update({'f_{string}':0.1})
+        M = Aircraft()
+        M.substitutions.update({'f_{string}':0.1})
         # #bounds, sol = M.determine_unbounded_variables(M, solver="mosek",verbosity=2, iteration_limit=100)
-        # sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50)
-        # varVals = sol['variables']
+        sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50)
+        varVals = sol['variables']
         # print 'Cabin volume        : ' + str(sol('V_{cabin}'))
         # print 'Fuselage width  : ' + str(sol('w_{fuse}'))
         # print 'Fuselage length : ' + str(sol('l_{fuse}'))
@@ -627,6 +627,7 @@ if __name__ == "__main__":
         # #print 'Hold area: ' + str(sol('V_{hold}')) 
     if sweep:
         if sweep_fstring == True:
+            M = Aircraft()
             M.substitutions.update({'f_{string}': \
                 ('sweep',np.linspace(fstring_bounds[0],fstring_bounds[1],nsweep))})
             sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50,skipsweepfailures=True)
@@ -638,7 +639,7 @@ if __name__ == "__main__":
             plt.plot(f_string, Wfuse)
             plt.title('W_{fuse} vs. f_{string}')
             plt.xlabel('f_{string}')
-            plt.ylabel()
+            plt.ylabel('W_{fuse} (lbf)')
             plt.grid()
             #plt.axis([fstring_bounds[0], fstring_bounds[1], 0, 10])
             plt.savefig('Wfuse_vs_fstring.pdf')
@@ -652,6 +653,7 @@ if __name__ == "__main__":
             plt.savefig('Whbend_vs_fstring.pdf')
 
         if sweep_npass == True:
+            M = Aircraft()
             M.substitutions.update({'n_{pass}': \
                 ('sweep',np.linspace(npass_bounds[0],npass_bounds[1],nsweep))})
             sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50,skipsweepfailures=True)
@@ -687,6 +689,7 @@ if __name__ == "__main__":
             plt.savefig('fstring_vs_lfuse.pdf')
 
         if sweep_Shtail == True:
+            M = Aircraft()
             M.substitutions.update({'S_{htail}':\
                 ('sweep',np.linspace(Shtail_bounds[0],Shtail_bounds[1],nsweep))})
             sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50,skipsweepfailures=True)
@@ -712,6 +715,7 @@ if __name__ == "__main__":
             plt.savefig('Whbend_vs_Lhmax.pdf')
 
         if sweep_thetadb == True:
+            M = Aircraft()
             M.substitutions.update({'\\theta_{db}':\
                 ('sweep',np.linspace(thetadb_bounds[0],thetadb_bounds[1],nsweep))})
             sol = M.localsolve("mosek",tolerance = 0.01, verbosity = 1, iteration_limit=50,skipsweepfailures=True)
