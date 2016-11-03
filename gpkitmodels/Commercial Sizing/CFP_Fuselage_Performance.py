@@ -457,6 +457,22 @@ class HTail(Model):
                        CLhmax   == CLhmax]
         Model.__init__(self, None, constraints, **kwargs)
 
+class VTail(Model):
+    def dynamic(self,state):
+        return VTailP(self,state)
+
+    def __init__(self,ops,**kwargs):
+        bvt          = Variable('b_{vt}',7, 'm', 'Vertical tail span')
+        Lvmax        = Variable('L_{v_{max}}',35000,'N', 'Max vertical tail load')
+        Wvtail       = Variable('W_{vtail}',10000, 'N', 'Vertical tail weight') #Temporarily
+        Qv           = Variable('Q_v', 'N*m', 'Torsion moment imparted by tail')
+
+        constraints = [bvt == bvt, 
+                       Lvmax == Lvmax,
+                       Wvtail == Wvtail,
+                       Qv == Qv]
+        Model.__init__(self, None, constraints, **kwargs)
+
 class Fuselage(Model):
     """
     place holder fuselage model
