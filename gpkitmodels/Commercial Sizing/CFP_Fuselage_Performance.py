@@ -663,14 +663,13 @@ class Fuselage(Model):
                 Vcone*(1+lamcone)*(pi+4*thetadb)>= self.vtail['Q_v']/taucone*(pi+2*thetadb)*(lcone/Rfuse)*2,
                 Wcone                           >= rhocone*g*Vcone*(1+fstring+fframe),
                 Wtail                           >= self.vtail['W_{vtail}'] + self.htail['W_{htail}'] + Wcone,
-          
 
                 # Weight estimate (extra items added for convergence)
 
                 Wdb      == rhoskin*g*Vdb,
                 Wskin    >= rhoskin*g*(Vcyl + Vnose + Vbulk),
                 Wshell   >= Wskin*(1 + fstring + ffadd + fframe) + Wdb, #+ Whbend, #+ Wvbend,
-                We       >= Wshell + Wfloor + Wtail + (lfuse + wfuse+lshell+Rfuse+hdb+(tskin+tshell+tdb)*10)*10*units('N/m'),
+                We       >= Wshell + Wfloor + Wtail
                 ])
 
         Model.__init__(self, None, constraints)
