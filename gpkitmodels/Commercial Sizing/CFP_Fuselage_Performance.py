@@ -444,8 +444,7 @@ class HTail(Model):
     def dynamic(self,state):
         return HTailP(self,state)
 
-    def __init__(self,ops,**kwargs):
-        self.ops = ops
+    def __init__(self,**kwargs):
         Whtail       = Variable('W_{htail}',10000, 'N', 'Horizontal tail weight') #Temporarily
         Lhmax        = Variable('L_{h_{max}}',35000,'N', 'Max horizontal tail load')
         Shtail       = Variable('S_{htail}',32*0.8,'m^2','Horizontal tail area') #Temporarily
@@ -461,7 +460,7 @@ class VTail(Model):
     def dynamic(self,state):
         return VTailP(self,state)
 
-    def __init__(self,ops,**kwargs):
+    def __init__(self,**kwargs):
         bvt          = Variable('b_{vt}',7, 'm', 'Vertical tail span')
         Lvmax        = Variable('L_{v_{max}}',35000,'N', 'Max vertical tail load')
         Wvtail       = Variable('W_{vtail}',10000, 'N', 'Vertical tail weight') #Temporarily
@@ -478,6 +477,8 @@ class Fuselage(Model):
     place holder fuselage model
     """
     def __init__(self, **kwargs):
+        self.vtail = VTail()
+        self.htail = HTail()
         #new variables
         dPover       = Variable('\\delta_P_{over}','psi','Cabin overpressure')
         npass        = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
@@ -511,6 +512,8 @@ class Fuselage(Model):
         #Tail cone variables
         lamcone      = Variable('\\lambda_{cone}', '-','Tailcone radius taper ratio (xshell2->xtail)')
         lcone        = Variable('l_{cone}', 'm', 'Cone length')
+        plamv        = Variable('p_{\\lambda_v}',1.4,'-', '1 + 2*Tail taper ratio')
+        tcone        = Variable('t_{cone}', 'm', 'Cone thickness')
         
         # Lengths (free)
         lfuse        = Variable('l_{fuse}', 'm', 'Fuselage length')
@@ -525,6 +528,7 @@ class Fuselage(Model):
         # Volumes (free)
         Vbulk        = Variable('V_{bulk}', 'm^3', 'Bulkhead skin volume')
         Vcabin       = Variable('V_{cabin}', 'm^3', 'Cabin volume')
+        Vcone        = Variable('V_{cone}', 'm^3', 'Cone skin volume')
         Vcyl         = Variable('V_{cyl}', 'm^3', 'Cylinder skin volume')   
         Vdb          = Variable('V_{db}', 'm^3', 'Web volume')
         Vfloor       = Variable('V_{floor}', 'm^3', 'Floor volume')
@@ -541,6 +545,7 @@ class Fuselage(Model):
         Pfloor       = Variable('P_{floor}','N', 'Distributed floor load')
         Sfloor       = Variable('S_{floor}', 'N', 'Maximum shear in floor beams')
         sigfloor     = Variable('\\sigma_{floor}',30000/0.000145, 'N/m^2', 'Max allowable floor stress') #[TAS]
+        taucone      = Variable('\\tau_{cone}', 'N/m^2', 'Shear stress in cone')
         taufloor     = Variable('\\tau_{floor}',30000/0.000145, 'N/m^2', 'Max allowable shear web stress') #[TAS]
 
         # Material properties
@@ -566,6 +571,7 @@ class Fuselage(Model):
         Wcargo       = Variable('W_{cargo}', 'N', 'Cargo weight') #[Philippe]        
         Wcarryon     = Variable('W_{carry on}', 'lbf', 'Ave. carry-on weight') #[Philippe]
         Wchecked     = Variable('W_{checked}', 'lbf', 'Ave. checked bag weight') #[Philippe]
+        Wcone        = Variable('W_{cone}', 'lbf', 'Cone weight')
         Wdb          = Variable('W_{db}' , 'N', 'Web weight')
         Wfloor       = Variable('W_{floor}', 'lbf', 'Floor weight')
         Wlugg        = Variable('W_{lugg}', 'N', 'Passenger luggage weight')
@@ -574,6 +580,7 @@ class Fuselage(Model):
         Wseat        = Variable('W_{seat}', 'lbf', 'Seating weight')
         Wshell       = Variable('W_{shell}','N','Shell weight')
         Wskin        = Variable('W_{skin}', 'N', 'Skin weight')
+        Wtail        = Variable('W_{tail}','lbf','Total tail weight')
 
         #weight variables
         We = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
@@ -650,12 +657,20 @@ class Fuselage(Model):
                 Sfloor   == (5./16.)*Pfloor,
                 hfloor   <= 0.1*Rfuse,
 
+               # Tail cone sizing
+                taucone                         == sigskin,
+                3*self.vtail['Q_v']*(plamv-1)                  >= self.vtail['L_{v_{max}}']*self.vtail['b_{vt}']*(plamv),
+                Vcone*(1+lamcone)*(pi+4*thetadb)>= self.vtail['Q_v']/taucone*(pi+2*thetadb)*(lcone/Rfuse)*2,
+                Wcone                           >= rhocone*g*Vcone*(1+fstring+fframe),
+                Wtail                           >= self.vtail['W_{vtail}'] + self.htail['W_{htail}'] + Wcone,
+          
+
                 # Weight estimate (extra items added for convergence)
 
                 Wdb      == rhoskin*g*Vdb,
                 Wskin    >= rhoskin*g*(Vcyl + Vnose + Vbulk),
                 Wshell   >= Wskin*(1 + fstring + ffadd + fframe) + Wdb, #+ Whbend, #+ Wvbend,
-                We       >= .75*Wpay + Wshell + Wfloor + (lfuse + wfuse+lshell+Rfuse+hdb+(tskin+tshell+tdb)*10)*10*units('N/m'),
+                We       >= Wshell + Wfloor + Wtail + (lfuse + wfuse+lshell+Rfuse+hdb+(tskin+tshell+tdb)*10)*10*units('N/m'),
                 ])
 
         Model.__init__(self, None, constraints)
@@ -823,7 +838,6 @@ if __name__ == '__main__':
             'W_{avg. pass}': 180,
             'W_{carry on}': 15,
             'W_{checked}': 40,
-##            'pax_{area}': 1,
             'w_{aisle}':0.51,
             'w_{seat}':0.5,
             'w_{sys}':0.1,
@@ -833,7 +847,7 @@ if __name__ == '__main__':
             'W_{cargo}'    : 10000,
             'r_E'          : 1, #[TAS]
             '\\lambda_{cone}':0.4,
-#            '\\rho_{cone}' : 2700, #[TAS]
+            '\\rho_{cone}' : 2700, #[TAS]
             '\\rho_{bend}' : 2700, #[TAS]
             '\\rho_{floor}':2700, #[TAS]
             '\\rho_{skin}' :2700, #[TAS]
