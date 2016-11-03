@@ -704,9 +704,9 @@ class HorizontalTailNoStruct(Model):
 
                 # K_f as f(wing position) -- (fitted posynomial)
                 # from from UMich AE-481 course notes Table 9.1
-##                Kf >= (1.5012*(self.wing['x_w']/self.fuse['l_{fuse}'])**2 +
-##                       0.538*(self.wing['x_w']/self.fuse['l_{fuse}']) +
-##                       0.0331),
+                Kf >= (1.5012*(self.wing['x_w']/self.fuse['l_{fuse}'])**2 +
+                       0.538*(self.wing['x_w']/self.fuse['l_{fuse}']) +
+                       0.0331),
 
                 # Oswald efficiency
                 # Nita, Scholz,
@@ -967,7 +967,7 @@ if __name__ == '__main__':
              'V_{ne}': 144,
              'C_{L_{hmax}}': 2.5,
 
-##             '\\alpha_{max,h}': 0.1, # (6 deg)
+             '\\alpha_{max,h}': 0.1, # (6 deg)
              '\\bar{c}_w': 5,
              '\\rho_0': 1.225,
              '\\tan(\\Lambda_{ht})': tan(30*pi/180),
