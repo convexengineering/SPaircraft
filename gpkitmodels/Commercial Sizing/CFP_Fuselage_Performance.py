@@ -778,7 +778,7 @@ class Fuselage(Model):
                 We       >= Wshell + Wfloor + Wtail + Winsul + Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend
                 ])
 
-        Model.__init__(self, None, constraints)
+        Model.__init__(self, None, constraints + self.wingbox)
 
     def dynamic(self, state):
         """
