@@ -440,6 +440,23 @@ class WingPerformance(Model):
 
         Model.__init__(self, None, constraints)
 
+class HTail(Model):
+    def dynamic(self,state):
+        return HTailP(self,state)
+
+    def __init__(self,ops,**kwargs):
+        self.ops = ops
+        Whtail       = Variable('W_{htail}',10000, 'N', 'Horizontal tail weight') #Temporarily
+        Lhmax        = Variable('L_{h_{max}}',35000,'N', 'Max horizontal tail load')
+        Shtail       = Variable('S_{htail}',32*0.8,'m^2','Horizontal tail area') #Temporarily
+        CLhmax       = Variable('C_{L_{h_{max}}}', 2.5, '-', 'Max lift coefficient') #Temporarily
+        constraints = [#Lhmax    == 0.5*self.ops['\\rho_{\\infty}']*self.ops['V_{NE}']**2*Shtail*CLhmax,
+                       Lhmax    == Lhmax,
+                       Whtail   == Whtail,
+                       Shtail   == Shtail,
+                       CLhmax   == CLhmax]
+        Model.__init__(self, None, constraints, **kwargs)
+
 class Fuselage(Model):
     """
     place holder fuselage model
@@ -545,7 +562,6 @@ class Fuselage(Model):
         #weight variables
         We = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
         Wpass = Variable('W_{pass}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
-        pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
 
         # x-location variables
         xshell1      = Variable('x_{shell1}', 'm', 'Start of cylinder section')
@@ -572,10 +588,6 @@ class Fuselage(Model):
                 thetadb     >= 0.05, thetadb <= 0.5, #Temporarily
                 hdb         >= Rfuse*(1.0-.5*thetadb**2), #[SP]
 
-                #compute fuselage area for drag approximation
-                #Afuse >= pax_area * npass,
-                
-
                 # Cross-sectional constraints
                 Adb         == (2*hdb)*tdb,
                 Afuse       >= (pi + 2*thetadb + 2*thetadb*(1-thetadb**2/2))*Rfuse**2, #[SP]
@@ -594,6 +606,8 @@ class Fuselage(Model):
                 lfuse    >= lnose+lshell+lcone, 
                 lnose    == 0.3*lshell, # Temporarily
                 lcone    == Rfuse/lamcone,  
+                xshell1  == lnose,
+                xshell2  >= lnose + lshell,
 
                  ## Stress relations
                 #Pressure shell loading
@@ -611,7 +625,6 @@ class Fuselage(Model):
                 SignomialEquality(Vcabin, Afuse*(lshell + 0.67*lnose + 0.67*Rfuse)), #[SP] #[SPEquality]
 
                 # Floor loading
-
                 lfloor   >= lshell + 2*Rfuse,            
                 Pfloor   >= Nland*(Wpay + Wseat),
                 Mfloor   == 9./256.*Pfloor*wfloor,
