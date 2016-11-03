@@ -472,6 +472,27 @@ class VTail(Model):
                        Qv == Qv]
         Model.__init__(self, None, constraints, **kwargs)
 
+class WingBox(Model):
+    def dynamic(self,state):
+        return WingBoxP(self,state)
+
+    def __init__(self,**kwargs):
+        xf           = Variable('x_f','m','x-location of front of wingbox')
+        xb           = Variable('x_b','m','x-location of back of wingbox')
+        c0           = Variable('c_0','m','Root chord of the wing')
+        wbar         = Variable('\\bar_w',0.5,'-','Wingbox to chord ratio') #Temporarily
+        xwing        = Variable('x_{wing}','m', 'x-location of wing')
+        dxwing       = Variable('dx_{wing}','m','wing box offset')
+        # Setting bending area integration bounds (defining wing box locations)
+        with SignomialsEnabled():
+            constraints  = [SignomialEquality(xf,xwing + dxwing + .5*c0*wbar), #[SP] [SPEquality]
+                        #xf >= xwing + dxwing + .5*c0*wbar,
+                        SignomialEquality(xb, xwing - dxwing + .5*c0*wbar), #[SP] [SPEquality]
+                        #xb <= xwing - dxwing + .5*c0*wbar, #[SP] 
+                        wbar == wbar       
+                        ];
+        Model.__init__(self,None,constraints,**kwargs)
+
 class Fuselage(Model):
     """
     place holder fuselage model
@@ -479,6 +500,7 @@ class Fuselage(Model):
     def __init__(self, **kwargs):
         self.vtail = VTail()
         self.htail = HTail()
+        self.wingbox = WingBox()
         #new variables
         dPover       = Variable('\\delta_P_{over}','psi','Cabin overpressure')
         npass        = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
@@ -497,6 +519,7 @@ class Fuselage(Model):
         Askin        = Variable('A_{skin}', 'm^2', 'Skin cross sectional area')
         hdb          = Variable('h_{db}','m', 'Web half-height')
         hfloor       = Variable('h_{floor}', 'm', 'Floor beam height')        
+        hfuse        = Variable('h_{fuse}','m','Fuselage height')
         Rfuse        = Variable('R_{fuse}', 'm', 'Fuselage radius') # will assume for now there: no under-fuselage extension deltaR
         tdb          = Variable('t_{db}', 'm', 'Web thickness')
         thetadb      = Variable('\\theta_{db}','-','DB fuselage joining angle')
@@ -547,6 +570,35 @@ class Fuselage(Model):
         sigfloor     = Variable('\\sigma_{floor}',30000/0.000145, 'N/m^2', 'Max allowable floor stress') #[TAS]
         taucone      = Variable('\\tau_{cone}', 'N/m^2', 'Shear stress in cone')
         taufloor     = Variable('\\tau_{floor}',30000/0.000145, 'N/m^2', 'Max allowable shear web stress') #[TAS]
+
+        # Bending inertias (ported from TASOPT)
+        A0           = Variable('A0','m^2','Horizontal bending area constant A0') #(shell inertia contribution)
+        A1           = Variable('A1','m','Horizontal bending area constant A1') #(tail impact + aero loading)
+        A2           = Variable('A2','-','Horizontal bending area constant A2') #(fuselage impact)
+        Ahbendb      = Variable('A_{hbendb}','m^2','Horizontal bending area at rear wingbox')
+        Ahbendf      = Variable('A_{hbendf}','m^2','Horizontal bending area at front wingbox')
+        Avbendb      = Variable('A_{vbendb}','m^2','Vertical bending material area at rear wingbox')
+        #B0           = Variable('B0','m^2','Vertical bending area constant B0') #(shell inertia contribution)
+        #B1           = Variable('B1','m','Vertical bending area constant B1') #(vertical tail bending load)
+        Ihshell      = Variable('I_{hshell}','m^4','Shell horizontal bending inertia')
+        #Ivshell      = Variable('I_{vshell}','m^4','Shell vertical bending inertia')
+        rMh          = Variable('r_{M_h}',.4,'-','Horizontal inertial relief factor') #[TAS]
+        rMv          = Variable('r_{M_v}',.7,'-','Vertical inertial relief factor') #[TAS]
+        sigbend      = Variable('\\sigma_{bend}','N/m^2','Bending material stress')
+        sigMh        = Variable('\\sigma_{M_h}','N/m^2','Horizontal bending material stress')
+        #sigMv        = Variable('\\sigma_{M_v}','N/m^2','Vertical bending material stress')
+        Vhbend       = Variable('V_{hbend}','m^3','Horizontal bending material volume')
+        Vhbendb      = Variable('V_{hbendb}','m^3','Horizontal bending material volume b') #back fuselage
+        Vhbendc      = Variable('V_{hbendc}','m^3','Horizontal bending material volume c') #center fuselage
+        Vhbendf      = Variable('V_{hbendf}','m^3','Horizontal bending material volume f') #front fuselage
+        #Vvbend       = Variable('V_{vbend}','m^3','Vertical bending material volume')
+        #Vvbendb      = Variable('V_{vbendb}','m^3','Vertical bending material volume b') #back fuselage
+        #Vvbendc      = Variable('V_{vbendc}','m^3','Vertical bending material volume c') #center fuselage
+        Whbend       = Variable('W_{hbend}','lbf','Horizontal bending material weight')
+        #Wvbend       = Variable('W_{vbend}','N','Vertical bending material weight')
+        xhbend       = Variable('x_{hbend}','m','Horizontal zero bending location')
+        #xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
+
 
         # Material properties
         rE           = Variable('r_E', 1,'-', 'Ratio of stringer/skin moduli') #[TAS]
@@ -599,7 +651,7 @@ class Fuselage(Model):
         # x-location variables
         xshell1      = Variable('x_{shell1}', 'm', 'Start of cylinder section')
         xshell2      = Variable('x_{shell2}', 'm', 'End of cylinder section')
-
+        xtail        = Variable('x_{tail}','m', 'x-location of tail')
 
         constraints = []
         with SignomialsEnabled():
@@ -628,6 +680,7 @@ class Fuselage(Model):
                 wfloor      == .5*wfuse,
                 wfuse       >= SPR*wseat + 2*waisle + 2*wsys + tdb,
                 wfuse       <= 2*(Rfuse + wdb),
+                hfuse    == Rfuse,
                 SignomialEquality(tshell,tskin*(1+rE*fstring*rhoskin/rhobend)),
 
                             # Fuselage surface area relations
@@ -643,22 +696,14 @@ class Fuselage(Model):
                 SignomialEquality(xshell2, lnose + lshell),  #[SP] #[SPEquality]
                 
 
-                 ## Stress relations
+                ## STRESS RELATIONS
                 #Pressure shell loading
                 tskin    == dPover*Rfuse/sigskin,
                 tdb      == 2*dPover*wdb/sigskin,
                 sigx     == dPover*Rfuse/(2*tshell),
                 sigth    == dPover*Rfuse/tskin,
-            
-                # Volume relations
-                Vcyl   == Askin*lshell,
-                Vnose  == Snose*tskin,
-                Vbulk  == Sbulk*tskin,
-                Vdb    == Adb*lshell,
-                #TODO Revert to posynomial after debugging
-                SignomialEquality(Vcabin, Afuse*(lshell + 0.67*lnose + 0.67*Rfuse)), #[SP] #[SPEquality]
 
-                # Floor loading
+                 # Floor loading
                 lfloor   >= lshell + 2*Rfuse,            
                 Pfloor   >= Nland*(Wpay + Wseat),
                 Mfloor   == 9./256.*Pfloor*wfloor,
@@ -668,12 +713,56 @@ class Fuselage(Model):
                 Sfloor   == (5./16.)*Pfloor,
                 hfloor   <= 0.1*Rfuse,
 
-               # Tail cone sizing
+                 # Tail cone sizing
                 taucone                         == sigskin,
-                3*self.vtail['Q_v']*(plamv-1)                  >= self.vtail['L_{v_{max}}']*self.vtail['b_{vt}']*(plamv),
+                3*self.vtail['Q_v']*(plamv-1)   >= self.vtail['L_{v_{max}}']*self.vtail['b_{vt}']*(plamv),
                 Vcone*(1+lamcone)*(pi+4*thetadb)>= self.vtail['Q_v']/taucone*(pi+2*thetadb)*(lcone/Rfuse)*2,
                 Wcone                           >= rhocone*g*Vcone*(1+fstring+fframe),
                 Wtail                           >= self.vtail['W_{vtail}'] + self.htail['W_{htail}'] + Wcone,
+                xtail    >= lnose + lshell + .5*lcone, #Temporarily
+
+                            # Horizontal bending model
+                # Maximum axial stress is the sum of bending and pressurization stresses
+                Ihshell <= ((pi+4*thetadb)*Rfuse**2)*Rfuse*tshell + 2/3*hdb**3*tdb, # [SP]
+                #Ivshell <= (pi*Rfuse**2 + 8*wdb*Rfuse + (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell approximation needs to be improved
+                sigbend == rE*sigskin,
+        
+                # Horizontal bending material model
+                # Calculating xbend, the location where additional bending material is required
+                xhbend   >= self.wingbox['x_{wing}'],
+                SignomialEquality(A0,A2*(xshell2-xhbend)**2 + A1*(xtail-xhbend)), #[SP] #[SPEquality] 
+                A2      >=  Nland*(Wpay+Wshell+Wwindow+Winsul+Wfloor+Wseat)/(2*lshell*hfuse*sigMh), # Landing loads constant A2
+                A1      >= (Nland*Wtail + rMh*self.htail['L_{h_{max}}'])/(hfuse*sigMh),                                # Aero loads constant A1
+                A0      == (Ihshell/(rE*hfuse**2)),                                                # Shell inertia constant A0
+                Ahbendf >= A2*(xshell2-self.wingbox['x_f'])**2 + A1*(xtail-self.wingbox['x_f']) - A0, #[SP]                           # Bending area forward of wingbox
+                Ahbendb >= A2*(xshell2-self.wingbox['x_b'])**2 + A1*(xtail-self.wingbox['x_b']) - A0, #[SP]                           # Bending area behind wingbox
+
+                Vhbendf >= A2/3*((xshell2-self.wingbox['x_f'])**3 - (xshell2-xhbend)**3) \
+                            + A1/2*((xtail-self.wingbox['x_f'])**2 - (xtail - xhbend)**2) \
+                            + A0*(xhbend-self.wingbox['x_f']), #[SP]
+
+                Vhbendb >= A2/3*((xshell2-self.wingbox['x_b'])**3 - (xshell2-xhbend)**3) \
+                            + A1/2*((xtail-self.wingbox['x_b'])**2 - (xtail - xhbend)**2) \
+                            + A0*(xhbend-self.wingbox['x_b']), #[SP]
+                Vhbendc >= .5*(Ahbendf + Ahbendb)*self.wingbox['c_0']*self.wingbox['\\bar_w'],
+                Vhbend  >= Vhbendc + Vhbendf + Vhbendb,
+                Whbend  >= g*rhobend*Vhbend,
+
+                # Wing variable substitutions
+                self.wingbox['c_0']       == 0.1*lshell, #Temporarily
+                self.wingbox['dx_{wing}']   == 0.25*self.wingbox['c_0'], #Temporarily
+                        
+                sigMh   <= sigbend - rE*dPover/2*Rfuse/tshell, 
+                SignomialEquality(self.wingbox['x_{wing}'], lnose + 0.6*lshell), #TODO remove
+            
+         
+                # Volume relations
+                Vcyl   == Askin*lshell,
+                Vnose  == Snose*tskin,
+                Vbulk  == Sbulk*tskin,
+                Vdb    == Adb*lshell,
+                #TODO Revert to posynomial after debugging
+                SignomialEquality(Vcabin, Afuse*(lshell + 0.67*lnose + 0.67*Rfuse)), #[SP] #[SPEquality]
 
                 # Weight relations
                 Wapu     == Wpay*fapu,
@@ -686,7 +775,7 @@ class Fuselage(Model):
 
                 Wskin    >= rhoskin*g*(Vcyl + Vnose + Vbulk),
                 Wshell   >= Wskin*(1 + fstring + ffadd + fframe) + Wdb, #+ Whbend, #+ Wvbend,
-                We       >= Wshell + Wfloor + Wtail + Winsul + Wapu + Wfix + Wwindow + Wpadd + Wseat
+                We       >= Wshell + Wfloor + Wtail + Winsul + Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend
                 ])
 
         Model.__init__(self, None, constraints)
@@ -877,11 +966,11 @@ if __name__ == '__main__':
             'f_{lugg,1}'   :0.4, #[Philippe]
             'f_{lugg,2}'   :0.1, #[Philippe]
             # 'f_{string}'   :0.25 #[Philippe]
-            'f_{string}'   :0.1,
+            #'f_{string}'   :0.1,
             'f_{padd}'     : 0.4
                              
             }
            
     m = Mission(substitutions)
     #sol = m.solve(solver='mosek', verbosity = 4)
-    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=3, iteration_limit=100)
+    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=2, iteration_limit=100)
