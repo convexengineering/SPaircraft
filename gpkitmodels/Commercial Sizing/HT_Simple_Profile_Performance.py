@@ -789,18 +789,13 @@ class HorizontalTailPerformance(Model):
             constraints.extend([
 ##                TCS([SM + dxw/self.wing['\\bar{c}_w'] + self.ht['K_f']*self.fuse['w_{fuse}']**2*self.fuse['l_{fuse}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w'])
 ##                                    <= CLah*self.ht['S_h']*self.ht['l_{ht}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w'])]),
-##                
-##                SM >= self.ht['S.M._{min}'],
+                
+                SM >= self.ht['S.M._{min}'],
 
+                # Trim from UMich AE-481 course notes
+                Lh == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CLh,
 
-##                CLah == 1,
-
-####                # Trim from UMich AE-481 course notes
-####                TCS([CLh*self.ht['S_h']*self.ht['l_{ht}']/(self.wing['S']*self.wing['\\bar{c}_w']) + Cmac >=
-####                self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}']], reltol=0.02),
-####                Lh == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CLh,
-####
-####                # Moment arm and geometry -- same as for vtail
+                # Moment arm and geometry -- same as for vtail
 ####                TCS([dxlead + self.ht['c_{root_h}'] <= dxtrail]),
 ####                TCS([xcg + dxtrail <= self.fuse['l_{fuse}']], reltol=0.002),
 ####                TCS([dxlead + self.ht['y_{\\bar{c}_{ht}}']*self.ht['\\tan(\\Lambda_{ht})'] + 0.25*self.ht['\\bar{c}_{ht}'] >= self.ht['l_{ht}']],
@@ -810,11 +805,11 @@ class HorizontalTailPerformance(Model):
 ##                TCS([(self.ht['AR_h']/eta)**2*(1+self.ht['\\tan(\\Lambda_{ht})']**2-state['M']**2) + 8*pi*self.ht['AR_h']/CLah0
 ##                     <= (2*pi*self.ht['AR_h']/CLah0)**2]),
 
-####                # K_f as f(wing position) -- (fitted posynomial)
-####                # from from UMich AE-481 course notes Table 9.1
+                # K_f as f(wing position) -- (fitted posynomial)
+                # from from UMich AE-481 course notes Table 9.1
 ####                TCS([self.wing['x_w'] >= xcg + dxw]),
-##
-##                # Loss of tail effectiveness due to wing downwash
+
+                # Loss of tail effectiveness due to wing downwash
 ##                CLah + (2*self.wingP['C_{L_{aw}}']/(pi*self.wing['AR']))*etaht*CLah0 <= CLah0*etaht,
                 CLh == CLah*alpha,
                 alpha <= self.ht['\\alpha_{max,h}'],
@@ -822,7 +817,7 @@ class HorizontalTailPerformance(Model):
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CDh,
 
-                CLh == .2,
+
                 CLah == .2,
                 
                 CDh >= CD0h + CLh**2/(pi*self.ht['e_h']*self.ht['AR_h']),
@@ -970,14 +965,14 @@ if __name__ == '__main__':
             'e': .9,
             'b_{max}': 35,
 
-##             'S.M._{min}': 0.05,
+             'S.M._{min}': 0.05,
              'V_{ne}': 144,
-##             'C_{L_{hmax}}': 2.5,
+             'C_{L_{hmax}}': 2.5,
              
 ##             '\\alpha_{max,h}': 0.1, # (6 deg)
-##             '\\bar{c}_w': 5,
-##             '\\rho_0': 1.225,
-##             '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+             '\\bar{c}_w': 5,
+             '\\rho_0': 1.225,
+             '\\tan(\\Lambda_{ht})': tan(30*pi/180),
              'w_{fuse}': 6,
 ##             'x_{CG}': 17,
             }
