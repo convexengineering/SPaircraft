@@ -788,8 +788,8 @@ class HorizontalTailPerformance(Model):
         with SignomialsEnabled():
            
             constraints.extend([
-##                TCS([SM + dxw/self.wing['\\bar{c}_w'] + self.ht['K_f']*self.fuse['w_{fuse}']**2*self.fuse['l_{fuse}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w'])
-##                                    <= CLah*self.ht['S_h']*self.ht['l_{ht}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w'])]),
+                TCS([SM + dxw/self.wing['\\bar{c}_w'] + self.ht['K_f']*self.fuse['w_{fuse}']**2*self.fuse['l_{fuse}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w'])
+                                    <= CLah*self.ht['S_h']*self.ht['l_{ht}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w'])]),
                 
                 SM >= self.ht['S.M._{min}'],
 
