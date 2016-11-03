@@ -550,9 +550,11 @@ class Fuselage(Model):
 
         # Material properties
         rE           = Variable('r_E', 1,'-', 'Ratio of stringer/skin moduli') #[TAS]
+        rhocargo     = Variable('\\rho_{cargo}', 150, 'kg/m^3', 'Cargo density')  #[b757 freight doc]
         rhocone      = Variable('\\rho_{cone}','kg/m^3','Cone material density') #[TAS]
         rhobend      = Variable('\\rho_{bend}','kg/m^3', 'Stringer density') #[TAS]
         rhofloor     = Variable('\\rho_{floor}','kg/m^3', 'Floor material density') #[TAS]
+        rholugg      = Variable('\\rho_{lugg}',100,'kg/m^3', 'Luggage density') #[Philippe]
         rhoskin      = Variable('\\rho_{skin}','kg/m^3', 'Skin density') #[TAS]
         Wppfloor     = Variable('W\'\'_{floor}','N/m^2', 'Floor weight/area density') #[TAS]
         Wppinsul     = Variable('W\'\'_{insul}','N/m^2', 'Weight/area density of insulation material') #[TAS]
@@ -560,27 +562,35 @@ class Fuselage(Model):
         Wpwindow     = Variable('W\'_{window}','N/m', 'Weight/length density of windows') #[TAS]
         
         # Weight fractions   
+        fapu         = Variable('f_{apu}',0.035,'-','APU weight as fraction of payload weight') #[TAS]
         ffadd        = Variable('f_{fadd}','-','Fractional added weight of local reinforcements') #[TAS]
         fframe       = Variable('f_{frame}','-', 'Fractional frame weight') #[Philippe]        
         flugg1       = Variable('f_{lugg,1}','-','Proportion of passengers with one suitcase') #[Philippe]
         flugg2       = Variable('f_{lugg,2}','-','Proportion of passengers with two suitcases') #[Philippe]
+        fpadd        = Variable('f_{padd}',0.4, '-', 'Other misc weight as fraction of payload weight')
         fstring      = Variable('f_{string}','-','Fractional stringer weight') #[Philippe]
                              
         # Weights
+        Wapu         = Variable('W_{apu}', 'lbf', 'APU weight')
         Wavgpass     = Variable('W_{avg. pass}', 'lbf', 'Average passenger weight') #[Philippe]
         Wcargo       = Variable('W_{cargo}', 'N', 'Cargo weight') #[Philippe]        
         Wcarryon     = Variable('W_{carry on}', 'lbf', 'Ave. carry-on weight') #[Philippe]
         Wchecked     = Variable('W_{checked}', 'lbf', 'Ave. checked bag weight') #[Philippe]
         Wcone        = Variable('W_{cone}', 'lbf', 'Cone weight')
         Wdb          = Variable('W_{db}' , 'N', 'Web weight')
+        Wfix         = Variable('W_{fix}', 3000, 'lbf', 'Fixed weights (pilots, cockpit seats, navcom)') #[Philippe]
         Wfloor       = Variable('W_{floor}', 'lbf', 'Floor weight')
+#        Wfuse        = Variable('W_{fuse}', 'lbf', 'Fuselage weight')
+        Winsul       = Variable('W_{insul}', 'lbf', 'Insulation material weight')
         Wlugg        = Variable('W_{lugg}', 'N', 'Passenger luggage weight')
+        Wpadd        = Variable('W_{padd}', 'lbf', 'Misc weights (galley, toilets, doors etc.)')
         Wpass        = Variable('W_{pass}', 'N', 'Passenger weight')
         Wpay         = Variable('W_{pay}', 'N', 'Payload weight')
         Wseat        = Variable('W_{seat}', 'lbf', 'Seating weight')
         Wshell       = Variable('W_{shell}','N','Shell weight')
         Wskin        = Variable('W_{skin}', 'N', 'Skin weight')
         Wtail        = Variable('W_{tail}','lbf','Total tail weight')
+        Wwindow      = Variable('W_{window}', 'lbf', 'Window weight')
 
         #weight variables
         We = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
@@ -601,7 +611,6 @@ class Fuselage(Model):
                 Wlugg    >= flugg2*npass*2*Wchecked + flugg1*npass*Wchecked + Wcarryon,
                 Wpass    == npass*Wavgpass,
                 Wpay     >= Wpass + Wlugg + Wcargo,
-                Wseat    == Wpseat*nseat,
                 nseat    == npass,
                 nrows    == nseat/SPR,
                 lshell   == nrows*pitch,
@@ -626,11 +635,13 @@ class Fuselage(Model):
                 Sbulk    >= (2*pi + 4*thetadb)*Rfuse**2,
             
                 # Fuselage length relations
-                lfuse    >= lnose+lshell+lcone, 
+                #SigEqs here will disappear when drag model is integrated
+                SignomialEquality(lfuse, lnose+lshell+lcone), #[SP] #[SPEquality]
                 lnose    == 0.3*lshell, # Temporarily
                 lcone    == Rfuse/lamcone,  
                 xshell1  == lnose,
-                xshell2  >= lnose + lshell,
+                SignomialEquality(xshell2, lnose + lshell),  #[SP] #[SPEquality]
+                
 
                  ## Stress relations
                 #Pressure shell loading
@@ -664,12 +675,18 @@ class Fuselage(Model):
                 Wcone                           >= rhocone*g*Vcone*(1+fstring+fframe),
                 Wtail                           >= self.vtail['W_{vtail}'] + self.htail['W_{htail}'] + Wcone,
 
-                # Weight estimate (extra items added for convergence)
-
+                # Weight relations
+                Wapu     == Wpay*fapu,
                 Wdb      == rhoskin*g*Vdb,
+                Winsul   >= Wppinsul*((1.1*pi+2*thetadb)*Rfuse*lshell + 0.55*(Snose+Sbulk)),
+                Wlugg    >= flugg2*npass*2*Wchecked + flugg1*npass*Wchecked + Wcarryon,
+                Wwindow  >= Wpwindow*lshell,
+                Wpadd    == Wpay*fpadd,
+                Wseat    == Wpseat*nseat,
+
                 Wskin    >= rhoskin*g*(Vcyl + Vnose + Vbulk),
                 Wshell   >= Wskin*(1 + fstring + ffadd + fframe) + Wdb, #+ Whbend, #+ Wvbend,
-                We       >= Wshell + Wfloor + Wtail
+                We       >= Wshell + Wfloor + Wtail + Winsul + Wapu + Wfix + Wwindow + Wpadd + Wseat
                 ])
 
         Model.__init__(self, None, constraints)
@@ -836,6 +853,7 @@ if __name__ == '__main__':
             'n_{pass}': 150,
             'W_{avg. pass}': 180,
             'W_{carry on}': 15,
+            'W_{cargo}': 10000,
             'W_{checked}': 40,
             'w_{aisle}':0.51,
             'w_{seat}':0.5,
@@ -851,15 +869,16 @@ if __name__ == '__main__':
             '\\rho_{floor}':2700, #[TAS]
             '\\rho_{skin}' :2700, #[TAS]
             'W\'\'_{floor}': 60, #[TAS]
-#            'W\'\'_{insul}':22, #[TAS]
+            'W\'\'_{insul}':22, #[TAS]
             'W\'_{seat}'   :150, #[TAS]
-#            'W\'_{window}' : 145.*3, #[TAS]
+            'W\'_{window}' : 145.*3, #[TAS]
             'f_{fadd}'     :0.2, #[TAS]
             'f_{frame}'    :0.25, #[Philippe]        
             'f_{lugg,1}'   :0.4, #[Philippe]
             'f_{lugg,2}'   :0.1, #[Philippe]
             # 'f_{string}'   :0.25 #[Philippe]
-            'f_{string}'   :0.1
+            'f_{string}'   :0.1,
+            'f_{padd}'     : 0.4
                              
             }
            
