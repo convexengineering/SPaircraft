@@ -99,7 +99,7 @@ class AircraftP(Model):
             WLoadmax == 6664 * units('N/m^2'),
 
             #compute the drag
-                TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.htP['D_{ht}']]),
+            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.htP['D_{ht}']]),
 
             #constraint CL and compute the wing loading
             W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,      
@@ -116,6 +116,9 @@ class AircraftP(Model):
                
             #time unit conversion
             t == thours,
+
+            #make lift equal weight --> small angle approx in climb
+            self.wingP['L_{wing}'] >= W_avg + self.htP['L_h'],
             ])
 
         Model.__init__(self, None, [self.Pmodels + constraints], **kwargs)
@@ -410,7 +413,7 @@ class Wing(Model):
             #compute K for the aircraft
             K == (pi * e * AR)**-1,
 
-            xw == 2*units('m'),
+            xw == xw,
             
             Vne == Vne,
             cwma == cwma,
@@ -434,13 +437,16 @@ class WingPerformance(Model):
         CL= Variable('C_{L}', '-', 'Lift Coefficient')
         Cdw = Variable('C_{d_w}', '-', 'Cd for a NC130 Airfoil at Re=2e7')
         Dwing = Variable('D_{wing}', 'N', 'Total Wing Drag')
-
+        Lwing = Variable('L_{wing}', 'N', 'Wing Lift')
         CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope, wing')
 
         #constraints
         constraints = []
 
         constraints.extend([
+            
+            Lwing == (.5*wing['S']*state.atm['\\rho']*state['V']**2)*CL,
+
             #airfoil drag constraint
             TCS([Cdw**6.5 >= (1.02458748e10 * CL**15.587947404823325 * state['M']**156.86410659495155 +
                          2.85612227e-13 * CL**1.2774976672501526 * state['M']**6.2534328002723703 +
@@ -681,7 +687,7 @@ class HorizontalTailNoStruct(Model):
         Lmax    = Variable('L_{{max}_h}', 'N', 'Maximum load')
         Kf      = Variable('K_f', '-',
                            'Empirical factor for fuselage-wing interference')
-        fl      = Variable(r"f(\lambda_h)", '-',
+        fl      = Variable(r"f(\lambda_h)d", '-',
                            'Empirical efficiency function of taper')
         SMmin   = Variable('S.M._{min}', '-', 'Minimum stability margin')
         CLhmax  = Variable('C_{L_{hmax}}', '-', 'Max lift coefficient')
@@ -708,6 +714,8 @@ class HorizontalTailNoStruct(Model):
                        0.538*(self.wing['x_w']/self.fuse['l_{fuse}']) +
                        0.0331),
 
+
+##                self.wing['x_w'] == .76*self.fuse['l_{fuse}'],
                 # Oswald efficiency
                 # Nita, Scholz,
                 # "Estimating the Oswald factor from basic
@@ -733,6 +741,8 @@ class HorizontalTailNoStruct(Model):
                 amax == amax,
 
                 xcght == xcght,
+
+                Sh >= 10*units('m^2'),
                 ])
 
         Model.__init__(self, None, constraints)
@@ -781,19 +791,25 @@ class HorizontalTailPerformance(Model):
         CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
         CD0h    = Variable('C_{D_{0_h}}', '-',
                            'Horizontal tail parasitic drag coefficient')
-        
+
+        left = Variable('left', '-', 'debug')
+        right = Variable('right', '-', 'debug')
+
         #cosntraints
         constraints = []
 
         with SignomialsEnabled():
-           
+
             constraints.extend([
                 TCS([SM + dxw/self.wing['\\bar{c}_w'] + self.ht['K_f']*self.fuse['w_{fuse}']**2*self.fuse['l_{fuse}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w'])
                                     <= CLah*self.ht['S_h']*self.ht['l_{ht}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w'])]),
-                
+
                 SM >= self.ht['S.M._{min}'],
 
                 # Trim from UMich AE-481 course notes
+                CLh*self.ht['S_h']*self.ht['l_{ht}']/(self.wing['S']*self.wing['\\bar{c}_w']) + Cmac >= self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'],
+                SignomialEquality(self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'], right),
+##                Lh >= .11*units('N'),
                 Lh == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CLh,
 
                 # Moment arm and geometry -- same as for vtail
@@ -809,16 +825,21 @@ class HorizontalTailPerformance(Model):
                 # K_f as f(wing position) -- (fitted posynomial)
                 # from from UMich AE-481 course notes Table 9.1
                 TCS([self.wing['x_w'] >= xcg + dxw]),
+                self.wing['x_w'] <= xcg + dxlead,
 
                 # Loss of tail effectiveness due to wing downwash
-                CLah + (2*self.wingP['C_{L_{aw}}']/(pi*self.wing['AR']))*etaht*CLah0 <= CLah0*etaht,
+##                CLah + (2*self.wingP['C_{L_{aw}}']/(pi*self.wing['AR']))*etaht*CLah0 <= CLah0*etaht,
+##                CLah == CLah0,
                 CLh == CLah*alpha,
                 alpha <= self.ht['\\alpha_{max,h}'],
+
+                alpha >= .01,
+                dxlead >= 1 * units('m'),
 
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CDh,
                 
-                CDh >= CD0h + CLh**2/(pi*self.ht['e_h']*self.ht['AR_h']),
+                TCS([CDh >= CD0h + CLh**2/(pi*self.ht['e_h']*self.ht['AR_h'])]),
 
                 # same drag model as vtail
                 CD0h**0.125 >= 0.19*(self.ht['\\tau_h'])**0.0075 *(Rec)**0.0017
@@ -827,15 +848,15 @@ class HorizontalTailPerformance(Model):
                             + 0.198*(self.ht['\\tau_h'])**0.00774*(Rec)**0.00168,
                 Rec == state['\\rho']*state['V']*self.ht['\\bar{c}_{ht}']/state['\\mu'],
 
-                #POSSIBLE REMOVE THIS
-##                TCS([self.ht['x_{CG_{ht}}'] >= xcg+(dxlead+dxtrail)/2]),
-##                self.ht['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
+                self.ht['x_{CG_{ht}}'] >= xcg+(dxlead+dxtrail)/2,
+                self.ht['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
 
                 #fix later
                 dxw == 2 * units('m'),
                 Cmac == .1,
                 etaht == .9,
-                eta == .97
+                eta == .97,
+                xcg == 17 * units('m'),
                 ])
 
         Model.__init__(self, None, constraints)
@@ -917,7 +938,7 @@ class WingBox(Model):
 
         constraints = [
                        # Upper bound on maximum thickness
-                       tau <= 0.15,
+##                       tau <= 0.15,
 
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
@@ -967,12 +988,11 @@ if __name__ == '__main__':
              'V_{ne}': 144,
              'C_{L_{hmax}}': 2.5,
 
-             '\\alpha_{max,h}': 0.1, # (6 deg)
+             '\\alpha_{max,h}': .3,#0.1, # (6 deg)
              '\\bar{c}_w': 5,
              '\\rho_0': 1.225,
              '\\tan(\\Lambda_{ht})': tan(30*pi/180),
              'w_{fuse}': 6,
-##             'x_{CG}': 17,
             }
            
     m = Mission(substitutions)

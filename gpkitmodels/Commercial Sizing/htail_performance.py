@@ -451,12 +451,9 @@ if __name__ == "__main__":
      state = TestState()
      wing = TestWing()
      ht = HorizontalTail(fuse, wing)
-     
-     
 
      htP = ht.dynamic(fuse, wing, state)
 
-     
      subs = {
              'AR': 9,
              'C_{L}': 0.5,
@@ -467,7 +464,7 @@ if __name__ == "__main__":
              'S': 125,
              'V_{ne}': 144,
              'C_{L_{hmax}}': 2.5,
-             
+
              '\\Delta x_w': 2,
              '\\alpha_{max,h}': 0.1, # (6 deg)
              '\\bar{c}_w': 5,
@@ -487,4 +484,4 @@ if __name__ == "__main__":
      m = Model(htP['D_{ht}'] + 0.1*ht.wb['W_{struct}'], [htP, ht, wing, state, fuse], subs)
      sol = m.localsolve(solver='mosek', verbosity=4)
 ##     bounds, sol = wing.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
-    
+

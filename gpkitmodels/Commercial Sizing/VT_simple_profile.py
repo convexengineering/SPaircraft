@@ -327,6 +327,7 @@ class Atmosphere(Model):
         subs = None
 
         Model.__init__(self, None, constraints, subs)
+
 class Engine(Model):
     """
     place holder engine model

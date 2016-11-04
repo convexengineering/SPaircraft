@@ -8,11 +8,25 @@ from gpkit.small_scripts import mag
 import numpy as np
 # pylint:disable=bad-whitespace
 
-#CONSIDER RIPPING APART THE P AND Q IN THE WING AND WINGBOX, APPARENT SOURCE OF ERROR
-
 class Wing(Model):
     """
     Philippe's thesis wing model
+    """
+    def __init__(self, **kwargs):
+        self.wns = WingNoStruct()
+        self.wb = WingBox(self.wns)
+
+        Model.__init__(self, None, self.wns + self.wb)
+        
+    def dynamic(self, state):
+        """
+        returns an instance of the wing perofrmance model
+        """
+        return WingPerformance(self, state)
+
+class WingNoStruct(Model):
+    """
+    Philippe's wing model minus structure
     """
     def __init__(self, **kwargs):
         #declare variables
@@ -96,8 +110,8 @@ class Wing(Model):
                 TCS([Afuel <= w*0.92*tau]),
                 # GP approx of the signomial constraint:
                 # Afuel <= (w - 2*tweb)*(0.92*tau - 2*tcap),
-                TCS([Vfuel <= croot**2 * (b/6) * (1+taper+taper**2)*cosL]),
-                TCS([WfuelWing <= rhofuel*Afuel*Vfuel*g]),
+                Vfuel <= croot**2 * (b/6) * (1+taper+taper**2)*cosL,
+                WfuelWing <= rhofuel*Afuel*Vfuel*g,
                   
                 Lmax == 0.5*rho0*Vne**2*Sw*CLwmax,
 
@@ -107,12 +121,6 @@ class Wing(Model):
                 ])
 
         Model.__init__(self, None, constraints)
-
-    def dynamic(self, state):
-        """
-        returns an instance of the wing perofrmance model
-        """
-        return WingPerformance(self, state)
 
 class WingPerformance(Model):
     """
@@ -171,7 +179,7 @@ class WingBox(Model):
     Note - does not have a performance model
     """
 
-    def __init__(self, surface, state, **kwargs):
+    def __init__(self, surface, **kwargs):
         # Variables
         Icap    = Variable('I_{cap}', '-',
                            'Non-dim spar cap area moment of inertia')
@@ -204,7 +212,7 @@ class WingBox(Model):
         
         objective = Wstruct
 
-        if isinstance(surface, Wing):
+        if isinstance(surface, WingNoStruct):
             AR = surface['AR']
             b = surface['b']
             S = surface['S']
@@ -218,12 +226,6 @@ class WingBox(Model):
         constraints = [
                        # Aspect ratio definition
                        AR == b**2/S,
-
-                       # Defining taper dummy variables
-##                       TCS([p >= 1 + 2*taper]),
-##                       TCS([2*q >= 1 + p]),
-
-##                       taper >= 0.2,
 
                        # Upper bound on maximum thickness
                        tau <= 0.15,
@@ -351,9 +353,9 @@ if __name__ == "__main__":
     state= TestState()
 
     wingP = wing.dynamic(state)
-    wingbox = WingBox(wing, state)
 
-    standalone = StandAlone(wingbox, wingP)
+
+    standalone = StandAlone(wing.wb, wingP)
 
     sweep = 30 #[deg]
 
@@ -377,7 +379,7 @@ if __name__ == "__main__":
 ##                 'L_w': 1.296e+06,
 ##                 'I_{cap}': .0001,
                 }
-    m = Model(wingP['C_{d_w}'], [wing, state, wingP, wingbox, standalone])
+    m = Model(wingP['D_{wing}'], [wing, state, wingP, standalone])
     m.substitutions.update(subs)
     sol = m.localsolve(solver='mosek', verbosity = 4)
 ##    bounds, sol = state.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
