@@ -295,7 +295,7 @@ class Atmosphere(Model):
             atmos/atmos.html
         http://www.cfd-online.com/Wiki/Sutherland's_law
         """
-        mu  = Variable('\\mu', 'kg/(m*s)', 'Dynamic viscosity')
+        mu  = Variable('\\mu',1.46*10**-5, 'kg/(m*s)', 'Dynamic viscosity')
 
         T_s = Variable('T_s', 110.4, "K", "Sutherland Temperature")
         C_1 = Variable('C_1', 1.458E-6, "kg/(m*s*K^0.5)",
@@ -306,6 +306,7 @@ class Atmosphere(Model):
 
         with SignomialsEnabled():
             constraints = [
+                mu == mu,
                 # Pressure-altitude relation
                 (p_atm/p_sl)**(1/5.257) == T_atm/T_sl,
 
@@ -486,9 +487,7 @@ class WingBox(Model):
         # Setting bending area integration bounds (defining wing box locations)
         with SignomialsEnabled():
             constraints  = [SignomialEquality(xf,xwing + dxwing + .5*c0*wbar), #[SP] [SPEquality]
-                        #xf >= xwing + dxwing + .5*c0*wbar,
                         SignomialEquality(xb, xwing - dxwing + .5*c0*wbar), #[SP] [SPEquality]
-                        #xb <= xwing - dxwing + .5*c0*wbar, #[SP] 
                         wbar == wbar       
                         ];
         Model.__init__(self,None,constraints,**kwargs)
@@ -557,13 +556,13 @@ class Fuselage(Model):
         Vfloor       = Variable('V_{floor}', 'm^3', 'Floor volume')
         Vnose        = Variable('V_{nose}', 'm^3', 'Nose skin volume')
 
-
         # Loads 
         sigfloor     = Variable('\\sigma_{floor}',30000/0.000145, 'N/m^2', 'Max allowable floor stress') #[TAS]
         sigskin      = Variable('\\sigma_{skin}', 15000/0.000145,'N/m^2', 'Max allowable skin stress') #[TAS] 
         sigth        = Variable('\\sigma_{\\theta}', 'N/m^2', 'Skin hoop stress')
         sigx         = Variable('\\sigma_x', 'N/m^2', 'Axial stress in skin')
 
+        # Floor loads
         Mfloor       = Variable('M_{floor}', 'N*m', 'Max bending moment in floor beams')
         Pfloor       = Variable('P_{floor}','N', 'Distributed floor load')
         Sfloor       = Variable('S_{floor}', 'N', 'Maximum shear in floor beams')
@@ -599,7 +598,6 @@ class Fuselage(Model):
         xhbend       = Variable('x_{hbend}','m','Horizontal zero bending location')
         #xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
 
-
         # Material properties
         rE           = Variable('r_E', 1,'-', 'Ratio of stringer/skin moduli') #[TAS]
         rhocargo     = Variable('\\rho_{cargo}', 150, 'kg/m^3', 'Cargo density')  #[b757 freight doc]
@@ -632,7 +630,7 @@ class Fuselage(Model):
         Wdb          = Variable('W_{db}' , 'N', 'Web weight')
         Wfix         = Variable('W_{fix}', 3000, 'lbf', 'Fixed weights (pilots, cockpit seats, navcom)') #[Philippe]
         Wfloor       = Variable('W_{floor}', 'lbf', 'Floor weight')
-#        Wfuse        = Variable('W_{fuse}', 'lbf', 'Fuselage weight')
+        Wfuse        = Variable('W_{fuse}', 'lbf', 'Fuselage weight')
         Winsul       = Variable('W_{insul}', 'lbf', 'Insulation material weight')
         Wlugg        = Variable('W_{lugg}', 'N', 'Passenger luggage weight')
         Wpadd        = Variable('W_{padd}', 'lbf', 'Misc weights (galley, toilets, doors etc.)')
@@ -643,10 +641,6 @@ class Fuselage(Model):
         Wskin        = Variable('W_{skin}', 'N', 'Skin weight')
         Wtail        = Variable('W_{tail}','lbf','Total tail weight')
         Wwindow      = Variable('W_{window}', 'lbf', 'Window weight')
-
-        #weight variables
-        We = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
-        Wpass = Variable('W_{pass}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
 
         # x-location variables
         xshell1      = Variable('x_{shell1}', 'm', 'Start of cylinder section')
@@ -721,7 +715,7 @@ class Fuselage(Model):
                 Wtail                           >= self.vtail['W_{vtail}'] + self.htail['W_{htail}'] + Wcone,
                 xtail    >= lnose + lshell + .5*lcone, #Temporarily
 
-                            # Horizontal bending model
+                # Horizontal bending model
                 # Maximum axial stress is the sum of bending and pressurization stresses
                 Ihshell <= ((pi+4*thetadb)*Rfuse**2)*Rfuse*tshell + 2/3*hdb**3*tdb, # [SP]
                 #Ivshell <= (pi*Rfuse**2 + 8*wdb*Rfuse + (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell approximation needs to be improved
@@ -732,10 +726,10 @@ class Fuselage(Model):
                 xhbend   >= self.wingbox['x_{wing}'],
                 SignomialEquality(A0,A2*(xshell2-xhbend)**2 + A1*(xtail-xhbend)), #[SP] #[SPEquality] 
                 A2      >=  Nland*(Wpay+Wshell+Wwindow+Winsul+Wfloor+Wseat)/(2*lshell*hfuse*sigMh), # Landing loads constant A2
-                A1      >= (Nland*Wtail + rMh*self.htail['L_{h_{max}}'])/(hfuse*sigMh),                                # Aero loads constant A1
-                A0      == (Ihshell/(rE*hfuse**2)),                                                # Shell inertia constant A0
-                Ahbendf >= A2*(xshell2-self.wingbox['x_f'])**2 + A1*(xtail-self.wingbox['x_f']) - A0, #[SP]                           # Bending area forward of wingbox
-                Ahbendb >= A2*(xshell2-self.wingbox['x_b'])**2 + A1*(xtail-self.wingbox['x_b']) - A0, #[SP]                           # Bending area behind wingbox
+                A1      >= (Nland*Wtail + rMh*self.htail['L_{h_{max}}'])/(hfuse*sigMh),             # Aero loads constant A1
+                A0      == (Ihshell/(rE*hfuse**2)),                                                 # Shell inertia constant A0
+                Ahbendf >= A2*(xshell2-self.wingbox['x_f'])**2 + A1*(xtail-self.wingbox['x_f']) - A0, #[SP]  # Bending area forward of wingbox
+                Ahbendb >= A2*(xshell2-self.wingbox['x_b'])**2 + A1*(xtail-self.wingbox['x_b']) - A0, #[SP]  # Bending area behind wingbox
 
                 Vhbendf >= A2/3*((xshell2-self.wingbox['x_f'])**3 - (xshell2-xhbend)**3) \
                             + A1/2*((xtail-self.wingbox['x_f'])**2 - (xtail - xhbend)**2) \
@@ -775,7 +769,7 @@ class Fuselage(Model):
 
                 Wskin    >= rhoskin*g*(Vcyl + Vnose + Vbulk),
                 Wshell   >= Wskin*(1 + fstring + ffadd + fframe) + Wdb, #+ Whbend, #+ Wvbend,
-                We       >= Wshell + Wfloor + Wtail + Winsul + Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend
+                Wfuse       >= Wshell + Wfloor + Wtail + Winsul + Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend
                 ])
 
         Model.__init__(self, None, constraints + self.wingbox)
@@ -793,14 +787,24 @@ class FuselagePerformance(Model):
     def __init__(self, fuse, state, **kwargs):
         #new variables
         Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
-        Dfuse = Variable('D_{fuse}', 'N', 'Total Fuselage Drag')
-        
-        #constraints
-        constraints = []
+        Dfuse    = Variable('D_{fuse}', 'N', 'Total drag in cruise')
+        Dfrict   = Variable('D_{friction}', 'N', 'Friction drag')
+        Dupswp   = Variable('D_{upsweep}', 'N', 'Drag due to fuse upsweep')
+        f        = Variable('f', '-', 'Fineness ratio')
+        FF       = Variable('FF', '-','Fuselage form factor')
+        phi      = Variable('\\phi', '-', 'Upsweep angle')
 
+        constraints = []
         constraints.extend([
-            Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
-            Cdfuse == .005,
+            #Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
+            f == fuse['l_{fuse}']/((4/np.pi*fuse['A_{fuse}'])**0.5), # fineness ratio
+            FF >= 1 + 60/f**3 + f/400, # form factor
+            Dfrict >= FF * np.pi*fuse['R_{fuse}']*state.atm['\\mu']*state['V']* 0.074*(state.atm['\\rho']*state['V']
+                                            *fuse['l_{fuse}']/state.atm['\\mu'])**0.8,
+            1.13226*phi**1.03759 == fuse['R_{fuse}']/fuse['l_{cone}'], # monomial fit of tan(phi)
+            Dupswp >= 3.83*phi**2.5*fuse['A_{fuse}']*0.5*state.atm['\\rho']*state['V']**2,
+            Dfuse >= Dfrict + Dupswp,
+            Dfuse == 0.5*state.atm['\\rho']*state['V']**2*Cdfuse*fuse['A_{fuse}']
             ])
 
         Model.__init__(self, None, constraints)
@@ -843,7 +847,7 @@ class Mission(Model):
 
         constraints.extend([
             #weight constraints
-            TCS([ac['W_{e}'] + ac['W_{pay}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
+            TCS([ac['W_{fuse}'] + ac['W_{pay}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
 
             cls.climbP.aircraftP['W_{start}'][0] == W_total,
             cls.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
@@ -856,7 +860,7 @@ class Mission(Model):
             cls.climbP.aircraftP['W_{start}'][1:] == cls.climbP.aircraftP['W_{end}'][:-1],
             crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([ac['W_{e}'] + ac['W_{pay}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
+            TCS([ac['W_{fuse}'] + ac['W_{pay}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >=  W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
@@ -947,12 +951,11 @@ if __name__ == '__main__':
             'w_{aisle}':0.51,
             'w_{seat}':0.5,
             'w_{sys}':0.1,
-##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e'            : .9,
             'b_{max}'      : 35,
             'W_{cargo}'    : 10000,
             'r_E'          : 1, #[TAS]
-            '\\lambda_{cone}':0.4,
+            '\\lambda_{cone}':0.4, #[Philippe]
             '\\rho_{cone}' : 2700, #[TAS]
             '\\rho_{bend}' : 2700, #[TAS]
             '\\rho_{floor}':2700, #[TAS]
@@ -965,9 +968,8 @@ if __name__ == '__main__':
             'f_{frame}'    :0.25, #[Philippe]        
             'f_{lugg,1}'   :0.4, #[Philippe]
             'f_{lugg,2}'   :0.1, #[Philippe]
-            # 'f_{string}'   :0.25 #[Philippe]
             #'f_{string}'   :0.1,
-            'f_{padd}'     : 0.4
+            'f_{padd}'     : 0.4 #[TAS]
                              
             }
            
