@@ -116,6 +116,9 @@ class AircraftP(Model):
                
             #time unit conversion
             t == thours,
+
+            #make lift equal weight --> small angle approx in climb
+            self.wingP['L_{wing}'] == W_avg,
             ])
 
         Model.__init__(self, None, [self.Pmodels + constraints], **kwargs)
@@ -390,13 +393,16 @@ class Wing(Model):
 
         K = Variable('K', '-', 'K for Parametric Drag Model')
         e = Variable('e', '-', 'Oswald Span Efficiency Factor')
+
+        dum1 = Variable('dum1', 124.58, 'm^2')
+        dum2 = Variable('dum2', 105384.1524, 'N')
         
         constraints = []
 
         constraints.extend([
             #wing weight constraint
             #based off of a raymer weight and 737 data from TASOPT output file
-            (S/(124.58*units('m^2')))**.65 == W_wing/(105384.1524*units('N')),
+            (S/(dum1))**.65 == W_wing/(dum2),
 
             #compute wing span and aspect ratio, subject to a span constraint
             AR == (span**2)/S,
@@ -426,12 +432,14 @@ class WingPerformance(Model):
         CL= Variable('C_{L}', '-', 'Lift Coefficient')
         Cdw = Variable('C_{d_w}', '-', 'Cd for a NC130 Airfoil at Re=2e7')
         Dwing = Variable('D_{wing}', 'N', 'Total Wing Drag')
+        Lwing = Variable('L_{wing}', 'N', 'Wing Lift')
 
         #constraints
         constraints = []
 
         constraints.extend([
             #airfoil drag constraint
+            Lwing == (.5*wing['S']*state.atm['\\rho']*state['V']**2)*CL,
             TCS([Cdw**6.5 >= (1.02458748e10 * CL**15.587947404823325 * state['M']**156.86410659495155 +
                          2.85612227e-13 * CL**1.2774976672501526 * state['M']**6.2534328002723703 +
                          2.08095341e-14 * CL**0.8825277088649582 * state['M']**0.0273667615730107 +
@@ -909,7 +917,7 @@ class WingBox(Model):
                        Wstruct >= (1 + fwadd)*(Wweb + Wcap),
                        ]
         
-        Model.__init__(self, objective, constraints, **kwargs)
+        Model.__init__(self, None, constraints, **kwargs)
 
 if __name__ == '__main__':
     substitutions = {      

@@ -389,13 +389,16 @@ class Wing(Model):
 
         K = Variable('K', '-', 'K for Parametric Drag Model')
         e = Variable('e', '-', 'Oswald Span Efficiency Factor')
+
+        dum1 = Variable('dum1', 124.58, 'm^2')
+        dum2 = Variable('dum2', 105384.1524, 'N')
         
         constraints = []
 
         constraints.extend([
             #wing weight constraint
             #based off of a raymer weight and 737 data from TASOPT output file
-            (S/(124.58*units('m^2')))**.65 == W_wing/(105384.1524*units('N')),
+            (S/(dum1))**.65 == W_wing/(dum2),
 
             #compute wing span and aspect ratio, subject to a span constraint
             AR == (span**2)/S,
