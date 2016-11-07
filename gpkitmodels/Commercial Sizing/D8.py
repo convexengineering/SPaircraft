@@ -13,7 +13,9 @@ from gpkit.small_scripts import mag
 
 #import aircraft subsystems
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
-from VT_simple_profile import VerticalTail, VerticalTailPerformance, Fuselage, FuselagePerformance, Wing, WingPerformance, Engine, EnginePerformance
+from VT_simple_profile import VerticalTail, VerticalTailPerformance
+from Wing_simple_performance import Wing, WingPerformance
+from D8_integration import Fuselage, FuselagePerformance, Engine, EnginePerformance
 
 #set up models
 class D8(Model):
@@ -108,7 +110,7 @@ class D8P(Model):
             t == thours,
 
             #make lift equal weight --> small angle approx in climb
-            self.wingP['L_{wing}'] == W_avg,
+            self.wingP['L_w'] == W_avg,
             ])
 
         Model.__init__(self, None, [self.Pmodels + constraints], **kwargs)
@@ -256,7 +258,7 @@ class Mission(Model):
 
         constraints.extend([
             #weight constraints
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.VT['W_{struct}'] <= W_dry]),
+            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac.wing['W_{struct}'] + ac.VT['W_{struct}'] <= W_dry]),
             
             TCS([W_dry + W_ftotal <= W_total]),
 
@@ -344,6 +346,9 @@ class Mission(Model):
 
 
 if __name__ == '__main__':
+
+    wing_sweep = 30 #[deg]
+    
     substitutions = {      
 ##            'V_{stall}': 120,
             'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
@@ -354,14 +359,12 @@ if __name__ == '__main__':
             'n_{pax}': 150,
             'pax_{area}': 1,
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
-            'e': .9,
-            'b_{max}': 35,
 
             #VT subs
            'C_{D_{wm}}': 0.5, # [2]
            'C_{L_{vmax}}': 2.6, # [2]
            'V_1': 70,
-           'V_{ne}': 144, # [2]
+##           'V_{ne}': 144, # [2]
            '\\rho_{TO}': 1.225,
            '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
 ##           'c_{l_{vt}}': 0.5, # [2]
@@ -371,8 +374,17 @@ if __name__ == '__main__':
            'l_{fuse}': 39,
            'x_{CG}': 18,
            'y_{eng}': 4.83, # [3]
+
+            #wing subs
+            'C_{L_{wmax}}': 2.5,
+            '\\alpha_{max,w}': 0.1, # (6 deg)
+            '\\cos(\\Lambda)': cos(wing_sweep*pi/180),
+            '\\eta': 0.97,
+            '\\rho_0': 1.225,
+            '\\rho_{fuel}': 817, # Kerosene [TASOPT]
+            '\\tan(\\Lambda)': tan(wing_sweep*pi/180),
             }
            
     m = Mission(substitutions)
-    sol = m.localsolve(solver='mosek', verbosity = 4)
-##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+##    sol = m.localsolve(solver='mosek', verbosity = 4)
+    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
