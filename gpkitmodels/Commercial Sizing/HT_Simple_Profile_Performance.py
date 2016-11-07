@@ -1,7 +1,7 @@
 """Simple commercial aircraft flight profile and aircraft model"""
 from numpy import pi, cos, tan
 import numpy as np
-from gpkit import Variable, Model, units, SignomialsEnabled, vectorize
+from gpkit import Variable, Model, units, SignomialsEnabled, vectorize, VectorVariable
 from gpkit.constraints.sigeq import SignomialEqualityConstraint as SignomialEquality
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
@@ -763,7 +763,7 @@ class HorizontalTailPerformance(Model):
         alpha   = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
         D       = Variable('D_{ht}', 'N', 'Horizontal tail drag')
         Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
-        SM      = Variable('S.M.', '-', 'Stability margin')
+        SM      = VectorVariable(2, 'S.M.', '-', 'Stability margin')
         Rec     = Variable('Re_{c_h}', '-',
                            'Cruise Reynolds number (Horizontal tail)')
         CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
@@ -777,14 +777,14 @@ class HorizontalTailPerformance(Model):
                            'Distance from CG to horizontal tail leading edge')
         dxtrail = Variable('\\Delta x_{{trail}_h}', 'm',
                            'Distance from CG to horizontal tail trailing edge')
-        dxw     = Variable('\\Delta x_w', 'm',
+        dxw     = VectorVariable(2, '\\Delta x_w', 'm',
                            'Distance from aerodynamic centre to CG')
         
         etaht   = Variable('\\eta_{ht}', '-', 'Tail efficiency')
         eta     = Variable('\\eta_h', '-',
                            ("Lift efficiency (diff between sectional and "
                             "actual lift)"))
-        xcg     = Variable('x_{CG}', 'm', 'CG location')
+        xcg     = VectorVariable(2, 'x_{CG}', 'm', 'CG location')
 
         Cmac    = Variable('|C_{m_{ac}}|', '-', # Absolute value of CMwing
                            'Moment coefficient about aerodynamic centre (wing)')
@@ -807,8 +807,8 @@ class HorizontalTailPerformance(Model):
                 SM >= self.ht['S.M._{min}'],
 
                 # Trim from UMich AE-481 course notes
-                CLh*self.ht['S_h']*self.ht['l_{ht}']/(self.wing['S']*self.wing['\\bar{c}_w']) + Cmac >= self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'],
-                SignomialEquality(self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'], right),
+##                CLh*self.ht['S_h']*self.ht['l_{ht}']/(self.wing['S']*self.wing['\\bar{c}_w']) + Cmac >= self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'],
+##                SignomialEquality(self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'], right),
 ##                Lh >= .11*units('N'),
                 Lh == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CLh,
 
@@ -852,11 +852,11 @@ class HorizontalTailPerformance(Model):
                 self.ht['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
 
                 #fix later
-                dxw == 2 * units('m'),
+                dxw == [4, 2] * units('m'),
                 Cmac == .1,
                 etaht == .9,
                 eta == .97,
-                xcg == 17 * units('m'),
+                xcg == [15, 17] * units('m'),
                 ])
 
         Model.__init__(self, None, constraints)
