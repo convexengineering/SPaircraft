@@ -53,9 +53,7 @@ class Aircraft(Model):
 
         constraints = []
 
-        constraints.extend([
-            numeng == numeng, #need numeng in the model
-            ])
+        constraints.extend([numeng == numeng])
 
         self.components = [self.fuse, self.wing, self.engine]
 
@@ -84,20 +82,19 @@ class AircraftP(Model):
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
         self.engineP = aircraft.engine.dynamic(state)
-
         self.Pmodels = [self.wingP, self.fuseP, self.engineP]
 
         #variable definitions
-        Vstall = Variable('V_{stall}', 'knots', 'Aircraft Stall Speed')
-        D = Variable('D', 'N', 'Total Aircraft Drag')
-        W_avg = Variable('W_{avg}', 'N', 'Geometric Average of Segment Start and End Weight')
-        W_start = Variable('W_{start}', 'N', 'Segment Start Weight')
-        W_end = Variable('W_{end}', 'N', 'Segment End Weight')
-        W_burn = Variable('W_{burn}', 'N', 'Segment Fuel Burn Weight')
+        Vstall   = Variable('V_{stall}', 'knots', 'Aircraft Stall Speed')
+        D        = Variable('D', 'N', 'Total Aircraft Drag')
+        W_avg    = Variable('W_{avg}', 'N', 'Geometric Average of Segment Start and End Weight')
+        W_start  = Variable('W_{start}', 'N', 'Segment Start Weight')
+        W_end    = Variable('W_{end}', 'N', 'Segment End Weight')
+        W_burn   = Variable('W_{burn}', 'N', 'Segment Fuel Burn Weight')
         WLoadmax = Variable('W_{Load_max}', 'N/m^2', 'Max Wing Loading')
-        WLoad = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
-        t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
-        thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
+        WLoad    = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
+        t        = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
+        thours   = Variable('thr', 'hour', 'Segment Flight Time in Hours')
 
         constraints = []
 
@@ -107,7 +104,7 @@ class AircraftP(Model):
 
 
             #Figure out how to delete
-            Vstall == 120*units('kts'),
+            Vstall   == 120*units('kts'),
             WLoadmax == 6664 * units('N/m^2'),
 
             #compute the drag
@@ -188,30 +185,23 @@ class CruiseP(Model):
                         
         #variable definitions
         z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
-        Rng = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
+        Rng   = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
 
         constraints = []
 
         constraints.extend([
-             #steady level flight constraint on D 
+             # Steady level flight constraint on D 
              self.aircraftP['D'] == aircraft['numeng'] * self.engineP['thrust'],
 
-             #taylor series expansion to get the weight term
+             # Taylor series expansion to get the weight term
              TCS([self.aircraftP['W_{burn}']/self.aircraftP['W_{end}'] >=
                   te_exp_minus1(z_bre, nterm=3)]),
 
-             #breguet range eqn
-             # old version -- possibly unneeded numeng
- #            TCS([z_bre >= (self.aircraft['numeng'] * self.engineP['TSFC'] * self.aircraftP['thr']*
- #                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
-
-            # new version -- needs to be thought through carefully
-             # seems correct to me - I switched T to D below (steady level flight) but fogot
-             #about the Negn term
+             # Breguet range eqn
              TCS([z_bre >= (self.engineP['TSFC'] * self.aircraftP['thr']*
                             self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
 
-             #time
+             # Time
              self.aircraftP['thr'] * state['V'] == Rng,
              ])
 
@@ -247,46 +237,41 @@ class FlightState(Model):
         self.atm = Atmosphere()
         
         #declare variables
-        V = Variable('V', 'kts', 'Aircraft Flight Speed')
-        a = Variable('a', 'm/s', 'Speed of Sound')
-        h = Variable('h', 'm', 'Segment Altitude [meters]')
-        hft = Variable('hft', 'feet', 'Segment Altitude [feet]')
-        R = Variable('R', 287, 'J/kg/K', 'Air Specific Heat')
+        V     = Variable('V', 'kts', 'Aircraft Flight Speed')
+        a     = Variable('a', 'm/s', 'Speed of Sound')
+        h     = Variable('h', 'm', 'Segment Altitude [meters]')
+        hft   = Variable('hft', 'feet', 'Segment Altitude [feet]')
+        R     = Variable('R', 287, 'J/kg/K', 'Air Specific Heat')
         gamma = Variable('\\gamma', 1.4, '-', 'Air Specific Heat Ratio')
-        M = Variable('M', '-', 'Mach Number')
+        M     = Variable('M', '-', 'Mach Number')
 
         #make new constraints
         constraints = []
 
         constraints.extend([
-            V == V, #required so velocity variable enters the model
-
+            V == V,
             h == hft, #convert the units on altitude
-
-            #compute the speed of sound with the state
+            # Speed of sound with the state
             a  == (gamma * R * self.atm['T_{atm}'])**.5,
-
-            #compute the mach number
+            # Mach number
             V == M * a,
             ])
 
-        #build the model
         Model.__init__(self, None, constraints + self.atm, **kwargs)
 
 class Atmosphere(Model):
     def __init__(self, **kwargs):
-        g = Variable('g', 'm/s^2', 'Gravitational acceleration')
-        p_sl = Variable("p_{sl}", "Pa", "Pressure at sea level")
-        T_sl = Variable("T_{sl}", "K", "Temperature at sea level")
+        g     = Variable('g', 'm/s^2', 'Gravitational acceleration')
+        p_sl  = Variable("p_{sl}", "Pa", "Pressure at sea level")
+        T_sl  = Variable("T_{sl}", "K", "Temperature at sea level")
         L_atm = Variable("L_{atm}", "K/m", "Temperature lapse rate")
-        M_atm = Variable("M_{atm}", "kg/mol",
-                         "Molar mass of dry air")
+        M_atm = Variable("M_{atm}", "kg/mol", "Molar mass of dry air")
         p_atm = Variable("P_{atm}", "Pa", "air pressure")
         R_atm = Variable("R_{atm}", "J/mol/K", "air specific heating value")
-        TH = 5.257386998354459 #(g*M_atm/R_atm/L_atm).value
-        rho = Variable('\\rho', 'kg/m^3', 'Density of air')
+        TH    = 5.257386998354459 #(g*M_atm/R_atm/L_atm).value
+        rho   = Variable('\\rho', 'kg/m^3', 'Density of air')
         T_atm = Variable("T_{atm}", "K", "air temperature")
-        h = Variable("h", "m", "Altitude")
+        h     = Variable("h", "m", "Altitude")
 
         """
         Dynamic viscosity (mu) as a function of temperature
@@ -341,9 +326,7 @@ class Engine(Model):
         
         constraints = []
 
-        constraints.extend([
-            W_engine == 1000 * units('N')
-            ])
+        constraints.extend([W_engine == 1000 * units('N')])
 
         Model.__init__(self, None, constraints)
 
@@ -359,7 +342,7 @@ class EnginePerformance(Model):
     """
     def __init__(self, engine, state, **kwargs):
         #new variables
-        TSFC = Variable('TSFC', '1/hr', 'Thrust Specific Fuel Consumption')
+        TSFC   = Variable('TSFC', '1/hr', 'Thrust Specific Fuel Consumption')
         thrust = Variable('thrust', 'N', 'Thrust')
         
         #constraints
@@ -367,8 +350,7 @@ class EnginePerformance(Model):
 
         constraints.extend([
             TSFC == TSFC,
-
-            thrust == thrust, #want thrust to enter the model
+            thrust == thrust
             ])
 
         Model.__init__(self, None, constraints)
@@ -379,17 +361,15 @@ class Wing(Model):
     place holder wing model
     """
     def __init__(self, ** kwargs):
-        #new variables
         W_wing = Variable('W_{wing}', 'N', 'Wing Weight')
                            
         #aircraft geometry
-        S = Variable('S', 'm^2', 'Wing Planform Area')
-        AR = Variable('AR', '-', 'Aspect Ratio')
-        span = Variable('b', 'm', 'Wing Span')
+        AR       = Variable('AR', '-', 'Aspect Ratio')
+        e        = Variable('e', '-', 'Oswald Span Efficiency Factor')
+        K        = Variable('K', '-', 'K for Parametric Drag Model')
+        S        = Variable('S', 'm^2', 'Wing Planform Area')
+        span     = Variable('b', 'm', 'Wing Span')
         span_max = Variable('b_{max}', 'm', 'Max Wing Span')
-
-        K = Variable('K', '-', 'K for Parametric Drag Model')
-        e = Variable('e', '-', 'Oswald Span Efficiency Factor')
         
         constraints = []
 
@@ -398,13 +378,9 @@ class Wing(Model):
             #based off of a raymer weight and 737 data from TASOPT output file
             (S/(124.58*units('m^2')))**.65 == W_wing/(105384.1524*units('N')),
 
-            #compute wing span and aspect ratio, subject to a span constraint
+            # Wing span and aspect ratio, subject to a span constraint
             AR == (span**2)/S,
-            #AR == 9,
-
             span <= span_max,
-
-            #compute K for the aircraft
             K == (pi * e * AR)**-1,
             ])
 
@@ -423,8 +399,8 @@ class WingPerformance(Model):
     """
     def __init__(self, wing, state, **kwargs):
         #new variables
-        CL= Variable('C_{L}', '-', 'Lift Coefficient')
-        Cdw = Variable('C_{d_w}', '-', 'Cd for a NC130 Airfoil at Re=2e7')
+        CL    = Variable('C_{L}', '-', 'Lift Coefficient')
+        Cdw   = Variable('C_{d_w}', '-', 'Cd for a NC130 Airfoil at Re=2e7')
         Dwing = Variable('D_{wing}', 'N', 'Total Wing Drag')
 
         #constraints
@@ -787,12 +763,12 @@ class FuselagePerformance(Model):
     def __init__(self, fuse, state, **kwargs):
         #new variables
         Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
-        Dfuse    = Variable('D_{fuse}', 'N', 'Total drag in cruise')
-        Dfrict   = Variable('D_{friction}', 'N', 'Friction drag')
-        Dupswp   = Variable('D_{upsweep}', 'N', 'Drag due to fuse upsweep')
-        f        = Variable('f', '-', 'Fineness ratio')
-        FF       = Variable('FF', '-','Fuselage form factor')
-        phi      = Variable('\\phi', '-', 'Upsweep angle')
+        Dfuse  = Variable('D_{fuse}', 'N', 'Total drag in cruise')
+        Dfrict = Variable('D_{friction}', 'N', 'Friction drag')
+        Dupswp = Variable('D_{upsweep}', 'N', 'Drag due to fuse upsweep')
+        f      = Variable('f', '-', 'Fineness ratio')
+        FF     = Variable('FF', '-','Fuselage form factor')
+        phi    = Variable('\\phi', '-', 'Upsweep angle')
 
         constraints = []
         constraints.extend([
@@ -830,16 +806,16 @@ class Mission(Model):
             crs = CruiseSegment(ac)
 
         #declare new variables
-        W_ftotal = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
-        W_fclimb = Variable('W_{f_{climb}}', 'N', 'Fuel Weight Burned in Climb')
+        W_ftotal  = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
+        W_fclimb  = Variable('W_{f_{climb}}', 'N', 'Fuel Weight Burned in Climb')
         W_fcruise = Variable('W_{f_{cruise}}', 'N', 'Fuel Weight Burned in Cruise')
-        W_total = Variable('W_{total}', 'N', 'Total Aircraft Weight')
+        W_total   = Variable('W_{total}', 'N', 'Total Aircraft Weight')
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
-        ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
+        ReqRng    = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
-        h = cls.state['h']
-        hftClimb = cls.state['hft']
-        dhft = cls.climbP['dhft']
+        h         = cls.state['h']
+        hftClimb  = cls.state['hft']
+        dhft      = cls.climbP['dhft']
         hftCruise = crs.state['hft']
 
         #make overall constraints
@@ -933,43 +909,43 @@ class Mission(Model):
 
 if __name__ == '__main__':
     substitutions = {      
-##            'V_{stall}': 120,
-            '\\delta_P_{over}':12,
-            'N_{land}': 6,
-            'V_{NE}': 144,
-            'SPR':8,
-            'p_s':81.,
-            'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
-            'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
-            'numeng': 2,
-##            'W_{Load_max}': 6664,
-            'n_{pass}': 150,
-            'W_{avg. pass}': 180,
-            'W_{carry on}': 15,
-            'W_{cargo}': 10000,
-            'W_{checked}': 40,
-            'w_{aisle}':0.51,
-            'w_{seat}':0.5,
-            'w_{sys}':0.1,
-            'e'            : .9,
-            'b_{max}'      : 35,
-            'W_{cargo}'    : 10000,
-            'r_E'          : 1, #[TAS]
-            '\\lambda_{cone}':0.4, #[Philippe]
-            '\\rho_{cone}' : 2700, #[TAS]
-            '\\rho_{bend}' : 2700, #[TAS]
-            '\\rho_{floor}':2700, #[TAS]
-            '\\rho_{skin}' :2700, #[TAS]
-            'W\'\'_{floor}': 60, #[TAS]
-            'W\'\'_{insul}':22, #[TAS]
-            'W\'_{seat}'   :150, #[TAS]
-            'W\'_{window}' : 145.*3, #[TAS]
-            'f_{fadd}'     :0.2, #[TAS]
-            'f_{frame}'    :0.25, #[Philippe]        
-            'f_{lugg,1}'   :0.4, #[Philippe]
-            'f_{lugg,2}'   :0.1, #[Philippe]
-            #'f_{string}'   :0.1,
-            'f_{padd}'     : 0.4 #[TAS]
+            ##            'V_{stall}'   : 120,
+            '\\delta_P_{over}'          : 12,
+            'N_{land}'                  : 6,
+            'V_{NE}'                    : 144,
+            'SPR'                       : 8,
+            'p_s'                       : 81.,
+            'ReqRng'                    : 500, #('sweep', np.linspace(500,2000,4)),
+            'CruiseAlt'                 : 30000, #('sweep', np.linspace(20000,40000,4)),
+            'numeng'                    : 2,
+            ##            'W_{Load_max}': 6664,
+            'n_{pass}'                  : 150,
+            'W_{avg. pass}'             : 180,
+            'W_{carry on}'              : 15,
+            'W_{cargo}'                 : 10000,
+            'W_{checked}'               : 40,
+            'w_{aisle}'                 : 0.51,
+            'w_{seat}'                  : 0.5,
+            'w_{sys}'                   : 0.1,
+            'e'                         : .9,
+            'b_{max}'                   : 35,
+            'W_{cargo}'                 : 10000,
+            'r_E'                       : 1, #[TAS]
+            '\\lambda_{cone}'           : 0.4, #[Philippe]
+            '\\rho_{cone}'              : 2700, #[TAS]
+            '\\rho_{bend}'              : 2700, #[TAS]
+            '\\rho_{floor}'             : 2700, #[TAS]
+            '\\rho_{skin}'              : 2700, #[TAS]
+            'W\'\'_{floor}'             : 60, #[TAS]
+            'W\'\'_{insul}'             : 22, #[TAS]
+            'W\'_{seat}'                : 150, #[TAS]
+            'W\'_{window}'              : 145.*3, #[TAS]
+            'f_{fadd}'                  : 0.2, #[TAS]
+            'f_{frame}'                 : 0.25, #[Philippe]        
+            'f_{lugg,1}'                : 0.4, #[Philippe]
+            'f_{lugg,2}'                : 0.1, #[Philippe]
+            #'f_{string}'               : 0.1,
+            'f_{padd}'                  : 0.4 #[TAS]
                              
             }
            
