@@ -957,45 +957,45 @@ class WingBox(Model):
         
         objective = Wstruct
 
-##        if isinstance(surface, HorizontalTailNoStruct):
-##            AR = surface['AR_h']
-##            b = surface['b_{ht}']
-##            S = surface['S_h']
-##            p = surface['p_{ht}']
-##            q = surface['q_{ht}']
-##            tau = surface['\\tau_h']
-##            Lmax = surface['L_{{max}_h}']
+        if isinstance(surface, HorizontalTailNoStruct):
+            AR = surface['AR_h']
+            b = surface['b_{ht}']
+            S = surface['S_h']
+            p = surface['p_{ht}']
+            q = surface['q_{ht}']
+            tau = surface['\\tau_h']
+            Lmax = surface['L_{{max}_h}']
 
         constraints = [
                        # Upper bound on maximum thickness
-##                       tau <= 0.15,
+                       tau <= 0.15,
 
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
                        # Assumes lift per unit span proportional to local chord
-##                       Mr >= Lmax*AR*p/24,
+                       Mr >= Lmax*AR*p/24,
 
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
-##                       0.92*w*tau*tcap**2 + Icap <= 0.92**2/2*w*tau**2*tcap,
+                       0.92*w*tau*tcap**2 + Icap <= 0.92**2/2*w*tau**2*tcap,
 
                        # Stress limit
                        # Assumes bending stress carried by caps (Icap >> Iweb)
-##                       8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax),
+                       8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax),
 
                        # Shear web sizing
                        # Assumes all shear loads are carried by web and rh=0.75
-##                       12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
+                       12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam^2)
-##                       nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56,
+                       nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56,
 
                        # Weight of spar caps and shear webs
-##                       Wcap >= 8*rhocap*g*w*tcap*S**1.5*nu/(3*AR**0.5),
-##                       Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
+                       Wcap >= 8*rhocap*g*w*tcap*S**1.5*nu/(3*AR**0.5),
+                       Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
 
                        # Total wing weight using an additional weight fraction
-                       Wstruct == 1000*units('N'),#(1 + fwadd)*(Wweb + Wcap),
+                       Wstruct >= (1 + fwadd)*(Wweb + Wcap),
                        ]
         
         Model.__init__(self, objective, constraints, **kwargs)
