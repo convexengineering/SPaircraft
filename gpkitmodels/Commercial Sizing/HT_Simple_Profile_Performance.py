@@ -98,7 +98,7 @@ class AircraftP(Model):
             WLoadmax == 6664 * units('N/m^2'),
 
             #compute the drag
-            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}']]),
+            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.htP['D_{ht}']]),
 
             #constraint CL and compute the wing loading
             W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,      
@@ -561,7 +561,7 @@ class Mission(Model):
         if Ncruise == 1:
             constraints.extend([
                 #weight constraints
-                TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
+                TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.ht['W_{struct}'] <= W_total]),
 
  
                 cruise.cruiseP.aircraftP['W_{start}'] == W_total,
@@ -569,7 +569,7 @@ class Mission(Model):
                 # similar constraint 2
                 TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP['W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
 
-                TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}']  <= cruise.cruiseP.aircraftP['W_{end}']]),
+                TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.ht['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}']]),
 
 
                 TCS([W_fcruise >= sum(cruise.cruiseP['W_{burn}'])]),
@@ -840,7 +840,7 @@ class HorizontalTailPerformance(Model):
                 SignomialEquality(self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'], right),
 
                 Lh == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CLh,
-##                Lh == 100*units('N'),
+
 
                 # Moment arm and geometry -- same as for vtail
                 TCS([dxlead + self.ht['c_{root_h}'] <= dxtrail]),
@@ -862,12 +862,8 @@ class HorizontalTailPerformance(Model):
                 CLh == CLah*alpha,
                 alpha <= self.ht['\\alpha_{max,h}'],
 
-##                alpha >= .01,
-##                dxlead >= 1 * units('m'),
-
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CDh,
-##                CDh == .05,
                 
                 TCS([CDh >= CD0h + CLh**2/(pi*self.ht['e_h']*self.ht['AR_h'])]),
 
@@ -1026,8 +1022,8 @@ if __name__ == '__main__':
             }
            
     m = Mission(substitutions)
-##    sol = m.localsolve(solver='mosek', verbosity = 4)
-    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+    sol = m.localsolve(solver='mosek', verbosity = 4)
+##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
  
     m = Mission(substitutions)
 ##    solRsweep = m.localsolve(solver='mosek', verbosity = 4)
