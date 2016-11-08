@@ -224,20 +224,17 @@ class Mission(Model):
     """
     mission class, links together all subclasses
     """
-    def __init__(self, subs = None, **kwargs):
+    def __init__(self, ac, substitutions = None, **kwargs):
         #define the number of each flight segment
         Nclimb = 2
         Ncruise = 2
 
-        #build required submodels
-        ac = D8()
-
         #vectorize
         with vectorize(Nclimb):
-            cls = ClimbSegment(ac)
+            climb = ClimbSegment(ac)
 
         with vectorize(Ncruise):
-            crs = CruiseSegment(ac)
+            cruise= CruiseSegment(ac)
 
         #declare new variables
         W_ftotal = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
@@ -248,9 +245,9 @@ class Mission(Model):
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
-        h = cls.state.alt['h']
-        hftClimb = cls.state.alt['hft']
-        dhft = cls.climbP['dhft']
+        h = climb.state.alt['h']
+        hftClimb = climb.state.alt['hft']
+        dhft = climb.climbP['dhft']
         hftCruise = crs.state.alt['hft']
 
         #make overall constraints
@@ -262,21 +259,21 @@ class Mission(Model):
             
             TCS([W_dry + W_ftotal <= W_total]),
 
-            cls.climbP.aircraftP['W_{start}'][0] == W_total,
-            cls.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
+            climb.climbP.aircraftP['W_{start}'][0] == W_total,
+            climb.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
 
-            # similar constraint 1
-            TCS([cls.climbP.aircraftP['W_{start}'] >= cls.climbP.aircraftP['W_{end}'] + cls.climbP.aircraftP['W_{burn}']]),
-            # similar constraint 2
+            # similar constraint #1
+            TCS([climb.climbP.aircraftP['W_{start}'] >= climb.climbP.aircraftP['W_{end}'] + climb.climbP.aircraftP['W_{burn}']]),
+            # similar constraint #2
             TCS([crs.cruiseP.aircraftP['W_{start}'] >= crs.cruiseP.aircraftP['W_{end}'] + crs.cruiseP.aircraftP['W_{burn}']]),
 
-            cls.climbP.aircraftP['W_{start}'][1:] == cls.climbP.aircraftP['W_{end}'][:-1],
+            climb.climbP.aircraftP['W_{start}'][1:] == climb.climbP.aircraftP['W_{end}'][:-1],
             crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
 
             TCS([W_dry <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >=  W_fclimb + W_fcruise]),
-            TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
+            TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
             TCS([W_fcruise >= sum(crs.cruiseP['W_{burn}'])]),
 
             #altitude constraints
@@ -289,22 +286,22 @@ class Mission(Model):
             dhft == hftCruise/Nclimb,
 
             #constrain the thrust
-            cls.climbP.engineP['thrust'] <= 2 * max(crs.cruiseP.engineP['thrust']),
+            climb.climbP.engineP['thrust'] <= 2 * max(crs.cruiseP.engineP['thrust']),
 
             #set the range for each cruise segment, doesn't take credit for climb
             #down range disatnce covered
             crs.cruiseP['Rng'] == ReqRng/(Ncruise),
 
             #set the TSFC
-            cls.climbP.engineP['TSFC'] == .7*units('1/hr'),
+            climb.climbP.engineP['TSFC'] == .7*units('1/hr'),
             crs.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
 
             #VT constriants
-            ac.VT['T_e'] == cls.climbP.engineP['thrust'][0],
+            ac.VT['T_e'] == climb.climbP.engineP['thrust'][0],
             ])
         
-        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + cls + crs, subs)
-        Model.__init__(self, W_ftotal, constraints + ac + cls + crs, subs)
+        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + climb + crs, subs)
+        Model.__init__(self, W_ftotal, constraints + ac + climb + crs, substitutions)
 
     def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
         "Returns model with additional constraints bounding all free variables"
@@ -346,6 +343,8 @@ class Mission(Model):
 
 
 if __name__ == '__main__':
+    #build a D8 model
+    ac = D8()
 
     wing_sweep = 30 #[deg]
     
@@ -385,6 +384,6 @@ if __name__ == '__main__':
             '\\tan(\\Lambda)': tan(wing_sweep*pi/180),
             }
            
-    m = Mission(substitutions)
+    m = Mission(ac, substitutions)
 ##    sol = m.localsolve(solver='mosek', verbosity = 4)
     bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
