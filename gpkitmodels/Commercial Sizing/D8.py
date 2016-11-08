@@ -184,13 +184,6 @@ class CruiseP(Model):
                   te_exp_minus1(z_bre, nterm=3)]),
 
              #breguet range eqn
-             # old version -- possibly unneeded numeng
- #            TCS([z_bre >= (self.aircraft['numeng'] * self.engineP['TSFC'] * self.aircraftP['thr']*
- #                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
-
-            # new version -- needs to be thought through carefully
-             # seems correct to me - I switched T to D below (steady level flight) but fogot
-             #about the Negn term
              TCS([z_bre >= (self.engineP['TSFC'] * self.aircraftP['thr']*
                             self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
 
@@ -248,7 +241,7 @@ class Mission(Model):
         h = climb.state.alt['h']
         hftClimb = climb.state.alt['hft']
         dhft = climb.climbP['dhft']
-        hftCruise = crs.state.alt['hft']
+        hftCruise = cruise.state.alt['hft']
 
         #make overall constraints
         constraints = []
@@ -260,21 +253,21 @@ class Mission(Model):
             TCS([W_dry + W_ftotal <= W_total]),
 
             climb.climbP.aircraftP['W_{start}'][0] == W_total,
-            climb.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
+            climb.climbP.aircraftP['W_{end}'][-1] == cruise.cruiseP.aircraftP['W_{start}'][0],
 
             # similar constraint #1
             TCS([climb.climbP.aircraftP['W_{start}'] >= climb.climbP.aircraftP['W_{end}'] + climb.climbP.aircraftP['W_{burn}']]),
             # similar constraint #2
-            TCS([crs.cruiseP.aircraftP['W_{start}'] >= crs.cruiseP.aircraftP['W_{end}'] + crs.cruiseP.aircraftP['W_{burn}']]),
+            TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP['W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
 
             climb.climbP.aircraftP['W_{start}'][1:] == climb.climbP.aircraftP['W_{end}'][:-1],
-            crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
+            cruise.cruiseP.aircraftP['W_{start}'][1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([W_dry <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
+            TCS([W_dry <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >=  W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
-            TCS([W_fcruise >= sum(crs.cruiseP['W_{burn}'])]),
+            TCS([W_fcruise >= sum(cruise.cruiseP['W_{burn}'])]),
 
             #altitude constraints
             hftCruise == CruiseAlt,
@@ -286,22 +279,25 @@ class Mission(Model):
             dhft == hftCruise/Nclimb,
 
             #constrain the thrust
-            climb.climbP.engineP['thrust'] <= 2 * max(crs.cruiseP.engineP['thrust']),
+            climb.climbP.engineP['thrust'] <= 2 * max(cruise.cruiseP.engineP['thrust']),
 
             #set the range for each cruise segment, doesn't take credit for climb
             #down range disatnce covered
-            crs.cruiseP['Rng'] == ReqRng/(Ncruise),
+            cruise.cruiseP['Rng'] == ReqRng/(Ncruise),
 
             #set the TSFC
             climb.climbP.engineP['TSFC'] == .7*units('1/hr'),
-            crs.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
+            cruise.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
 
             #VT constriants
             ac.VT['T_e'] == climb.climbP.engineP['thrust'][0],
+
+            #wing constraints
+            ac.wing['W_{fuel_{wing}}'] == W_ftotal,
             ])
         
-        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + climb + crs, subs)
-        Model.__init__(self, W_ftotal, constraints + ac + climb + crs, substitutions)
+        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + climb + cruise, subs)
+        Model.__init__(self, W_ftotal, constraints + ac + climb + cruise, substitutions)
 
     def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
         "Returns model with additional constraints bounding all free variables"
@@ -335,7 +331,7 @@ class Mission(Model):
             value = mag(sol["variables"][varkey])
             distance_below = np.log(value/m.bound_all["lb"])
             distance_above = np.log(m.bound_all["ub"]/value)
-            if distance_below <= 3:  # arbitrary threshold
+            if distance_below <= 3:  # arbitrary thresholdprint 
                 out["value near lower bound"].append(varkey)
             elif distance_above <= 3:  # arbitrary threshold
                 out["value near upper bound"].append(varkey)

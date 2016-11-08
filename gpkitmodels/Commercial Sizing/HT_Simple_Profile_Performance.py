@@ -836,20 +836,17 @@ class HorizontalTailPerformance(Model):
 
                 # Moment arm and geometry -- same as for vtail
                 TCS([dxlead + self.ht['c_{root_h}'] <= dxtrail]),
-                TCS([xcg + dxtrail <= self.fuse['l_{fuse}']], reltol=0.002),
+                xcg + dxtrail <= self.fuse['l_{fuse}'],
                 TCS([dxlead + self.ht['y_{\\bar{c}_{ht}}']*self.ht['\\tan(\\Lambda_{ht})'] + 0.25*self.ht['\\bar{c}_{ht}'] >= self.ht['l_{ht}']],
                     reltol=1e-2), # [SP]
 
                 # DATCOM formula (Mach number makes it SP)
-##                (self.ht['AR_h']/eta)**2*(1+self.ht['\\tan(\\Lambda_{ht})']**2-state['M']**2) + 8*pi*self.ht['AR_h']/CLah0
-##                     <= (2*pi*self.ht['AR_h']/CLah0)**2]),
-
                 SignomialEquality((self.ht['AR_h']/eta)**2*(1+self.ht['\\tan(\\Lambda_{ht})']**2-state['M']**2) + 8*pi*self.ht['AR_h']/CLah0
                      ,(2*pi*self.ht['AR_h']/CLah0)**2),
 
                 # K_f as f(wing position) -- (fitted posynomial)
                 # from from UMich AE-481 course notes Table 9.1
-                TCS([self.wing['x_w'] >= xcg + dxw]),
+                self.wing['x_w'] >= xcg + dxw,
                 self.wing['x_w'] <= xcg + dxlead,
 
                 # Loss of tail effectiveness due to wing downwash
@@ -873,11 +870,11 @@ class HorizontalTailPerformance(Model):
                 self.ht['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
 
                 #fix later
-                dxw == [2] * units('m'),
+                dxw == [2.5, 1.5] * units('m'),
                 Cmac == .1,
                 etaht == .9,
                 eta == .97,
-                xcg == [17] * units('m'),
+                xcg == [16.5, 17.5] * units('m'),
                 ])
 
         Model.__init__(self, None, constraints)
@@ -1017,8 +1014,8 @@ if __name__ == '__main__':
             }
            
     m = Mission(substitutions)
-    sol = m.localsolve(solver='mosek', verbosity = 4)
-##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+##    sol = m.localsolve(solver='mosek', verbosity = 4)
+    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
  
     m = Mission(substitutions)
 ##    solRsweep = m.localsolve(solver='mosek', verbosity = 4)

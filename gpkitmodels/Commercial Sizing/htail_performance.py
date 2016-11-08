@@ -107,7 +107,6 @@ class HorizontalTailNoStruct(Model):
 
         Model.__init__(self, None, constraints)
 
-
 class HorizontalTailPerformance(Model):
     """
     Horizontal tail performance model
@@ -484,4 +483,3 @@ if __name__ == "__main__":
      m = Model(htP['D_{ht}'] + 0.1*ht.wb['W_{struct}'], [htP, ht, wing, state, fuse], subs)
      sol = m.localsolve(solver='mosek', verbosity=4)
 ##     bounds, sol = wing.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
-

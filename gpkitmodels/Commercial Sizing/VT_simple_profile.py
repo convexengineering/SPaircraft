@@ -692,7 +692,7 @@ class VerticalTailNoStruct(Model):
         LvtEO    = Variable('L_{vtEO}', 'N', 'Vertical tail lift in engine out')
         Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area (half)')
         V1     = Variable('V_1', 'm/s', 'Minimum takeoff velocity')
-        Vne    = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
+        Vne    = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
         Wstruct= Variable('W_{struct}', 'N', 'Full span weight')
         Wvt    = Variable('W_{vt}', 'N', 'Vertical tail weight')
         bvt    = Variable('b_{vt}', 'm', 'Vertical tail half span')

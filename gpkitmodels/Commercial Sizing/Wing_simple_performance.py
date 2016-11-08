@@ -576,7 +576,7 @@ class WingNoStruct(Model):
         AR      = Variable('AR', '-', 'Wing aspect ratio')
         Lmax    = Variable('L_{max}', 'N', 'Maximum load')
         Sw      = Variable('S', 'm^2', 'Wing area')
-        Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
+        Vne     = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
         WfuelWing   = Variable('W_{fuel_{wing}}', 'N', 'Fuel weight')
         b       = Variable('b', 'm', 'Wing span')
         #the following two variables have the same name in the flight profile and
@@ -600,9 +600,7 @@ class WingNoStruct(Model):
 
                  taper == ctip/croot,
 
-##                 TCS([Sw <= b*(croot + ctip)/2], reltol=1E-2), # [SP]
                  SignomialEquality(Sw, b*(croot + ctip)/2),
-##                 Sw <= b*(croot + ctip)/2,
 
                  # Oswald efficiency
                  # Nita, Scholz, "Estimating the Oswald factor from
