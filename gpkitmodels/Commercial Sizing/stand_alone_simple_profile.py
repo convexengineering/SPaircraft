@@ -336,12 +336,12 @@ class Engine(Model):
     """
     def __init__(self, **kwargs):
         #new variables
-        W_engine = Variable('W_{engine}', 'N', 'Weight of a Single Turbofan Engine')
+        W_engine = Variable('W_{engine}', 1000, 'N', 'Weight of a Single Turbofan Engine')
         
         constraints = []
 
         constraints.extend([
-            W_engine == 1000 * units('N')
+            W_engine == W_engine
             ])
 
         Model.__init__(self, None, constraints)
@@ -507,20 +507,17 @@ class Mission(Model):
     """
     mission class, links together all subclasses
     """
-    def __init__(self, subs = None, **kwargs):
+    def __init__(self, ac, substitutions = None, **kwargs):
         #define the number of each flight segment
         Nclimb = 2
         Ncruise = 2
 
-        #build required submodels
-        ac = Aircraft()
-
         #vectorize
         with vectorize(Nclimb):
-            cls = ClimbSegment(ac)
+            climb = ClimbSegment(ac)
 
         with vectorize(Ncruise):
-            crs = CruiseSegment(ac)
+            cruise = CruiseSegment(ac)
 
         #declare new variables
         W_ftotal = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
@@ -530,10 +527,10 @@ class Mission(Model):
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
-        h = cls.state.alt['h']
-        hftClimb = cls.state.alt['hft']
-        dhft = cls.climbP['dhft']
-        hftCruise = crs.state.alt['hft']
+        h = climb['h']
+        hftClimb = climb['hft']
+        dhft = climb['dhft']
+        hftCruise = cruise['hft']
 
         #make overall constraints
         constraints = []
@@ -542,22 +539,22 @@ class Mission(Model):
             #weight constraints
             TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
 
-            cls.climbP.aircraftP['W_{start}'][0] == W_total,
-            cls.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
+            climb['W_{start}'][0] == W_total,
+            climb['W_{end}'][-1] == cruise['W_{start}'][0],
 
             # similar constraint 1
-            TCS([cls.climbP.aircraftP['W_{start}'] >= cls.climbP.aircraftP['W_{end}'] + cls.climbP.aircraftP['W_{burn}']]),
+            TCS([climb['W_{start}'] >= climb['W_{end}'] + climb['W_{burn}']]),
             # similar constraint 2
-            TCS([crs.cruiseP.aircraftP['W_{start}'] >= crs.cruiseP.aircraftP['W_{end}'] + crs.cruiseP.aircraftP['W_{burn}']]),
+            TCS([cruise['W_{start}'] >= cruise['W_{end}'] + cruise['W_{burn}']]),
 
-            cls.climbP.aircraftP['W_{start}'][1:] == cls.climbP.aircraftP['W_{end}'][:-1],
-            crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
+            climb['W_{start}'][1:] == climb['W_{end}'][:-1],
+            cruise['W_{start}'][1:] == cruise['W_{end}'][:-1],
 
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
+            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= cruise['W_{end}'][-1]]),
 
             TCS([W_ftotal >=  W_fclimb + W_fcruise]),
-            TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
-            TCS([W_fcruise >= sum(crs.cruiseP['W_{burn}'])]),
+            TCS([W_fclimb >= sum(climb['W_{burn}'])]),
+            TCS([W_fcruise >= sum(cruise['W_{burn}'])]),
 
             #altitude constraints
             hftCruise == CruiseAlt,
@@ -569,22 +566,25 @@ class Mission(Model):
             dhft == hftCruise/Nclimb,
 
             #constrain the thrust
-            cls.climbP.engineP['thrust'] <= 2 * max(crs.cruiseP.engineP['thrust']),
+            climb['thrust'] <= 2 * max(cruise['thrust']),
 
             #set the range for each cruise segment, doesn't take credit for climb
             #down range disatnce covered
-            crs.cruiseP['Rng'] == ReqRng/(Ncruise),
+            cruise.cruiseP['Rng'] == ReqRng/(Ncruise),
 
             #set the TSFC
-            cls.climbP.engineP['TSFC'] == .7*units('1/hr'),
-            crs.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
+            climb['TSFC'] == .7*units('1/hr'),
+            cruise['TSFC'] == .5*units('1/hr'),
             ])
         
-        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + cls + crs, subs)
-        Model.__init__(self, W_ftotal, constraints + ac + cls + crs, subs)
+        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + climb + cruise, subs)
+        Model.__init__(self, W_ftotal, constraints + ac + climb + cruise, substitutions)
 
 
 if __name__ == '__main__':
+    #build required submodels
+    ac = Aircraft()
+        
     substitutions = {      
 ##            'V_{stall}': 120,
             'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
@@ -599,10 +599,10 @@ if __name__ == '__main__':
             'b_{max}': 35,
             }
            
-    m = Mission(substitutions)
+    m = Mission(ac, substitutions)
     sol = m.localsolve(solver='mosek', verbosity = 4)
 
-    substitutions = {      
+    substitutions = {
 ##            'V_{stall}': 120,
             'ReqRng': ('sweep', np.linspace(500,3000,8)),
             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
@@ -616,7 +616,7 @@ if __name__ == '__main__':
             'b_{max}': 35,
             }
            
-    m = Mission(substitutions)
+    m = Mission(ac, substitutions)
 ##    solRsweep = m.localsolve(solver='mosek', verbosity = 4)
 
 ##    plt.plot(solRsweep('ReqRng'), solRsweep('W_{f_{total}}'), '-r')
@@ -639,7 +639,7 @@ if __name__ == '__main__':
             'b_{max}': 35,
             }
            
-    m = Mission(substitutions)
+    m = Mission(ac, substitutions)
 ##    solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
 
 ##    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('W_{f_{total}}'), '-r')

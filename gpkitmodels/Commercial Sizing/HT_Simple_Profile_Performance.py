@@ -714,7 +714,6 @@ class HorizontalTailNoStruct(Model):
                        0.538*(self.wing['x_w']/self.fuse['l_{fuse}']) +
                        0.0331),
 
-
 ##                self.wing['x_w'] == .76*self.fuse['l_{fuse}'],
                 # Oswald efficiency
                 # Nita, Scholz,
@@ -742,7 +741,7 @@ class HorizontalTailNoStruct(Model):
 
                 xcght == xcght,
 
-                Sh >= 10*units('m^2'),
+##                Sh >= 10*units('m^2'),
                 ])
 
         Model.__init__(self, None, constraints)
@@ -807,8 +806,8 @@ class HorizontalTailPerformance(Model):
                 SM >= self.ht['S.M._{min}'],
 
                 # Trim from UMich AE-481 course notes
-##                CLh*self.ht['S_h']*self.ht['l_{ht}']/(self.wing['S']*self.wing['\\bar{c}_w']) + Cmac >= self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'],
-##                SignomialEquality(self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'], right),
+                CLh*self.ht['S_h']*self.ht['l_{ht}']/(self.wing['S']*self.wing['\\bar{c}_w']) + Cmac >= self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'],
+                SignomialEquality(self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'], right),
 ##                Lh >= .11*units('N'),
                 Lh == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CLh,
 
@@ -828,13 +827,13 @@ class HorizontalTailPerformance(Model):
                 self.wing['x_w'] <= xcg + dxlead,
 
                 # Loss of tail effectiveness due to wing downwash
-##                CLah + (2*self.wingP['C_{L_{aw}}']/(pi*self.wing['AR']))*etaht*CLah0 <= CLah0*etaht,
-##                CLah == CLah0,
+                CLah + (2*self.wingP['C_{L_{aw}}']/(pi*self.wing['AR']))*etaht*CLah0 <= CLah0*etaht,
+                CLah == CLah0,
                 CLh == CLah*alpha,
                 alpha <= self.ht['\\alpha_{max,h}'],
 
-                alpha >= .01,
-                dxlead >= 1 * units('m'),
+##                alpha >= .01,
+##                dxlead >= 1 * units('m'),
 
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CDh,
@@ -852,11 +851,11 @@ class HorizontalTailPerformance(Model):
                 self.ht['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
 
                 #fix later
-                dxw == [4, 2] * units('m'),
+                dxw == [2.5, 1.5] * units('m'),
                 Cmac == .1,
                 etaht == .9,
                 eta == .97,
-                xcg == [15, 17] * units('m'),
+                xcg == [16.5, 17.5] * units('m'),
                 ])
 
         Model.__init__(self, None, constraints)
@@ -984,7 +983,7 @@ if __name__ == '__main__':
             'e': .9,
             'b_{max}': 35,
 
-             'S.M._{min}': 0.05,
+             'S.M._{min}': 0.0000000005,
              'V_{ne}': 144,
              'C_{L_{hmax}}': 2.5,
 
