@@ -93,13 +93,12 @@ class AircraftP(Model):
             #speed must be greater than stall speed
             state['V'] >= Vstall,
 
-
             #Figure out how to delete
             Vstall == 120*units('kts'),
             WLoadmax == 6664 * units('N/m^2'),
 
             #compute the drag
-            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.htP['D_{ht}']]),
+            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}']]),
 
             #constraint CL and compute the wing loading
             W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,      
@@ -118,7 +117,7 @@ class AircraftP(Model):
             t == thours,
 
             #make lift equal weight --> small angle approx in climb
-            self.wingP['L_{wing}'] >= W_avg + self.htP['L_h'],
+            self.wingP['L_{wing}'] >= W_avg,
             ])
 
         Model.__init__(self, None, [self.Pmodels + constraints], **kwargs)
@@ -191,11 +190,6 @@ class CruiseP(Model):
              TCS([self.aircraftP['W_{burn}']/self.aircraftP['W_{end}'] >=
                   te_exp_minus1(z_bre, nterm=3)]),
 
-             #breguet range eqn
-             # old version -- possibly unneeded numeng
- #            TCS([z_bre >= (self.aircraft['numeng'] * self.engineP['TSFC'] * self.aircraftP['thr']*
- #                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
-
             # new version -- needs to be thought through carefully
              # seems correct to me - I switched T to D below (steady level flight) but fogot
              #about the Negn term
@@ -257,6 +251,8 @@ class FlightState(Model):
 
             #compute the mach number
             V == M * a,
+
+            M == .8,
             ])
 
         #build the model
@@ -321,9 +317,11 @@ class Atmosphere(Model):
 
                 #temperature equation
                 SignomialEquality(T_sl, T_atm + L_atm*alt['h']),
+##                T_atm == 218*units('K'),
 
                 #constraint on mu
                 SignomialEquality((T_atm + T_s) * mu, C_1 * T_atm**1.5),
+##                mu == 1.4e-5*units('kg/(m*s)'),
 ##                TCS([(T_atm + T_s) * mu >= C_1 * T_atm**1.5])
                 ]
 
@@ -532,17 +530,17 @@ class Mission(Model):
     def __init__(self, subs = None, **kwargs):
         #define the number of each flight segment
         Nclimb = 2
-        Ncruise = 2
+        Ncruise = 1
 
         #build required submodels
         ac = Aircraft()
 
         #vectorize
-        with vectorize(Nclimb):
-            cls = ClimbSegment(ac)
+##        with vectorize(Nclimb):
+##            climb = ClimbSegment(ac)
 
         with vectorize(Ncruise):
-            crs = CruiseSegment(ac)
+            cruise = CruiseSegment(ac)
 
         #declare new variables
         W_ftotal = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
@@ -552,58 +550,90 @@ class Mission(Model):
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
-        h = cls.state.alt['h']
-        hftClimb = cls.state.alt['hft']
-        dhft = cls.climbP['dhft']
-        hftCruise = crs.state.alt['hft']
+##        h = climb.state.alt['h']
+##        hftClimb = climb.state.alt['hft']
+##        dhft = climb.climbP['dhft']
+        hftCruise = cruise.state.alt['hft']
 
         #make overall constraints
         constraints = []
 
-        constraints.extend([
-            #weight constraints
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.ht['W_{struct}'] <= W_total]),
+        if Ncruise == 1:
+            constraints.extend([
+                #weight constraints
+                TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
 
-            cls.climbP.aircraftP['W_{start}'][0] == W_total,
-            cls.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
+ 
+                cruise.cruiseP.aircraftP['W_{start}'] == W_total,
 
-            # similar constraint 1
-            TCS([cls.climbP.aircraftP['W_{start}'] >= cls.climbP.aircraftP['W_{end}'] + cls.climbP.aircraftP['W_{burn}']]),
-            # similar constraint 2
-            TCS([crs.cruiseP.aircraftP['W_{start}'] >= crs.cruiseP.aircraftP['W_{end}'] + crs.cruiseP.aircraftP['W_{burn}']]),
+                # similar constraint 2
+                TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP['W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
 
-            cls.climbP.aircraftP['W_{start}'][1:] == cls.climbP.aircraftP['W_{end}'][:-1],
-            crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
+                TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}']  <= cruise.cruiseP.aircraftP['W_{end}']]),
 
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.ht['W_{struct}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
 
-            TCS([W_ftotal >=  W_fclimb + W_fcruise]),
-            TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
-            TCS([W_fcruise >= sum(crs.cruiseP['W_{burn}'])]),
+                TCS([W_fcruise >= sum(cruise.cruiseP['W_{burn}'])]),
+                TCS([W_ftotal >=  W_fcruise]),
 
-            #altitude constraints
-            hftCruise == CruiseAlt,
-            TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise-1] + dhft]),
-            TCS([hftClimb[0] >= dhft[0]]),
-            hftClimb[-1] <= hftCruise,
+                #altitude constraints
+                hftCruise == CruiseAlt,
 
-            #compute the dh
-            dhft == hftCruise/Nclimb,
+                #set the range for each cruise segment, doesn't take credit for climb
+                #down range disatnce covered
+                cruise.cruiseP['Rng'] == ReqRng/(Ncruise),
 
-            #constrain the thrust
-            cls.climbP.engineP['thrust'] <= 2 * max(crs.cruiseP.engineP['thrust']),
-
-            #set the range for each cruise segment, doesn't take credit for climb
-            #down range disatnce covered
-            crs.cruiseP['Rng'] == ReqRng/(Ncruise),
-
-            #set the TSFC
-            cls.climbP.engineP['TSFC'] == .7*units('1/hr'),
-            crs.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
-            ])
+                #set the TSFC
+                cruise.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
+                ])
         
-        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + cls + crs, subs)
-        Model.__init__(self, W_ftotal, constraints + ac + cls + crs, subs)
+        if Ncruise > 1:
+            constraints.extend([
+                #weight constraints
+                TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.ht['W_{struct}'] <= W_total]),
+
+    ##            climb.climbP.aircraftP['W_{start}'][0] == W_total,
+    ##            climb.climbP.aircraftP['W_{end}'][-1] == cruise.cruiseP.aircraftP['W_{start}'][0],
+                cruise.cruiseP.aircraftP['W_{start}'][0] == W_total,
+
+                # similar constraint 1
+    ##            TCS([climb.climbP.aircraftP['W_{start}'] >= climb.climbP.aircraftP['W_{end}'] + climb.climbP.aircraftP['W_{burn}']]),
+                # similar constraint 2
+                TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP['W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
+
+    ##            climb.climbP.aircraftP['W_{start}'][1:] == climb.climbP.aircraftP['W_{end}'][:-1],
+                cruise.cruiseP.aircraftP['W_{start}'][1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
+
+                TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.ht['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
+
+    ##            TCS([W_ftotal >=  W_fclimb + W_fcruise]),
+    ##            TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
+                TCS([W_fcruise >= sum(cruise.cruiseP['W_{burn}'])]),
+                TCS([W_ftotal >=  W_fclimb]),
+
+                #altitude constraints
+                hftCruise == CruiseAlt,
+    ##            TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise-1] + dhft]),
+    ##            TCS([hftClimb[0] >= dhft[0]]),
+    ##            hftClimb[-1] <= hftCruise,
+
+                #compute the dh
+    ##            dhft == hftCruise/Nclimb,
+
+                #constrain the thrust
+    ##            climb.climbP.engineP['thrust'] <= 2 * max(cruise.cruiseP.engineP['thrust']),
+
+                #set the range for each cruise segment, doesn't take credit for climb
+                #down range disatnce covered
+                cruise.cruiseP['Rng'] == ReqRng/(Ncruise),
+
+                #set the TSFC
+    ##            climb.climbP.engineP['TSFC'] == .7*units('1/hr'),
+                cruise.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
+                ])
+        
+        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + climb + cruise, subs)
+##        Model.__init__(self, W_ftotal, constraints + ac + climb + cruise, subs)
+        Model.__init__(self, W_ftotal, constraints + ac + cruise, subs)
 
     def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
         "Returns model with additional constraints bounding all free variables"
@@ -714,7 +744,7 @@ class HorizontalTailNoStruct(Model):
                        0.538*(self.wing['x_w']/self.fuse['l_{fuse}']) +
                        0.0331),
 
-##                self.wing['x_w'] == .76*self.fuse['l_{fuse}'],
+                self.wing['x_w'] == .76*self.fuse['l_{fuse}'],
                 # Oswald efficiency
                 # Nita, Scholz,
                 # "Estimating the Oswald factor from basic
@@ -741,7 +771,7 @@ class HorizontalTailNoStruct(Model):
 
                 xcght == xcght,
 
-##                Sh >= 10*units('m^2'),
+##                Sh == 10*units('m^2'),
                 ])
 
         Model.__init__(self, None, constraints)
@@ -808,8 +838,9 @@ class HorizontalTailPerformance(Model):
                 # Trim from UMich AE-481 course notes
                 CLh*self.ht['S_h']*self.ht['l_{ht}']/(self.wing['S']*self.wing['\\bar{c}_w']) + Cmac >= self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'],
                 SignomialEquality(self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'], right),
-##                Lh >= .11*units('N'),
+
                 Lh == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CLh,
+##                Lh == 100*units('N'),
 
                 # Moment arm and geometry -- same as for vtail
                 TCS([dxlead + self.ht['c_{root_h}'] <= dxtrail]),
@@ -828,7 +859,6 @@ class HorizontalTailPerformance(Model):
 
                 # Loss of tail effectiveness due to wing downwash
                 CLah + (2*self.wingP['C_{L_{aw}}']/(pi*self.wing['AR']))*etaht*CLah0 <= CLah0*etaht,
-                CLah == CLah0,
                 CLh == CLah*alpha,
                 alpha <= self.ht['\\alpha_{max,h}'],
 
@@ -837,6 +867,7 @@ class HorizontalTailPerformance(Model):
 
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CDh,
+##                CDh == .05,
                 
                 TCS([CDh >= CD0h + CLh**2/(pi*self.ht['e_h']*self.ht['AR_h'])]),
 
@@ -851,11 +882,11 @@ class HorizontalTailPerformance(Model):
                 self.ht['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
 
                 #fix later
-                dxw == [2.5, 1.5] * units('m'),
+                dxw == [2] * units('m'),
                 Cmac == .1,
                 etaht == .9,
                 eta == .97,
-                xcg == [16.5, 17.5] * units('m'),
+                xcg == [17] * units('m'),
                 ])
 
         Model.__init__(self, None, constraints)
@@ -926,14 +957,14 @@ class WingBox(Model):
         
         objective = Wstruct
 
-        if isinstance(surface, HorizontalTailNoStruct):
-            AR = surface['AR_h']
-            b = surface['b_{ht}']
-            S = surface['S_h']
-            p = surface['p_{ht}']
-            q = surface['q_{ht}']
-            tau = surface['\\tau_h']
-            Lmax = surface['L_{{max}_h}']
+##        if isinstance(surface, HorizontalTailNoStruct):
+##            AR = surface['AR_h']
+##            b = surface['b_{ht}']
+##            S = surface['S_h']
+##            p = surface['p_{ht}']
+##            q = surface['q_{ht}']
+##            tau = surface['\\tau_h']
+##            Lmax = surface['L_{{max}_h}']
 
         constraints = [
                        # Upper bound on maximum thickness
@@ -942,29 +973,29 @@ class WingBox(Model):
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
                        # Assumes lift per unit span proportional to local chord
-                       Mr >= Lmax*AR*p/24,
+##                       Mr >= Lmax*AR*p/24,
 
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
-                       0.92*w*tau*tcap**2 + Icap <= 0.92**2/2*w*tau**2*tcap,
+##                       0.92*w*tau*tcap**2 + Icap <= 0.92**2/2*w*tau**2*tcap,
 
                        # Stress limit
                        # Assumes bending stress carried by caps (Icap >> Iweb)
-                       8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax),
+##                       8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax),
 
                        # Shear web sizing
                        # Assumes all shear loads are carried by web and rh=0.75
-                       12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
+##                       12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam^2)
-                       nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56,
+##                       nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56,
 
                        # Weight of spar caps and shear webs
-                       Wcap >= 8*rhocap*g*w*tcap*S**1.5*nu/(3*AR**0.5),
-                       Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
+##                       Wcap >= 8*rhocap*g*w*tcap*S**1.5*nu/(3*AR**0.5),
+##                       Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
 
                        # Total wing weight using an additional weight fraction
-                       Wstruct >= (1 + fwadd)*(Wweb + Wcap),
+                       Wstruct == 1000*units('N'),#(1 + fwadd)*(Wweb + Wcap),
                        ]
         
         Model.__init__(self, objective, constraints, **kwargs)
@@ -974,7 +1005,7 @@ if __name__ == '__main__':
 ##            'V_{stall}': 120,
             'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
-            'numeng': 1,
+            'numeng': 2,
 ##            'W_{Load_max}': 6664,
             'W_{pax}': 91 * 9.81,
             'n_{pax}': 150,
@@ -983,7 +1014,7 @@ if __name__ == '__main__':
             'e': .9,
             'b_{max}': 35,
 
-             'S.M._{min}': 0.0000000005,
+             'S.M._{min}': 0.05,
              'V_{ne}': 144,
              'C_{L_{hmax}}': 2.5,
 
