@@ -251,8 +251,6 @@ class FlightState(Model):
 
             #compute the mach number
             V == M * a,
-
-            M == .8,
             ])
 
         #build the model
@@ -530,7 +528,7 @@ class Mission(Model):
     def __init__(self, subs = None, **kwargs):
         #define the number of each flight segment
         Nclimb = 2
-        Ncruise = 1
+        Ncruise = 2
 
         #build required submodels
         ac = Aircraft()
@@ -608,7 +606,7 @@ class Mission(Model):
     ##            TCS([W_ftotal >=  W_fclimb + W_fcruise]),
     ##            TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
                 TCS([W_fcruise >= sum(cruise.cruiseP['W_{burn}'])]),
-                TCS([W_ftotal >=  W_fclimb]),
+                TCS([W_ftotal >=  W_fcruise]),
 
                 #altitude constraints
                 hftCruise == CruiseAlt,
@@ -770,8 +768,6 @@ class HorizontalTailNoStruct(Model):
                 amax == amax,
 
                 xcght == xcght,
-
-##                Sh == 10*units('m^2'),
                 ])
 
         Model.__init__(self, None, constraints)
