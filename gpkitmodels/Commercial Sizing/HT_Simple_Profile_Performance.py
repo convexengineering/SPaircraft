@@ -534,8 +534,8 @@ class Mission(Model):
         ac = Aircraft()
 
         #vectorize
-##        with vectorize(Nclimb):
-##            climb = ClimbSegment(ac)
+        with vectorize(Nclimb):
+            climb = ClimbSegment(ac)
 
         with vectorize(Ncruise):
             cruise = CruiseSegment(ac)
@@ -548,9 +548,9 @@ class Mission(Model):
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
-##        h = climb.state.alt['h']
-##        hftClimb = climb.state.alt['hft']
-##        dhft = climb.climbP['dhft']
+        h = climb.state.alt['h']
+        hftClimb = climb.state.alt['hft']
+        dhft = climb.climbP['dhft']
         hftCruise = cruise.state.alt['hft']
 
         #make overall constraints
@@ -589,49 +589,46 @@ class Mission(Model):
                 #weight constraints
                 TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.ht['W_{struct}'] <= W_total]),
 
-    ##            climb.climbP.aircraftP['W_{start}'][0] == W_total,
-    ##            climb.climbP.aircraftP['W_{end}'][-1] == cruise.cruiseP.aircraftP['W_{start}'][0],
-                cruise.cruiseP.aircraftP['W_{start}'][0] == W_total,
-
+                climb.climbP.aircraftP['W_{start}'][0] == W_total,
+                climb.climbP.aircraftP['W_{end}'][-1] == cruise.cruiseP.aircraftP['W_{start}'][0],
+                
                 # similar constraint 1
-    ##            TCS([climb.climbP.aircraftP['W_{start}'] >= climb.climbP.aircraftP['W_{end}'] + climb.climbP.aircraftP['W_{burn}']]),
+                TCS([climb.climbP.aircraftP['W_{start}'] >= climb.climbP.aircraftP['W_{end}'] + climb.climbP.aircraftP['W_{burn}']]),
                 # similar constraint 2
                 TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP['W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
 
-    ##            climb.climbP.aircraftP['W_{start}'][1:] == climb.climbP.aircraftP['W_{end}'][:-1],
+                climb.climbP.aircraftP['W_{start}'][1:] == climb.climbP.aircraftP['W_{end}'][:-1],
                 cruise.cruiseP.aircraftP['W_{start}'][1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
                 TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.ht['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
-    ##            TCS([W_ftotal >=  W_fclimb + W_fcruise]),
-    ##            TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
+                TCS([W_ftotal >=  W_fclimb + W_fcruise]),
+                TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
                 TCS([W_fcruise >= sum(cruise.cruiseP['W_{burn}'])]),
-                TCS([W_ftotal >=  W_fcruise]),
 
                 #altitude constraints
                 hftCruise == CruiseAlt,
-    ##            TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise-1] + dhft]),
-    ##            TCS([hftClimb[0] >= dhft[0]]),
-    ##            hftClimb[-1] <= hftCruise,
+                TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise-1] + dhft]),
+                TCS([hftClimb[0] >= dhft[0]]),
+                hftClimb[-1] <= hftCruise,
 
                 #compute the dh
-    ##            dhft == hftCruise/Nclimb,
+                dhft == hftCruise/Nclimb,
 
                 #constrain the thrust
-    ##            climb.climbP.engineP['thrust'] <= 2 * max(cruise.cruiseP.engineP['thrust']),
+                climb.climbP.engineP['thrust'] <= 2 * max(cruise.cruiseP.engineP['thrust']),
 
                 #set the range for each cruise segment, doesn't take credit for climb
                 #down range disatnce covered
                 cruise.cruiseP['Rng'] == ReqRng/(Ncruise),
 
                 #set the TSFC
-    ##            climb.climbP.engineP['TSFC'] == .7*units('1/hr'),
+                climb.climbP.engineP['TSFC'] == .7*units('1/hr'),
                 cruise.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
                 ])
-        
-        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + climb + cruise, subs)
-##        Model.__init__(self, W_ftotal, constraints + ac + climb + cruise, subs)
-        Model.__init__(self, W_ftotal, constraints + ac + cruise, subs)
+
+        Model.__init__(self, W_ftotal, constraints + ac + climb + cruise, subs)
+##        Model.__init__(self, W_ftotal, constraints + ac + cruise, subs)
 
     def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
         "Returns model with additional constraints bounding all free variables"
@@ -826,14 +823,13 @@ class HorizontalTailPerformance(Model):
         with SignomialsEnabled():
 
             constraints.extend([
-                TCS([SM + dxw/self.wing['\\bar{c}_w'] + self.ht['K_f']*self.fuse['w_{fuse}']**2*self.fuse['l_{fuse}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w'])
-                                    <= CLah*self.ht['S_h']*self.ht['l_{ht}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w'])]),
+                SM + dxw/self.wing['\\bar{c}_w'] + self.ht['K_f']*self.fuse['w_{fuse}']**2*self.fuse['l_{fuse}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w'])
+                                    <= CLah*self.ht['S_h']*self.ht['l_{ht}']/(self.wingP['C_{L_{aw}}']*self.wing['S']*self.wing['\\bar{c}_w']),
 
                 SM >= self.ht['S.M._{min}'],
 
                 # Trim from UMich AE-481 course notes
                 CLh*self.ht['S_h']*self.ht['l_{ht}']/(self.wing['S']*self.wing['\\bar{c}_w']) + Cmac >= self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'],
-                SignomialEquality(self.wingP['C_{L}']*dxw/self.wing['\\bar{c}_w'] + self.fuseP['C_{m_{fuse}}'], right),
 
                 Lh == 0.5*state['\\rho']*state['V']**2*self.ht['S_h']*CLh,
 
@@ -845,8 +841,11 @@ class HorizontalTailPerformance(Model):
                     reltol=1e-2), # [SP]
 
                 # DATCOM formula (Mach number makes it SP)
-                TCS([(self.ht['AR_h']/eta)**2*(1+self.ht['\\tan(\\Lambda_{ht})']**2-state['M']**2) + 8*pi*self.ht['AR_h']/CLah0
-                     <= (2*pi*self.ht['AR_h']/CLah0)**2]),
+##                (self.ht['AR_h']/eta)**2*(1+self.ht['\\tan(\\Lambda_{ht})']**2-state['M']**2) + 8*pi*self.ht['AR_h']/CLah0
+##                     <= (2*pi*self.ht['AR_h']/CLah0)**2]),
+
+                SignomialEquality((self.ht['AR_h']/eta)**2*(1+self.ht['\\tan(\\Lambda_{ht})']**2-state['M']**2) + 8*pi*self.ht['AR_h']/CLah0
+                     ,(2*pi*self.ht['AR_h']/CLah0)**2),
 
                 # K_f as f(wing position) -- (fitted posynomial)
                 # from from UMich AE-481 course notes Table 9.1
