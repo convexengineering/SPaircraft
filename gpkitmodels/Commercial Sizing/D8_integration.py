@@ -1,7 +1,7 @@
 """temporary file containing classes in flux for full aircraft integration"""
 from numpy import pi, tan, cos
 import numpy as np
-from gpkit import Variable, Model, units, SignomialsEnabled
+from gpkit import Variable, Model, units, SignomialsEnabled, VectorVariable
 from gpkit.constraints.sigeq import SignomialEqualityConstraint as SignomialEquality
 from gpkit.constraints.tight import TightConstraintSet as TCS
 
@@ -68,7 +68,7 @@ class Fuselage(Model):
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
 
         lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
-        xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
+        wfuse   = Variable('w_{fuse}', 6, 'm', 'Fuselage width')
 
         constraints = []
         
@@ -76,14 +76,13 @@ class Fuselage(Model):
             #compute fuselage area for drag approximation
             A_fuse == pax_area * n_pax,
 
+            A_fuse == lfuse * wfuse,
+            
             #constraints on the various weights
             W_payload == n_pax * W_pax,
             
             #estimate based on TASOPT 737 model
             W_e == .75*W_payload,
-
-            lfuse == lfuse,
-            xCG == xCG,
             ])
 
         Model.__init__(self, None, constraints)
@@ -102,6 +101,9 @@ class FuselagePerformance(Model):
         #new variables
         Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
         Dfuse = Variable('D_{fuse}', 'N', 'Total Fuselage Drag')
+        Cmfu    = Variable('C_{m_{fuse}}', '-', 'Moment coefficient (fuselage)')
+
+        xcg     = VectorVariable(2, 'x_{CG}', 'm', 'CG location')
         
         #constraints
         constraints = []
@@ -110,6 +112,10 @@ class FuselagePerformance(Model):
             Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
 
             Cdfuse == .005,
+
+            Cmfu == .05,
+
+            xcg == 17 * units('m'),
             ])
 
         Model.__init__(self, None, constraints)

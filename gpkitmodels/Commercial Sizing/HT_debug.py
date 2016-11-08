@@ -117,7 +117,7 @@ class AircraftP(Model):
                 t == thours,
 
                 #make lift equal weight --> small angle approx in climb
-                self.wingP['L_{wing}'] >= W_avg + self.htP['L_h'],
+                self.wingP['L_{wing}'] >= W_avg,
 ##                SignomialEquality(self.wingP['L_{wing}'] , W_avg + self.htP['L_h'])
                 ])
 
@@ -563,7 +563,7 @@ class Mission(Model):
         if Ncruise == 1:
             constraints.extend([
                 #weight constraints
-                TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
+                TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.ht['W_{struct}'] <= W_total]),
 
  
                 cruise.cruiseP.aircraftP['W_{start}'] == W_total,
@@ -571,7 +571,7 @@ class Mission(Model):
                 # similar constraint 2
                 TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP['W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
 
-                TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}']  <= cruise.cruiseP.aircraftP['W_{end}']]),
+                TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}']  + ac.ht['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}']]),
 
 
                 TCS([W_fcruise >= sum(cruise.cruiseP['W_{burn}'])]),

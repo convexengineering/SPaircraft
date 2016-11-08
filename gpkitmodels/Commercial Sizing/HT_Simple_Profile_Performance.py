@@ -506,6 +506,8 @@ class FuselagePerformance(Model):
         Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
         Dfuse = Variable('D_{fuse}', 'N', 'Total Fuselage Drag')
         Cmfu    = Variable('C_{m_{fuse}}', '-', 'Moment coefficient (fuselage)')
+
+        xcg     = VectorVariable(2, 'x_{CG}', 'm', 'CG location')
         
         #constraints
         constraints = []
@@ -516,6 +518,8 @@ class FuselagePerformance(Model):
             Cdfuse == .005,
 
             Cmfu == .05,
+
+            xcg == [16.5, 17.5] * units('m'),
             ])
 
         Model.__init__(self, None, constraints)
@@ -698,7 +702,7 @@ class HorizontalTailNoStruct(Model):
                            'Spanwise location of mean aerodynamic chord')
         lht     = Variable('l_{ht}', 'm', 'Horizontal tail moment arm')
         ARh     = Variable('AR_h', '-', 'Horizontal tail aspect ratio')
-        Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
+        Vne     = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
         amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack, htail')
         e       = Variable('e_h', '-', 'Oswald efficiency factor')
         Sw      = Variable('S_w', 'm^2', 'Wing area')
@@ -707,8 +711,6 @@ class HorizontalTailNoStruct(Model):
         chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
         croot   = Variable('c_{root_h}', 'm', 'Horizontal tail root chord')
         ctip    = Variable('c_{tip_h}', 'm', 'Horizontal tail tip chord')
-        cwma    = Variable('\\bar{c}_w', 'm',
-                           'Mean aerodynamic chord (wing)')
         Lmax    = Variable('L_{{max}_h}', 'N', 'Maximum load')
         Kf      = Variable('K_f', '-',
                            'Empirical factor for fuselage-wing interference')
@@ -806,7 +808,6 @@ class HorizontalTailPerformance(Model):
         eta     = Variable('\\eta_h', '-',
                            ("Lift efficiency (diff between sectional and "
                             "actual lift)"))
-        xcg     = VectorVariable(2, 'x_{CG}', 'm', 'CG location')
 
         Cmac    = Variable('|C_{m_{ac}}|', '-', # Absolute value of CMwing
                            'Moment coefficient about aerodynamic centre (wing)')
@@ -836,7 +837,7 @@ class HorizontalTailPerformance(Model):
 
                 # Moment arm and geometry -- same as for vtail
                 TCS([dxlead + self.ht['c_{root_h}'] <= dxtrail]),
-                xcg + dxtrail <= self.fuse['l_{fuse}'],
+                self.fuseP['x_{CG}'] + dxtrail <= self.fuse['l_{fuse}'],
                 TCS([dxlead + self.ht['y_{\\bar{c}_{ht}}']*self.ht['\\tan(\\Lambda_{ht})'] + 0.25*self.ht['\\bar{c}_{ht}'] >= self.ht['l_{ht}']],
                     reltol=1e-2), # [SP]
 
@@ -846,8 +847,8 @@ class HorizontalTailPerformance(Model):
 
                 # K_f as f(wing position) -- (fitted posynomial)
                 # from from UMich AE-481 course notes Table 9.1
-                self.wing['x_w'] >= xcg + dxw,
-                self.wing['x_w'] <= xcg + dxlead,
+                self.wing['x_w'] >= self.fuseP['x_{CG}'] + dxw,
+                self.wing['x_w'] <= self.fuseP['x_{CG}'] + dxlead,
 
                 # Loss of tail effectiveness due to wing downwash
                 CLah + (2*self.wingP['C_{L_{aw}}']/(pi*self.wing['AR']))*etaht*CLah0 <= CLah0*etaht,
@@ -866,7 +867,7 @@ class HorizontalTailPerformance(Model):
                             + 0.198*(self.ht['\\tau_h'])**0.00774*(Rec)**0.00168,
                 Rec == state['\\rho']*state['V']*self.ht['\\bar{c}_{ht}']/state['\\mu'],
 
-                self.ht['x_{CG_{ht}}'] >= xcg+(dxlead+dxtrail)/2,
+                self.ht['x_{CG_{ht}}'] >= self.fuseP['x_{CG}'] +(dxlead+dxtrail)/2,
                 self.ht['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
 
                 #fix later
@@ -874,7 +875,6 @@ class HorizontalTailPerformance(Model):
                 Cmac == .1,
                 etaht == .9,
                 eta == .97,
-                xcg == [16.5, 17.5] * units('m'),
                 ])
 
         Model.__init__(self, None, constraints)
@@ -986,7 +986,7 @@ class WingBox(Model):
                        Wstruct >= (1 + fwadd)*(Wweb + Wcap),
                        ]
         
-        Model.__init__(self, objective, constraints, **kwargs)
+        Model.__init__(self, None, constraints, **kwargs)
 
 if __name__ == '__main__':
     substitutions = {      

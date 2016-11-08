@@ -568,7 +568,7 @@ class WingNoStruct(Model):
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
         w       = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
-        #xw     = Variable('x_w', 'm', 'Position of wing aerodynamic center')
+        xw     = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{\\bar{c}_w}', 'm',
                            'Spanwise location of mean aerodynamic chord')
 
@@ -623,6 +623,7 @@ class WingNoStruct(Model):
                 tanL == tanL,
                 eta == eta,
                 amax == amax,
+                 xw == xw,
                 ])
 
         Model.__init__(self, None, constraints)

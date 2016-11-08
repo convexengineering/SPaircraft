@@ -71,7 +71,7 @@ class AircraftP(Model):
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
         self.engineP = aircraft.engine.dynamic(state)
-        self.VTP = aircraft.VT.dynamic(state)
+        self.VTP = aircraft.VT.dynamic(aircraft.fuse, self.fuseP, state)
 
         self.Pmodels = [self.wingP, self.fuseP, self.engineP, self.VTP]
 
@@ -466,7 +466,6 @@ class Fuselage(Model):
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
 
         lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
-        xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
 
         constraints = []
         
@@ -481,7 +480,7 @@ class Fuselage(Model):
             W_e == .75*W_payload,
 
             lfuse == lfuse,
-            xCG == xCG,
+            
             ])
 
         Model.__init__(self, None, constraints)
@@ -500,7 +499,7 @@ class FuselagePerformance(Model):
         #new variables
         Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
         Dfuse = Variable('D_{fuse}', 'N', 'Total Fuselage Drag')
-        
+        xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
         #constraints
         constraints = []
 
@@ -508,6 +507,8 @@ class FuselagePerformance(Model):
             Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
 
             Cdfuse == .005,
+
+            xCG == 18*units('m'),
             ])
 
         Model.__init__(self, None, constraints)
@@ -656,11 +657,11 @@ class VerticalTail(Model):
 
         Model.__init__(self, None, self.vtns + self.wb)
 
-    def dynamic(self, state):
+    def dynamic(self, fuse, fuseP, state):
         """"
         creates a horizontal tail performance model
         """
-        return VerticalTailPerformance(self, state)
+        return VerticalTailPerformance(self, fuse, fuseP, state)
 
 class VerticalTailNoStruct(Model):
     """
@@ -754,7 +755,7 @@ class VerticalTailNoStruct(Model):
                 TCS([dxtrail >= croot + dxlead]),
                 # Tail geometry constraint
 
-                self.fuse['l_{fuse}'] >= dxtrail + self.fuse['x_{CG}'],
+                
                 # Fuselage length constrains the tail trailing edge
 
                 TCS([p >= 1 + 2*taper]),
@@ -771,10 +772,12 @@ class VerticalTailNoStruct(Model):
                 # TODO: Constrain taper by tip Reynolds number
                 # source: b737.org.uk
 
-                xCGvt >= self.fuse['x_{CG}']+(dxlead+dxtrail)/2,
+                
                 xCGvt <= self.fuse['l_{fuse}'],
 
                 tau == tau,
+                dxlead == dxlead,
+                dxtrail == dxtrail,
                 ])
 
         Model.__init__(self, None, constraints)
@@ -783,7 +786,9 @@ class VerticalTailPerformance(Model):
     """
     Vertical tail perofrmance model
     """
-    def __init__(self, vt, state):
+    def __init__(self, vt, fuse, fuseP, state):
+        self.fuse = fuse
+        self.fuseP = fuseP
         self.vt = vt
 
         #define new variables
@@ -794,7 +799,6 @@ class VerticalTailPerformance(Model):
         Dvt    = Variable('D_{vt}', 'N', 'Vertical tail viscous drag, cruise')
         Rec    = Variable('Re_{vt}', '-', 'Vertical tail reynolds number, cruise')
         Vinf   = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
-        xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
         CDvis  = Variable('C_{D_{vis}}', '-', 'Viscous drag coefficient')
 
         #constraints
@@ -821,6 +825,9 @@ class VerticalTailPerformance(Model):
 
             Rec == state.atm['\\rho']*state['V']*self.vt['\\bar{c}_{vt}']/state.atm['\\mu'],
             # Cruise Reynolds number
+
+            self.fuse['l_{fuse}'] >= self.vt['\\Delta x_{lead_v}'] + self.fuseP['x_{CG}'],
+            self.vt['x_{CG_{vt}}'] >= self.fuseP['x_{CG}']+(self.vt['\\Delta x_{lead_v}']+self.vt['\\Delta x_{trail_v}'])/2,
             ])
 
         Model.__init__(self, None, constraints)
@@ -945,7 +952,7 @@ if __name__ == '__main__':
            'A_2': np.pi*(.5*1.75)**2, # [1]
            'e_v': 0.8,
            'l_{fuse}': 39,
-           'x_{CG}': 18,
+##           'x_{CG}': 18,
            'y_{eng}': 4.83, # [3]
             }
            
@@ -978,7 +985,7 @@ if __name__ == '__main__':
            'A_2': np.pi*(.5*1.75)**2, # [1]
            'e_v': 0.8,
            'l_{fuse}': 39,
-           'x_{CG}': 18,
+##           'x_{CG}': 18,
            'y_{eng}': 4.83, # [3]
             }
            
@@ -1034,7 +1041,7 @@ if __name__ == '__main__':
            'A_2': np.pi*(.5*1.75)**2, # [1]
            'e_v': 0.8,
            'l_{fuse}': 39,
-           'x_{CG}': 18,
+##           'x_{CG}': 18,
            'y_{eng}': 4.83, # [3]
             }
            
