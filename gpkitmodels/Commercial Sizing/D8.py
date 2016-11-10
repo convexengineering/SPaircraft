@@ -16,7 +16,9 @@ from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 from VT_simple_profile import VerticalTail, VerticalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Fuselage, FuselagePerformance, Engine, EnginePerformance
-from HT_Simple_Profile_Performance import HorizontalTail, HorizontalTailPerformance
+#from D8_integration import Engine, EnginePerformance
+#from CFP_Fuselage_Performance import Fuselage, FuselagePerformance
+#from HT_Simple_Profile_Performance import HorizontalTail, HorizontalTailPerformance
 
 #set up models
 class D8(Model):
@@ -27,7 +29,7 @@ class D8(Model):
         self.wing = Wing()
         self.engine = Engine()
         self.VT = VerticalTail(self.fuse, self.engine)
-        self.HT = HorizontalTail(self.fuse, self.wing)
+        #self.HT = HorizontalTail(self.fuse, self.wing)
 
         #variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
@@ -38,7 +40,7 @@ class D8(Model):
             numeng == numeng, #need numeng in the model
             ])
 
-        self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
+        self.components = [self.fuse, self.wing, self.engine, self.VT]#, self.HT]
 
         Model.__init__(self, None, [self.components + constraints], **kwargs)
         
@@ -66,9 +68,9 @@ class D8P(Model):
         self.fuseP = aircraft.fuse.dynamic(state)
         self.engineP = aircraft.engine.dynamic(state)
         self.VTP = aircraft.VT.dynamic(aircraft.fuse, self.fuseP, state)
-        self.HTP = aircraft.HT.dynamic(self.aircraft.fuse, self.aircraft.wing, self.fuseP, self.wingP, state)
+        #self.HTP = aircraft.HT.dynamic(self.aircraft.fuse, self.aircraft.wing, self.fuseP, self.wingP, state)
 
-        self.Pmodels = [self.wingP, self.fuseP, self.engineP, self.VTP, self.HTP]
+        self.Pmodels = [self.wingP, self.fuseP, self.engineP, self.VTP]#, self.HTP]
 
         #variable definitions
         Vstall = Variable('V_{stall}', 'knots', 'Aircraft Stall Speed')
@@ -94,7 +96,7 @@ class D8P(Model):
             WLoadmax == 6664 * units('N/m^2'),
 
             #compute the drag
-            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}']]),
+            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}']]), #+ self.HTP['D_{ht}']
 
             #constraint CL and compute the wing loading
             W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,      
@@ -251,7 +253,7 @@ class Mission(Model):
 
         constraints.extend([
             #weight constraints
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac.wing['W_{struct}'] + ac.VT['W_{struct}'] + ac.HT['W_{struct}']<= W_dry]),
+            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac.wing['W_{struct}'] + ac.VT['W_{struct}']<= W_dry]), # + ac.HT['W_{struct}']
             
             TCS([W_dry + W_ftotal <= W_total]),
 
@@ -381,18 +383,18 @@ if __name__ == '__main__':
             '\\rho_{fuel}': 817, # Kerosene [TASOPT]
             '\\tan(\\Lambda)': tan(wing_sweep*pi/180),
 
-            #HT subs
-             'S.M._{min}': 0.05,
-##             'V_{ne}': 144,
-             'C_{L_{hmax}}': 2.5,
+#             #HT subs
+#              'S.M._{min}': 0.05,
+# ##             'V_{ne}': 144,
+#              'C_{L_{hmax}}': 2.5,
 
-             '\\alpha_{max,h}': .3,#0.1, # (6 deg)
+             # '\\alpha_{max,h}': .3,#0.1, # (6 deg)
 ##             '\\bar{c}_w': 5,
 ##             '\\rho_0': 1.225,
-             '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+             # '\\tan(\\Lambda_{ht})': tan(30*pi/180),
 ##             'w_{fuse}': 6,
             }
            
     m = Mission(ac, substitutions)
-    # sol = m.localsolve(solver='mosek', verbosity = 2)
-    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=2, iteration_limit=100)
+    sol = m.localsolve(solver='mosek', verbosity = 2)
+    # bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=2, iteration_limit=100)
