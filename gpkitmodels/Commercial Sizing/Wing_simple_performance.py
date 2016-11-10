@@ -189,13 +189,6 @@ class CruiseP(Model):
                   te_exp_minus1(z_bre, nterm=3)]),
 
              #breguet range eqn
-             # old version -- possibly unneeded numeng
- #            TCS([z_bre >= (self.aircraft['numeng'] * self.engineP['TSFC'] * self.aircraftP['thr']*
- #                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
-
-            # new version -- needs to be thought through carefully
-             # seems correct to me - I switched T to D below (steady level flight) but fogot
-             #about the Negn term
              TCS([z_bre >= (self.engineP['TSFC'] * self.aircraftP['thr']*
                             self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
 
@@ -303,9 +296,6 @@ class Atmosphere(Model):
         T_s = Variable('T_s', 110.4, "K", "Sutherland Temperature")
         C_1 = Variable('C_1', 1.458E-6, "kg/(m*s*K^0.5)",
                        'Sutherland coefficient')
-        
-##        t_plus_ts_approx = (T_atm + T_s).mono_approximation({T_atm: 288.15,
-##                                                         T_s: T_s.value})
 
         with SignomialsEnabled():
             constraints = [
@@ -320,7 +310,6 @@ class Atmosphere(Model):
 
                 #constraint on mu
                 SignomialEquality((T_atm + T_s) * mu, C_1 * T_atm**1.5),
-##                TCS([(T_atm + T_s) * mu >= C_1 * T_atm**1.5])
                 ]
 
         #like to use a local subs here in the future
@@ -800,13 +789,12 @@ if __name__ == '__main__':
             }
            
     m = Mission(substitutions)
-    sol = m.localsolve(solver='mosek', verbosity = 4)
-##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+##    sol = m.localsolve(solver='mosek', verbosity = 4)
 
     substitutions = {      
 ##            'V_{stall}': 120,
-            'ReqRng': ('sweep', np.linspace(500,3000,8)),
-            'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
+            'ReqRng': ('sweep', np.linspace(500,3000,30)),
+            'CruiseAlt': 30000,
             'numeng': 1,
 ##            'W_{Load_max}': 6664,
             'W_{pax}': 91 * 9.81,
@@ -832,29 +820,68 @@ if __name__ == '__main__':
     plt.xlabel('Mission Range [nm]')
     plt.ylabel('Wing Weight [N]')
     plt.title('Wing Weight vs Range')
+    plt.savefig('Wing_Sweeps/wing_rng_Wstruct.pdf')
     plt.show()
 
     plt.plot(solRsweep('ReqRng'), solRsweep('AR'), '-r')
     plt.xlabel('Mission Range [nm]')
     plt.ylabel('Wing Aspect Ratio')
     plt.title('Wing Aspect Ratio vs Range')
+    plt.savefig('Wing_Sweeps/wing_rng_AR.pdf')
     plt.show()
 
     plt.plot(solRsweep('ReqRng'), solRsweep('S'), '-r')
     plt.xlabel('Mission Range [nm]')
     plt.ylabel('VWing Area [m$^2$]')
     plt.title('Wing Area vs Range')
+    plt.savefig('Wing_Sweeps/wing_rng_S.pdf')
     plt.show()
 
     plt.plot(solRsweep('ReqRng'), solRsweep('b'), '-r')
     plt.xlabel('Mission Range [nm]')
     plt.ylabel('VWing Span [m]')
     plt.title('Wing Span vs Range')
+    plt.savefig('Wing_Sweeps/wing_rng_b.pdf')
+    plt.show()
+
+    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['V_{ne}'], '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Sensitivity of $V_{ne}$')
+    plt.title('Sensitivity of $V_{ne}$ vs Range')
+    plt.savefig('Wing_Sweeps/wing_rng_SensVne.pdf')
+    plt.show()
+
+    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['N_{lift}'], '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Sensitivity to Seciontal Lift Multiplier')
+    plt.title('Sensitivity to Seciontal Lift Multiplier vs Range')
+    plt.savefig('Wing_Sweeps/wing_rng_Nlift.pdf')
+    plt.show()
+
+    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['C_{L_{wmax}}'], '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Sensitivity to Wing $C_{L_{max}}$')
+    plt.title('Sensitivity to Wing $C_{L_{max}}$ vs Range')
+    plt.savefig('Wing_Sweeps/wing_rng_SensClMax.pdf')
+    plt.show()
+
+    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['ReqRng'], '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Sensitivity to Required Range')
+    plt.title('Sensitivity to Required Range vs Range')
+    plt.savefig('Wing_Sweeps/wing_rng_SensRng.pdf')
+    plt.show()
+
+    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['CruiseAlt'], '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Sensitivity to Cruise Altitude')
+    plt.title('Sensitivity to Cruise Altitude vs Range')
+    plt.savefig('Wing_Sweeps/wing_rng_SensAlt.pdf')
     plt.show()
 
     substitutions = {      
 ##            'V_{stall}': 120,
-            'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
+            'ReqRng': 500,
             'CruiseAlt': ('sweep', np.linspace(20000,40000,8)),
             'numeng': 1,
 ##            'W_{Load_max}': 6664,
@@ -881,23 +908,61 @@ if __name__ == '__main__':
     plt.xlabel('Cruise Altitude [ft]')
     plt.ylabel('Wing Weight [N]')
     plt.title('Wing Weight vs Cruise Altitude')
+    plt.savefig('Wing_Sweeps/wing_alt_Wstruct.pdf')
     plt.show()
 
     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('AR'), '-r')
     plt.xlabel('Cruise Altitude [ft]')
     plt.ylabel('Wing Aspect Ratio')
     plt.title('Wing Aspect Ratio vs Cruise Altitude')
+    plt.savefig('Wing_Sweeps/wing_alt_AR.pdf')
     plt.show()
 
     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('S'), '-r')
     plt.xlabel('Cruise Altitude [ft]')
     plt.ylabel('Wing Area [m$^2$]')
     plt.title('Wing Area vs Cruise Altitude')
+    plt.savefig('Wing_Sweeps/wing_alt_S.pdf')
     plt.show()
 
     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('b'), '-r')
     plt.xlabel('Cruise Altitude [ft]')
     plt.ylabel('Wing Span [m]')
     plt.title('Wing Span vs Cruise Altitude')
+    plt.savefig('Wing_Sweeps/wing_alt_b.pdf')
     plt.show()
 
+    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['V_{ne}'], '-r')
+    plt.xlabel('Cruise Altitude [ft]')
+    plt.ylabel('Sensitivity of $V_{ne}$')
+    plt.title('Sensitivity of $V_{ne}$ vs Cruise Altitude')
+    plt.savefig('Wing_Sweeps/wing_alt_SensNve.pdf')
+    plt.show()
+
+    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['N_{lift}'], '-r')
+    plt.xlabel('Cruise Altitude [ft]')
+    plt.ylabel('Sensitivity to Seciontal Lift Multiplier')
+    plt.title('Sensitivity to Seciontal Lift Multiplier vs Cruise Altitude')
+    plt.savefig('Wing_Sweeps/wing_alt_SensNLift.pdf')
+    plt.show()
+
+    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['C_{L_{wmax}}'], '-r')
+    plt.xlabel('Cruise Altitude [ft]')
+    plt.ylabel('Sensitivity to Wing $C_{L_{max}}$')
+    plt.title('Sensitivity to Wing $C_{L_{max}}$ vs Cruise Altitude')
+    plt.savefig('Wing_Sweeps/wing_alt_SensClMax.pdf')
+    plt.show()
+
+    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['ReqRng'], '-r')
+    plt.xlabel('Cruise Altitude [ft]')
+    plt.ylabel('Sensitivity to Required Range')
+    plt.title('Sensitivity to Required Range vs Cruise Altitude')
+    plt.savefig('Wing_Sweeps/wing_alt_SensRng.pdf')
+    plt.show()
+
+    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['CruiseAlt'], '-r')
+    plt.xlabel('Cruise Altitude [ft]')
+    plt.ylabel('Sensitivity to Cruise Altitude')
+    plt.title('Sensitivity to Cruise Altitude vs Cruise Altitude')
+    plt.savefig('Wing_Sweeps/wing_alt_SensAlt.pdf')
+    plt.show()

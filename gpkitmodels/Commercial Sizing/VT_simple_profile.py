@@ -6,8 +6,6 @@ from gpkit.constraints.sigeq import SignomialEqualityConstraint as SignomialEqua
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
 import matplotlib.pyplot as plt
-#only needed for the local bounded debugging tool
-from collections import defaultdict
 from gpkit.small_scripts import mag
 
 """
@@ -192,13 +190,6 @@ class CruiseP(Model):
                   te_exp_minus1(z_bre, nterm=3)]),
 
              #breguet range eqn
-             # old version -- possibly unneeded numeng
- #            TCS([z_bre >= (self.aircraft['numeng'] * self.engineP['TSFC'] * self.aircraftP['thr']*
- #                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
-
-            # new version -- needs to be thought through carefully
-             # seems correct to me - I switched T to D below (steady level flight) but fogot
-             #about the Negn term
              TCS([z_bre >= (self.engineP['TSFC'] * self.aircraftP['thr']*
                             self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
 
@@ -306,9 +297,6 @@ class Atmosphere(Model):
         T_s = Variable('T_s', 110.4, "K", "Sutherland Temperature")
         C_1 = Variable('C_1', 1.458E-6, "kg/(m*s*K^0.5)",
                        'Sutherland coefficient')
-        
-##        t_plus_ts_approx = (T_atm + T_s).mono_approximation({T_atm: 288.15,
-##                                                         T_s: T_s.value})
 
         with SignomialsEnabled():
             constraints = [
@@ -323,13 +311,12 @@ class Atmosphere(Model):
 
                 #constraint on mu
                 SignomialEquality((T_atm + T_s) * mu, C_1 * T_atm**1.5),
-##                TCS([(T_atm + T_s) * mu >= C_1 * T_atm**1.5])
                 ]
 
         #like to use a local subs here in the future
-        subs = None
+        substitutions = None
 
-        Model.__init__(self, None, constraints, subs)
+        Model.__init__(self, None, constraints, substitutions)
 
 class Engine(Model):
     """
@@ -512,7 +499,6 @@ class FuselagePerformance(Model):
             ])
 
         Model.__init__(self, None, constraints)
-    
 
 class Mission(Model):
     """
@@ -596,44 +582,6 @@ class Mission(Model):
         
         # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + cls + crs, subs)
         Model.__init__(self, W_ftotal, constraints + ac + cls + crs, subs)
-
-    def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
-        "Returns model with additional constraints bounding all free variables"
-        lb = lower if lower else eps
-        ub = upper if upper else 1/eps
-        constraints = []
-        freevks = tuple(vk for vk in model.varkeys if "value" not in vk.descr)
-        for varkey in freevks:
-            units = varkey.descr.get("units", 1)
-            constraints.append([ub*units >= Variable(**varkey.descr),
-                                Variable(**varkey.descr) >= lb*units])
-        m = Model(model.cost, [constraints, model], model.substitutions)
-        m.bound_all = {"lb": lb, "ub": ub, "varkeys": freevks}
-        return m
-
-    # pylint: disable=too-many-locals
-    def determine_unbounded_variables(self, model, solver=None, verbosity=0,
-                                      eps=1e-30, lower=None, upper=None, **kwargs):
-        "Returns labeled dictionary of unbounded variables."
-        m = self.bound_all_variables(model, eps, lower, upper)
-        sol = m.localsolve(solver, verbosity, **kwargs)
-        solhold = sol
-        lam = sol["sensitivities"]["la"][1:]
-        out = defaultdict(list)
-        for i, varkey in enumerate(m.bound_all["varkeys"]):
-            lam_gt, lam_lt = lam[2*i], lam[2*i+1]
-            if abs(lam_gt) >= 1e-7:  # arbitrary threshold
-                out["sensitive to upper bound"].append(varkey)
-            if abs(lam_lt) >= 1e-7:  # arbitrary threshold
-                out["sensitive to lower bound"].append(varkey)
-            value = mag(sol["variables"][varkey])
-            distance_below = np.log(value/m.bound_all["lb"])
-            distance_above = np.log(m.bound_all["ub"]/value)
-            if distance_below <= 3:  # arbitrary threshold
-                out["value near lower bound"].append(varkey)
-            elif distance_above <= 3:  # arbitrary threshold
-                out["value near upper bound"].append(varkey)
-        return out, solhold
 
 class VerticalTail(Model):
     """
@@ -809,7 +757,6 @@ class VerticalTailPerformance(Model):
                     
 ##            TCS([CLvt*(1 + clvt/(np.pi*self.vt['e_v']*self.vt['A_{vt}'])) <= clvt]),
 
-            
             # Finite wing theory
             # people.clarkson.edu/~pmarzocc/AE429/AE-429-4.pdf
             # Valid because tail is untwisted and uncambered
@@ -928,9 +875,8 @@ class WingBox(Model):
 
 if __name__ == '__main__':
     substitutions = {      
-##            'V_{stall}': 120,
             'ReqRng': 500,
-            'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
+            'CruiseAlt': 30000,
             'numeng': 2,
 ##            'W_{Load_max}': 6664,
             'W_{pax}': 91 * 9.81,
@@ -957,8 +903,7 @@ if __name__ == '__main__':
             }
            
     m = Mission(substitutions)
-    sol = m.localsolve(solver='mosek', verbosity = 4)
-##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+##    sol = m.localsolve(solver='mosek', verbosity = 4)
 
     substitutions = {      
 ##            'V_{stall}': 120,
@@ -992,34 +937,91 @@ if __name__ == '__main__':
     m = Mission(substitutions)
     solRsweep = m.localsolve(solver='mosek', verbosity = 4)
 
+    RC = []
+
+    for i in range(len(solRsweep('ReqRng'))):
+        RC.append(mag(solRsweep('RC')[i][0]))
+
+    plt.plot(solRsweep('ReqRng'), RC, '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Initial  Rate of Climb [ft/min]')
+    plt.title('Initial Rate of Climb vs Range')
+    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
+    plt.show()
+
+    plt.plot(solRsweep('ReqRng'), solRsweep('L_{vtEO}'), '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('VT Lift and Takeoff ENgine Out [N]')
+    plt.title('Initial Climb Thrust vs Range')
+    plt.savefig('HT_Sweeps/VT_rng_LVTTO.pdf')
+    plt.show()
+
+    plt.plot(solRsweep('ReqRng'), solRsweep('L_{v_{max}}'), '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Max VT Lift Force [N]')
+    plt.title('Initial Climb Thrust vs Range')
+    plt.savefig('HT_Sweeps/VT_rng_LVmax.pdf')
+    plt.show()
+
     plt.plot(solRsweep('ReqRng'), solRsweep('T_e'), '-r')
     plt.xlabel('Mission Range [nm]')
     plt.ylabel('Initial  Climb Thrust [N]')
     plt.title('Initial Climb Thrust vs Range')
+    plt.savefig('HT_Sweeps/VT_rng_TTO.pdf')
     plt.show()
 
     plt.plot(solRsweep('ReqRng'), solRsweep('W_{struct}'), '-r')
     plt.xlabel('Mission Range [nm]')
     plt.ylabel('Vertical Tail Weight [N]')
     plt.title('Vertical Tail Weight vs Range')
+    plt.savefig('HT_Sweeps/VT_rng_VTweight.pdf')
     plt.show()
 
     plt.plot(solRsweep('ReqRng'), solRsweep('A_{vt}'), '-r')
     plt.xlabel('Mission Range [nm]')
     plt.ylabel('Vertical Tail Aspect Ratio')
     plt.title('Vertical Tail Aspect Ratio vs Range')
+    plt.savefig('HT_Sweeps/VT_rng_VTAR.pdf')
     plt.show()
 
     plt.plot(solRsweep('ReqRng'), solRsweep('S_{vt}'), '-r')
     plt.xlabel('Mission Range [nm]')
     plt.ylabel('Vertical Tail Area [m$^2$]')
     plt.title('Vertical Tail Area vs Range')
+    plt.savefig('HT_Sweeps/VT_rng_SVT.pdf')
+    plt.show()
+
+    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['ReqRng'], '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Sensitivity of Mission Range')
+    plt.title('Sensitivity to Range vs Range')
+    plt.savefig('HT_Sweeps/VT_rng_RngSens.pdf')
+    plt.show()
+
+    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['CruiseAlt'], '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Sensitivity of Cruise Altitude')
+    plt.title('Sensitivity to Cruise Altitude vs Range')
+    plt.savefig('HT_Sweeps/VT_rng_AltSens.pdf')
+    plt.show()
+    
+    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['b_{max}'], '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Sensitivity of Max Wing Span')
+    plt.title('Sensitivity of Max Wing Span vs Range')
+    plt.savefig('HT_Sweeps/VT_rng_bMaxSens.pdf')
+    plt.show()
+
+    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['W_{pax}'], '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Sensitivity of Passenger Weight')
+    plt.title('Sensitivity of Passegner Weight vs Range')
+    plt.savefig('HT_Sweeps/VT_rng_WPaxSens.pdf')
     plt.show()
 
     substitutions = {      
-##            'V_{stall}': 120,
             'ReqRng': 2000,
-            'CruiseAlt': ('sweep', np.linspace(20000,40000,4)),
+            'CruiseAlt': ('sweep', np.linspace(20000,40000,8)),
             'numeng': 2,
 ##            'W_{Load_max}': 6664,
             'W_{pax}': 91 * 9.81,
@@ -1048,26 +1050,84 @@ if __name__ == '__main__':
     m = Mission(substitutions)
     solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
 
+    RC = []
+
+    for i in range(len(solAltsweep('CruiseAlt'))):
+        RC.append(mag(solAltsweep('RC')[i][0]))
+
+    plt.plot(solAltsweep('CruiseAlt'), RC, '-r')
+    plt.xlabel('Mission Range [nm]')
+    plt.ylabel('Initial  Rate of Climb [ft/min]')
+    plt.title('Initial Rate of Climb vs Range')
+    plt.savefig('HT_Sweeps/VT_alt_RC.pdf')
+    plt.show()
+
+    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('L_{vtEO}'), '-r')
+    plt.xlabel('Cruise Alt [ft]')
+    plt.ylabel('Initial  Climb Thrust [N]')
+    plt.title('Initial Climb Thrust vs Range')
+    plt.savefig('HT_Sweeps/VT_alt_LvEOmax.pdf')
+    plt.show()
+
+    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('L_{v_{max}}'), '-r')
+    plt.xlabel('Cruise Alt [ft]')
+    plt.ylabel('Initial  Climb Thrust [N]')
+    plt.title('Initial Climb Thrust vs Range')
+    plt.savefig('HT_Sweeps/VT_alt_Lvmax.pdf')
+    plt.show()
+
     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('T_e'), '-r')
     plt.xlabel('Cruise Altitude [ft]')
     plt.ylabel('Initial  Climb Thrust [N]')
     plt.title('Initial Climb Thrust vs Cruise Altitude')
+    plt.savefig('HT_Sweeps/VT_alt_TTO.pdf')
     plt.show()
 
     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('W_{struct}'), '-r')
     plt.xlabel('Cruise Altitude [ft]')
     plt.ylabel('Vertical Tail Weight [N]')
     plt.title('Vertical Tail Weight vs Cruise Altitude')
+    plt.savefig('HT_Sweeps/VT_alt_VTweight.pdf')
     plt.show()
 
     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('A_{vt}'), '-r')
     plt.xlabel('Cruise Altitude [ft]')
     plt.ylabel('Vertical Tail Aspect Ratio')
     plt.title('Vertical Tail Aspect Ratio vs Cruise Altitude')
+    plt.savefig('HT_Sweeps/VT_alt_VTAR.pdf')
     plt.show()
 
     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('S_{vt}'), '-r')
     plt.xlabel('Cruise Altitude [ft]')
     plt.ylabel('Vertical Tail Area [m$^2$]')
     plt.title('Vertical Tail Area vs Cruise Altitude')
+    plt.savefig('HT_Sweeps/VT_alt_VTarea.pdf')
+    plt.show()
+
+    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['ReqRng'], '-r')
+    plt.xlabel('Cruise Altitude [ft]')
+    plt.ylabel('Sensitivity of Mission Range')
+    plt.title('Sensitivity to Range vs Cruise Altitude')
+    plt.savefig('HT_Sweeps/VT_alt_RngSens.pdf')
+    plt.show()
+
+    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['CruiseAlt'], '-r')
+    plt.xlabel('Cruise Altitude [ft]')
+    plt.ylabel('Sensitivity of Cruise Altitude')
+    plt.title('Sensitivity to Cruise Alt vs Cruise Alt')
+    plt.savefig('HT_Sweeps/VT_alt_AltSens.pdf')
+    plt.show()
+
+    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['W_{pax}'], '-r')
+    plt.xlabel('Cruise Altitude [ft]')
+    plt.ylabel('Sensitivity of Mission Range')
+    plt.title('Sensitivity to Passenger Weight vs Cruise Altitude')
+    plt.savefig('HT_Sweeps/VT_alt_WPaxSens.pdf')
+    plt.show()
+
+    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['b_{max}'], '-r')
+    plt.xlabel('Cruise Altitude [ft]')
+    plt.ylabel('Sensitivity of Max Wing Span')
+    plt.title('Sensitivity to Max Wing Span vs Cruise Alt')
+    plt.savefig('HT_Sweeps/VT_alt_bMaxSens.pdf')
     plt.show()

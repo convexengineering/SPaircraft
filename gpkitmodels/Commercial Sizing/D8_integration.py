@@ -71,7 +71,7 @@ class Fuselage(Model):
         wfuse   = Variable('w_{fuse}', 6, 'm', 'Fuselage width')
 
         constraints = []
-        
+
         constraints.extend([
             #compute fuselage area for drag approximation
             A_fuse == pax_area * n_pax,
