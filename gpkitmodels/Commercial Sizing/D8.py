@@ -394,5 +394,5 @@ if __name__ == '__main__':
             }
            
     m = Mission(ac, substitutions)
-##    sol = m.localsolve(solver='mosek', verbosity = 4)
-    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+    # sol = m.localsolve(solver='mosek', verbosity = 2)
+    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=2, iteration_limit=100)

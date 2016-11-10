@@ -478,7 +478,7 @@ class Fuselage(Model):
         self.wingbox = WingBox()
         #new variables
         dPover       = Variable('\\delta_P_{over}','psi','Cabin overpressure')
-        npass        = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
+        npax        = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland        = Variable('N_{land}',6.0,'-', 'Emergency landing load factor') #[TAS]
         VNE          = Variable('V_{NE}','m/s','Never-exceed speed') #[Philippe]
         SPR          = Variable('SPR', '-', 'Number of seats per row')
@@ -547,9 +547,9 @@ class Fuselage(Model):
         taufloor     = Variable('\\tau_{floor}',30000/0.000145, 'N/m^2', 'Max allowable shear web stress') #[TAS]
 
         # Bending inertias (ported from TASOPT)
-        A0           = Variable('A0','m^2','Horizontal bending area constant A0') #(shell inertia contribution)
-        A1           = Variable('A1','m','Horizontal bending area constant A1') #(tail impact + aero loading)
-        A2           = Variable('A2','-','Horizontal bending area constant A2') #(fuselage impact)
+        A0h           = Variable('A0h','m^2','Horizontal bending area constant A0h') #(shell inertia contribution)
+        A1h           = Variable('A1h','m','Horizontal bending area constant A1h') #(tail impact + aero loading)
+        A2h           = Variable('A2h','-','Horizontal bending area constant A2h') #(fuselage impact)
         Ahbendb      = Variable('A_{hbendb}','m^2','Horizontal bending area at rear wingbox')
         Ahbendf      = Variable('A_{hbendf}','m^2','Horizontal bending area at front wingbox')
         Avbendb      = Variable('A_{vbendb}','m^2','Vertical bending material area at rear wingbox')
@@ -610,8 +610,8 @@ class Fuselage(Model):
         Winsul       = Variable('W_{insul}', 'lbf', 'Insulation material weight')
         Wlugg        = Variable('W_{lugg}', 'N', 'Passenger luggage weight')
         Wpadd        = Variable('W_{padd}', 'lbf', 'Misc weights (galley, toilets, doors etc.)')
-        Wpass        = Variable('W_{pass}', 'N', 'Passenger weight')
-        Wpay         = Variable('W_{pay}', 'N', 'Payload weight')
+        Wpax        = Variable('W_{pass}', 'N', 'Passenger weight')
+        Wpay         = Variable('W_{payload}', 'N', 'Payload weight')
         Wseat        = Variable('W_{seat}', 'lbf', 'Seating weight')
         Wshell       = Variable('W_{shell}','N','Shell weight')
         Wskin        = Variable('W_{skin}', 'N', 'Skin weight')
@@ -630,10 +630,10 @@ class Fuselage(Model):
                 VNE == VNE,
 
                 # Passenger constraints
-                Wlugg    >= flugg2*npass*2*Wchecked + flugg1*npass*Wchecked + Wcarryon,
-                Wpass    == npass*Wavgpass,
-                Wpay     >= Wpass + Wlugg + Wcargo,
-                nseat    == npass,
+                Wlugg    >= flugg2*npax*2*Wchecked + flugg1*npax*Wchecked + Wcarryon,
+                Wpax    == npax*Wavgpass,
+                Wpay     >= Wpax + Wlugg + Wcargo,
+                nseat    == npax,
                 nrows    == nseat/SPR,
                 lshell   == nrows*pitch,
 
@@ -700,20 +700,20 @@ class Fuselage(Model):
                 # Horizontal bending material model
                 # Calculating xbend, the location where additional bending material is required
                 xhbend   >= self.wingbox['x_{wing}'],
-                SignomialEquality(A0,A2*(xshell2-xhbend)**2 + A1*(xtail-xhbend)), #[SP] #[SPEquality] 
-                A2      >=  Nland*(Wpay+Wshell+Wwindow+Winsul+Wfloor+Wseat)/(2*lshell*hfuse*sigMh), # Landing loads constant A2
-                A1      >= (Nland*Wtail + rMh*self.htail['L_{h_{max}}'])/(hfuse*sigMh),             # Aero loads constant A1
-                A0      == (Ihshell/(rE*hfuse**2)),                                                 # Shell inertia constant A0
-                Ahbendf >= A2*(xshell2-self.wingbox['x_f'])**2 + A1*(xtail-self.wingbox['x_f']) - A0, #[SP]  # Bending area forward of wingbox
-                Ahbendb >= A2*(xshell2-self.wingbox['x_b'])**2 + A1*(xtail-self.wingbox['x_b']) - A0, #[SP]  # Bending area behind wingbox
+                SignomialEquality(A0h,A2h*(xshell2-xhbend)**2 + A1h*(xtail-xhbend)), #[SP] #[SPEquality] 
+                A2h      >=  Nland*(Wpay+Wshell+Wwindow+Winsul+Wfloor+Wseat)/(2*lshell*hfuse*sigMh), # Landing loads constant A2h
+                A1h      >= (Nland*Wtail + rMh*self.htail['L_{h_{max}}'])/(hfuse*sigMh),             # Aero loads constant A1h
+                A0h      == (Ihshell/(rE*hfuse**2)),                                                 # Shell inertia constant A0h
+                Ahbendf >= A2h*(xshell2-self.wingbox['x_f'])**2 + A1h*(xtail-self.wingbox['x_f']) - A0h, #[SP]  # Bending area forward of wingbox
+                Ahbendb >= A2h*(xshell2-self.wingbox['x_b'])**2 + A1h*(xtail-self.wingbox['x_b']) - A0h, #[SP]  # Bending area behind wingbox
 
-                Vhbendf >= A2/3*((xshell2-self.wingbox['x_f'])**3 - (xshell2-xhbend)**3) \
-                            + A1/2*((xtail-self.wingbox['x_f'])**2 - (xtail - xhbend)**2) \
-                            + A0*(xhbend-self.wingbox['x_f']), #[SP]
+                Vhbendf >= A2h/3*((xshell2-self.wingbox['x_f'])**3 - (xshell2-xhbend)**3) \
+                            + A1h/2*((xtail-self.wingbox['x_f'])**2 - (xtail - xhbend)**2) \
+                            + A0h*(xhbend-self.wingbox['x_f']), #[SP]
 
-                Vhbendb >= A2/3*((xshell2-self.wingbox['x_b'])**3 - (xshell2-xhbend)**3) \
-                            + A1/2*((xtail-self.wingbox['x_b'])**2 - (xtail - xhbend)**2) \
-                            + A0*(xhbend-self.wingbox['x_b']), #[SP]
+                Vhbendb >= A2h/3*((xshell2-self.wingbox['x_b'])**3 - (xshell2-xhbend)**3) \
+                            + A1h/2*((xtail-self.wingbox['x_b'])**2 - (xtail - xhbend)**2) \
+                            + A0h*(xhbend-self.wingbox['x_b']), #[SP]
                 Vhbendc >= .5*(Ahbendf + Ahbendb)*self.wingbox['c_0']*self.wingbox['\\bar_w'],
                 Vhbend  >= Vhbendc + Vhbendf + Vhbendb,
                 Whbend  >= g*rhobend*Vhbend,
@@ -738,7 +738,7 @@ class Fuselage(Model):
                 Wapu     == Wpay*fapu,
                 Wdb      == rhoskin*g*Vdb,
                 Winsul   >= Wppinsul*((1.1*pi+2*thetadb)*Rfuse*lshell + 0.55*(Snose+Sbulk)),
-                Wlugg    >= flugg2*npass*2*Wchecked + flugg1*npass*Wchecked + Wcarryon,
+                Wlugg    >= flugg2*npax*2*Wchecked + flugg1*npax*Wchecked + Wcarryon,
                 Wwindow  >= Wpwindow*lshell,
                 Wpadd    == Wpay*fpadd,
                 Wseat    == Wpseat*nseat,
@@ -823,7 +823,7 @@ class Mission(Model):
 
         constraints.extend([
             #weight constraints
-            TCS([ac['W_{fuse}'] + ac['W_{pay}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
+            TCS([ac['W_{fuse}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= W_total]),
 
             cls.climbP.aircraftP['W_{start}'][0] == W_total,
             cls.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
@@ -836,7 +836,7 @@ class Mission(Model):
             cls.climbP.aircraftP['W_{start}'][1:] == cls.climbP.aircraftP['W_{end}'][:-1],
             crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([ac['W_{fuse}'] + ac['W_{pay}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
+            TCS([ac['W_{fuse}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >=  W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
@@ -919,7 +919,7 @@ if __name__ == '__main__':
             'CruiseAlt'                 : 30000, #('sweep', np.linspace(20000,40000,4)),
             'numeng'                    : 2,
             ##            'W_{Load_max}': 6664,
-            'n_{pass}'                  : 150,
+            'n_{pax}'                  : 150,
             'W_{avg. pass}'             : 180,
             'W_{carry on}'              : 15,
             'W_{cargo}'                 : 10000,

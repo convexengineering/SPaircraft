@@ -57,14 +57,14 @@ class Fuselage(Model):
     """
     def __init__(self, **kwargs):
         #new variables
-        n_pax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+        npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
                            
         #weight variables
-        W_payload = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
+        Wpay = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
         W_e = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
-        W_pax = Variable('W_{pax}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
+        Wpax = Variable('W_{pax}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
 
-        A_fuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
+        Afuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
 
         lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
@@ -74,15 +74,15 @@ class Fuselage(Model):
         
         constraints.extend([
             #compute fuselage area for drag approximation
-            A_fuse == pax_area * n_pax,
+            Afuse == pax_area * npax,
 
-            A_fuse == lfuse * wfuse,
+            Afuse == lfuse * wfuse,
             
             #constraints on the various weights
-            W_payload == n_pax * W_pax,
+            Wpay == npax * Wpax,
             
             #estimate based on TASOPT 737 model
-            W_e == .75*W_payload,
+            W_e == .75*Wpay,
             ])
 
         Model.__init__(self, None, constraints)
