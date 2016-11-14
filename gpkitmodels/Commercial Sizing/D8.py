@@ -16,7 +16,7 @@ from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 from VT_simple_profile import VerticalTail, VerticalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Fuselage, Engine, EnginePerformance
-from CFP_Fuselage_Performance import FuselagePerformance
+from CFP_Fuselage_Performance_int import FuselagePerformance
 #from CFP_Fuselage_Performance import Fuselage
 #from D8_integration import Engine, EnginePerformance
 #from CFP_Fuselage_Performance import Fuselage, FuselagePerformance
