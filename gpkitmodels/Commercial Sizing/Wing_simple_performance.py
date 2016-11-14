@@ -789,11 +789,11 @@ if __name__ == '__main__':
             }
            
     m = Mission(substitutions)
-##    sol = m.localsolve(solver='mosek', verbosity = 4)
+    sol = m.localsolve(solver='mosek', verbosity = 4)
 
     substitutions = {      
 ##            'V_{stall}': 120,
-            'ReqRng': ('sweep', np.linspace(500,3000,30)),
+            # 'ReqRng': ('sweep', np.linspace(500,3000,30)),
             'CruiseAlt': 30000,
             'numeng': 1,
 ##            'W_{Load_max}': 6664,

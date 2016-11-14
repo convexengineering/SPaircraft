@@ -53,7 +53,9 @@ class Aircraft(Model):
 
         constraints = []
 
-        constraints.extend([numeng == numeng])
+        constraints.extend([numeng == numeng,
+                            # self.wing['c_{root}'] == self.wingbox['c_0']
+                            ])
 
         self.components = [self.fuse, self.wing, self.engine]
 
@@ -370,6 +372,7 @@ class Wing(Model):
         S        = Variable('S', 'm^2', 'Wing Planform Area')
         span     = Variable('b', 'm', 'Wing Span')
         span_max = Variable('b_{max}', 'm', 'Max Wing Span')
+        croot   = Variable('c_{root}', 'm', 'Wing root chord')
         
         constraints = []
 
@@ -457,14 +460,14 @@ class WingBox(Model):
         xf           = Variable('x_f','m','x-location of front of wingbox')
         xb           = Variable('x_b','m','x-location of back of wingbox')
         c0           = Variable('c_0','m','Root chord of the wing')
-        wbar         = Variable('\\bar_w',0.5,'-','Wingbox to chord ratio') #Temporarily
+        w            = Variable('w',0.5,'-','Wingbox to chord ratio') #Temporarily
         xwing        = Variable('x_{wing}','m', 'x-location of wing')
         dxwing       = Variable('dx_{wing}','m','wing box offset')
         # Setting bending area integration bounds (defining wing box locations)
         with SignomialsEnabled():
-            constraints  = [SignomialEquality(xf,xwing + dxwing + .5*c0*wbar), #[SP] [SPEquality]
-                        SignomialEquality(xb, xwing - dxwing + .5*c0*wbar), #[SP] [SPEquality]
-                        wbar == wbar       
+            constraints  = [SignomialEquality(xf,xwing + dxwing + .5*c0*w), #[SP] [SPEquality]
+                        SignomialEquality(xb, xwing - dxwing + .5*c0*w), #[SP] [SPEquality]
+                        w == w       
                         ];
         Model.__init__(self,None,constraints,**kwargs)
 
@@ -714,7 +717,7 @@ class Fuselage(Model):
                 Vhbendb >= A2h/3*((xshell2-self.wingbox['x_b'])**3 - (xshell2-xhbend)**3) \
                             + A1h/2*((xtail-self.wingbox['x_b'])**2 - (xtail - xhbend)**2) \
                             + A0h*(xhbend-self.wingbox['x_b']), #[SP]
-                Vhbendc >= .5*(Ahbendf + Ahbendb)*self.wingbox['c_0']*self.wingbox['\\bar_w'],
+                Vhbendc >= .5*(Ahbendf + Ahbendb)*self.wingbox['c_0']*self.wingbox['w'],
                 Vhbend  >= Vhbendc + Vhbendf + Vhbendb,
                 Whbend  >= g*rhobend*Vhbend,
 
@@ -745,7 +748,8 @@ class Fuselage(Model):
 
                 Wskin    >= rhoskin*g*(Vcyl + Vnose + Vbulk),
                 Wshell   >= Wskin*(1 + fstring + ffadd + fframe) + Wdb, #+ Whbend, #+ Wvbend,
-                Wfuse       >= Wshell + Wfloor + Wtail + Winsul + Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend
+                Wfuse       >= Wshell + Wfloor + Wtail + Winsul + Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend,
+
                 ])
 
         Model.__init__(self, None, constraints + self.wingbox)
@@ -950,5 +954,5 @@ if __name__ == '__main__':
             }
            
     m = Mission(substitutions)
-    #sol = m.solve(solver='mosek', verbosity = 4)
-    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=2, iteration_limit=100)
+    sol = m.localsolve(solver='mosek', verbosity = 2)
+    # bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=2, iteration_limit=100)
