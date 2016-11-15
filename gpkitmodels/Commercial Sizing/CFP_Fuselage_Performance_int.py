@@ -530,6 +530,8 @@ class Fuselage(Model):
         self.htail = HTail()
         #self.wingbox = WingBox()
         # new variables
+
+        g = 9.81*units('m*s^-2')
         dPover = Variable('\\delta_P_{over}', 'psi', 'Cabin overpressure')
         npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
@@ -657,7 +659,7 @@ class Fuselage(Model):
         #xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
 
         # Material properties
-        rE = Variable('r_E', 1, '-', 'Ratio of stringer/skin moduli')  # [TAS]
+        rE = Variable('r_E', 1., '-', 'Ratio of stringer/skin moduli')  # [TAS]
         # [b757 freight doc]
         rhocargo = Variable('\\rho_{cargo}', 150, 'kg/m^3', 'Cargo density')
         rhocone = Variable('\\rho_{cone}', 'kg/m^3',
@@ -760,11 +762,10 @@ class Fuselage(Model):
                 Askin >= (2 * pi + 4 * thetadb) * Rfuse * \
                 tskin + Adb,  # no delta R for now
                 wfloor == .5 * wfuse,
-                wfuse >= SPR * wseat + 2 * waisle + 2 * wsys + tdb,
+                TCS([wfuse >= SPR * wseat + 2 * waisle + 2 * wsys + tdb]),
                 wfuse <= 2 * (Rfuse + wdb),
                 hfuse == Rfuse,
-                SignomialEquality(
-                    tshell, tskin * (1 + rE * fstring * rhoskin / rhobend)),
+                TCS([tshell <= tskin * (1. + rE * fstring * rhoskin / rhobend)]), #[SP]
 
                 # Fuselage surface area relations
                 Snose >= (2 * pi + 4 * thetadb) * Rfuse**2 * \
@@ -773,16 +774,11 @@ class Fuselage(Model):
 
                 # Fuselage length relations
                 # SigEqs here will disappear when drag model is integrated
-                SignomialEquality(lfuse, lnose + lshell + \
-                                  lcone),  # [SP] #[SPEquality]
+                TCS([lfuse >= lnose + lshell + lcone]),  
                 lnose == 0.3 * lshell,  # Temporarily
                 lcone == Rfuse / lamcone,
                 xshell1 == lnose,
-                # [SP] #[SPEquality]
-                SignomialEquality(xshell2, lnose + lshell),
-                # c0 <= 0.2 * lshell,
-
-
+                TCS([xshell2 >= lnose + lshell]), 
                 # STRESS RELATIONS
                 # Pressure shell loading
                 tskin == dPover * Rfuse / sigskin,
@@ -794,8 +790,7 @@ class Fuselage(Model):
                 lfloor >= lshell + 2 * Rfuse,
                 Pfloor >= Nland * (Wpay + Wseat),
                 Mfloor == 9. / 256. * Pfloor * wfloor,
-                Afloor >= 2. * Mfloor / \
-                (sigfloor * hfloor) + 1.5 * Sfloor / taufloor,
+                Afloor >= 2. * Mfloor / (sigfloor * hfloor) + 1.5 * Sfloor / taufloor,
                 Vfloor == 2 * wfloor * Afloor,
                 Wfloor >= rhofloor * g * Vfloor + 2 * wfloor * lfloor * Wppfloor,
                 Sfloor == (5. / 16.) * Pfloor,
@@ -805,12 +800,12 @@ class Fuselage(Model):
                 taucone == sigskin,
                 3 * self.vtail['Q_v'] * (plamv - 1) >= self.vtail[
                     'L_{v_{max}}'] * self.vtail['b_{vt}'] * (plamv),
-                Vcone * (1 + lamcone) * (pi + 4 * thetadb) >= self.vtail[
-                    'Q_v'] / taucone * (pi + 2 * thetadb) * (lcone / Rfuse) * 2,
+                TCS([Vcone * (1 + lamcone) * (pi + 4 * thetadb) >= self.vtail[
+                    'Q_v'] / taucone * (pi + 2 * thetadb) * (lcone / Rfuse) * 2]),
                 Wcone >= rhocone * g * Vcone * (1 + fstring + fframe),
                 Wtail >= self.vtail['W_{vtail}'] + \
                 self.htail['W_{htail}'] + Wcone,
-                xtail >= lnose + lshell + .5 * lcone,  # Temporarily
+                TCS([xtail >= lnose + lshell + .5 * lcone]),  # Temporarily
 
                 # Horizontal bending model
                 # Maximum axial stress is the sum of bending and pressurization
@@ -839,7 +834,7 @@ class Fuselage(Model):
                 # [SP]  # Bending area forward of wingbox
                 Ahbendf >= A2h * (xshell2 - xf)**2 + A1h * (xtail - xf) - A0h,
                 # [SP]  # Bending area behind wingbox
-                Ahbendb >= A2h * (xshell2 - xb)**2 + A1h * (xtail - xb) - A0h,
+                Ahbendb >= A2h * (xshell2 - xb)**2 + A1h * (xtail - xb) - A0h, # [SP]
 
                 Vhbendf >= A2h / 3 * ((xshell2 - xf)**3 - (xshell2 - xhbend)**3) \
                 + A1h / 2 * ((xtail - xf)**2 - (xtail - xhbend)**2) \
