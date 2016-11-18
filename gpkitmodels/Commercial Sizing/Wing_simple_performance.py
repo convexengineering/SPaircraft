@@ -271,7 +271,8 @@ class Altitude(Model):
 
 class Atmosphere(Model):
     def __init__(self, alt, **kwargs):
-        g = Variable('g', 'm/s^2', 'Gravitational acceleration')
+        g = 9.81*units('m*s^-2')
+        # g = Variable('g', 'm/s^2', 'Gravitational acceleration')
         p_sl = Variable("p_{sl}", 101325, "Pa", "Pressure at sea level")
         T_sl = Variable("T_{sl}", 288.15, "K", "Temperature at sea level")
         L_atm = Variable("L_{atm}", .0065, "K/m", "Temperature lapse rate")
@@ -525,15 +526,15 @@ class WingNoStruct(Model):
     def __init__(self, **kwargs):
         #declare variables
                #Variables
+
+        g = 9.81*units('m*s^-2')
+
         Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
         
         CLwmax  = Variable('C_{L_{wmax}}', '-', 'Max lift coefficient, wing')
         
         
         Vfuel   = Variable('V_{fuel, max}', 'm^3', 'Available fuel volume')
-        
-        
-        
         
         amax    = Variable('\\alpha_{max,w}', '-', 'Max angle of attack')
         
@@ -545,7 +546,7 @@ class WingNoStruct(Model):
         
         eta     = Variable('\\eta', '-', 'Lift efficiency (diff b/w sectional, actual lift)')
         fl      = Variable('f(\\lambda_w)', '-', 'Empirical efficiency function of taper')
-        g       = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
+        # g       = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         p       = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q', '-', 'Substituted variable = 1 + taper')
         rho0    = Variable('\\rho_0', 1.225, 'kg/m^3', 'Air density (0 ft)')
@@ -556,7 +557,7 @@ class WingNoStruct(Model):
         tau     = Variable('\\tau', '-', 'Wing thickness/chord ratio')
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
-        w       = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
+        wwn       = Variable('wwn', 0.5, '-', 'Wingbox-width-to-chord ratio')
         xw     = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{\\bar{c}_w}', 'm',
                            'Spanwise location of mean aerodynamic chord')
@@ -602,7 +603,7 @@ class WingNoStruct(Model):
                 taper >= 0.2, # TODO
 
                 # Fuel volume [TASOPT doc]
-                TCS([Afuel <= w*0.92*tau]),
+                TCS([Afuel <= wwn*0.92*tau]),
                 # GP approx of the signomial constraint:
                 # Afuel <= (w - 2*tweb)*(0.92*tau - 2*tcap),
                 Vfuel <= croot**2 * (b/6) * (1+taper+taper**2)*cosL,
@@ -684,6 +685,7 @@ class WingBox(Model):
 
     def __init__(self, surface, **kwargs):
         # Variables
+        g = 9.81*units('m*s^-2')
         Icap    = Variable('I_{cap}', '-',
                            'Non-dim spar cap area moment of inertia')
         Mr      = Variable('M_r', 'N', 'Root moment per root chord')
@@ -697,7 +699,7 @@ class WingBox(Model):
         taper = Variable('taper', '-', 'Taper ratio')
         fwadd  = Variable('f_{w,add}', 0.4, '-',
                           'Wing added weight fraction') # TASOPT code (737.tas)
-        g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
+        # g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         Nlift  = Variable('N_{lift}', 2.0, '-', 'Wing loading multiplier')
         rh     = Variable('r_h', 0.75, '-',
                           'Fractional wing thickness at spar web')
@@ -709,7 +711,7 @@ class WingBox(Model):
                           'Allowable tensile stress')
         sigmaxshear = Variable('\\sigma_{max,shear}', 167e6, 'Pa',
                                'Allowable shear stress')
-        w      = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
+        wwb      = Variable('wwb', 0.5, '-', 'Wingbox-width-to-chord ratio')
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
         
@@ -740,7 +742,7 @@ class WingBox(Model):
 
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
-                       0.92*w*tau*tcap**2 + Icap <= 0.92**2/2*w*tau**2*tcap,
+                       0.92*wwb*tau*tcap**2 + Icap <= 0.92**2/2*wwb*tau**2*tcap,
 
                        # Stress limit
                        # Assumes bending stress carried by caps (Icap >> Iweb)
@@ -754,7 +756,7 @@ class WingBox(Model):
                        nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56,
 
                        # Weight of spar caps and shear webs
-                       Wcap >= 8*rhocap*g*w*tcap*S**1.5*nu/(3*AR**0.5),
+                       Wcap >= 8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5),
                        Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
 
                        # Total wing weight using an additional weight fraction

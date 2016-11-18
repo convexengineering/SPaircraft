@@ -13,7 +13,7 @@ from gpkit.small_scripts import mag
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 #from VT_simple_profile import VerticalTail, VerticalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
-#from D8_integration import Fuselage, Engine, EnginePerformance
+from D8_integration import Engine, EnginePerformance
 
 sweep = 30
 
@@ -65,7 +65,7 @@ class Aircraft(Model):
 
         constraints.extend([numeng == numeng,
                             self.wing['c_{root}'] == self.fuse['c_0'],
-                            self.wing.wb['w'] == self.fuse['wtc'],
+                            self.wing.wb['wwb'] == self.fuse['wtc'],
                             self.wing['V_{ne}'] == self.fuse['V_{NE}'],
                             # self.wing['b'] <= 35*units('m'),
                             # self.wing['\\bar{c}_w'] >= 1*units('m'),
@@ -266,202 +266,6 @@ class ClimbSegment(Model):
 
         Model.__init__(self, None, [self.state, self.climbP], **kwargs)
 
-# class FlightState(Model):
-#     """
-#     creates atm model for each flight segment, has variables
-#     such as veloicty and altitude
-#     """
-#     def __init__(self,**kwargs):
-#         #make an atmosphere model
-#         self.atm = Atmosphere()
-
-#         #declare variables
-#         V     = Variable('V', 'kts', 'Aircraft Flight Speed')
-#         a     = Variable('a', 'm/s', 'Speed of Sound')
-#         h     = Variable('h', 'm', 'Segment Altitude [meters]')
-#         hft   = Variable('hft', 'feet', 'Segment Altitude [feet]')
-#         R     = Variable('R', 287, 'J/kg/K', 'Air Specific Heat')
-#         gamma = Variable('\\gamma', 1.4, '-', 'Air Specific Heat Ratio')
-#         M     = Variable('M', '-', 'Mach Number')
-
-#         #make new constraints
-#         constraints = []
-
-#         constraints.extend([
-#             V == V,
-#             h == hft, #convert the units on altitude
-#             # Speed of sound with the state
-#             a  == (gamma * R * self.atm['T_{atm}'])**.5,
-#             # Mach number
-#             V == M * a,
-#             ])
-
-#         Model.__init__(self, None, constraints + self.atm, **kwargs)
-
-# class Atmosphere(Model):
-#     def __init__(self, **kwargs):
-#         g     = Variable('g', 'm/s^2', 'Gravitational acceleration')
-#         p_sl  = Variable("p_{sl}", "Pa", "Pressure at sea level")
-#         T_sl  = Variable("T_{sl}", "K", "Temperature at sea level")
-#         L_atm = Variable("L_{atm}", "K/m", "Temperature lapse rate")
-#         M_atm = Variable("M_{atm}", "kg/mol", "Molar mass of dry air")
-#         p_atm = Variable("P_{atm}", "Pa", "air pressure")
-#         R_atm = Variable("R_{atm}", "J/mol/K", "air specific heating value")
-#         TH    = 5.257386998354459 #(g*M_atm/R_atm/L_atm).value
-#         rho   = Variable('\\rho', 'kg/m^3', 'Density of air')
-#         T_atm = Variable("T_{atm}", "K", "air temperature")
-#         h     = Variable("h", "m", "Altitude")
-
-#         """
-#         Dynamic viscosity (mu) as a function of temperature
-#         References:
-#         http://www-mdp.eng.cam.ac.uk/web/library/enginfo/aerothermal_dvd_only/aero/
-#             atmos/atmos.html
-#         http://www.cfd-online.com/Wiki/Sutherland's_law
-#         """
-#         mu  = Variable('\\mu',1.46*10**-5, 'kg/(m*s)', 'Dynamic viscosity')
-
-#         T_s = Variable('T_s', 110.4, "K", "Sutherland Temperature")
-#         C_1 = Variable('C_1', 1.458E-6, "kg/(m*s*K^0.5)",
-#                        'Sutherland coefficient')
-
-# ##        t_plus_ts_approx = (T_atm + T_s).mono_approximation({T_atm: 288.15,
-# ##                                                         T_s: T_s.value})
-
-#         with SignomialsEnabled():
-#             constraints = [
-#                 mu == mu,
-#                 # Pressure-altitude relation
-#                 (p_atm/p_sl)**(1/5.257) == T_atm/T_sl,
-
-#                 # Ideal gas law
-#                 rho == p_atm/(R_atm/M_atm*T_atm),
-
-#                 #temperature equation
-# ##                SignomialEquality(T_sl, T_atm + L_atm*h),
-#                 T_atm == 218*units('K'),
-
-#                 #constraint on mu
-# ##                SignomialEquality((T_atm + T_s) * mu, C_1 * T_atm**1.5),
-# ##                TCS([(T_atm + T_s) * mu >= C_1 * T_atm**1.5])
-#                 T_sl == 288.15*units('K'),
-#                 p_sl == 101325*units('Pa'),
-#                 R_atm == 8.31447*units('J/mol/K'),
-#                 M_atm == .0289644*units('kg/mol')
-#                 ]
-
-#         #like to use a local subs here in the future
-#         subs = None
-
-#         Model.__init__(self, None, constraints, subs)
-
-
-class Engine(Model):
-    """
-    place holder engine model
-    """
-
-    def __init__(self, **kwargs):
-        # new variables
-        W_engine = Variable('W_{engine}', 'N',
-                            'Weight of a Single Turbofan Engine')
-
-        constraints = []
-
-        constraints.extend([W_engine == 1000 * units('N')])
-
-        Model.__init__(self, None, constraints)
-
-    def dynamic(self, state):
-        """
-        returns an engine performance model
-        """
-        return EnginePerformance(self, state)
-
-
-class EnginePerformance(Model):
-    """
-    place holder engine perofrmacne model
-    """
-
-    def __init__(self, engine, state, **kwargs):
-        # new variables
-        TSFC = Variable('TSFC', '1/hr', 'Thrust Specific Fuel Consumption')
-        thrust = Variable('thrust', 'N', 'Thrust')
-
-        # constraints
-        constraints = []
-
-        constraints.extend([
-            TSFC == TSFC,
-            thrust == thrust
-        ])
-
-        Model.__init__(self, None, constraints)
-
-
-# class Wing(Model):
-#     """
-#     place holder wing model
-#     """
-#     def __init__(self, ** kwargs):
-#         W_wing = Variable('W_{wing}', 'N', 'Wing Weight')
-
-#         #aircraft geometry
-#         AR       = Variable('AR', '-', 'Aspect Ratio')
-#         e        = Variable('e', '-', 'Oswald Span Efficiency Factor')
-#         K        = Variable('K', '-', 'K for Parametric Drag Model')
-#         S        = Variable('S', 'm^2', 'Wing Planform Area')
-#         span     = Variable('b', 'm', 'Wing Span')
-#         span_max = Variable('b_{max}', 'm', 'Max Wing Span')
-#         croot   = Variable('c_{root}', 'm', 'Wing root chord')
-
-#         constraints = []
-
-#         constraints.extend([
-#             #wing weight constraint
-#             #based off of a raymer weight and 737 data from TASOPT output file
-#             (S/(124.58*units('m^2')))**.65 == W_wing/(105384.1524*units('N')),
-
-#             # Wing span and aspect ratio, subject to a span constraint
-#             AR == (span**2)/S,
-#             span <= span_max,
-#             K == (pi * e * AR)**-1,
-#             ])
-
-#         Model.__init__(self, None, constraints)
-
-#     def dynamic(self, state):
-#         """
-#         creates an instance of the wing's performance model
-#         """
-#         return WingPerformance(self, state)
-
-
-# class WingPerformance(Model):
-#     """
-#     wing aero modeling
-#     """
-#     def __init__(self, wing, state, **kwargs):
-#         #new variables
-#         CL    = Variable('C_{L}', '-', 'Lift Coefficient')
-#         Cdw   = Variable('C_{d_w}', '-', 'Cd for a NC130 Airfoil at Re=2e7')
-#         Dwing = Variable('D_{wing}', 'N', 'Total Wing Drag')
-
-#         #constraints
-#         constraints = []
-
-#         constraints.extend([
-#             #airfoil drag constraint
-#             TCS([Cdw**6.5 >= (1.02458748e10 * CL**15.587947404823325 * state['M']**156.86410659495155 +
-#                          2.85612227e-13 * CL**1.2774976672501526 * state['M']**6.2534328002723703 +
-#                          2.08095341e-14 * CL**0.8825277088649582 * state['M']**0.0273667615730107 +
-#                          1.94411925e+06 * CL**5.6547413360261691 * state['M']**146.51920742858428)]),
-#             TCS([Dwing >= (.5*wing['S']*state.atm['\\rho']*state['V']**2)*(Cdw + wing['K']*CL**2)]),
-#             ])
-
-#         Model.__init__(self, None, constraints)
-
 class HTail(Model):
 
     def dynamic(self, state):
@@ -501,25 +305,6 @@ class VTail(Model):
                        Qv == Qv]
         Model.__init__(self, None, constraints, **kwargs)
 
-# class WingBox(Model):
-#     def dynamic(self,state):
-#         return WingBoxP(self,state)
-
-#     def __init__(self,**kwargs):
-
-#         c0           = Variable('c_0','m','Root chord of the wing')
-#         w            = Variable('w',0.5,'-','Wingbox to chord ratio') #Temporarily
-#         xwing        = Variable('x_{wing}','m', 'x-location of wing')
-#         dxwing       = Variable('dx_{wing}','m','wing box offset')
-#         # Setting bending area integration bounds (defining wing box locations)
-#         with SignomialsEnabled():
-#             constraints  = [SignomialEquality(xf,xwing + dxwing + .5*c0*w), #[SP] [SPEquality]
-#                         SignomialEquality(xb, xwing - dxwing + .5*c0*w), #[SP] [SPEquality]
-#                         w == w
-#                         ];
-#         Model.__init__(self,None,constraints,**kwargs)
-
-
 class Fuselage(Model):
     """
     place holder fuselage model
@@ -528,8 +313,6 @@ class Fuselage(Model):
     def __init__(self, **kwargs):
         self.vtail = VTail()
         self.htail = HTail()
-        #self.wingbox = WingBox()
-        # new variables
 
         g = 9.81*units('m*s^-2')
         dPover = Variable('\\delta_P_{over}', 'psi', 'Cabin overpressure')
