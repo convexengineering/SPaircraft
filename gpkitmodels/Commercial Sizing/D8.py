@@ -1,8 +1,8 @@
 """Fully integrated D8 model"""
 from numpy import pi, tan, cos
 import numpy as np
-from gpkit import Variable, Model, units, SignomialsEnabled, vectorize
-from gpkit.constraints.sigeq import SignomialEqualityConstraint as SignomialEquality
+from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize
+from gpkit.constraints.sigeq import SignomialEquality
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
 import matplotlib.pyplot as plt
@@ -16,8 +16,9 @@ from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 from VT_simple_profile import VerticalTail, VerticalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance
-from CFP_Fuselage_Performance_int import FuselagePerformance
-from CFP_Fuselage_Performance_int import Fuselage
+from D8_integration import Fuselage, FuselagePerformance
+# from CFP_Fuselage_Performance_int import FuselagePerformance
+# from CFP_Fuselage_Performance_int import Fuselage
 #from D8_integration import Engine, EnginePerformance
 #from CFP_Fuselage_Performance import Fuselage, FuselagePerformance
 #from HT_Simple_Profile_Performance import HorizontalTail, HorizontalTailPerformance
@@ -260,10 +261,10 @@ class Mission(Model):
         Ncruise = 2
 
         # vectorize
-        with vectorize(Nclimb):
+        with Vectorize(Nclimb):
             climb = ClimbSegment(ac)
 
-        with vectorize(Ncruise):
+        with Vectorize(Ncruise):
             cruise = CruiseSegment(ac)
 
         # declare new variables
@@ -392,48 +393,48 @@ if __name__ == '__main__':
     sweep = 30  # [deg]
 
     substitutions = {
-        '\\delta_P_{over}': 12,
-        'N_{land}': 6,
-        'SPR': 8,
-        'p_s': 81.,
+        # '\\delta_P_{over}': 12,
+        # 'N_{land}': 6,
+        # 'SPR': 8,
+        # 'p_s': 81.,
         # ('sweep', np.linspace(500,2000,4)),
         'ReqRng': 1000,
         # ('sweep', np.linspace(20000,40000,4)),
         'CruiseAlt': 30000,
         'numeng': 2,
         'n_{pax}': 150,
-        'W_{avg. pass}': 180,
-        'W_{carry on}': 15,
-        'W_{cargo}': 10000,
-        'W_{checked}': 40,
-        'w_{aisle}': 0.51,
-        'w_{seat}': 0.5,
-        'w_{sys}': 0.1,
-        # 'e': .9,
-        # 'b_{max}'                 : 35,
-        'W_{cargo}': 10000,
-        'r_E': 1.,  # [TAS]
-        '\\lambda_{cone}': 0.4,  # [Philippe]
-        '\\rho_{cone}': 2700,  # [TAS]
-        '\\rho_{bend}': 2700,  # [TAS]
-        '\\rho_{floor}': 2700,  # [TAS]
-        '\\rho_{skin}': 2700,  # [TAS]
-        'W\'\'_{floor}': 60,  # [TAS]
-        'W\'\'_{insul}': 22,  # [TAS]
-        'W\'_{seat}': 150,  # [TAS]
-        'W\'_{window}': 145. * 3,  # [TAS]
-        'f_{fadd}': 0.2,  # [TAS]
-        'f_{frame}': 0.25,  # [Philippe]
-        'f_{lugg,1}': 0.4,  # [Philippe]
-        'f_{lugg,2}': 0.1,  # [Philippe]
-        'f_{string}': 0.1,  # TODO remove
-        'f_{padd}': 0.4,  # [TAS]
+        # 'W_{avg. pass}': 180,
+        # 'W_{carry on}': 15,
+        # 'W_{cargo}': 10000,
+        # 'W_{checked}': 40,
+        # 'w_{aisle}': 0.51,
+        # 'w_{seat}': 0.5,
+        # 'w_{sys}': 0.1,
+        # # 'e': .9,
+        # # 'b_{max}'                 : 35,
+        # 'W_{cargo}': 10000,
+        # 'r_E': 1.,  # [TAS]
+        # '\\lambda_{cone}': 0.4,  # [Philippe]
+        # '\\rho_{cone}': 2700,  # [TAS]
+        # '\\rho_{bend}': 2700,  # [TAS]
+        # '\\rho_{floor}': 2700,  # [TAS]
+        # '\\rho_{skin}': 2700,  # [TAS]
+        # 'W\'\'_{floor}': 60,  # [TAS]
+        # 'W\'\'_{insul}': 22,  # [TAS]
+        # 'W\'_{seat}': 150,  # [TAS]
+        # 'W\'_{window}': 145. * 3,  # [TAS]
+        # 'f_{fadd}': 0.2,  # [TAS]
+        # 'f_{frame}': 0.25,  # [Philippe]
+        # 'f_{lugg,1}': 0.4,  # [Philippe]
+        # 'f_{lugg,2}': 0.1,  # [Philippe]
+        # 'f_{string}': 0.1,  # TODO remove
+        # 'f_{padd}': 0.4,  # [TAS]
 
         # VT subs
         'C_{D_{wm}}': 0.5,  # [2]
         'C_{L_{vmax}}': 2.6,  # [2]
         'V_1': 70,
-        # 'V_{ne}': 144, # [2]
+        'V_{ne}': 144, # [2]
         '\\rho_{TO}': 1.225,
         '\\tan(\\Lambda_{vt})': np.tan(40 * np.pi / 180),
         # 'c_{l_{vt}}': 0.5, # [2]

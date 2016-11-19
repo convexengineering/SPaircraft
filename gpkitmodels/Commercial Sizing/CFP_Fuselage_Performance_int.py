@@ -1,7 +1,7 @@
 """Simple commercial aircraft flight profile and aircraft model"""
 from numpy import pi, cos, tan
 import numpy as np
-from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, vectorize
+from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
 
@@ -313,8 +313,8 @@ class Fuselage(Model):
     def __init__(self, **kwargs):
         self.vtail = VTail()
         self.htail = HTail()
-
-        g = 9.81*units('m*s^-2')
+        g = Variable('g',9.81,'m*s^-2','Acceleration due to gravity')
+        # g = 9.81*units('m*s^-2')
         dPover = Variable('\\delta_P_{over}', 'psi', 'Cabin overpressure')
         npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
@@ -605,8 +605,7 @@ class Fuselage(Model):
                 # material is required
                 xhbend >= xwing,
                 # [SP] #[SPEquality]
-                SignomialEquality(A0h, A2h * (xshell2 - xhbend)
-                                  ** 2 + A1h * (xtail - xhbend)),
+                SignomialEquality(A0h, A2h * (xshell2 - xhbend) ** 2 + A1h * (xtail - xhbend)),
                 A2h >= Nland * (Wpay + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
                 (2 * lshell * hfuse * sigMh),  # Landing loads constant A2h
                 # Aero loads constant A1h
@@ -727,10 +726,10 @@ class Mission(Model):
         ac = Aircraft()
 
         # vectorize
-        with vectorize(Nclimb):
+        with Vectorize(Nclimb):
             cls = ClimbSegment(ac)
 
-        with vectorize(Ncruise):
+        with Vectorize(Ncruise):
             crs = CruiseSegment(ac)
 
         # declare new variables

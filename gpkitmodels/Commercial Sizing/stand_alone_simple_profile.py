@@ -1,8 +1,8 @@
 """Simple commercial aircraft flight profile and aircraft model"""
 from numpy import pi
 import numpy as np
-from gpkit import Variable, Model, units, SignomialsEnabled, vectorize
-from gpkit.constraints.sigeq import SignomialEqualityConstraint as SignomialEquality
+from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize
+from gpkit.constraints.sigeq import SignomialEquality as SignomialEquality
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
 import matplotlib.pyplot as plt

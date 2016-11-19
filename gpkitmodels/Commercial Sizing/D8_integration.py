@@ -2,7 +2,7 @@
 from numpy import pi, tan, cos
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, VectorVariable
-from gpkit.constraints.sigeq import SignomialEqualityConstraint as SignomialEquality
+from gpkit.constraints.sigeq import SignomialEquality
 from gpkit.constraints.tight import TightConstraintSet as TCS
 
 class Engine(Model):

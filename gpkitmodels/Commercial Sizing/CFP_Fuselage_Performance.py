@@ -1,7 +1,7 @@
 """Simple commercial aircraft flight profile and aircraft model"""
 from numpy import pi
 import numpy as np
-from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, vectorize
+from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
 
@@ -803,10 +803,10 @@ class Mission(Model):
         ac = Aircraft()
 
         #vectorize
-        with vectorize(Nclimb):
+        with Vectorize(Nclimb):
             cls = ClimbSegment(ac)
 
-        with vectorize(Ncruise):
+        with Vectorize(Ncruise):
             crs = CruiseSegment(ac)
 
         #declare new variables
