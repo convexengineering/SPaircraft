@@ -1,7 +1,7 @@
 """Simple commercial aircraft flight profile and aircraft model"""
 from numpy import pi, cos, tan
 import numpy as np
-from gpkit import Variable, Model, units, SignomialsEnabled, vectorize
+from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize
 from gpkit.constraints.sigeq import SignomialEquality
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
@@ -430,11 +430,12 @@ class Mission(Model):
         #build required submodels
         ac = Aircraft()
 
-        #vectorize
-        with vectorize(Nclimb):
+        #Vectorize
+
+        with Vectorize(Nclimb):
             cls = ClimbSegment(ac)
 
-        with vectorize(Ncruise):
+        with Vectorize(Ncruise):
             crs = CruiseSegment(ac)
 
         #declare new variables
@@ -792,7 +793,8 @@ if __name__ == '__main__':
             }
            
     m = Mission(substitutions)
-    sol = m.localsolve(solver='mosek', verbosity = 4)
+    sol = m.localsolve(solver='mosek', verbosity = 2)
+    print sol.table()
 
 #     substitutions = {      
 # ##            'V_{stall}': 120,
