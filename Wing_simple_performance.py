@@ -1,7 +1,7 @@
 """Simple commercial aircraft flight profile and aircraft model"""
 from numpy import pi, cos, tan
 import numpy as np
-from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize
+from gpkit import Variable, Model, units, SignomialsEnabled, vectorize
 from gpkit.constraints.sigeq import SignomialEquality
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
@@ -271,8 +271,8 @@ class Altitude(Model):
 
 class Atmosphere(Model):
     def __init__(self, alt, **kwargs):
-        g = 9.81*units('m*s^-2')
-        # g = Variable('g', 'm/s^2', 'Gravitational acceleration')
+        # g = 9.81*units('m*s^-2')
+        g = Variable('g', 'm/s^2', 'Gravitational acceleration')
         p_sl = Variable("p_{sl}", 101325, "Pa", "Pressure at sea level")
         T_sl = Variable("T_{sl}", 288.15, "K", "Temperature at sea level")
         L_atm = Variable("L_{atm}", .0065, "K/m", "Temperature lapse rate")
@@ -431,10 +431,10 @@ class Mission(Model):
         ac = Aircraft()
 
         #vectorize
-        with Vectorize(Nclimb):
+        with vectorize(Nclimb):
             cls = ClimbSegment(ac)
 
-        with Vectorize(Ncruise):
+        with vectorize(Ncruise):
             crs = CruiseSegment(ac)
 
         #declare new variables
@@ -527,7 +527,7 @@ class WingNoStruct(Model):
         #declare variables
                #Variables
 
-        g = 9.81*units('m*s^-2')
+        # g = 9.81*units('m*s^-2')
 
         Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
         
@@ -546,7 +546,7 @@ class WingNoStruct(Model):
         
         eta     = Variable('\\eta', '-', 'Lift efficiency (diff b/w sectional, actual lift)')
         fl      = Variable('f(\\lambda_w)', '-', 'Empirical efficiency function of taper')
-        # g       = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
+        g       = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         p       = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q', '-', 'Substituted variable = 1 + taper')
         rho0    = Variable('\\rho_0', 1.225, 'kg/m^3', 'Air density (0 ft)')
