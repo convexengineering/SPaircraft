@@ -13,15 +13,12 @@ from gpkit.small_scripts import mag
 
 # import aircraft subsystems
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
-from VT_simple_profile import VerticalTail, VerticalTailPerformance
+from VT_simple_profile_int import VerticalTail, VerticalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance
 from D8_integration import Fuselage, FuselagePerformance
-# from CFP_Fuselage_Performance_int import FuselagePerformance
-# from CFP_Fuselage_Performance_int import Fuselage
-#from D8_integration import Engine, EnginePerformance
-#from CFP_Fuselage_Performance import Fuselage, FuselagePerformance
-#from HT_Simple_Profile_Performance import HorizontalTail, HorizontalTailPerformance
+# from CFP_Fuselage_Performance_int import Fuselage, FuselagePerformance
+# from HT_Simple_Profile_Performance import HorizontalTail, HorizontalTailPerformance
 
 # set up models
 
@@ -44,6 +41,8 @@ class D8(Model):
 
         constraints.extend([
             numeng == numeng,  # need numeng in the model
+            # self.wing['c_{root}'] == self.fuse['c_0'],
+            # self.wing.wb['wwb'] == self.fuse['wtc']
         ])
 
         self.components = [self.fuse, self.wing,
@@ -434,19 +433,19 @@ if __name__ == '__main__':
         'C_{D_{wm}}': 0.5,  # [2]
         'C_{L_{vmax}}': 2.6,  # [2]
         'V_1': 70,
-        'V_{ne}': 144, # [2]
+        # 'V_{ne}': 144, # [2]
         '\\rho_{TO}': 1.225,
         '\\tan(\\Lambda_{vt})': np.tan(40 * np.pi / 180),
         # 'c_{l_{vt}}': 0.5, # [2]
         'c_{l_{vtEO}}': 0.5,
         'A_2': np.pi * (.5 * 1.75)**2,  # [1]
         'e_v': 0.8,
-        # 'x_{CG}': 18,
+        'x_{CG_{vt}}': 15,
         'y_{eng}': 4.83,  # [3]
 
         # wing subs
         'C_{L_{wmax}}': 2.5,
-        'V_{ne}': 144,
+        # 'V_{ne}': 144,
         '\\tan(\\Lambda)': tan(sweep * pi / 180),
         '\\alpha_{max,w}': 0.1,  # (6 deg)
         '\\cos(\\Lambda)': cos(sweep * pi / 180),
@@ -467,5 +466,5 @@ if __name__ == '__main__':
     }
 
     m = Mission(ac, substitutions)
-    sol = m.localsolve(solver='mosek', verbosity=2)
-    # bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=2, iteration_limit=100)
+    # sol = m.localsolve(solver='mosek', verbosity=2)
+    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=2, iteration_limit=100)

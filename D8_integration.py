@@ -65,7 +65,7 @@ class Fuselage(Model):
         Wpax = Variable('W_{pax}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
 
         Afuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
-        pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
+        pax_area = Variable('pax_{area}',0.1, 'm^2', 'Estimated Fuselage Area per Passenger')
 
         lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
         wfuse   = Variable('w_{fuse}', 6, 'm', 'Fuselage width')
@@ -115,7 +115,8 @@ class FuselagePerformance(Model):
 
             Cmfu == .05,
 
-            xcg == 17 * units('m'),
+            xcg[0] == fuse['l_{fuse}']*0.65,
+            xcg[1] == fuse['l_{fuse}']*0.65,
             ])
 
         Model.__init__(self, None, constraints)

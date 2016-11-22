@@ -1,4 +1,5 @@
 """Simple commercial aircraft flight profile and aircraft model"""
+""" Combines Wing and Fuselage models for D8"""
 from numpy import pi, cos, tan
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
@@ -18,7 +19,7 @@ from D8_integration import Engine, EnginePerformance
 sweep = 30
 
 """
-Models requird to minimze the aircraft total fuel weight. Rate of climb equation taken from John
+Models requird to minimize the aircraft total fuel weight. Rate of climb equation taken from John
 Anderson's Aircraft Performance and Design (eqn 5.85).
 
 Inputs
@@ -66,7 +67,7 @@ class Aircraft(Model):
         constraints.extend([numeng == numeng,
                             self.wing['c_{root}'] == self.fuse['c_0'],
                             self.wing.wb['wwb'] == self.fuse['wtc'],
-                            self.wing['V_{ne}'] == self.fuse['V_{NE}'],
+                            # self.wing['V_{ne}'] == self.fuse['V_{NE}'],
                             # self.wing['b'] <= 35*units('m'),
                             # self.wing['\\bar{c}_w'] >= 1*units('m'),
                             # self.wing['y_{\\bar{c}_w}'] == 5.675*units('m'),
@@ -319,7 +320,7 @@ class Fuselage(Model):
         npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
                          'Emergency landing load factor')  # [TAS]
-        VNE = Variable('V_{NE}', 'm/s', 'Never-exceed speed')  # [Philippe]
+        VNE = Variable('V_{NE}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
         SPR = Variable('SPR', '-', 'Number of seats per row')
         nrows = Variable('n_{rows}', '-', 'Number of rows')
         nseat = Variable('n_{seat}', '-', 'Number of seats')
@@ -691,6 +692,8 @@ class FuselagePerformance(Model):
         f = Variable('f', '-', 'Fineness ratio')
         FF = Variable('FF', '-', 'Fuselage form factor')
         phi = Variable('\\phi', '-', 'Upsweep angle')
+        xCG    = Variable('x_{CG}', 'm', 'x-location of CG') #temporary CG substitution
+
 
         constraints = []
         constraints.extend([
@@ -706,7 +709,8 @@ class FuselagePerformance(Model):
             fuse['A_{fuse}'] * 0.5 * state.atm['\\rho'] * state['V']**2,
             Dfuse >= Dfrict + Dupswp,
             Dfuse == 0.5 * state.atm['\\rho'] * \
-            state['V']**2 * Cdfuse * fuse['A_{fuse}']
+            state['V']**2 * Cdfuse * fuse['A_{fuse}'],
+            xCG == 0.65*fuse['l_{fuse}']
         ])
 
         Model.__init__(self, None, constraints)
