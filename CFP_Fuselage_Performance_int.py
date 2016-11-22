@@ -12,7 +12,7 @@ from gpkit.small_scripts import mag
 
 # importing from D8_integration
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
-#from VT_simple_profile import VerticalTail, VerticalTailPerformance
+from VT_simple_profile import VerticalTail, VerticalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance
 
@@ -288,31 +288,28 @@ class HTail(Model):
         Model.__init__(self, None, constraints, **kwargs)
 
 
-class VTail(Model):
+# class VTail(Model):
 
-    def dynamic(self, state):
-        return VTailP(self, state)
+#     def dynamic(self, state):
+#         return VTailP(self, state)
 
-    def __init__(self, **kwargs):
-        bvt = Variable('b_{vt}', 7, 'm', 'Vertical tail span')
-        Lvmax = Variable('L_{v_{max}}', 35000, 'N', 'Max vertical tail load')
-        Wvtail = Variable('W_{vtail}', 10000, 'N',
-                          'Vertical tail weight')  # Temporarily
-        Qv = Variable('Q_v', 'N*m', 'Torsion moment imparted by tail')
+#     def __init__(self, **kwargs):
+#         bvt = Variable('b_{vt}', 7, 'm', 'Vertical tail span')
+#         Lvmax = Variable('L_{v_{max}}', 35000, 'N', 'Max vertical tail load')
+#         Wvtail = Variable('W_{vtail}', 10000, 'N',
+#                           'Vertical tail weight')  # Temporarily
+#         Qv = Variable('Q_v', 'N*m', 'Torsion moment imparted by tail')
 
-        constraints = [bvt == bvt,
-                       Lvmax == Lvmax,
-                       Wvtail == Wvtail,
-                       Qv == Qv]
-        Model.__init__(self, None, constraints, **kwargs)
+#         constraints = [bvt == bvt,
+#                        Lvmax == Lvmax,
+#                        Wvtail == Wvtail,
+#                        Qv == Qv]
+#         Model.__init__(self, None, constraints, **kwargs)
 
 class Fuselage(Model):
-    """
-    place holder fuselage model
-    """
 
     def __init__(self, **kwargs):
-        self.vtail = VTail()
+        self.vtail = VerticalTail()
         self.htail = HTail()
         g = Variable('g',9.81,'m*s^-2','Acceleration due to gravity')
         # g = 9.81*units('m*s^-2')
@@ -345,8 +342,7 @@ class Fuselage(Model):
         wfloor = Variable('w_{floor}', 'm', 'Floor half-width')
         wfuse = Variable('w_{fuse}', 'm', 'Fuselage width')
         wseat = Variable('w_{seat}', 'm', 'Seat width')  # [Philippe]
-        wsys = Variable(
-            'w_{sys}', 'm', 'Width between cabin and skin for systems')  # [Philippe]
+        wsys = Variable('w_{sys}', 'm', 'Width between cabin and skin for systems')  # [Philippe]
 
         # Tail cone variables
         lamcone = Variable(
@@ -582,12 +578,12 @@ class Fuselage(Model):
 
                 # Tail cone sizing
                 taucone == sigskin,
-                3 * self.vtail['Q_v'] * (plamv - 1) >= self.vtail[
+                3 * self.vtail['M_r'] * (plamv - 1) >= self.vtail[
                     'L_{v_{max}}'] * self.vtail['b_{vt}'] * (plamv),
                 TCS([Vcone * (1 + lamcone) * (pi + 4 * thetadb) >= self.vtail[
-                    'Q_v'] / taucone * (pi + 2 * thetadb) * (lcone / Rfuse) * 2]),
+                    'M_r'] / taucone * (pi + 2 * thetadb) * (lcone / Rfuse) * 2]),
                 Wcone >= rhocone * g * Vcone * (1 + fstring + fframe),
-                Wtail >= self.vtail['W_{vtail}'] + \
+                Wtail >= self.vtail['W_{struct}'] + \
                 self.htail['W_{htail}'] + Wcone,
                 TCS([xtail >= lnose + lshell + .5 * lcone]),  # Temporarily
 
