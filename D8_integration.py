@@ -115,10 +115,10 @@ class FuselagePerformance(Model):
 
             Cmfu == .05,
 
-            # xcg[0] == fuse['l_{fuse}']*0.65,
-            # xcg[1] == fuse['l_{fuse}']*0.65,
-            xcg[0] == 17*units('m'),
-            xcg[1] == 17*units('m'),
+            xcg[0] == fuse['l_{fuse}']*0.65,
+            xcg[1] == fuse['l_{fuse}']*0.65,
+            # xcg[0] == 17*units('m'),
+            # xcg[1] == 17*units('m'),
             ])
 
         Model.__init__(self, None, constraints)
