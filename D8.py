@@ -4,8 +4,8 @@ import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize
 from gpkit.constraints.sigeq import SignomialEquality
 from gpkit.tools import te_exp_minus1
-from gpkit.constraints.tight import TightConstraintSet as TCS
-from gpkit.constraints.bounded import BoundedConstraintSet as BCS
+from gpkit.constraints.tight import Tight as TCS
+from gpkit.constraints.bounded import Bounded as BCS
 import matplotlib.pyplot as plt
 
 # only needed for the local bounded debugging tool
@@ -403,6 +403,8 @@ if __name__ == '__main__':
         'CruiseAlt': 30000,
         'numeng': 2,
         'n_{pax}': 150,
+        'W_{pax}':91.*9.81,
+        'pax_{area}':1,
         # 'W_{avg. pass}': 180,
         # 'W_{carry on}': 15,
         # 'W_{cargo}': 10000,
@@ -441,7 +443,6 @@ if __name__ == '__main__':
         'c_{l_{vtEO}}': 0.5,
         'A_2': np.pi * (.5 * 1.75)**2,  # [1]
         'e_v': 0.8,
-        'x_{CG_{vt}}': 15,
         'y_{eng}': 4.83,  # [3]
 
         # wing subs
@@ -463,12 +464,10 @@ if __name__ == '__main__':
         # '\\bar{c}_w': 5,
         # '\\rho_0': 1.225,
         # '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-        # 'w_{fuse}': 6,
     }
 
     m = Mission(ac, substitutions)
     # m = Model(m.cost,BCS(m))
-    m.substitutions.update(substitutions)
 
-    sol = m.localsolve(solver='mosek', verbosity=2)
+    sol = m.localsolve(solver='mosek', verbosity=2, iteration_limit=100)
     # bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=2, iteration_limit=100)
