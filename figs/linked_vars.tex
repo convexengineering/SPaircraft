@@ -1,23 +1,8 @@
 \begin{center}
 \begin{tikzpicture}[thick]
 \node at (0.0, 6.0)[circle, minimum size=3cm, fill=blue!20](Fuselage){Fuselage};
-\node at (5.706339097770921, 1.8541019662496847)[circle, minimum size=3cm, fill=blue!20](Engine){Engine};
-\node at (3.5267115137548393, -4.8541019662496838)[circle, minimum size=3cm, fill=blue!20](VTail){VTail};
-\node at (-3.5267115137548384, -4.8541019662496847)[circle, minimum size=3cm, fill=blue!20](HTail){HTail};
-\node at (-5.706339097770922, 1.8541019662496834)[circle, minimum size=3cm, fill=blue!20](Wing){Wing};
-\node at (-1.76,0.57)[draw,rectangle, color=red, align=left, fill=white]({W_{htail} L_{h_{max}}}){$W_{htail}$\\$L_{h_{max}}$};
-\begin{pgfonlayer}{background}
-\draw[color=red] ({W_{htail} L_{h_{max}}})--(Fuselage);
-\end{pgfonlayer}
-\begin{pgfonlayer}{background}
-\draw[color=red] ({W_{htail} L_{h_{max}}})--(HTail);
-\end{pgfonlayer}
-\node at (1.76,0.57)[draw,rectangle, color=blue, align=left, fill=white]({L_{v_{max}} b_{vt} Q_v W_{vtail}}){$L_{v_{max}}$\\$b_{vt}$\\$Q_v$\\$W_{vtail}$};
-\begin{pgfonlayer}{background}
-\draw[color=blue] ({L_{v_{max}} b_{vt} Q_v W_{vtail}})--(Fuselage);
-\end{pgfonlayer}
-\begin{pgfonlayer}{background}
-\draw[color=blue] ({L_{v_{max}} b_{vt} Q_v W_{vtail}})--(VTail);
-\end{pgfonlayer}
+\node at (6.0, 3.6739403974420594e-16)[circle, minimum size=3cm, fill=blue!20](Engine){Engine};
+\node at (7.347880794884119e-16, -6.0)[circle, minimum size=3cm, fill=blue!20](VerticalTail){VerticalTail};
+\node at (-6.0, -1.1021821192326179e-15)[circle, minimum size=3cm, fill=blue!20](Wing){Wing};
 \end{tikzpicture}
 \end{center}

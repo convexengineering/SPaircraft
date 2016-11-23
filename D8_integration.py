@@ -62,7 +62,7 @@ class Fuselage(Model):
         #weight variables
         Wpay = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
         W_e = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
-        Wpax = Variable('W_{pax}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
+        Wpax = Variable('W_{pax}', 850, 'N', 'Estimated Average Passenger Weight, Includes Baggage')
 
         Afuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
         pax_area = Variable('pax_{area}',0.1, 'm^2', 'Estimated Fuselage Area per Passenger')

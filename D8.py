@@ -5,6 +5,7 @@ from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize
 from gpkit.constraints.sigeq import SignomialEquality
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
+from gpkit.constraints.bounded import BoundedConstraintSet as BCS
 import matplotlib.pyplot as plt
 
 # only needed for the local bounded debugging tool
@@ -466,5 +467,8 @@ if __name__ == '__main__':
     }
 
     m = Mission(ac, substitutions)
-    # sol = m.localsolve(solver='mosek', verbosity=2)
-    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=2, iteration_limit=100)
+    # m = Model(m.cost,BCS(m))
+    m.substitutions.update(substitutions)
+
+    sol = m.localsolve(solver='mosek', verbosity=2)
+    # bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=2, iteration_limit=100)

@@ -630,7 +630,7 @@ class VerticalTailNoStruct(Model):
         
         #define new variables
         Avt    = Variable('A_{vt}', '-', 'Vertical tail aspect ratio')
-        CDwm   = Variable('C_{D_{wm}}', '-', 'Windmill drag coefficient')
+        CDwm   = Variable('C_{D_{wm}}',0.5, '-', 'Windmill drag coefficient')
         Dwm    = Variable('D_{wm}', 'N', 'Engine out windmill drag')
         Lvmax  = Variable('L_{v_{max}}', 'N',
                           'Maximum load for structural sizing')
@@ -726,6 +726,7 @@ class VerticalTailNoStruct(Model):
                 tau == tau,
                 dxlead == dxlead,
                 dxtrail == dxtrail,
+                CDwm == CDwm
                 ])
 
         Model.__init__(self, None, constraints)

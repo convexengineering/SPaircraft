@@ -4,7 +4,7 @@ from itertools import combinations
 """Simple commercial aircraft flight profile and aircraft model"""
 from numpy import pi, cos, tan
 import numpy as np
-from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, vectorize
+from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import TightConstraintSet as TCS
 
@@ -14,15 +14,18 @@ from gpkit.small_scripts import mag
 
 # importing from D8_integration
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
-#from VT_simple_profile import VerticalTail, VerticalTailPerformance
+from VT_simple_profile import VerticalTail, VerticalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
-from D8_integration import Engine, EnginePerformance
-from CFP_Fuselage_Performance_int import Fuselage, FuselagePerformance, Aircraft, VTail, HTail
+from D8_integration import Engine, EnginePerformance, Fuselage, FuselagePerformance
+from D8 import D8
+# from CFP_Fuselage_Performance_int import Fuselage, FuselagePerformance, Aircraft, VTail, HTail
 
 
 def make_figure():
-    ac = Aircraft()
-    subsystems = [Fuselage(), Engine(), VTail(), HTail(), Wing()]
+    # ac = Aircraft()
+    ac = D8()
+
+    subsystems = [Fuselage(), Engine(), VerticalTail(Fuselage(),Engine()), Wing()] #HTail(),
 
     keychain = {}
     for vk in ac.varkeys:
