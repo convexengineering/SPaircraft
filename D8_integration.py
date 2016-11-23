@@ -62,10 +62,10 @@ class Fuselage(Model):
         #weight variables
         Wpay = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
         W_e = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
-        Wpax = Variable('W_{pax}', 850, 'N', 'Estimated Average Passenger Weight, Includes Baggage')
+        Wpax = Variable('W_{pax}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
 
         Afuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
-        pax_area = Variable('pax_{area}',0.1, 'm^2', 'Estimated Fuselage Area per Passenger')
+        pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
 
         lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
         wfuse   = Variable('w_{fuse}', 6, 'm', 'Fuselage width')
@@ -74,15 +74,15 @@ class Fuselage(Model):
 
         constraints.extend([
             #compute fuselage area for drag approximation
-            Afuse == pax_area * npax,
+            Afuse >= pax_area * npax,
 
             Afuse == lfuse * wfuse,
             
             #constraints on the various weights
-            Wpay == npax * Wpax,
+            Wpay >= npax * Wpax,
             
             #estimate based on TASOPT 737 model
-            W_e == .75*Wpay,
+            W_e >= .75*Wpay + lfuse*units('N/m'),
             ])
 
         Model.__init__(self, None, constraints)
@@ -115,8 +115,10 @@ class FuselagePerformance(Model):
 
             Cmfu == .05,
 
-            xcg[0] == fuse['l_{fuse}']*0.65,
-            xcg[1] == fuse['l_{fuse}']*0.65,
+            # xcg[0] == fuse['l_{fuse}']*0.65,
+            # xcg[1] == fuse['l_{fuse}']*0.65,
+            xcg[0] == 17*units('m'),
+            xcg[1] == 17*units('m'),
             ])
 
         Model.__init__(self, None, constraints)
