@@ -134,6 +134,10 @@ class D8P(Model):
 
             # make lift equal weight --> small angle approx in climb
             self.wingP['L_w'] == W_avg,
+
+            # self.aircraft.fuse['l_{fuse}'] >= self.aircraft.VT.vtns['\\Delta x_{lead_v}'] + self.fuseP['x_{CG}'],
+            # self.aircraft.VT.vtns['x_{CG_{vt}}'] >= self.fuseP['x_{CG}']+(self.aircraft.VT.vtns['\\Delta x_{lead_v}']+self.aircraft.VT.vtns['\\Delta x_{trail_v}'])/2,
+
         ])
 
         Model.__init__(self, None, [self.Pmodels + constraints], **kwargs)
