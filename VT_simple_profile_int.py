@@ -774,8 +774,8 @@ class VerticalTailPerformance(Model):
             Rec == state.atm['\\rho']*state['V']*self.vt['\\bar{c}_{vt}']/state.atm['\\mu'],
             # Cruise Reynolds number
 
-            self.fuse['l_{fuse}'] >= self.vt['\\Delta x_{lead_v}'] + self.fuseP['x_{CG}'],
-            self.vt['x_{CG_{vt}}'] >= self.fuseP['x_{CG}']+(self.vt['\\Delta x_{lead_v}']+self.vt['\\Delta x_{trail_v}'])/2,
+            # self.fuse['l_{fuse}'] >= self.vt['\\Delta x_{lead_v}'] + self.fuseP['x_{CG}'],
+            # self.vt['x_{CG_{vt}}'] >= self.fuseP['x_{CG}']+(self.vt['\\Delta x_{lead_v}']+self.vt['\\Delta x_{trail_v}'])/2,
             ])
 
         Model.__init__(self, None, constraints)
