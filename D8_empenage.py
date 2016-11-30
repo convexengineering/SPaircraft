@@ -679,11 +679,11 @@ class Mission(Model):
                 #compute the aerodynamic center location
                 TCS([climb['x_{ac}'] <= xcg + climb['\\Delta x_w'] ]),
 
-##                SignomialEquality(climb['x_{ac}'],xcg + climb['\\Delta x_w'] ),
+
                 TCS([ac.empenage.ht['x_{CG_{ht}}'] >= xcg+(climb['\\Delta x_{{lead}_h}']+climb['\\Delta x_{{trail}_h}'])/2]),
                     
                 TCS([cruise['x_{ac}'] <= xcg + cruise['\\Delta x_w'] ]),
-##                SignomialEquality(cruise['x_{ac}'],xcg + cruise['\\Delta x_w'] ),
+
                 TCS([ac.empenage.ht['x_{CG_{ht}}'] >= xcg+(cruise['\\Delta x_{{lead}_h}']+cruise['\\Delta x_{{trail}_h}'])/2]),
                 #---------------------------------------------------------#
                 #REMOVE FROM OVERALL MODEL
@@ -711,6 +711,12 @@ class Mission(Model):
 
             ac.fuse['l_{fuse}'] >= ac.empenage.VT['\\Delta x_{lead_v}'] + xcg,
             ac.empenage.VT['x_{CG_{vt}}'] >= xcg+(ac.empenage.VT['\\Delta x_{lead_v}']+ac.empenage.VT['\\Delta x_{trail_v}'])/2,
+            ])
+
+        #VT HT linking constraint
+        constraints.extend([
+            ac.empenage.VT['c_{tip_{vt}}'] <= ac.empenage.ht['c_{attach}'],
+            ac.empenage.ht['c_{attach}'] <= 1.2 * ac.empenage.VT['c_{tip_{vt}}'],
             ])
 
         Model.__init__(self, W_ftotal, constraints + ac + climb + cruise, substitutions)
