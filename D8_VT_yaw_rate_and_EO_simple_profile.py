@@ -486,7 +486,7 @@ class FuselagePerformance(Model):
         #new variables
         Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
         Dfuse = Variable('D_{fuse}', 'N', 'Total Fuselage Drag')
-        xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
+
         #constraints
         constraints = []
 
@@ -494,8 +494,6 @@ class FuselagePerformance(Model):
             Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
 
             Cdfuse == .005,
-
-            xCG == 18*units('m'),
             ])
 
         Model.__init__(self, None, constraints)
@@ -514,10 +512,10 @@ class Mission(Model):
 
         #vectorize
         with Vectorize(Nclimb):
-            cls = ClimbSegment(ac)
+            climb = ClimbSegment(ac)
 
         with Vectorize(Ncruise):
-            crs = CruiseSegment(ac)
+            cruise = CruiseSegment(ac)
 
         #declare new variables
         W_ftotal = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
@@ -527,10 +525,12 @@ class Mission(Model):
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
-        h = cls.state['h']
-        hftClimb = cls.state['hft']
-        dhft = cls.climbP['dhft']
-        hftCruise = crs.state['hft']
+        xcg     = Variable('x_{CG}', 'm', 'CG location')
+
+        h = climb.state['h']
+        hftClimb = climb.state['hft']
+        dhft = climb.climbP['dhft']
+        hftCruise = cruise.state['hft']
 
         #make overall constraints
         constraints = []
@@ -539,22 +539,22 @@ class Mission(Model):
             #weight constraints
             TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + 2*ac.VT['W_{struct}'] <= W_total]),
 
-            cls.climbP.aircraftP['W_{start}'][0] == W_total,
-            cls.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
+            climb.climbP.aircraftP['W_{start}'][0] == W_total,
+            climb.climbP.aircraftP['W_{end}'][-1] == cruise.cruiseP.aircraftP['W_{start}'][0],
 
             # similar constraint 1
-            TCS([cls.climbP.aircraftP['W_{start}'] >= cls.climbP.aircraftP['W_{end}'] + cls.climbP.aircraftP['W_{burn}']]),
+            TCS([climb.climbP.aircraftP['W_{start}'] >= climb.climbP.aircraftP['W_{end}'] + climb.climbP.aircraftP['W_{burn}']]),
             # similar constraint 2
-            TCS([crs.cruiseP.aircraftP['W_{start}'] >= crs.cruiseP.aircraftP['W_{end}'] + crs.cruiseP.aircraftP['W_{burn}']]),
+            TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP['W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
 
-            cls.climbP.aircraftP['W_{start}'][1:] == cls.climbP.aircraftP['W_{end}'][:-1],
-            crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
+            climb.climbP.aircraftP['W_{start}'][1:] == climb.climbP.aircraftP['W_{end}'][:-1],
+            cruise.cruiseP.aircraftP['W_{start}'][1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + 2*ac.VT['W_{struct}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
+            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + 2*ac.VT['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >=  W_fclimb + W_fcruise]),
-            TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
-            TCS([W_fcruise >= sum(crs.cruiseP['W_{burn}'])]),
+            TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
+            TCS([W_fcruise >= sum(cruise.cruiseP['W_{burn}'])]),
 
             #altitude constraints
             hftCruise == CruiseAlt,
@@ -566,20 +566,22 @@ class Mission(Model):
             dhft == hftCruise/Nclimb,
 
             #constrain the thrust
-            cls.climbP.engineP['thrust'] <= 2 * max(crs.cruiseP.engineP['thrust']),
+            climb.climbP.engineP['thrust'] <= 2 * max(cruise.cruiseP.engineP['thrust']),
 
             #set the range for each cruise segment, doesn't take credit for climb
             #down range disatnce covered
-            crs.cruiseP['Rng'] == ReqRng/(Ncruise),
+            cruise.cruiseP['Rng'] == ReqRng/(Ncruise),
 
             #set the TSFC
-            cls.climbP.engineP['TSFC'] == .7*units('1/hr'),
-            crs.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
+            climb.climbP.engineP['TSFC'] == .7*units('1/hr'),
+            cruise.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
+
+            xcg == 15*units('m'),
             ])
 
         #VT constriants
         constraints.extend([
-            ac.VT['T_e'] == cls.climbP.engineP['thrust'][0],
+            ac.VT['T_e'] == climb.climbP.engineP['thrust'][0],
 
             # Drag of a windmilling engine
             ac.VT['D_{wm}'] >= 0.5*ac.VT['\\rho_{TO}']*ac.VT['V_1']**2*ac.engine['A_2']*ac.VT['C_{D_{wm}}'],
@@ -587,15 +589,15 @@ class Mission(Model):
             ac.VT['x_{CG_{vt}}'] <= ac.fuse['l_{fuse}'],
             
             #VTP constraints
-            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + cls.climbP.aircraftP['x_{CG}'],
-            ac.VT['x_{CG_{vt}}'] >= cls.climbP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
+            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + xcg,
+            ac.VT['x_{CG_{vt}}'] >= xcg+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
 
-            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + crs.cruiseP.aircraftP['x_{CG}'],
-            ac.VT['x_{CG_{vt}}'] >= crs.cruiseP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
+            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + xcg,
+            ac.VT['x_{CG_{vt}}'] >= xcg+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
             ])
         
-        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + cls + crs, subs)
-        Model.__init__(self, W_ftotal, constraints + ac + cls + crs, subs)
+        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + climb + cruise, subs)
+        Model.__init__(self, W_ftotal, constraints + ac + climb + cruise, subs)
 
 class VerticalTail(Model):
     """
@@ -894,15 +896,38 @@ class WingBox(Model):
         Model.__init__(self, None, constraints, **kwargs)
 
 if __name__ == '__main__':
+    plot = False
+    
     substitutions = {      
-            'ReqRng': 500,
-            'CruiseAlt': 30000,
+            #overall aircraft 
+            'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
+            'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 2,
-##            'W_{Load_max}': 6664,
+##            'V_{ne}': 144,
+            
+            #fuselage place holder model subs
             'W_{pax}': 91 * 9.81,
             'n_{pax}': 150,
             'pax_{area}': 1,
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
+##             'w_{fuse}': 6,
+
+            #subs for the HT
+##            'C_{L_{max}}': 2,
+##            '\\alpha_{max,h}': 2.5,
+##            'SM_{min}': 0.5,
+##            '\\Delta x_{CG}': 4,
+##            'C_{L_{hmax}}': 2.5,
+##             '\\rho_0': 1.225,
+##             '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+
+
+             #think about how to constrain this
+##             'x_w': 19,
+
+            #subs into the wing palceholder model
+##            '\\bar{c}_w': 2,
+##            'c_{m_{w}}': 1,
             'e': .9,
             'b_{max}': 35,
 
@@ -910,7 +935,7 @@ if __name__ == '__main__':
            'C_{D_{wm}}': 0.5, # [2]
            'C_{L_{vmax}}': 2.6, # [2]
            'V_1': 70,
-           'V_{ne}': 144, # [2]
+##           'V_{ne}': 144, # [2]
            '\\rho_{TO}': 1.225,
            '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
 ##           'c_{l_{vt}}': 0.5, # [2]
@@ -920,309 +945,310 @@ if __name__ == '__main__':
            'l_{fuse}': 39,
 ##           'x_{CG}': 18,
            'y_{eng}': 4.83, # [3]
-
            'V_{land}': 72,
            'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
            '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
-
             'N_{spar}': 2,
             }
            
     m = Mission(substitutions)
     sol = m.localsolve(solver='mosek', verbosity = 4)
 
-    substitutions = {      
-           'ReqRng': ('sweep', np.linspace(500,3000,8)),
-            'CruiseAlt': 30000,
-            'numeng': 2,
-##            'W_{Load_max}': 6664,
-            'W_{pax}': 91 * 9.81,
-            'n_{pax}': 150,
-            'pax_{area}': 1,
-##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
-            'e': .9,
-            'b_{max}': 35,
+    if plot == True:
 
-            #VT subs
-           'C_{D_{wm}}': 0.5, # [2]
-           'C_{L_{vmax}}': 2.6, # [2]
-           'V_1': 70,
-           'V_{ne}': 144, # [2]
-           '\\rho_{TO}': 1.225,
-           '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
-##           'c_{l_{vt}}': 0.5, # [2]
-           'c_{l_{vtEO}}': 0.5,
-           'A_2': np.pi*(.5*1.75)**2, # [1]
-           'e_v': 0.8,
-           'l_{fuse}': 39,
-##           'x_{CG}': 18,
-           'y_{eng}': 4.83, # [3]
+        substitutions = {      
+               'ReqRng': ('sweep', np.linspace(500,3000,8)),
+                'CruiseAlt': 30000,
+                'numeng': 2,
+    ##            'W_{Load_max}': 6664,
+                'W_{pax}': 91 * 9.81,
+                'n_{pax}': 150,
+                'pax_{area}': 1,
+    ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
+                'e': .9,
+                'b_{max}': 35,
 
-           'V_{land}': 72,
-           'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
-           '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
+                #VT subs
+               'C_{D_{wm}}': 0.5, # [2]
+               'C_{L_{vmax}}': 2.6, # [2]
+               'V_1': 70,
+               'V_{ne}': 144, # [2]
+               '\\rho_{TO}': 1.225,
+               '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
+    ##           'c_{l_{vt}}': 0.5, # [2]
+               'c_{l_{vtEO}}': 0.5,
+               'A_2': np.pi*(.5*1.75)**2, # [1]
+               'e_v': 0.8,
+               'l_{fuse}': 39,
+    ##           'x_{CG}': 18,
+               'y_{eng}': 4.83, # [3]
 
-           'N_{spar}': 2,
-            }
-           
-    m = Mission(substitutions)
-    solRsweep = m.localsolve(solver='mosek', verbosity = 4)
+               'V_{land}': 72,
+               'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
+               '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
 
-    RC = []
+               'N_{spar}': 2,
+                }
+               
+        m = Mission(substitutions)
+        solRsweep = m.localsolve(solver='mosek', verbosity = 4)
 
-    for i in range(len(solRsweep('ReqRng'))):
-        RC.append(mag(solRsweep('RC')[i][0]))
+        RC = []
 
-    plt.plot(solRsweep('ReqRng'), RC, '-r')
-    plt.xlabel('Mission Range [nm]')
-    plt.ylabel('Initial  Rate of Climb [ft/min]')
-    plt.title('Initial Rate of Climb vs Range')
-##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
-    plt.show()
+        for i in range(len(solRsweep('ReqRng'))):
+            RC.append(mag(solRsweep('RC')[i][0]))
 
-##    plt.plot(solRsweep('ReqRng'), solRsweep('L_{vtEO}'), '-r')
-##    plt.xlabel('Mission Range [nm]')
-##    plt.ylabel('VT Lift and Takeoff ENgine Out [N]')
-##    plt.title('Initial Climb Thrust vs Range')
-####    plt.savefig('HT_Sweeps/VT_rng_LVTTO.pdf')
-##    plt.show()
+        plt.plot(solRsweep('ReqRng'), RC, '-r')
+        plt.xlabel('Mission Range [nm]')
+        plt.ylabel('Initial  Rate of Climb [ft/min]')
+        plt.title('Initial Rate of Climb vs Range')
+    ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
+        plt.show()
 
-    plt.plot(solRsweep('ReqRng'), solRsweep('L_{v_{max}}'), '-r')
-    plt.xlabel('Mission Range [nm]')
-    plt.ylabel('Max VT Lift Force [N]')
-    plt.title('Initial Climb Thrust vs Range')
-##    plt.savefig('HT_Sweeps/VT_rng_LVmax.pdf')
-    plt.show()
+    ##    plt.plot(solRsweep('ReqRng'), solRsweep('L_{vtEO}'), '-r')
+    ##    plt.xlabel('Mission Range [nm]')
+    ##    plt.ylabel('VT Lift and Takeoff ENgine Out [N]')
+    ##    plt.title('Initial Climb Thrust vs Range')
+    ####    plt.savefig('HT_Sweeps/VT_rng_LVTTO.pdf')
+    ##    plt.show()
 
-##    plt.plot(solRsweep('ReqRng'), solRsweep('T_e'), '-r')
-##    plt.xlabel('Mission Range [nm]')
-##    plt.ylabel('Initial  Climb Thrust [N]')
-##    plt.title('Initial Climb Thrust vs Range')
-####    plt.savefig('HT_Sweeps/VT_rng_TTO.pdf')
-##    plt.show()
+        plt.plot(solRsweep('ReqRng'), solRsweep('L_{v_{max}}'), '-r')
+        plt.xlabel('Mission Range [nm]')
+        plt.ylabel('Max VT Lift Force [N]')
+        plt.title('Initial Climb Thrust vs Range')
+    ##    plt.savefig('HT_Sweeps/VT_rng_LVmax.pdf')
+        plt.show()
 
-    plt.plot(solRsweep('ReqRng'), solRsweep('W_{struct}'), '-r')
-    plt.xlabel('Mission Range [nm]')
-    plt.ylabel('Vertical Tail Weight [N]')
-    plt.title('Vertical Tail Weight vs Range')
-##    plt.savefig('HT_Sweeps/VT_rng_VTweight.pdf')
-    plt.show()
+    ##    plt.plot(solRsweep('ReqRng'), solRsweep('T_e'), '-r')
+    ##    plt.xlabel('Mission Range [nm]')
+    ##    plt.ylabel('Initial  Climb Thrust [N]')
+    ##    plt.title('Initial Climb Thrust vs Range')
+    ####    plt.savefig('HT_Sweeps/VT_rng_TTO.pdf')
+    ##    plt.show()
 
-    plt.plot(solRsweep('ReqRng'), solRsweep('A_{vt}'), '-r')
-    plt.xlabel('Mission Range [nm]')
-    plt.ylabel('Vertical Tail Aspect Ratio')
-    plt.title('Vertical Tail Aspect Ratio vs Range')
-##    plt.savefig('HT_Sweeps/VT_rng_VTAR.pdf')
-    plt.show()
+        plt.plot(solRsweep('ReqRng'), solRsweep('W_{struct}'), '-r')
+        plt.xlabel('Mission Range [nm]')
+        plt.ylabel('Vertical Tail Weight [N]')
+        plt.title('Vertical Tail Weight vs Range')
+    ##    plt.savefig('HT_Sweeps/VT_rng_VTweight.pdf')
+        plt.show()
 
-    plt.plot(solRsweep('ReqRng'), solRsweep('S_{vt}'), '-r')
-    plt.xlabel('Mission Range [nm]')
-    plt.ylabel('Vertical Tail Area [m$^2$]')
-    plt.title('Vertical Tail Area vs Range')
-##    plt.savefig('HT_Sweeps/VT_rng_SVT.pdf')
-    plt.show()
+        plt.plot(solRsweep('ReqRng'), solRsweep('A_{vt}'), '-r')
+        plt.xlabel('Mission Range [nm]')
+        plt.ylabel('Vertical Tail Aspect Ratio')
+        plt.title('Vertical Tail Aspect Ratio vs Range')
+    ##    plt.savefig('HT_Sweeps/VT_rng_VTAR.pdf')
+        plt.show()
 
-    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['ReqRng'], '-r')
-    plt.xlabel('Mission Range [nm]')
-    plt.ylabel('Sensitivity of Mission Range')
-    plt.title('Sensitivity to Range vs Range')
-####    plt.savefig('HT_Sweeps/VT_rng_RngSens.pdf')
-    plt.show()
+        plt.plot(solRsweep('ReqRng'), solRsweep('S_{vt}'), '-r')
+        plt.xlabel('Mission Range [nm]')
+        plt.ylabel('Vertical Tail Area [m$^2$]')
+        plt.title('Vertical Tail Area vs Range')
+    ##    plt.savefig('HT_Sweeps/VT_rng_SVT.pdf')
+        plt.show()
 
-    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['CruiseAlt'], '-r')
-    plt.xlabel('Mission Range [nm]')
-    plt.ylabel('Sensitivity of Cruise Altitude')
-    plt.title('Sensitivity to Cruise Altitude vs Range')
-##    plt.savefig('HT_Sweeps/VT_rng_AltSens.pdf')
-    plt.show()
-    
-    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['b_{max}'], '-r')
-    plt.xlabel('Mission Range [nm]')
-    plt.ylabel('Sensitivity of Max Wing Span')
-    plt.title('Sensitivity of Max Wing Span vs Range')
-##    plt.savefig('HT_Sweeps/VT_rng_bMaxSens.pdf')
-    plt.show()
+        plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['ReqRng'], '-r')
+        plt.xlabel('Mission Range [nm]')
+        plt.ylabel('Sensitivity of Mission Range')
+        plt.title('Sensitivity to Range vs Range')
+    ####    plt.savefig('HT_Sweeps/VT_rng_RngSens.pdf')
+        plt.show()
 
-    plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['W_{pax}'], '-r')
-    plt.xlabel('Mission Range [nm]')
-    plt.ylabel('Sensitivity of Passenger Weight')
-    plt.title('Sensitivity of Passegner Weight vs Range')
-##    plt.savefig('HT_Sweeps/VT_rng_WPaxSens.pdf')
-    plt.show()
+        plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['CruiseAlt'], '-r')
+        plt.xlabel('Mission Range [nm]')
+        plt.ylabel('Sensitivity of Cruise Altitude')
+        plt.title('Sensitivity to Cruise Altitude vs Range')
+    ##    plt.savefig('HT_Sweeps/VT_rng_AltSens.pdf')
+        plt.show()
+        
+        plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['b_{max}'], '-r')
+        plt.xlabel('Mission Range [nm]')
+        plt.ylabel('Sensitivity of Max Wing Span')
+        plt.title('Sensitivity of Max Wing Span vs Range')
+    ##    plt.savefig('HT_Sweeps/VT_rng_bMaxSens.pdf')
+        plt.show()
 
-    substitutions = {      
-            'ReqRng': 2000,
-            'CruiseAlt': ('sweep', np.linspace(20000,40000,10)),
-            'numeng': 2,
-##            'W_{Load_max}': 6664,
-            'W_{pax}': 91 * 9.81,
-            'n_{pax}': 150,
-            'pax_{area}': 1,
-##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
-            'e': .9,
-            'b_{max}': 35,
+        plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['W_{pax}'], '-r')
+        plt.xlabel('Mission Range [nm]')
+        plt.ylabel('Sensitivity of Passenger Weight')
+        plt.title('Sensitivity of Passegner Weight vs Range')
+    ##    plt.savefig('HT_Sweeps/VT_rng_WPaxSens.pdf')
+        plt.show()
 
-            #VT subs
-           'C_{D_{wm}}': 0.5, # [2]
-           'C_{L_{vmax}}': 2.6, # [2]
-           'V_1': 70,
-           'V_{ne}': 144, # [2]
-           '\\rho_{TO}': 1.225,
-           '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
-##           'c_{l_{vt}}': 0.5, # [2]
-           'c_{l_{vtEO}}': 0.5,
-           'A_2': np.pi*(.5*1.75)**2, # [1]
-           'e_v': 0.8,
-           'l_{fuse}': 39,
-##           'x_{CG}': 18,
-           'y_{eng}': 4.83, # [3]
+        substitutions = {      
+                'ReqRng': 2000,
+                'CruiseAlt': ('sweep', np.linspace(20000,40000,10)),
+                'numeng': 2,
+    ##            'W_{Load_max}': 6664,
+                'W_{pax}': 91 * 9.81,
+                'n_{pax}': 150,
+                'pax_{area}': 1,
+    ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
+                'e': .9,
+                'b_{max}': 35,
 
-           'V_{land}': 72,
-           'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
-           '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
+                #VT subs
+               'C_{D_{wm}}': 0.5, # [2]
+               'C_{L_{vmax}}': 2.6, # [2]
+               'V_1': 70,
+               'V_{ne}': 144, # [2]
+               '\\rho_{TO}': 1.225,
+               '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
+    ##           'c_{l_{vt}}': 0.5, # [2]
+               'c_{l_{vtEO}}': 0.5,
+               'A_2': np.pi*(.5*1.75)**2, # [1]
+               'e_v': 0.8,
+               'l_{fuse}': 39,
+    ##           'x_{CG}': 18,
+               'y_{eng}': 4.83, # [3]
 
-            'N_{spar}': 2,
-            }
-           
-    m = Mission(substitutions)
-    solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
+               'V_{land}': 72,
+               'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
+               '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
 
-    RC = []
+                'N_{spar}': 2,
+                }
+               
+        m = Mission(substitutions)
+        solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
 
-    for i in range(len(solAltsweep('CruiseAlt'))):
-        RC.append(mag(solAltsweep('RC')[i][0]))
+        RC = []
 
-    plt.plot(solAltsweep('CruiseAlt'), RC, '-r')
-    plt.xlabel('Mission Range [nm]')
-    plt.ylabel('Initial  Rate of Climb [ft/min]')
-    plt.title('Initial Rate of Climb vs Range')
-##    plt.savefig('HT_Sweeps/VT_alt_RC.pdf')
-    plt.show()
+        for i in range(len(solAltsweep('CruiseAlt'))):
+            RC.append(mag(solAltsweep('RC')[i][0]))
 
-##    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('L_{vtEO}'), '-r')
-##    plt.xlabel('Cruise Alt [ft]')
-##    plt.ylabel('Initial  Climb Thrust [N]')
-##    plt.title('Initial Climb Thrust vs Range')
-####    plt.savefig('HT_Sweeps/VT_alt_LvEOmax.pdf')
-##    plt.show()
+        plt.plot(solAltsweep('CruiseAlt'), RC, '-r')
+        plt.xlabel('Mission Range [nm]')
+        plt.ylabel('Initial  Rate of Climb [ft/min]')
+        plt.title('Initial Rate of Climb vs Range')
+    ##    plt.savefig('HT_Sweeps/VT_alt_RC.pdf')
+        plt.show()
 
-    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('L_{v_{max}}'), '-r')
-    plt.xlabel('Cruise Alt [ft]')
-    plt.ylabel('Initial  Climb Thrust [N]')
-    plt.title('Initial Climb Thrust vs Range')
-##    plt.savefig('HT_Sweeps/VT_alt_Lvmax.pdf')
-    plt.show()
+    ##    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('L_{vtEO}'), '-r')
+    ##    plt.xlabel('Cruise Alt [ft]')
+    ##    plt.ylabel('Initial  Climb Thrust [N]')
+    ##    plt.title('Initial Climb Thrust vs Range')
+    ####    plt.savefig('HT_Sweeps/VT_alt_LvEOmax.pdf')
+    ##    plt.show()
 
-##    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('T_e'), '-r')
-##    plt.xlabel('Cruise Altitude [ft]')
-##    plt.ylabel('Initial  Climb Thrust [N]')
-##    plt.title('Initial Climb Thrust vs Cruise Altitude')
-####    plt.savefig('HT_Sweeps/VT_alt_TTO.pdf')
-##    plt.show()
+        plt.plot(solAltsweep('CruiseAlt'), solAltsweep('L_{v_{max}}'), '-r')
+        plt.xlabel('Cruise Alt [ft]')
+        plt.ylabel('Initial  Climb Thrust [N]')
+        plt.title('Initial Climb Thrust vs Range')
+    ##    plt.savefig('HT_Sweeps/VT_alt_Lvmax.pdf')
+        plt.show()
 
-    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('W_{struct}'), '-r')
-    plt.xlabel('Cruise Altitude [ft]')
-    plt.ylabel('Vertical Tail Weight [N]')
-    plt.title('Vertical Tail Weight vs Cruise Altitude')
-##    plt.savefig('HT_Sweeps/VT_alt_VTweight.pdf')
-    plt.show()
+    ##    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('T_e'), '-r')
+    ##    plt.xlabel('Cruise Altitude [ft]')
+    ##    plt.ylabel('Initial  Climb Thrust [N]')
+    ##    plt.title('Initial Climb Thrust vs Cruise Altitude')
+    ####    plt.savefig('HT_Sweeps/VT_alt_TTO.pdf')
+    ##    plt.show()
 
-    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('A_{vt}'), '-r')
-    plt.xlabel('Cruise Altitude [ft]')
-    plt.ylabel('Vertical Tail Aspect Ratio')
-    plt.title('Vertical Tail Aspect Ratio vs Cruise Altitude')
-##    plt.savefig('HT_Sweeps/VT_alt_VTAR.pdf')
-    plt.show()
+        plt.plot(solAltsweep('CruiseAlt'), solAltsweep('W_{struct}'), '-r')
+        plt.xlabel('Cruise Altitude [ft]')
+        plt.ylabel('Vertical Tail Weight [N]')
+        plt.title('Vertical Tail Weight vs Cruise Altitude')
+    ##    plt.savefig('HT_Sweeps/VT_alt_VTweight.pdf')
+        plt.show()
 
-    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('S_{vt}'), '-r')
-    plt.xlabel('Cruise Altitude [ft]')
-    plt.ylabel('Vertical Tail Area [m$^2$]')
-    plt.title('Vertical Tail Area vs Cruise Altitude')
-##    plt.savefig('HT_Sweeps/VT_alt_VTarea.pdf')
-    plt.show()
+        plt.plot(solAltsweep('CruiseAlt'), solAltsweep('A_{vt}'), '-r')
+        plt.xlabel('Cruise Altitude [ft]')
+        plt.ylabel('Vertical Tail Aspect Ratio')
+        plt.title('Vertical Tail Aspect Ratio vs Cruise Altitude')
+    ##    plt.savefig('HT_Sweeps/VT_alt_VTAR.pdf')
+        plt.show()
 
-    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['ReqRng'], '-r')
-    plt.xlabel('Cruise Altitude [ft]')
-    plt.ylabel('Sensitivity of Mission Range')
-    plt.title('Sensitivity to Range vs Cruise Altitude')
-##    plt.savefig('HT_Sweeps/VT_alt_RngSens.pdf')
-    plt.show()
+        plt.plot(solAltsweep('CruiseAlt'), solAltsweep('S_{vt}'), '-r')
+        plt.xlabel('Cruise Altitude [ft]')
+        plt.ylabel('Vertical Tail Area [m$^2$]')
+        plt.title('Vertical Tail Area vs Cruise Altitude')
+    ##    plt.savefig('HT_Sweeps/VT_alt_VTarea.pdf')
+        plt.show()
 
-    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['CruiseAlt'], '-r')
-    plt.xlabel('Cruise Altitude [ft]')
-    plt.ylabel('Sensitivity of Cruise Altitude')
-    plt.title('Sensitivity to Cruise Alt vs Cruise Alt')
-##    plt.savefig('HT_Sweeps/VT_alt_AltSens.pdf')
-    plt.show()
+        plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['ReqRng'], '-r')
+        plt.xlabel('Cruise Altitude [ft]')
+        plt.ylabel('Sensitivity of Mission Range')
+        plt.title('Sensitivity to Range vs Cruise Altitude')
+    ##    plt.savefig('HT_Sweeps/VT_alt_RngSens.pdf')
+        plt.show()
 
-    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['W_{pax}'], '-r')
-    plt.xlabel('Cruise Altitude [ft]')
-    plt.ylabel('Sensitivity of Mission Range')
-    plt.title('Sensitivity to Passenger Weight vs Cruise Altitude')
-##    plt.savefig('HT_Sweeps/VT_alt_WPaxSens.pdf')
-    plt.show()
+        plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['CruiseAlt'], '-r')
+        plt.xlabel('Cruise Altitude [ft]')
+        plt.ylabel('Sensitivity of Cruise Altitude')
+        plt.title('Sensitivity to Cruise Alt vs Cruise Alt')
+    ##    plt.savefig('HT_Sweeps/VT_alt_AltSens.pdf')
+        plt.show()
 
-    plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['b_{max}'], '-r')
-    plt.xlabel('Cruise Altitude [ft]')
-    plt.ylabel('Sensitivity of Max Wing Span')
-    plt.title('Sensitivity to Max Wing Span vs Cruise Alt')
-##    plt.savefig('HT_Sweeps/VT_alt_bMaxSens.pdf')
-    plt.show()
+        plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['W_{pax}'], '-r')
+        plt.xlabel('Cruise Altitude [ft]')
+        plt.ylabel('Sensitivity of Mission Range')
+        plt.title('Sensitivity to Passenger Weight vs Cruise Altitude')
+    ##    plt.savefig('HT_Sweeps/VT_alt_WPaxSens.pdf')
+        plt.show()
 
-    substitutions = {      
-            'ReqRng': 2000,
-            'CruiseAlt': 30000,
-            'numeng': 2,
-##            'W_{Load_max}': 6664,
-            'W_{pax}': 91 * 9.81,
-            'n_{pax}': 150,
-            'pax_{area}': 1,
-##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
-            'e': .9,
-            'b_{max}': 35,
+        plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['b_{max}'], '-r')
+        plt.xlabel('Cruise Altitude [ft]')
+        plt.ylabel('Sensitivity of Max Wing Span')
+        plt.title('Sensitivity to Max Wing Span vs Cruise Alt')
+    ##    plt.savefig('HT_Sweeps/VT_alt_bMaxSens.pdf')
+        plt.show()
 
-            #VT subs
-           'C_{D_{wm}}': 0.5, # [2]
-           'C_{L_{vmax}}': 2.6, # [2]
-           'V_1': 70,
-           'V_{ne}': 144, # [2]
-           '\\rho_{TO}': 1.225,
-           '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
-##           'c_{l_{vt}}': 0.5, # [2]
-           'c_{l_{vtEO}}': 0.5,
-           'A_2': np.pi*(.5*1.75)**2, # [1]
-           'e_v': 0.8,
-           'l_{fuse}': 39,
-##           'x_{CG}': 18,
-           'y_{eng}': 4.83, # [3]
+        substitutions = {      
+                'ReqRng': 2000,
+                'CruiseAlt': 30000,
+                'numeng': 2,
+    ##            'W_{Load_max}': 6664,
+                'W_{pax}': 91 * 9.81,
+                'n_{pax}': 150,
+                'pax_{area}': 1,
+    ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
+                'e': .9,
+                'b_{max}': 35,
 
-           'V_{land}': 72,
-           'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
-           '\\dot{r}_{req}': ('sweep', np.linspace(.1,.25,10)), #10 deg/s yaw rate
+                #VT subs
+               'C_{D_{wm}}': 0.5, # [2]
+               'C_{L_{vmax}}': 2.6, # [2]
+               'V_1': 70,
+##               'V_{ne}': 144, # [2]
+               '\\rho_{TO}': 1.225,
+               '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
+    ##           'c_{l_{vt}}': 0.5, # [2]
+               'c_{l_{vtEO}}': 0.5,
+               'A_2': np.pi*(.5*1.75)**2, # [1]
+               'e_v': 0.8,
+               'l_{fuse}': 39,
+    ##           'x_{CG}': 18,
+               'y_{eng}': 4.83, # [3]
 
-            'N_{spar}': 2,
-            }
-           
-    m = Mission(substitutions)
-    solYawsweep = m.localsolve(solver='mosek', verbosity = 4)
+               'V_{land}': 72,
+               'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
+               '\\dot{r}_{req}': ('sweep', np.linspace(.1,.25,10)), #10 deg/s yaw rate
 
-    plt.plot(solYawsweep('\\dot{r}_{req}'), solYawsweep('W_{struct}'), '-r')
-    plt.xlabel('Yaw Rate Acceleration [rad/s&^2$]')
-    plt.ylabel('Vertical Tail Weight [N]')
-    plt.title('Vertical Tail Weight vs Yaw Rate Acceleration')
-##    plt.savefig('HT_Sweeps/VT_alt_VTweight.pdf')
-    plt.show()
+                'N_{spar}': 2,
+                }
+               
+        m = Mission(substitutions)
+        solYawsweep = m.localsolve(solver='mosek', verbosity = 4)
 
-    plt.plot(solYawsweep('\\dot{r}_{req}'), solYawsweep('A_{vt}'), '-r')
-    plt.xlabel('Yaw Rate Acceleration [rad/s&^2$]')
-    plt.ylabel('Vertical Tail Aspect Ratio')
-    plt.title('Vertical Tail Aspect Ratio vs Yaw Rate Acceleration')
-##    plt.savefig('HT_Sweeps/VT_alt_VTAR.pdf')
-    plt.show()
+        plt.plot(solYawsweep('\\dot{r}_{req}'), solYawsweep('W_{struct}'), '-r')
+        plt.xlabel('Yaw Rate Acceleration [rad/s&^2$]')
+        plt.ylabel('Vertical Tail Weight [N]')
+        plt.title('Vertical Tail Weight vs Yaw Rate Acceleration')
+    ##    plt.savefig('HT_Sweeps/VT_alt_VTweight.pdf')
+        plt.show()
 
-    plt.plot(solYawsweep('\\dot{r}_{req}'), solYawsweep('S_{vt}'), '-r')
-    plt.xlabel('Yaw Rate Acceleration [rad/s&^2$]')
-    plt.ylabel('Vertical Tail Area [m$^2$]')
-    plt.title('Vertical Tail Area vs Yaw Rate Acceleration')
-##    plt.savefig('HT_Sweeps/VT_alt_VTarea.pdf')
-    plt.show()
+        plt.plot(solYawsweep('\\dot{r}_{req}'), solYawsweep('A_{vt}'), '-r')
+        plt.xlabel('Yaw Rate Acceleration [rad/s&^2$]')
+        plt.ylabel('Vertical Tail Aspect Ratio')
+        plt.title('Vertical Tail Aspect Ratio vs Yaw Rate Acceleration')
+    ##    plt.savefig('HT_Sweeps/VT_alt_VTAR.pdf')
+        plt.show()
+
+        plt.plot(solYawsweep('\\dot{r}_{req}'), solYawsweep('S_{vt}'), '-r')
+        plt.xlabel('Yaw Rate Acceleration [rad/s&^2$]')
+        plt.ylabel('Vertical Tail Area [m$^2$]')
+        plt.title('Vertical Tail Area vs Yaw Rate Acceleration')
+    ##    plt.savefig('HT_Sweeps/VT_alt_VTarea.pdf')
+        plt.show()
+
