@@ -31,7 +31,7 @@ class Aircraft(Model):
         self.fuse = Fuselage()
         self.wing = Wing()
         self.engine = Engine()
-        self.VT = VerticalTail(self.fuse, self.engine)
+        self.VT = VerticalTail()
 
         #variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
@@ -69,7 +69,7 @@ class AircraftP(Model):
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
         self.engineP = aircraft.engine.dynamic(state)
-        self.VTP = aircraft.VT.dynamic(aircraft.fuse, self.fuseP, state)
+        self.VTP = aircraft.VT.dynamic(aircraft.fuse, state)
 
         self.Pmodels = [self.wingP, self.fuseP, self.engineP, self.VTP]
 
@@ -575,8 +575,10 @@ class Mission(Model):
             #set the TSFC
             cls.climbP.engineP['TSFC'] == .7*units('1/hr'),
             crs.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
+            ])
 
-            #VT constriants
+        #VT constriants
+        constraints.extend([
             ac.VT['T_e'] == cls.climbP.engineP['thrust'][0],
 
             # Drag of a windmilling engine
@@ -608,20 +610,17 @@ class VerticalTail(Model):
     6: Engineering toolbox
     7: Boeing.com
     """
-    def __init__(self, fuse, engine, **kwargs):
-        self.fuse = fuse
-        self.engine = engine
-        
-        self.vtns = VerticalTailNoStruct(self.fuse, self.engine)
+    def __init__(self, **kwargs):
+        self.vtns = VerticalTailNoStruct()
         self.wb = WingBox(self.vtns)
 
         Model.__init__(self, None, self.vtns + self.wb)
 
-    def dynamic(self, fuse, fuseP, state):
+    def dynamic(self, fuse, state):
         """"
         creates a horizontal tail performance model
         """
-        return VerticalTailPerformance(self, fuse, fuseP, state)
+        return VerticalTailPerformance(self, fuse, state)
 
 class VerticalTailNoStruct(Model):
     """
@@ -636,10 +635,7 @@ class VerticalTailNoStruct(Model):
     6: Engineering toolbox
     7: Boeing.com
     """
-    def __init__(self, fuse, engine, **kwargs):
-        self.fuse = fuse
-        self.engine = engine
-        
+    def __init__(self, **kwargs):
         #define new variables
         Avt    = Variable('A_{vt}', '-', 'Vertical tail aspect ratio')
         CDwm   = Variable('C_{D_{wm}}', '-', 'Windmill drag coefficient')
@@ -758,9 +754,8 @@ class VerticalTailPerformance(Model):
     """
     Vertical tail perofrmance model
     """
-    def __init__(self, vt, fuse, fuseP, state):
+    def __init__(self, vt, fuse, state):
         self.fuse = fuse
-        self.fuseP = fuseP
         self.vt = vt
 
         #define new variables
