@@ -4,7 +4,7 @@ from numpy import pi, cos, tan
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.tools import te_exp_minus1
-from gpkit.constraints.tight import TightConstraintSet as TCS
+from gpkit.constraints.tight import Tight as TCS
 
 # only needed for the local bounded debugging tool
 from collections import defaultdict
@@ -12,7 +12,7 @@ from gpkit.small_scripts import mag
 
 # importing from D8_integration
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
-from VT_simple_profile import VerticalTail, VerticalTailPerformance
+from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance
 
@@ -58,6 +58,7 @@ class Aircraft(Model):
         self.fuse = Fuselage()
         self.wing = Wing()
         self.engine = Engine()
+        self.VT = VerticalTail()
 
         # variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
@@ -74,7 +75,7 @@ class Aircraft(Model):
                             # self.wing.wb['\bar{A}_{fuel, max}'] == 0.069,
                             ])
 
-        self.components = [self.fuse, self.wing, self.engine]
+        self.components = [self.fuse, self.wing, self.engine,]
 
         Model.__init__(self, None, [self.components + constraints], **kwargs)
 
@@ -578,10 +579,9 @@ class Fuselage(Model):
 
                 # Tail cone sizing
                 taucone == sigskin,
-                3 * self.vtail['M_r'] * (plamv - 1) >= self.vtail[
-                    'L_{v_{max}}'] * self.vtail['b_{vt}'] * (plamv),
+                3 * self.vtail['M_r']*self.vtail['c_{root_{vt}}'] * (plamv - 1) >= self.vtail['L_{v_{max}}'] * self.vtail['b_{vt}'] * (plamv),
                 TCS([Vcone * (1 + lamcone) * (pi + 4 * thetadb) >= self.vtail[
-                    'M_r'] / taucone * (pi + 2 * thetadb) * (lcone / Rfuse) * 2]),
+                    'M_r']*self.vtail['c_{root_{vt}}'] / taucone * (pi + 2 * thetadb) * (lcone / Rfuse) * 2]),
                 Wcone >= rhocone * g * Vcone * (1 + fstring + fframe),
                 Wtail >= self.vtail['W_{struct}'] + \
                 self.htail['W_{htail}'] + Wcone,
@@ -803,6 +803,18 @@ class Mission(Model):
             ac.wing['W_{fuel_{wing}}'] == W_ftotal,
             cls.climbP.wingP['L_w'] == cls.climbP.aircraftP['W_{avg}'],
             crs.cruiseP.wingP['L_w'] == crs.cruiseP.aircraftP['W_{avg}'],
+
+            # Drag of a windmilling engine
+            ac.VT['D_{wm}'] >= 0.5*ac.VT['\\rho_{TO}']*ac.VT['V_1']**2*ac.engine['A_2']*ac.VT['C_{D_{wm}}'],
+            
+            ac.VT['x_{CG_{vt}}'] <= ac.fuse['l_{fuse}'],
+            
+            #VTP constraints
+            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + cls.climbP.aircraftP['x_{CG}'],
+            ac.VT['x_{CG_{vt}}'] >= cls.climbP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
+
+            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + crs.cruiseP.aircraftP['x_{CG}'],
+            ac.VT['x_{CG_{vt}}'] >= crs.cruiseP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
         ])
 
         # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + cls + crs, subs)
