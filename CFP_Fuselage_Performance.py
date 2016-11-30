@@ -263,6 +263,8 @@ class FlightState(Model):
 
 class Atmosphere(Model):
     def __init__(self, **kwargs):
+    # def setup(self, **kwargs):
+
         g     = Variable('g', 'm/s^2', 'Gravitational acceleration')
         p_sl  = Variable("p_{sl}", "Pa", "Pressure at sea level")
         T_sl  = Variable("T_{sl}", "K", "Temperature at sea level")
@@ -273,7 +275,7 @@ class Atmosphere(Model):
         TH    = 5.257386998354459 #(g*M_atm/R_atm/L_atm).value
         rho   = Variable('\\rho', 'kg/m^3', 'Density of air')
         T_atm = Variable("T_{atm}", "K", "air temperature")
-        h     = Variable("h", "m", "Altitude")
+        Variable("h", "m", "Altitude")
 
         """
         Dynamic viscosity (mu) as a function of temperature
@@ -317,6 +319,7 @@ class Atmosphere(Model):
         subs = None
 
         Model.__init__(self, None, constraints, subs)
+        # return constraints
 
 class Engine(Model):
     """
