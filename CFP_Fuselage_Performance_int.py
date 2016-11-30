@@ -4,7 +4,7 @@ from numpy import pi, cos, tan
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.tools import te_exp_minus1
-from gpkit.constraints.tight import TightConstraintSet as TCS
+from gpkit.constraints.tight import Tight as TCS
 
 # only needed for the local bounded debugging tool
 from collections import defaultdict
