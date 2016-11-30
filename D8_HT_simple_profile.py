@@ -795,7 +795,11 @@ class HorizontalTailNoStruct(Model):
                             - 0.0706*taper + 0.0119)], reltol=0.2),
                 # NOTE: slightly slack
                 TCS([e*(1 + fl*ARh) <= 1]),
+
+                ARh == bht**2/Sh,
+                
                 taper >= 0.2, # TODO: make less arbitrary
+                taper <= 1,
 
                 tanLh == tanLh,
 

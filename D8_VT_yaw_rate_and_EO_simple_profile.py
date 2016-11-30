@@ -912,15 +912,6 @@ if __name__ == '__main__':
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
 ##             'w_{fuse}': 6,
 
-            #subs for the HT
-##            'C_{L_{max}}': 2,
-##            '\\alpha_{max,h}': 2.5,
-##            'SM_{min}': 0.5,
-##            '\\Delta x_{CG}': 4,
-##            'C_{L_{hmax}}': 2.5,
-##             '\\rho_0': 1.225,
-##             '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-
 
              #think about how to constrain this
 ##             'x_w': 19,
