@@ -90,8 +90,8 @@ class AircraftP(Model):
                 WLoadmax == 6664 * units('N/m^2'),
 
                 #compute the drag
-##                TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.htP['D_{ht}'] + self.VTP['D_{vt}']]),
-                TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] +  self.VTP['D_{vt}']]),
+                TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.htP['D_{ht}'] + self.VTP['D_{vt}']]),
+##                TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] +  self.VTP['D_{vt}']]),
 
                 #constraint CL and compute the wing loading
                 W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,      
@@ -400,14 +400,13 @@ class Wing(Model):
 
             #compute wing span and aspect ratio, subject to a span constraint
             AR == (span**2)/S,
-            #AR == 9,
 
             span <= span_max,
 
             #compute K for the aircraft
             K == (pi * e * AR)**-1,
 
-            Vne == Vne,
+            Vne == 144*units('m/s'),
             cwma == cwma,
             cmw == cmw,
             CLmax == CLmax,
@@ -564,8 +563,8 @@ class Mission(Model):
 
         constraints.extend([
             #weight constraints
-##            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.ht['W_{struct}'] + 2*ac.VT['W_{struct}'] <= Wnofuel]),
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + 2*ac.VT['W_{struct}'] <= Wnofuel]),
+            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.ht['W_{struct}'] + 2*ac.VT['W_{struct}'] <= Wnofuel]),
+##            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + 2*ac.VT['W_{struct}'] <= Wnofuel]),
             TCS([Wnofuel + W_ftotal <= W_total]),
 
             climb['W_{start}'][0] == W_total,
@@ -667,7 +666,7 @@ class Mission(Model):
                 
 
                 #compute the HT chord at its attachment point to the VT
-                (ac.ht['b_{ht}']/ac.fuse['w_{fuse}'])*ac.ht['\lambda_h']*ac.ht['c_{root_h}'] == ac.ht['c_{attach}']                                             
+                (ac.ht['b_{ht}']/ac.fuse['w_{fuse}'])*ac.ht['\lambda_h']*ac.ht['c_{root_h}'] == ac.ht['c_{attach}'],
                 ])
  
         #VT constriants
@@ -790,6 +789,6 @@ if __name__ == '__main__':
             }
            
     m = Mission(ac, substitutions)
-##    sol = m.localsolve(solver='mosek', verbosity = 4)
-    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
+    sol = m.localsolve(solver='mosek', verbosity = 4)
+##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
     
