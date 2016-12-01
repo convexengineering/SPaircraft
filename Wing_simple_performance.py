@@ -494,8 +494,10 @@ class Mission(Model):
             #set the TSFC
             cls.climbP.engineP['TSFC'] == .7*units('1/hr'),
             crs.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
+            ])
 
-            #wing constraints
+        #wing constraints
+        constraints.extend([
             ac.wing['W_{fuel_{wing}}'] == W_ftotal,
             cls.climbP.wingP['L_w'] == cls.climbP.aircraftP['W_{avg}'],
             crs.cruiseP.wingP['L_w'] == crs.cruiseP.aircraftP['W_{avg}'],
@@ -642,6 +644,10 @@ class WingPerformance(Model):
         D       = Variable('D_{wing}', 'N', 'Wing drag')
         Lw      = Variable('L_w', 'N', 'Wing lift')
         W0      = Variable('W_0', 'N', 'Weight excluding wing')
+
+        #wing moment variables -- need a good way to model this, currenlty using TAT
+        cmw = Variable('c_{m_{w}}', '-', 'Wing Pitching Moment Coefficient')
+        
         #make constraints
         constraints = []
 
@@ -672,6 +678,10 @@ class WingPerformance(Model):
                    + 2.2e-3*Re**0.14*self.wing['\\tau']**0.033/(CLw**0.01*CDp**0.73)
                    + 6.14e-6*CLw**6.53/(Re**0.99*self.wing['\\tau']**0.52*CDp**5.19)
                    + 1.19e4*CLw**9.78*self.wing['\\tau']**1.76/(Re*CDp**0.91)),
+
+
+                #consider a better way to do this later
+                cmw == 1,
                 ])
 
         Model.__init__(self, None, constraints)
