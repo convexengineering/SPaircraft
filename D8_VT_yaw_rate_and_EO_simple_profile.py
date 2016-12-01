@@ -594,8 +594,7 @@ class Mission(Model):
             ])
         
         # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + climb + cruise, subs)
-        Model.__init__(self, W_ftotal, constraints + ac + climb + cruise, subs)
-
+        return constraints , ac , climb , cruise
 
 class VerticalTail(Model):
     """
@@ -635,7 +634,7 @@ class VerticalTailNoStruct(Model):
     6: Engineering toolbox
     7: Boeing.com
     """
-    def __init__(self, **kwargs):
+    def setup(self, **kwargs):
         #define new variables
         Avt    = Variable('A_{vt}', '-', 'Vertical tail aspect ratio')
         CDwm   = Variable('C_{D_{wm}}', '-', 'Windmill drag coefficient')
@@ -748,13 +747,13 @@ class VerticalTailNoStruct(Model):
                 xCGvt == xCGvt,
                 ])
 
-        Model.__init__(self, None, constraints)
+       return constraints
 
 class VerticalTailPerformance(Model):
     """
     Vertical tail perofrmance model
     """
-    def __init__(self, vt, fuse, state):
+    def setup(self, vt, fuse, state):
         self.fuse = fuse
         self.vt = vt
 
@@ -795,7 +794,7 @@ class VerticalTailPerformance(Model):
 
             ])
 
-        Model.__init__(self, None, constraints)
+        return constraints
 
 class WingBox(Model):
     """
@@ -805,7 +804,7 @@ class WingBox(Model):
     Note - does not have a performance model
     """
 
-    def __init__(self, surface, **kwargs):
+    def setup(self, surface, **kwargs):
         # Variables
         Icap    = Variable('I_{cap}', '-',
                            'Non-dim spar cap area moment of inertia')
@@ -891,7 +890,7 @@ class WingBox(Model):
                        Wstruct/3 >= (1 + fwadd)*(Wweb + Wcap),
                        ]
         
-        Model.__init__(self, None, constraints, **kwargs)
+        return constraints
 
 if __name__ == '__main__':
     plot = False

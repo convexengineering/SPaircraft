@@ -569,7 +569,7 @@ class WingNoStruct(Model):
         AR      = Variable('AR', '-', 'Wing aspect ratio')
         Lmax    = Variable('L_{max}', 'N', 'Maximum load')
         Sw      = Variable('S', 'm^2', 'Wing area')
-        Vne     = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
+        Vne     = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         WfuelWing   = Variable('W_{fuel_{wing}}', 'N', 'Fuel weight')
         b       = Variable('b', 'm', 'Wing span')
         #the following two variables have the same name in the flight profile and

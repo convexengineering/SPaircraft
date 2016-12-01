@@ -1,9 +1,9 @@
-"""Creates a D8 empenage static and performance model"""
+"""Creates a D8 empennage static and performance model"""
 from numpy import pi, tan
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize, SignomialEquality
 from gpkit.tools import te_exp_minus1
-from gpkit.constraints.tight import TightConstraintSet as TCS
+from gpkit.constraints.tight import Tight as TCS
 import matplotlib.pyplot as plt
 
 from D8_HT_simple_profile import HorizontalTail
@@ -13,34 +13,34 @@ from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail
 from collections import defaultdict
 from gpkit.small_scripts import mag
 
-class Empenage(Model):
-    "Empenage class"
+class Empennage(Model):
+    "Empennage class"
     def __init__(self, **kwargs):
-        self.ht = HorizontalTail()
+        self.HT = HorizontalTail()
         self.VT = VerticalTail()
 
-        Model.__init__(self, None, self.ht + self.VT, **kwargs)
+        Model.__init__(self, None, self.HT + self.VT, **kwargs)
 
     def dynamic(self, fuse, wing, state):
         """
-        create an empenage perforamnce model
+        create an empennage perforamnce model
         """
-        return EmpenagePerformance(self, fuse, wing, state)
+        return EmpennagePerformance(self, fuse, wing, state)
 
-class EmpenagePerformance(Model):
+class EmpennagePerformance(Model):
     """
-    Empenage performance model
+    Empennage performance model
     """
-    def __init__(self, empenage, fuse, wing, state):
-        self.empenage = empenage
+    def __init__(self, empennage, fuse, wing, state):
+        self.empennage = empennage
         self.fuse = fuse
         self.wing = wing
         self.state = state
 
-        self.htP = self.empenage.ht.dynamic(self.fuse, self.wing, state)
-        self.VTP = self.empenage.VT.dynamic(self.fuse, state)
+        self.HTP = self.empennage.HT.dynamic(self.fuse, self.wing, state)
+        self.VTP = self.empennage.VT.dynamic(self.fuse, state)
 
-        Model.__init__(self, None, self.htP + self.VTP)
+        Model.__init__(self, None, self.HTP + self.VTP)
     
 class Aircraft(Model):
     "Aircraft class"
@@ -49,7 +49,7 @@ class Aircraft(Model):
         self.fuse = Fuselage()
         self.wing = Wing()
         self.engine = Engine()
-        self.empenage = Empenage()
+        self.empennage = Empennage()
 
         #variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
@@ -60,7 +60,7 @@ class Aircraft(Model):
             numeng == numeng, #need numeng in the model
             ])
 
-        self.components = [self.fuse, self.wing, self.engine, self.empenage]
+        self.components = [self.fuse, self.wing, self.engine, self.empennage]
 ##        self.components = [self.fuse, self.wing, self.engine, self.VT]
 
         Model.__init__(self, None, [self.components + constraints], **kwargs)
@@ -88,9 +88,9 @@ class AircraftP(Model):
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
         self.engineP = aircraft.engine.dynamic(state)
-        self.empenageP = aircraft.empenage.dynamic(aircraft.fuse, aircraft.wing, state)
+        self.empennageP = aircraft.empennage.dynamic(aircraft.fuse, aircraft.wing, state)
 
-        self.Pmodels = [self.wingP, self.fuseP, self.engineP, self.empenageP]
+        self.Pmodels = [self.wingP, self.fuseP, self.engineP, self.empennageP]
 ##        self.Pmodels = [self.wingP, self.fuseP, self.engineP, self.VTP]
 
         #variable definitions
@@ -117,7 +117,7 @@ class AircraftP(Model):
                 WLoadmax == 6664 * units('N/m^2'),
 
                 #compute the drag
-                TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.empenageP.htP['D_{ht}'] + self.empenageP.VTP['D_{vt}']]),
+                TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.empennageP.HTP['D_{ht}'] + self.empennageP.VTP['D_{vt}']]),
 ##                TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] +  self.VTP['D_{vt}']]),
 
                 #constraint CL and compute the wing loading
@@ -590,8 +590,8 @@ class Mission(Model):
 
         constraints.extend([
             #weight constraints
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.empenage.ht['W_{struct}'] + 2*ac.empenage.VT['W_{struct}'] <= Wnofuel]),
-##            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + 2*ac.empenage.VT['W_{struct}'] <= Wnofuel]),
+            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + ac.empennage.HT['W_{struct}'] + 2*ac.empennage.VT['W_{struct}'] <= Wnofuel]),
+##            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + 2*ac.empennage.VT['W_{struct}'] <= Wnofuel]),
             TCS([Wnofuel + W_ftotal <= W_total]),
 
             climb['W_{start}'][0] == W_total,
@@ -642,81 +642,81 @@ class Mission(Model):
                 cruise['C_{L_h}'] >= 0.9*cruise['C_{L_{ah}}']*cruise['\\alpha'],
 
                 # Trim condidtion for each flight segment
-                TCS([cruise['x_{ac}']/ac.wing['\\bar{c}_w'] <= ac.wing['c_{m_{w}}']/cruise['C_{L}'] + xcg/ac.wing['\\bar{c}_w'] + ac.empenage.ht['V_{h}']*(cruise['C_{L_h}']/cruise['C_{L}'])]),
+                TCS([cruise['x_{ac}']/ac.wing['\\bar{c}_w'] <= ac.wing['c_{m_{w}}']/cruise['C_{L}'] + xcg/ac.wing['\\bar{c}_w'] + ac.empennage.HT['V_{h}']*(cruise['C_{L_h}']/cruise['C_{L}'])]),
                 
-                ac.empenage.ht['L_{{max}_h}'] == 0.5*ac.empenage.ht['\\rho_0']*ac.wing['V_{ne}']**2*ac.empenage.ht['S_h']*ac.empenage.ht['C_{L_{hmax}}'],
+                ac.empennage.HT['L_{{max}_h}'] == 0.5*ac.empennage.HT['\\rho_0']*ac.wing['V_{ne}']**2*ac.empennage.HT['S_h']*ac.empennage.HT['C_{L_{hmax}}'],
                 #compute mrat, is a signomial equality
-                SignomialEquality(ac.empenage.ht['m_{ratio}']*(1+2/ac.wing['AR']), 1 + 2/ac.empenage.ht['AR_h']),
+                SignomialEquality(ac.empennage.HT['m_{ratio}']*(1+2/ac.wing['AR']), 1 + 2/ac.empennage.HT['AR_h']),
 
                 #tail volume coefficient
                 
-                ac.empenage.ht['V_{h}'] == ac.empenage.ht['S_h']*ac.empenage.ht['x_{CG_{ht}}']/(ac.wing['S']*ac.wing['\\bar{c}_w']),
+                ac.empennage.HT['V_{h}'] == ac.empennage.HT['S_h']*ac.empennage.HT['x_{CG_{ht}}']/(ac.wing['S']*ac.wing['\\bar{c}_w']),
 
                 #enforce max tail location is the end of the fuselage
-                ac.empenage.ht['x_{CG_{ht}}'] <= ac.fuse['l_{fuse}'],
+                ac.empennage.HT['x_{CG_{ht}}'] <= ac.fuse['l_{fuse}'],
 
                 #Stability constraint, is a signomial
-                TCS([ac.empenage.ht['SM_{min}'] + ac.empenage.ht['\\Delta x_{CG}']/ac.wing['\\bar{c}_w'] <= ac.empenage.ht['V_{h}']*ac.empenage.ht['m_{ratio}'] + ac.wing['c_{m_{w}}']/ac.wing['C_{L_{max}}'] + ac.empenage.ht['V_{h}']*ac.empenage.ht['C_{L_{hmax}}']/ac.wing['C_{L_{max}}']]),
+                TCS([ac.empennage.HT['SM_{min}'] + ac.empennage.HT['\\Delta x_{CG}']/ac.wing['\\bar{c}_w'] <= ac.empennage.HT['V_{h}']*ac.empennage.HT['m_{ratio}'] + ac.wing['c_{m_{w}}']/ac.wing['C_{L_{max}}'] + ac.empennage.HT['V_{h}']*ac.empennage.HT['C_{L_{hmax}}']/ac.wing['C_{L_{max}}']]),
 
-                ac.empenage.ht['l_{ht}'] >= ac.empenage.ht['x_{CG_{ht}}'] - xcg,
+                ac.empennage.HT['l_{ht}'] >= ac.empennage.HT['x_{CG_{ht}}'] - xcg,
                 TCS([ac.wing['x_w'] >= xcg + cruise['\\Delta x_w']]),
                 TCS([xcg + cruise['\\Delta x_{{trail}_h}'] <= ac.fuse['l_{fuse}']], reltol=0.002),
 
-                TCS([ac.empenage.ht['x_{CG_{ht}}'] >= xcg+(cruise['\\Delta x_{{lead}_h}']+cruise['\\Delta x_{{trail}_h}'])/2]),
+                TCS([ac.empennage.HT['x_{CG_{ht}}'] >= xcg+(cruise['\\Delta x_{{lead}_h}']+cruise['\\Delta x_{{trail}_h}'])/2]),
 
                 climb['C_{L_h}'] <= 1.1*climb['C_{L_{ah}}']*climb['\\alpha'],
                 climb['C_{L_h}'] >= 0.9*climb['C_{L_{ah}}']*climb['\\alpha'],
 
                 # Trim condidtion for each flight segment
-                TCS([climb['x_{ac}']/ac.wing['\\bar{c}_w'] <= ac.wing['c_{m_{w}}']/climb['C_{L}'] + xcg/ac.wing['\\bar{c}_w'] + ac.empenage.ht['V_{h}']*(climb['C_{L_h}']/climb['C_{L}'])]),
+                TCS([climb['x_{ac}']/ac.wing['\\bar{c}_w'] <= ac.wing['c_{m_{w}}']/climb['C_{L}'] + xcg/ac.wing['\\bar{c}_w'] + ac.empennage.HT['V_{h}']*(climb['C_{L_h}']/climb['C_{L}'])]),
                 
 
 
 
-                ac.empenage.ht['l_{ht}'] >= ac.empenage.ht['x_{CG_{ht}}'] - xcg,
+                ac.empennage.HT['l_{ht}'] >= ac.empennage.HT['x_{CG_{ht}}'] - xcg,
                 TCS([ac.wing['x_w'] >= xcg + climb['\\Delta x_w']]),
                 TCS([xcg + climb['\\Delta x_{{trail}_h}'] <= ac.fuse['l_{fuse}']], reltol=0.002),
                 #compute the aerodynamic center location
                 TCS([climb['x_{ac}'] <= xcg + climb['\\Delta x_w'] ]),
 
 
-                TCS([ac.empenage.ht['x_{CG_{ht}}'] >= xcg+(climb['\\Delta x_{{lead}_h}']+climb['\\Delta x_{{trail}_h}'])/2]),
+                TCS([ac.empennage.HT['x_{CG_{ht}}'] >= xcg+(climb['\\Delta x_{{lead}_h}']+climb['\\Delta x_{{trail}_h}'])/2]),
                     
                 TCS([cruise['x_{ac}'] <= xcg + cruise['\\Delta x_w'] ]),
 
-                TCS([ac.empenage.ht['x_{CG_{ht}}'] >= xcg+(cruise['\\Delta x_{{lead}_h}']+cruise['\\Delta x_{{trail}_h}'])/2]),
+                TCS([ac.empennage.HT['x_{CG_{ht}}'] >= xcg+(cruise['\\Delta x_{{lead}_h}']+cruise['\\Delta x_{{trail}_h}'])/2]),
                 #---------------------------------------------------------#
                 #REMOVE FROM OVERALL MODEL
-                cruise['\\alpha'] <= ac.empenage.ht['\\alpha_{max,h}'],
-                climb['\\alpha'] <= ac.empenage.ht['\\alpha_{max,h}'],
+                cruise['\\alpha'] <= ac.empennage.HT['\\alpha_{max,h}'],
+                climb['\\alpha'] <= ac.empennage.HT['\\alpha_{max,h}'],
                     
                 
 
                 #compute the HT chord at its attachment point to the VT
-                (ac.empenage.ht['b_{ht}']/ac.fuse['w_{fuse}'])*ac.empenage.ht['\lambda_h']*ac.empenage.ht['c_{root_h}'] == ac.empenage.ht['c_{attach}'],
+                (ac.empennage.HT['b_{ht}']/ac.fuse['w_{fuse}'])*ac.empennage.HT['\lambda_h']*ac.empennage.HT['c_{root_h}'] == ac.empennage.HT['c_{attach}'],
                 ])
  
         #VT constriants
         constraints.extend([
-            ac.empenage.VT['T_e'] == climb.climbP.engineP['thrust'][0],
+            ac.empennage.VT['T_e'] == climb.climbP.engineP['thrust'][0],
 
             # Drag of a windmilling engine
-            ac.empenage.VT['D_{wm}'] >= 0.5*ac.empenage.VT['\\rho_{TO}']*ac.empenage.VT['V_1']**2*ac.engine['A_2']*ac.empenage.VT['C_{D_{wm}}'],
+            ac.empennage.VT['D_{wm}'] >= 0.5*ac.empennage.VT['\\rho_{TO}']*ac.empennage.VT['V_1']**2*ac.engine['A_2']*ac.empennage.VT['C_{D_{wm}}'],
             
-            ac.empenage.VT['x_{CG_{vt}}'] <= ac.fuse['l_{fuse}'],
+            ac.empennage.VT['x_{CG_{vt}}'] <= ac.fuse['l_{fuse}'],
             
             #VTP constraints
-            ac.fuse['l_{fuse}'] >= ac.empenage.VT['\\Delta x_{lead_v}'] + xcg,
-            ac.empenage.VT['x_{CG_{vt}}'] >= xcg+(ac.empenage.VT['\\Delta x_{lead_v}']+ac.empenage.VT['\\Delta x_{trail_v}'])/2,
+            ac.fuse['l_{fuse}'] >= ac.empennage.VT['\\Delta x_{lead_v}'] + xcg,
+            ac.empennage.VT['x_{CG_{vt}}'] >= xcg+(ac.empennage.VT['\\Delta x_{lead_v}']+ac.empennage.VT['\\Delta x_{trail_v}'])/2,
 
-            ac.fuse['l_{fuse}'] >= ac.empenage.VT['\\Delta x_{lead_v}'] + xcg,
-            ac.empenage.VT['x_{CG_{vt}}'] >= xcg+(ac.empenage.VT['\\Delta x_{lead_v}']+ac.empenage.VT['\\Delta x_{trail_v}'])/2,
+            ac.fuse['l_{fuse}'] >= ac.empennage.VT['\\Delta x_{lead_v}'] + xcg,
+            ac.empennage.VT['x_{CG_{vt}}'] >= xcg+(ac.empennage.VT['\\Delta x_{lead_v}']+ac.empennage.VT['\\Delta x_{trail_v}'])/2,
             ])
 
         #VT HT linking constraint
         constraints.extend([
-            ac.empenage.VT['c_{tip_{vt}}'] <= ac.empenage.ht['c_{attach}'],
-            ac.empenage.ht['c_{attach}'] <= 1.2 * ac.empenage.VT['c_{tip_{vt}}'],
+            ac.empennage.VT['c_{tip_{vt}}'] <= ac.empennage.HT['c_{attach}'],
+            ac.empennage.HT['c_{attach}'] <= 1.2 * ac.empennage.VT['c_{tip_{vt}}'],
             ])
 
         Model.__init__(self, W_ftotal, constraints + ac + climb + cruise, substitutions)
