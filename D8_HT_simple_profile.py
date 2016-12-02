@@ -27,7 +27,7 @@ Inputs
 
 class Aircraft(Model):
     "Aircraft class"
-    def __init__(self, **kwargs):
+    def setup(self, **kwargs):
         #create submodels
         self.fuse = Fuselage()
         self.wing = Wing()
@@ -45,7 +45,7 @@ class Aircraft(Model):
 
         self.components = [self.fuse, self.wing, self.engine, self.HT]
 
-        Model.__init__(self, None, [self.components + constraints], **kwargs)
+        return self.components, constraints
         
     def climb_dynamic(self, state):
         """
@@ -64,7 +64,7 @@ class AircraftP(Model):
     aircraft performance models superclass, contains constraints true for
     all flight segments
     """
-    def  __init__(self, aircraft, state, **kwargs):
+    def  setup(self, aircraft, state, **kwargs):
         #make submodels
         self.aircraft = aircraft
         self.wingP = aircraft.wing.dynamic(state)
@@ -120,13 +120,13 @@ class AircraftP(Model):
                 self.wingP['L_{wing}'] >= W_avg,
                  ])
 
-        Model.__init__(self, None, [self.Pmodels + constraints], **kwargs)
+        return self.Pmodels, constraints
 
 class ClimbP(Model):
     """
     Climb constraints
     """
-    def __init__(self, aircraft, state, **kwargs):
+    def setup(self, aircraft, state, **kwargs):
         #submodels
         self.aircraft = aircraft
         self.aircraftP = AircraftP(aircraft, state)
@@ -163,13 +163,13 @@ class ClimbP(Model):
             RngClimb == self.aircraftP['thr']*state['V'],
             ])
 
-        Model.__init__(self, None, constraints + self.aircraftP)
+        return constraints, self.aircraftP
 
 class CruiseP(Model):
     """
     Cruise constraints
     """
-    def __init__(self, aircraft, state, **kwargs):
+    def setup(self, aircraft, state, **kwargs):
         self.aircraft = aircraft
         self.aircraftP = AircraftP(aircraft, state)
         self.wingP = self.aircraftP.wingP
@@ -198,34 +198,34 @@ class CruiseP(Model):
              self.aircraftP['thr'] * state['V'] == Rng,
              ])
 
-        Model.__init__(self, None, constraints + self.aircraftP)
+        return constraints, self.aircraftP
 
 class CruiseSegment(Model):
     """
     Combines a flight state and aircrat to form a cruise flight segment
     """
-    def __init__(self, aircraft, **kwargs):
+    def setup(self, aircraft, **kwargs):
         self.state = FlightState()
         self.cruiseP = aircraft.cruise_dynamic(self.state)
 
-        Model.__init__(self, None, [self.state, self.cruiseP], **kwargs)
+        return self.state, self.cruiseP
 
 class ClimbSegment(Model):
     """
     Combines a flight state and aircrat to form a cruise flight segment
     """
-    def __init__(self, aircraft, **kwargs):
+    def setup(self, aircraft, **kwargs):
         self.state = FlightState()
         self.climbP = aircraft.climb_dynamic(self.state)
 
-        Model.__init__(self, None, [self.state, self.climbP], **kwargs)
+        return self.state, self.climbP
 
 class FlightState(Model):
     """
     creates atm model for each flight segment, has variables
     such as veloicty and altitude
     """
-    def __init__(self,**kwargs):
+    def setup(self,**kwargs):
         #make an atmosphere model
         self.alt = Altitude()
         self.atm = Atmosphere(self.alt)
@@ -252,13 +252,13 @@ class FlightState(Model):
             ])
 
         #build the model
-        Model.__init__(self, None, constraints + self.atm + self.alt, **kwargs)
+        return constraints, self.atm, self.alt
 
 class Altitude(Model):
     """
     holds the altitdue variable
     """
-    def __init__(self, **kwargs):
+    def setup(self, **kwargs):
         #define altitude variables
         h = Variable('h', 'm', 'Segment Altitude [meters]')
         hft = Variable('hft', 'feet', 'Segment Altitude [feet]')
@@ -269,7 +269,7 @@ class Altitude(Model):
             h == hft, #convert the units on altitude
             ])
 
-        Model.__init__(self, None, constraints, **kwargs)
+        return constraints
             
 
 class Atmosphere(Model):
@@ -327,7 +327,7 @@ class Engine(Model):
     """
     place holder engine model
     """
-    def __init__(self, **kwargs):
+    def setup(self, **kwargs):
         #new variables
         W_engine = Variable('W_{engine}', 1000, 'N', 'Weight of a Single Turbofan Engine')
         
@@ -337,7 +337,7 @@ class Engine(Model):
             W_engine == W_engine
             ])
 
-        Model.__init__(self, None, constraints)
+        return constraints
 
     def dynamic(self, state):
             """
@@ -349,7 +349,7 @@ class EnginePerformance(Model):
     """
     place holder engine perofrmacne model
     """
-    def __init__(self, engine, state, **kwargs):
+    def setup(self, engine, state, **kwargs):
         #new variables
         TSFC = Variable('TSFC', '1/hr', 'Thrust Specific Fuel Consumption')
         thrust = Variable('thrust', 'N', 'Thrust')
@@ -363,14 +363,14 @@ class EnginePerformance(Model):
             thrust == thrust, #want thrust to enter the model
             ])
 
-        Model.__init__(self, None, constraints)
+        return constraints
 
 
 class Wing(Model):
     """
     place holder wing model
     """
-    def __init__(self, ** kwargs):
+    def setup(self, ** kwargs):
         #new variables
         W_wing = Variable('W_{wing}', 'N', 'Wing Weight')
                            
@@ -419,7 +419,7 @@ class Wing(Model):
             xw == xw,
             ])
 
-        Model.__init__(self, None, constraints)
+        return constraints
 
     def dynamic(self, state):
         """
@@ -432,7 +432,7 @@ class WingPerformance(Model):
     """
     wing aero modeling
     """
-    def __init__(self, wing, state, **kwargs):
+    def setup(self, wing, state, **kwargs):
         #new variables
         CL= Variable('C_{L}', '-', 'Lift Coefficient')
         Cdw = Variable('C_{d_w}', '-', 'Cd for a NC130 Airfoil at Re=2e7')
@@ -460,13 +460,13 @@ class WingPerformance(Model):
             CLaw == 5,
             ])
 
-        Model.__init__(self, None, constraints)
+        return constraints
 
 class Fuselage(Model):
     """
     place holder fuselage model
     """
-    def __init__(self, **kwargs):
+    def setup(self, **kwargs):
         #new variables
         n_pax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
                            
@@ -496,7 +496,7 @@ class Fuselage(Model):
             W_e == .75*W_payload,
             ])
 
-        Model.__init__(self, None, constraints)
+        return constraints
 
     def dynamic(self, state):
         """
@@ -508,7 +508,7 @@ class FuselagePerformance(Model):
     """
     Fuselage performance model
     """
-    def __init__(self, fuse, state, **kwargs):
+    def setup(self, fuse, state, **kwargs):
         #new variables
         Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
         Dfuse = Variable('D_{fuse}', 'N', 'Total Fuselage Drag')
@@ -528,24 +528,24 @@ class FuselagePerformance(Model):
             Cmfu == .05,
             ])
 
-        Model.__init__(self, None, constraints)
+        return constraints
     
 
 class Mission(Model):
     """
     mission class, links together all subclasses
     """
-    def __init__(self, ac, substitutions = None, **kwargs):
+    def __init__(self, aircraft, substitutions = None, **kwargs):
         #define the number of each flight segment
         Nclimb = 2
         Ncruise = 2
 
         #Vectorize
         with Vectorize(Nclimb):
-            climb = ClimbSegment(ac)
+            climb = ClimbSegment(aircraft)
 
         with Vectorize(Ncruise):
-            cruise = CruiseSegment(ac)
+            cruise = CruiseSegment(aircraft)
 
         #declare new variables
         W_ftotal = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
@@ -567,7 +567,7 @@ class Mission(Model):
 
         constraints.extend([
             #weight constraints
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + aircraft.HT['W_{struct}'] <= W_total]),
+            TCS([aircraft['W_{e}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng'] * aircraft['W_{engine}'] + aircraft['W_{wing}'] + aircraft.HT['W_{struct}'] <= W_total]),
 
             climb['W_{start}'][0] == W_total,
             climb['W_{end}'][-1] == cruise['W_{start}'][0],
@@ -580,7 +580,7 @@ class Mission(Model):
             climb['W_{start}'][1:] == climb['W_{end}'][:-1],
             cruise['W_{start}'][1:] == cruise['W_{end}'][:-1],
 
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + aircraft.HT['W_{struct}'] <= cruise['W_{end}'][-1]]),
+            TCS([aircraft['W_{e}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft['W_{engine}'] + aircraft['W_{wing}'] + aircraft.HT['W_{struct}'] <= cruise['W_{end}'][-1]]),
 
             TCS([W_ftotal >=  W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(climb['W_{burn}'])]),
@@ -669,7 +669,7 @@ class Mission(Model):
                                               
                 ])
 
-        Model.__init__(self, W_ftotal, constraints + ac + climb + cruise, substitutions)
+        Model.__init__(self, W_ftotal, constraints + aircraft + climb + cruise, substitutions)
 
     def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
         "Returns model with additional constraints bounding all free variables"
@@ -724,7 +724,7 @@ class HorizontalTailNoStruct(Model):
     This model does not include the effects of wing downwash on tail
     effectiveness.
     """
-    def __init__(self, **kwargs):
+    def setup(self, **kwargs):
         
         #variables
         p       = Variable('p_{ht}', '-', 'Substituted variable = 1 + 2*taper')
@@ -784,7 +784,7 @@ class HorizontalTailNoStruct(Model):
                      chma]), # [SP]
                 taper == ctip/croot,
                 SignomialEquality(Sh, bht*(croot + ctip)/2),
-                TCS([Sh <= bht*(croot + ctip)/2]), # [SP]
+                # TCS([Sh <= bht*(croot + ctip)/2]), # [SP]
 
                 # Oswald efficiency
                 # Nita, Scholz,
@@ -830,13 +830,13 @@ class HorizontalTailNoStruct(Model):
 ##                Sh >= .1*units('m^2'),
                 ])
 
-        Model.__init__(self, None, constraints)
+        return constraints
 
 class HorizontalTailPerformance(Model):
     """
     Horizontal tail performance model
     """
-    def __init__(self, ht, fuse, wing, state, **kwargs):
+    def setup(self, ht, fuse, wing, state, **kwargs):
         self.HT = ht
         self.fuse = fuse
         self.wing = wing
@@ -913,7 +913,7 @@ class HorizontalTailPerformance(Model):
                 dxw == dxw,
                 ])
 
-        Model.__init__(self, None, constraints)
+        return constraints
 
 class HorizontalTail(Model):
     """
@@ -945,7 +945,7 @@ class WingBox(Model):
     Note - does not have a performance model
     """
 
-    def __init__(self, surface, **kwargs):
+    def setup(self, surface, **kwargs):
         # Variables
         Icap    = Variable('I_{cap}', '-',
                            'Non-dim spar cap area moment of inertia')
@@ -1019,7 +1019,7 @@ class WingBox(Model):
                        Wstruct >= (1 + fwadd)*(Wweb + Wcap),
                        ]
         
-        Model.__init__(self, None, constraints, **kwargs)
+        return constraints
 
 
 
@@ -1068,7 +1068,7 @@ if __name__ == '__main__':
             }
            
     m = Mission(aircraft, substitutions)
-    sol = m.localsolve(solver='mosek', verbosity = 4)
+    sol = m.localsolve(solver='mosek', verbosity = 2)
 ##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
 
     if plot == True:
@@ -1111,7 +1111,7 @@ if __name__ == '__main__':
                 '\\bar{c}_w': 2,
                 }
                
-        m = Mission(ac, substitutions)
+        m = Mission(aircraft, substitutions)
         solRsweep = m.localsolve(solver='mosek', verbosity = 4)
         
         plt.plot(solRsweep('ReqRng'), solRsweep('AR_h'), '-r')
