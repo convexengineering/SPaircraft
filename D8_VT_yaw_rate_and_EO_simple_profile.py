@@ -271,7 +271,7 @@ class Altitude(Model):
         return constraints
 
 class Atmosphere(Model):
-    def __init__(self, alt, **kwargs):
+    def setup(self, alt, **kwargs):
         g = Variable('g', 'm/s^2', 'Gravitational acceleration')
         p_sl = Variable("p_{sl}", 101325, "Pa", "Pressure at sea level")
         T_sl = Variable("T_{sl}", 288.15, "K", "Temperature at sea level")
@@ -283,7 +283,6 @@ class Atmosphere(Model):
         TH = 5.257386998354459 #(g*M_atm/R_atm/L_atm).value
         rho = Variable('\\rho', 'kg/m^3', 'Density of air')
         T_atm = Variable("T_{atm}", "K", "air temperature")
-        h = Variable("h", "m", "Altitude")
 
         """
         Dynamic viscosity (mu) as a function of temperature
@@ -316,7 +315,7 @@ class Atmosphere(Model):
         #like to use a local subs here in the future
         substitutions = None
 
-        Model.__init__(self, None, constraints, substitutions)
+        return constraints
 
 class Engine(Model):
     """
@@ -633,7 +632,7 @@ class VerticalTailNoStruct(Model):
     6: Engineering toolbox
     7: Boeing.com
     """
-    def __init__(self, **kwargs):
+    def setup(self, **kwargs):
         #define new variables
         Avt    = Variable('A_{vt}', '-', 'Vertical tail aspect ratio')
         CDwm   = Variable('C_{D_{wm}}', '-', 'Windmill drag coefficient')
@@ -648,7 +647,6 @@ class VerticalTailNoStruct(Model):
         Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area (half)')
         V1     = Variable('V_1', 'm/s', 'Minimum takeoff velocity')
         Vne    = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
-        Wstruct= Variable('W_{struct}', 'N', 'Full span weight')
         Wvt    = Variable('W_{vt}', 'N', 'Vertical tail weight')
         bvt    = Variable('b_{vt}', 'm', 'Vertical tail half span')
         cma    = Variable('\\bar{c}_{vt}', 'm', 'Vertical tail mean aero chord')
@@ -746,13 +744,13 @@ class VerticalTailNoStruct(Model):
                 xCGvt == xCGvt,
                 ])
 
-        Model.__init__(self, None, constraints)
+        return constraints
 
 class VerticalTailPerformance(Model):
     """
     Vertical tail perofrmance model
     """
-    def __init__(self, vt, fuse, state):
+    def setup(self, vt, fuse, state):
         self.fuse = fuse
         self.vt = vt
 
@@ -793,7 +791,7 @@ class VerticalTailPerformance(Model):
 
             ])
 
-        Model.__init__(self, None, constraints)
+        return constraints
 
 class WingBox(Model):
     """
@@ -803,7 +801,7 @@ class WingBox(Model):
     Note - does not have a performance model
     """
 
-    def __init__(self, surface, **kwargs):
+    def setup(self, surface):
         # Variables
         Icap    = Variable('I_{cap}', '-',
                            'Non-dim spar cap area moment of inertia')
@@ -889,7 +887,7 @@ class WingBox(Model):
                        Wstruct/3 >= (1 + fwadd)*(Wweb + Wcap),
                        ]
         
-        Model.__init__(self, None, constraints, **kwargs)
+        return constraints
 
 if __name__ == '__main__':
     substitutions = {      
@@ -925,8 +923,8 @@ if __name__ == '__main__':
 
             'N_{spar}': 2,
             }
-           
-    m = Mission()
+    mission = Mission()
+    m = Model(mission['W_{f_{total}}'], mission)
     m.substitutions.update(substitutions)
     sol = m.localsolve(solver='mosek', verbosity = 4)
 
@@ -964,7 +962,8 @@ if __name__ == '__main__':
            'N_{spar}': 2,
             }
            
-    m = Mission()
+    mission = Mission()
+    m = Model(mission['W_{f_{total}}'], mission)
     m.substitutions.update(substitutions)
     solRsweep = m.localsolve(solver='mosek', verbosity = 4)
 
@@ -1084,7 +1083,8 @@ if __name__ == '__main__':
             'N_{spar}': 2,
             }
            
-    m = Mission(substitutions)
+    mission = Mission()
+    m = Model(mission['W_{f_{total}}'], mission)
     solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
 
     RC = []
@@ -1203,7 +1203,8 @@ if __name__ == '__main__':
             'N_{spar}': 2,
             }
            
-    m = Mission(substitutions)
+    mission = Mission()
+    m = Model(mission['W_{f_{total}}'], mission)
     solYawsweep = m.localsolve(solver='mosek', verbosity = 4)
 
     plt.plot(solYawsweep('\\dot{r}_{req}'), solYawsweep('W_{struct}'), '-r')
