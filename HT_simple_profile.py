@@ -441,15 +441,12 @@ class WingPerformance(Model):
 
         CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope, wing')
 
-        alpha   = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
-
         #constraints
         constraints = []
 
         constraints.extend([
             #airfoil drag constraint
             Lwing == (.5*wing['S']*state.atm['\\rho']*state['V']**2)*CL,
-            CL == 2*3.14*alpha,
             
             TCS([Cdw**6.5 >= (1.02458748e10 * CL**15.587947404823325 * state['M']**156.86410659495155 +
                          2.85612227e-13 * CL**1.2774976672501526 * state['M']**6.2534328002723703 +
@@ -605,6 +602,10 @@ class Mission(Model):
             #set the TSFC
             climb['TSFC'] == .7*units('1/hr'),
             cruise['TSFC'] == .5*units('1/hr'),
+
+            #set the wing CL
+            climb['C_{L}'] == 2*3.14*climb['\\alpha'],
+            cruise['C_{L}'] == 2*3.14*climb['\\alpha'],
             ])
         
         #Horizontal Tail Constraints
@@ -862,6 +863,8 @@ class HorizontalTailPerformance(Model):
         CD0h    = Variable('C_{D_{0_h}}', '-',
                            'Horizontal tail parasitic drag coefficient')
 
+        alpha   = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
+
         #new variables
         xac = Variable('x_{ac}', 'm', 'Aerodynamic Center Location')
         
@@ -900,6 +903,8 @@ class HorizontalTailPerformance(Model):
                 dxtrail <= self.fuse['l_{fuse}'],
 
                 dxw == dxw,
+
+                alpha == alpha,
                 ])
 
         Model.__init__(self, None, constraints)
