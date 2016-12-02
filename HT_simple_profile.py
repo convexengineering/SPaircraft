@@ -658,8 +658,7 @@ class Mission(Model):
                 TCS([cruise['x_{ac}'] <= xcg + cruise['\\Delta x_w'] ]),
 ##                SignomialEquality(cruise['x_{ac}'],xcg + cruise['\\Delta x_w'] ),
                 TCS([ac.ht['x_{CG_{ht}}'] >= xcg+(cruise['\\Delta x_{{lead}_h}']+cruise['\\Delta x_{{trail}_h}'])/2]),
-                #---------------------------------------------------------#
-                #REMOVE FROM OVERALL MODEL
+
                 cruise['\\alpha'] <= ac.ht['\\alpha_{max,h}'],
                 climb['\\alpha'] <= ac.ht['\\alpha_{max,h}'],
                     
@@ -765,7 +764,6 @@ class HorizontalTailNoStruct(Model):
         SMmin = Variable('SM_{min}', '-', 'Minimum Static Margin')
         dxcg = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
  
-
         #constraints
         constraints = []
 
