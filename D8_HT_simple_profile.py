@@ -599,8 +599,8 @@ class Mission(Model):
             climb['TSFC'] == .7*units('1/hr'),
             cruise['TSFC'] == .5*units('1/hr'),
 
-            climb['C_{L_h}'] == 2*3.14*climb['\\alpha'],
-            cruise['C_{L_h}'] == 2*3.14*cruise['\\alpha'],
+            # climb['C_{L_h}'] == 2*3.14*climb['\\alpha'],
+            # cruise['C_{L_h}'] == 2*3.14*cruise['\\alpha'],
             ])
         
         #Horizontal Tail Constraints
@@ -637,9 +637,6 @@ class Mission(Model):
 
                 # Trim condidtion for each flight segment
                 TCS([climb['x_{ac}']/aircraft.wing['\\bar{c}_w'] <= aircraft.wing['c_{m_{w}}']/climb['C_{L}'] + xcg/aircraft.wing['\\bar{c}_w'] + aircraft.HT['V_{h}']*(climb['C_{L_h}']/climb['C_{L}'])]),
-                
-
-
 
                 aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - xcg,
                 TCS([aircraft.wing['x_w'] >= xcg + climb['\\Delta x_w']]),
@@ -1067,117 +1064,117 @@ if __name__ == '__main__':
     sol = m.localsolve(solver='mosek', verbosity = 2)
 ##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
 
-    if plot == True:
+    # if plot == True:
 
-        substitutions = {      
-    ##            'V_{stall}': 120,
-                'ReqRng': ('sweep', np.linspace(500,2000,4)),
-                'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
-                'numeng': 1,
-    ##            'W_{Load_max}': 6664,
-                'W_{pax}': 91 * 9.81,
-                'n_{pax}': 150,
-                'pax_{area}': 1,
-    ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
-                'e': .9,
-                'b_{max}': 35,
+    #     substitutions = {      
+    # ##            'V_{stall}': 120,
+    #             'ReqRng': ('sweep', np.linspace(500,2000,4)),
+    #             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
+    #             'numeng': 1,
+    # ##            'W_{Load_max}': 6664,
+    #             'W_{pax}': 91 * 9.81,
+    #             'n_{pax}': 150,
+    #             'pax_{area}': 1,
+    # ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
+    #             'e': .9,
+    #             'b_{max}': 35,
 
-                 'V_{ne}': 144,
-                 'C_{L_{hmax}}': 2.5,
+    #              'V_{ne}': 144,
+    #              'C_{L_{hmax}}': 2.5,
 
-                 '\\rho_0': 1.225,
-                 '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-                 'w_{fuse}': 6,
+    #              '\\rho_0': 1.225,
+    #              '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+    #              'w_{fuse}': 6,
 
-    ##            'l_{fuse}': 30,
-                'c_{m_{w}}': 1,
-                'C_{L_{max}}': 2,
+    # ##            'l_{fuse}': 30,
+    #             'c_{m_{w}}': 1,
+    #             'C_{L_{max}}': 2,
 
-                '\\alpha_{max,h}': 2.5,
-
-         
-                'SM_{min}': 0.5,
-
-                '\\Delta x_{CG}': 4,
-
-    ##            'x_{CG}': [17, 18],
-                 #think about how to constrain this
-                 'x_w': 19,
-
-                '\\bar{c}_w': 2,
-                }
-               
-        mission = Mission(aircraft)
-        m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
-        solRsweep = m.localsolve(solver='mosek', verbosity = 4)
-        
-        plt.plot(solRsweep('ReqRng'), solRsweep('AR_h'), '-r')
-        plt.xlabel('Mission Range [nm]')
-        plt.ylabel('Horizontal Tail Aspect Ratio')
-        plt.title('Horizontal Tail Aspect Ratio vs Range')
-    ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
-        plt.show()
-
-        plt.plot(solRsweep('ReqRng'), solRsweep('S_h'), '-r')
-        plt.xlabel('Mission Range [nm]')
-        plt.ylabel('Horizontal Tail Area [m$^2$]')
-        plt.title('Horizontal Tail Area vs Range')
-    ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
-        plt.show()
-
-        
-        substitutions = {      
-    ##            'V_{stall}': 120,
-                'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
-                'CruiseAlt': ('sweep', np.linspace(20000,40000,4)),
-                'numeng': 1,
-    ##            'W_{Load_max}': 6664,
-                'W_{pax}': 91 * 9.81,
-                'n_{pax}': 150,
-                'pax_{area}': 1,
-    ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
-                'e': .9,
-                'b_{max}': 35,
-
-                 'V_{ne}': 144,
-                 'C_{L_{hmax}}': 2.5,
-
-                 '\\rho_0': 1.225,
-                 '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-                 'w_{fuse}': 6,
-
-    ##            'l_{fuse}': 30,
-                'c_{m_{w}}': 1,
-                'C_{L_{max}}': 2,
-
-                '\\alpha_{max,h}': 2.5,
+    #             '\\alpha_{max,h}': 2.5,
 
          
-                'SM_{min}': 0.5,
+    #             'SM_{min}': 0.5,
 
-                '\\Delta x_{CG}': 4,
+    #             '\\Delta x_{CG}': 4,
 
-    ##            'x_{CG}': [17, 18],
-                 #think about how to constrain this
-                 'x_w': 19,
+    # ##            'x_{CG}': [17, 18],
+    #              #think about how to constrain this
+    #              'x_w': 19,
 
-                '\\bar{c}_w': 2,
-                }
+    #             '\\bar{c}_w': 2,
+    #             }
                
-        mission = Mission(aircraft)
-        m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
-        solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
+    #     mission = Mission(aircraft)
+    #     m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
+    #     solRsweep = m.localsolve(solver='mosek', verbosity = 4)
         
-        plt.plot(solAltsweep('CruiseAlt'), solAltsweep('AR_h'), '-r')
-        plt.xlabel('Cruise Altitude [ft]')
-        plt.ylabel('Horizontal Tail Aspect Ratio')
-        plt.title('Horizontal Tail Aspect Ratio vs Cruise Altitude')
-    ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
-        plt.show()
+    #     plt.plot(solRsweep('ReqRng'), solRsweep('AR_h'), '-r')
+    #     plt.xlabel('Mission Range [nm]')
+    #     plt.ylabel('Horizontal Tail Aspect Ratio')
+    #     plt.title('Horizontal Tail Aspect Ratio vs Range')
+    # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
+    #     plt.show()
 
-        plt.plot(solAltsweep('CruiseAlt'), solAltsweep('S_h'), '-r')
-        plt.xlabel('Cruise Altitude [ft]')
-        plt.ylabel('Horizontal Tail Area [m$^2$]')
-        plt.title('Horizontal Tail Area vs Cruise Altitude')
-    ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
-        plt.show()
+    #     plt.plot(solRsweep('ReqRng'), solRsweep('S_h'), '-r')
+    #     plt.xlabel('Mission Range [nm]')
+    #     plt.ylabel('Horizontal Tail Area [m$^2$]')
+    #     plt.title('Horizontal Tail Area vs Range')
+    # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
+    #     plt.show()
+
+        
+    #     substitutions = {      
+    # ##            'V_{stall}': 120,
+    #             'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
+    #             'CruiseAlt': ('sweep', np.linspace(20000,40000,4)),
+    #             'numeng': 1,
+    # ##            'W_{Load_max}': 6664,
+    #             'W_{pax}': 91 * 9.81,
+    #             'n_{pax}': 150,
+    #             'pax_{area}': 1,
+    # ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
+    #             'e': .9,
+    #             'b_{max}': 35,
+
+    #              'V_{ne}': 144,
+    #              'C_{L_{hmax}}': 2.5,
+
+    #              '\\rho_0': 1.225,
+    #              '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+    #              'w_{fuse}': 6,
+
+    # ##            'l_{fuse}': 30,
+    #             'c_{m_{w}}': 1,
+    #             'C_{L_{max}}': 2,
+
+    #             '\\alpha_{max,h}': 2.5,
+
+         
+    #             'SM_{min}': 0.5,
+
+    #             '\\Delta x_{CG}': 4,
+
+    # ##            'x_{CG}': [17, 18],
+    #              #think about how to constrain this
+    #              'x_w': 19,
+
+    #             '\\bar{c}_w': 2,
+    #             }
+               
+    #     mission = Mission(aircraft)
+    #     m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
+    #     solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
+        
+    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('AR_h'), '-r')
+    #     plt.xlabel('Cruise Altitude [ft]')
+    #     plt.ylabel('Horizontal Tail Aspect Ratio')
+    #     plt.title('Horizontal Tail Aspect Ratio vs Cruise Altitude')
+    # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
+    #     plt.show()
+
+    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('S_h'), '-r')
+    #     plt.xlabel('Cruise Altitude [ft]')
+    #     plt.ylabel('Horizontal Tail Area [m$^2$]')
+    #     plt.title('Horizontal Tail Area vs Cruise Altitude')
+    # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
+    #     plt.show()
