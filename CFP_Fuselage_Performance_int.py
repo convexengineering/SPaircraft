@@ -65,8 +65,6 @@ class Aircraft(Model):
 
         # variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
-        xCG = Variable('x_{CG}','m','x-location of the CG')
-
 
         constraints = []
 
@@ -86,10 +84,6 @@ class Aircraft(Model):
                             # self.wing['\\bar{c}_w'] >= 1*units('m'),
                             # self.wing['y_{\\bar{c}_w}'] == 5.675*units('m'),
                             # self.wing.wb['\bar{A}_{fuel, max}'] == 0.069,
-
-                            # Aircraft CG placeholder
-                            #TODO REMOVE
-                            xCG == 0.65*self.fuse['l_{fuse}'],
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -127,10 +121,6 @@ class Aircraft(Model):
                             (self.HT['b_{ht}']/self.fuse['w_{fuse}'])*self.HT['\lambda_h']* \
                             self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
-                             # Static margin constraint
-                            TCS([self.HT['SM_{min}'] + self.HT['\\Delta x_{CG}']/self.wing['\\bar{c}_w'] <=  \
-                                self.HT['V_{h}']*self.HT['m_{ratio}'] + self.wing['c_{m_{w}}']/self.wing['C_{L_{wmax}}'] + \
-                                    self.HT['V_{h}']*self.HT['C_{L_{hmax}}']/self.wing['C_{L_{wmax}}']]), #[SP]
                             ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
@@ -179,6 +169,8 @@ class AircraftP(Model):
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
         thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
 
+        xCG = Variable('x_{CG}','m','x-location of the CG')
+
         constraints = []
 
         constraints.extend([
@@ -190,13 +182,11 @@ class AircraftP(Model):
             Vstall == 120 * units('kts'),
             WLoadmax == 6664 * units('N/m^2'),
 
-            # compute the drag
+            # Compute the drag
             TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}']]),
-            self.VTP['D_{vt}'] >= 5*units('N'),
 
-            # constraint CL and compute the wing loading
-            W_avg == .5 * \
-            self.wingP['C_{L}'] * self.aircraft['S'] * \
+            # Constrain CL and compute the wing loading
+            W_avg == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * \
             state.atm['\\rho'] * state['V']**2,
             WLoad == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * \
             state.atm['\\rho'] * state['V']**2 / self.aircraft.wing['S'],
@@ -215,20 +205,26 @@ class AircraftP(Model):
             # time unit conversion
             t == thours,
 
-            #VTP constraints
-            # aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + self.fuseP['x_{CG}'],
-            # aircraft.VT['x_{CG_{vt}}'] >= self.fuseP['x_{CG}']+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
+            #TODO CG placeholder
+            xCG == 0.65*self.aircraft.fuse['l_{fuse}'],  # temporary CG substitution #TODO
 
-            aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + self.fuseP['x_{CG}'],
-            aircraft.VT['x_{CG_{vt}}'] >= self.fuseP['x_{CG}']+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
-            #HTP constraints
-            self.HTP['C_{L_h}'] <= 1.1*self.HTP['C_{L_{ah}}']*self.HTP['\\alpha'],
-            self.HTP['C_{L_h}'] >= 0.9*self.HTP['C_{L_{ah}}']*self.HTP['\\alpha'],
-            #REMOVE FROM OVERALL MODEL
-            self.wingP['\\alpha_w'] <= aircraft['\\alpha_{max,h}'],
-            self.wingP['\\alpha_w'] <= aircraft['\\alpha_{max,h}'],
-                    
-        ])
+            # Wing location constraint
+            # aircraft.wing['x_w'] == aircraft.fuse['x_{wing}'],
+
+            #VTP constraints
+            aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + xCG,
+            aircraft.VT['x_{CG_{vt}}'] >= xCG +(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
+
+            ])
+        with SignomialsEnabled():
+            constraints.extend([
+
+            # Static margin constraint
+            TCS([aircraft.HT['SM_{min}'] + aircraft.HT['\\Delta x_{CG}']/aircraft.wing['\\bar{c}_w'] <=  \
+                aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
+                    aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), #[SP]
+            ])       
+        
 
         return self.Pmodels, constraints
 
@@ -277,6 +273,9 @@ class ClimbP(Model):
 
             # makes a small angle assumption during climb
             RngClimb == self.aircraftP['thr'] * state['V'],
+
+            # Setting rho_0s #TODO REMOVE
+            # self.wingP['\\rho_0'] == 1.225*units('kg/m^3'),
         ])
 
         return constraints + self.aircraftP
@@ -745,8 +744,6 @@ class FuselagePerformance(Model):
         f = Variable('f', '-', 'Fineness ratio')
         FF = Variable('FF', '-', 'Fuselage form factor')
         phi = Variable('\\phi', '-', 'Upsweep angle')
-        xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
-
 
         constraints = []
         constraints.extend([
@@ -764,7 +761,6 @@ class FuselagePerformance(Model):
             Dfuse == 0.5 * state.atm['\\rho'] * \
             state['V']**2 * Cdfuse * fuse['A_{fuse}'],
 
-            xCG == 0.65*fuse['l_{fuse}']  # temporary CG substitution #TODO
         ])
 
         return constraints
@@ -868,7 +864,7 @@ class Mission(Model):
             
             aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
-            TCS([aircraft.wing['x_w'] >= aircraft['x_{CG}'] + crs['\\Delta x_w']]),
+            TCS([aircraft.wing['x_w'] >= crs['x_{CG}'] + crs['\\Delta x_w']]),
 
         ])
 
@@ -877,75 +873,59 @@ class Mission(Model):
             constraints.extend([
 
                 # Fuselage / horizontal tail x-location constraints
-                TCS([aircraft['x_{CG}'] + crs['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
-                TCS([aircraft.HT['x_{CG_{ht}}'] >= aircraft['x_{CG}']+(crs['\\Delta x_{{lead}_h}']+crs['\\Delta x_{{trail}_h}'])/2]),
+                TCS([crs['x_{CG}'] + crs['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
+                TCS([aircraft.HT['x_{CG_{ht}}'] >= crs['x_{CG}']+(crs['\\Delta x_{{lead}_h}']+crs['\\Delta x_{{trail}_h}'])/2]),
 
 
                 # Trim condition for each flight segment
-                TCS([cls['x_{ac}']/aircraft.wing['\\bar{c}_w'] <= aircraft.wing['c_{m_{w}}']/cls['C_{L}'] + \
-                    aircraft['x_{CG}']/aircraft.wing['\\bar{c}_w'] + aircraft.HT['V_{h}']*(cls['C_{L_h}']/cls['C_{L}'])]), #[SP]
+                # aircraft.wing['c_{m_{w}}'] == 1.0,
+                # crs['x_{ac}'] >= 10*units('m'),
+                # cls['x_{ac}'] >= 10*units('m'),
+
+                # crs['C_{L_h}'] >= 0.1,
+                # crs['C_{L}'] >= 0.01,
+                # aircraft.wing['\\bar{c}_w'] >= 0.01*units('m'),
+                # crs['x_{CG}'] >= 10*units('m'),
+                # crs['x_{ac}'] >= 10*units('m'),
+                # aircraft.HT['V_{h}'] >= 0.01,
+                # aircraft.wing['c_{m_{w}}'] >= 0.05,
+
+                TCS([crs['x_{ac}']/aircraft.wing['\\bar{c}_w'] <= crs['c_{m_{w}}']/crs['C_{L}'] + \
+                    crs['x_{CG}']/aircraft.wing['\\bar{c}_w'] + aircraft.HT['V_{h}']*(crs['C_{L_h}']/crs['C_{L}'])]), #[SP]
+
+                # HT AoA constraint
+                #REMOVE FROM OVERALL MODEL
+                crs['\\alpha'] <= aircraft.HT['\\alpha_{max,h}'],
+                cls['\\alpha'] <= aircraft.HT['\\alpha_{max,h}'],
+                # HT cruise trim constraints
+                crs['C_{L_h}'] <= 1.1*crs['C_{L_{ah}}']*crs['\\alpha'],
+                crs['C_{L_h}'] >= 0.9*crs['C_{L_{ah}}']*crs['\\alpha'],
+
+                # Aoa matching between wing and horizontal tail
+                crs['\\alpha'] == crs['\\alpha_w'],
+                cls['\\alpha'] == cls['\\alpha_w'],
                 
                 # Horizontal tail x-location constraints
-                TCS([aircraft['x_{CG}'] + cls['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
-                aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - aircraft['x_{CG}'],
-                TCS([aircraft.wing['x_w'] >= aircraft['x_{CG}'] + cls['\\Delta x_w']]),
+                TCS([cls['x_{CG}'] + cls['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
+                aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - cls['x_{CG}'],
+                TCS([aircraft.wing['x_w'] >= cls['x_{CG}'] + cls['\\Delta x_w']]),
 
                 # Compute the aerodynamic center location
-                TCS([cls['x_{ac}'] <= aircraft['x_{CG}'] + cls['\\Delta x_w'] ]),
+                TCS([cls['x_{ac}'] <= cls['x_{CG}'] + cls['\\Delta x_w'] ]),
 
 ##                SignomialEquality(cls['x_{ac}'],xcg + cls['\\Delta x_w'] ),
-                TCS([aircraft.HT['x_{CG_{ht}}'] >= aircraft['x_{CG}'] + \
+                TCS([aircraft.HT['x_{CG_{ht}}'] >= cls['x_{CG}'] + \
                     (cls['\\Delta x_{{lead}_h}'] + cls['\\Delta x_{{trail}_h}']) / 2]),
                     
-                TCS([crs['x_{ac}'] <= aircraft['x_{CG}'] + crs['\\Delta x_w'] ]),
-##                SignomialEquality(crs['x_{ac}'],xcg + crs['\\Delta x_w'] ),
-                TCS([aircraft.HT['x_{CG_{ht}}'] >= aircraft['x_{CG}']+(crs['\\Delta x_{{lead}_h}']+crs['\\Delta x_{{trail}_h}'])/2]),
-
+                TCS([crs['x_{ac}'] <= crs['x_{CG}'] + crs['\\Delta x_w'] ]),
+                # SignomialEquality(crs['x_{ac}'],crs['x_{CG}'] + crs['\\Delta x_w'] ),
+                TCS([aircraft.HT['x_{CG_{ht}}'] >= crs['x_{CG}']+(crs['\\Delta x_{{lead}_h}']+crs['\\Delta x_{{trail}_h}'])/2]),
                 ])
                                       
 
         self.cost = W_ftotal
 
         return constraints, aircraft, cls, crs 
-
-    def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
-        "Returns model with additional constraints bounding all free variables"
-        lb = lower if lower else eps
-        ub = upper if upper else 1 / eps
-        constraints = []
-        freevks = tuple(vk for vk in model.varkeys if "value" not in vk.descr)
-        for varkey in freevks:
-            units = varkey.descr.get("units", 1)
-            constraints.append([ub * units >= Variable(**varkey.descr),
-                                Variable(**varkey.descr) >= lb * units])
-        m = Model(model.cost, [constraints, model], model.substitutions)
-        m.bound_all = {"lb": lb, "ub": ub, "varkeys": freevks}
-        return m
-
-    # pylint: disable=too-many-locals
-    def determine_unbounded_variables(self, model, solver=None, verbosity=0,
-                                      eps=1e-30, lower=None, upper=None, **kwargs):
-        "Returns labeled dictionary of unbounded variables."
-        m = self.bound_all_variables(model, eps, lower, upper)
-        sol = m.localsolve(solver, verbosity, **kwargs)
-        solhold = sol
-        lam = sol["sensitivities"]["la"][1:]
-        out = defaultdict(list)
-        for i, varkey in enumerate(m.bound_all["varkeys"]):
-            lam_gt, lam_lt = lam[2 * i], lam[2 * i + 1]
-            if abs(lam_gt) >= 1e-7:  # arbitrary threshold
-                out["sensitive to upper bound"].append(varkey)
-            if abs(lam_lt) >= 1e-7:  # arbitrary threshold
-                out["sensitive to lower bound"].append(varkey)
-            value = mag(sol["variables"][varkey])
-            distance_below = np.log(value / m.bound_all["lb"])
-            distance_above = np.log(m.bound_all["ub"] / value)
-            if distance_below <= 3:  # arbitrary threshold
-                out["value near lower bound"].append(varkey)
-            elif distance_above <= 3:  # arbitrary threshold
-                out["value near upper bound"].append(varkey)
-        return out, solhold
-
 
 if __name__ == '__main__':
     substitutions = {
@@ -995,7 +975,6 @@ if __name__ == '__main__':
         '\\alpha_{max,w}': 0.1,  # (6 deg)
         '\\cos(\\Lambda)': cos(sweep * pi / 180),
         '\\eta': 0.97,
-        # '\\rho_0': 1.225,
         '\\rho_{fuel}': 817,  # Kerosene [TASOPT]
 
         #VT subs
@@ -1019,16 +998,16 @@ if __name__ == '__main__':
 
         # HT subs
         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-        'c_{m_{w}}': 1,
+        # 'c_{m_{w}}': 1,
         '\\alpha_{max,h}': 2.5,
-        'SM_{min}': 0.5,
+        'SM_{min}': 0.15,
         '\\Delta x_{CG}': 4,
         '\\bar{c}_w': 2,
     }
 
     m = Mission()
     m.substitutions.update(substitutions)
-    m = Model(m.cost,BCS(m))
-    sol = m.localsolve(solver='mosek', verbosity = 2)
+    # m = Model(m.cost,BCS(m))
+    sol = m.localsolve(solver='mosek', verbosity = 2, iteration_limit = 100)
     # bounds, sol = m.determine_unbounded_variables(
     #     m, solver="mosek", verbosity=2, iteration_limit=50)
