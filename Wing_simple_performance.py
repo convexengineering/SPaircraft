@@ -571,8 +571,6 @@ class WingNoStruct(Model):
         #will be automatically linked by the linked constraint set
         cwma    = Variable('\\bar{c}_w', 'm',
                           'Mean aerodynamic chord (wing)')
-        cmw = Variable('c_{m_{w}}', '-', 'Wing Pitching Moment Coefficient')
-
         e       = Variable('e', '-', 'Oswald efficiency factor')
 
         
@@ -615,7 +613,6 @@ class WingNoStruct(Model):
                 eta == eta,
                 amax == amax,
                 xw == xw,
-                cmw == cmw,
                 CLwmax == CLwmax,
                 ])
 
@@ -678,9 +675,7 @@ class WingPerformance(Model):
                    + 6.14e-6*CLw**6.53/(Re**0.99*self.wing['\\tau']**0.52*CDp**5.19)
                    + 1.19e4*CLw**9.78*self.wing['\\tau']**1.76/(Re*CDp**0.91)),
 
-
-                #consider a better way to do this later
-                cmw == 1,
+                cmw == cmw
                 ])
 
         return constraints
@@ -803,7 +798,7 @@ if __name__ == '__main__':
             }
     mission = Mission()
     m = Model(mission['W_{f_{total}}'], mission, substitutions)
-    sol = m.localsolve(solver='mosek', verbosity = 4)
+    sol = m.localsolve(solver='mosek', verbosity = 2)
 
     if plot == True:
          substitutions = {      

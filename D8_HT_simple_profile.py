@@ -409,7 +409,7 @@ class Wing(Model):
 
             Vne == Vne,
             cwma == cwma,
-            cmw == cmw,
+            cmw == 1.0,
             CLmax == CLmax,
 
             xw == xw,
@@ -599,8 +599,8 @@ class Mission(Model):
             climb['TSFC'] == .7*units('1/hr'),
             cruise['TSFC'] == .5*units('1/hr'),
 
-            climb['C_{L}'] == 2*3.14*climb['\\alpha'],
-            cruise['C_{L}'] == 2*3.14*cruise['\\alpha'],
+            climb['C_{L_h}'] == 2*3.14*climb['\\alpha'],
+            cruise['C_{L_h}'] == 2*3.14*cruise['\\alpha'],
             ])
         
         #Horizontal Tail Constraints
@@ -1046,7 +1046,7 @@ if __name__ == '__main__':
              'w_{fuse}': 6,
 
 ##            'l_{fuse}': 30,
-            'c_{m_{w}}': 1,
+            # 'c_{m_{w}}': 1,
             'C_{L_{max}}': 2,
 
             '\\alpha_{max,h}': 2.5,
