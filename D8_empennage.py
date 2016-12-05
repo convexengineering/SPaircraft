@@ -757,7 +757,7 @@ class Mission(Model):
 
 
 if __name__ == '__main__':
-    plot = False
+    plot = True
     
     #build required submodels
     ac = Aircraft()
@@ -818,4 +818,174 @@ if __name__ == '__main__':
     m = Model(mission['W_{f_{total}}'], [mission, ac], substitutions)
     sol = m.localsolve(solver='mosek', verbosity = 4)
 ##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
-    
+
+    if plot == True:
+
+        substitutions = {      
+                #overall aircraft 
+                'ReqRng': ('sweep', np.linspace(500,2000,4)),
+                'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
+                'numeng': 2,
+    ##            'V_{ne}': 144,
+                
+                #fuselage place holder model subs
+                'W_{pax}': 91 * 9.81,
+                'n_{pax}': 150,
+                'pax_{area}': 1,
+    ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
+                 'w_{fuse}': 6,
+
+                #subs for the HT
+                'C_{L_{max}}': 2,
+                '\\alpha_{max,h}': 2.5,
+                'SM_{min}': 0.5,
+                '\\Delta x_{CG}': 4,
+                'C_{L_{hmax}}': 2.5,
+                 '\\rho_0': 1.225,
+                 '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+
+
+                 #think about how to constrain this
+                 'x_w': 19,
+
+                #subs into the wing palceholder model
+                '\\bar{c}_w': 2,
+                'c_{m_{w}}': 1,
+                'e': .9,
+                'b_{max}': 35,
+
+                #VT subs
+               'C_{D_{wm}}': 0.5, # [2]
+               'C_{L_{vmax}}': 2.6, # [2]
+               'V_1': 70,
+    ##           'V_{ne}': 144, # [2]
+               '\\rho_{TO}': 1.225,
+               '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
+    ##           'c_{l_{vt}}': 0.5, # [2]
+               'c_{l_{vtEO}}': 0.5,
+               'A_2': np.pi*(.5*1.75)**2, # [1]
+               'e_v': 0.8,
+    ##           'l_{fuse}': 39,
+    ##           'x_{CG}': 18,
+               'y_{eng}': 4.83, # [3]
+               'V_{land}': 72,
+               'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
+               '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
+                'N_{spar}': 2,
+                }
+        mission = Mission(ac)
+        m = Model(mission['W_{f_{total}}'], [mission, ac], substitutions)
+        sol = m.localsolve(solver='mosek', verbosity = 4)
+
+        substitutions = {      
+            #overall aircraft 
+            'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
+            'CruiseAlt': ('sweep', np.linspace(20000,40000,4)),
+            'numeng': 2,
+##            'V_{ne}': 144,
+            
+            #fuselage place holder model subs
+            'W_{pax}': 91 * 9.81,
+            'n_{pax}': 150,
+            'pax_{area}': 1,
+##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
+             'w_{fuse}': 6,
+
+            #subs for the HT
+            'C_{L_{max}}': 2,
+            '\\alpha_{max,h}': 2.5,
+            'SM_{min}': 0.5,
+            '\\Delta x_{CG}': 4,
+            'C_{L_{hmax}}': 2.5,
+             '\\rho_0': 1.225,
+             '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+
+
+             #think about how to constrain this
+             'x_w': 19,
+
+            #subs into the wing palceholder model
+            '\\bar{c}_w': 2,
+            'c_{m_{w}}': 1,
+            'e': .9,
+            'b_{max}': 35,
+
+            #VT subs
+           'C_{D_{wm}}': 0.5, # [2]
+           'C_{L_{vmax}}': 2.6, # [2]
+           'V_1': 70,
+##           'V_{ne}': 144, # [2]
+           '\\rho_{TO}': 1.225,
+           '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
+##           'c_{l_{vt}}': 0.5, # [2]
+           'c_{l_{vtEO}}': 0.5,
+           'A_2': np.pi*(.5*1.75)**2, # [1]
+           'e_v': 0.8,
+##           'l_{fuse}': 39,
+##           'x_{CG}': 18,
+           'y_{eng}': 4.83, # [3]
+           'V_{land}': 72,
+           'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
+           '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
+            'N_{spar}': 2,
+            }
+    mission = Mission(ac)
+    m = Model(mission['W_{f_{total}}'], [mission, ac], substitutions)
+    sol = m.localsolve(solver='mosek', verbosity = 4)
+
+    substitutions = {      
+            #overall aircraft 
+            'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
+            'CruiseAlt': ('sweep', np.linspace(20000,40000,4)),
+            'numeng': 2,
+##            'V_{ne}': 144,
+            
+            #fuselage place holder model subs
+            'W_{pax}': 91 * 9.81,
+            'n_{pax}': 150,
+            'pax_{area}': 1,
+##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
+             'w_{fuse}': 6,
+
+            #subs for the HT
+            'C_{L_{max}}': 2,
+            '\\alpha_{max,h}': 2.5,
+            'SM_{min}': 0.5,
+            '\\Delta x_{CG}': 4,
+            'C_{L_{hmax}}': 2.5,
+             '\\rho_0': 1.225,
+             '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+
+
+             #think about how to constrain this
+             'x_w': 19,
+
+            #subs into the wing palceholder model
+            '\\bar{c}_w': 2,
+            'c_{m_{w}}': 1,
+            'e': .9,
+            'b_{max}': 35,
+
+            #VT subs
+           'C_{D_{wm}}': 0.5, # [2]
+           'C_{L_{vmax}}': 2.6, # [2]
+           'V_1': 70,
+##           'V_{ne}': 144, # [2]
+           '\\rho_{TO}': 1.225,
+           '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
+##           'c_{l_{vt}}': 0.5, # [2]
+           'c_{l_{vtEO}}': 0.5,
+           'A_2': np.pi*(.5*1.75)**2, # [1]
+           'e_v': 0.8,
+##           'l_{fuse}': 39,
+##           'x_{CG}': 18,
+           'y_{eng}': 4.83, # [3]
+           'V_{land}': 72,
+           'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
+           '\\dot{r}_{req}': ('sweep', np.linspace(.01, .2, 6)),
+            'N_{spar}': 2,
+            }
+    mission = Mission(ac)
+    m = Model(mission['W_{f_{total}}'], [mission, ac], substitutions)
+    sol = m.localsolve(solver='mosek', verbosity = 4)
+
