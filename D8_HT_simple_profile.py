@@ -1020,7 +1020,7 @@ class WingBox(Model):
         return constraints
 
 if __name__ == '__main__':
-    plot = False
+    plot = True
     
     #build required submodels
     aircraft = Aircraft()
@@ -1166,9 +1166,6 @@ if __name__ == '__main__':
                
         mission = Mission(aircraft)
         m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
-        solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
-
-        m = Mission(ac, substitutions)
         solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
         
         plt.plot(solAltsweep('CruiseAlt'), solAltsweep('AR_h'), '-r')
