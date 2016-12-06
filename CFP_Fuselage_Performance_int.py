@@ -79,7 +79,6 @@ class Aircraft(Model):
                             self.HT['\\rho_0'] == 1.225*units('kg/m^3'),
                             self.wing['\\rho_0'] == 1.225*units('kg/m^3'),
 
-                            # self.HT['V_{ne}'] == 144*units('m/s'),
                             # self.wing['b'] <= 35*units('m'),
                             # self.wing['\\bar{c}_w'] >= 1*units('m'),
                             # self.wing['y_{\\bar{c}_w}'] == 5.675*units('m'),
@@ -89,8 +88,6 @@ class Aircraft(Model):
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
                                 (self.fuse['p_{\\lambda_v}'] - 1) >= self.VT[
                                     'L_{v_{max}}'] * self.VT['b_{vt}'] * (self.fuse['p_{\\lambda_v}']), 
-                            # TCS([Vcone * (1 + lamcone) * (pi + 4 * thetadb) >= self.VT[
-                            #     'M_r'] / taucone * (pi + 2 * thetadb) * (lcone / Rfuse) * 2]),
                             TCS([self.fuse['V_{cone}'] * (1 + self.fuse['\\lambda_{cone}']) * \
                              (pi + 4 * self.fuse['\\theta_{db}']) >= 2*self.VT[
                                 'M_r'] * self.VT['c_{root_{vt}}'] / self.fuse['\\tau_{cone}'] * \
@@ -107,20 +104,21 @@ class Aircraft(Model):
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
                             # Horizontal tail sizing
+                            # self.HT['L_{{max}_h}'] == 10000*units('N'),
                             # Horizontal tail volume coefficient
                             self.HT['V_{h}'] == self.HT['S_h']*self.HT['x_{CG_{ht}}']/(self.wing['S']*self.wing['\\bar{c}_w']),
-                            # Horizontal tail maximum load
+                            # # Horizontal tail maximum load
                             self.HT['L_{{max}_h}'] == 0.5*self.HT['\\rho_0']*self.wing['V_{ne}']**2*self.HT['S_h']*self.HT['C_{L_{hmax}}'],
                             # Wing-to-tail lift slope ratio m_ratio
                             SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_h']), #[SPEquality]
 
-                            # Enforce max tail location is the end of the fuselage
+                            # # Enforce max tail location is the end of the fuselage
                             self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
 
 
-                            # Set temporarily wing location
-                            # self.fuse['x_{wing}'] == 0.65*self.fuse['l_{fuse}'],
-                            # self.fuse['x_{tail}'] == 0.95*self.fuse['l_{fuse}'],
+                            # # Set temporarily wing location
+                            # # self.fuse['x_{wing}'] == 0.65*self.fuse['l_{fuse}'],
+                            # # self.fuse['x_{tail}'] == 0.95*self.fuse['l_{fuse}'],
 
                             # Compute the HT chord at its attachment point to the VT
                             (self.HT['b_{ht}']/self.fuse['w_{fuse}'])*self.HT['\lambda_h']* \
@@ -212,10 +210,8 @@ class AircraftP(Model):
 
             #TODO CG placeholder
             # xCG == 0.55*self.aircraft.fuse['l_{fuse}'],  # temporary CG substitution #TODO
-            xCG == 15*units('m'),
             # Wing location constraint
             aircraft.wing['x_w'] == aircraft.fuse['x_{wing}'],
-            aircraft.wing['x_w'] == 19*units('m'),
 
             #VTP constraints
             aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + xCG,
@@ -280,8 +276,6 @@ class ClimbP(Model):
             # makes a small angle assumption during climb
             RngClimb == self.aircraftP['thr'] * state['V'],
 
-            # Setting rho_0s #TODO REMOVE
-            # self.wingP['\\rho_0'] == 1.225*units('kg/m^3'),
         ])
 
         return constraints + self.aircraftP
@@ -348,22 +342,22 @@ class ClimbSegment(Model):
 
         return self.state, self.climbP
 
-class HTail(Model):
+# class HTail(Model):
 
-    def dynamic(self, state):
-        return HTailP(self, state)
+#     def dynamic(self, state):
+#         return HTailP(self, state)
 
-    def setup(self, **kwargs):
-        Whtail = Variable('W_{htail}', 10000, 'N',
-                          'Horizontal tail weight')  # Temporarily
-        Lhmax = Variable('L_{h_{max}}', 35000, 'N', 'Max horizontal tail load')
-        Shtail = Variable('S_{htail}', 32 * 0.8, 'm^2',
-                          'Horizontal tail area')  # Temporarily
-        CLhmax = Variable('C_{L_{h_{max}}}', 2.5, '-',
-                          'Max lift coefficient')  # Temporarily
-        constraints = [] 
+#     def setup(self, **kwargs):
+#         Whtail = Variable('W_{htail}', 10000, 'N',
+#                           'Horizontal tail weight')  # Temporarily
+#         Lhmax = Variable('L_{h_{max}}', 35000, 'N', 'Max horizontal tail load')
+#         Shtail = Variable('S_{htail}', 32 * 0.8, 'm^2',
+#                           'Horizontal tail area')  # Temporarily
+#         CLhmax = Variable('C_{L_{h_{max}}}', 2.5, '-',
+#                           'Max lift coefficient')  # Temporarily
+#         constraints = [] 
 
-        return constraints
+#         return constraints
 
 # class VTail(Model):
 
@@ -882,39 +876,39 @@ class Mission(Model):
                 TCS([cls['x_{ac}']/aircraft.wing['\\bar{c}_w'] <= cls['c_{m_{w}}']/cls['C_{L}'] + \
                     cls['x_{CG}']/aircraft.wing['\\bar{c}_w'] + aircraft.HT['V_{h}']*(cls['C_{L_h}']/cls['C_{L}'])]), #[SP]
 
-                # HT AoA constraint
-                #REMOVE FROM OVERALL MODEL
+                # # HT AoA constraint
+                # #REMOVE FROM OVERALL MODEL
                 crs['\\alpha'] <= aircraft.HT['\\alpha_{max,h}'],
                 cls['\\alpha'] <= aircraft.HT['\\alpha_{max,h}'],
-                # HT cruise trim constraints
+                # # HT cruise trim constraints
                 crs['C_{L_h}'] <= 1.3*crs['C_{L_{ah}}']*crs['\\alpha'],
                 crs['C_{L_h}'] >= 0.7*crs['C_{L_{ah}}']*crs['\\alpha'],
                 cls['C_{L_h}'] <= 1.3*cls['C_{L_{ah}}']*cls['\\alpha'],
                 cls['C_{L_h}'] >= 0.7*cls['C_{L_{ah}}']*cls['\\alpha'],
 
-                # Aoa matching between wing and horizontal tail
+                # # Aoa matching between wing and horizontal tail
                 crs['\\alpha'] == crs['\\alpha_w'],
                 cls['\\alpha'] == cls['\\alpha_w'],
 
-                # Thin airfoil theory approx for the lift of the horizontal tail
-                # cls['C_{L_h}'] == 2*3.14*cls['\\alpha'],
-                # crs['C_{L_h}'] == 2*3.14*crs['\\alpha'],
+                # # Thin airfoil theory approx for the lift of the horizontal tail
+                cls['C_{L_h}'] == 2*3.14*cls['\\alpha'],
+                crs['C_{L_h}'] == 2*3.14*crs['\\alpha'],
 
-                # Wing pitching moment coefficient
-                crs['c_{m_{w}}'] == 1.0,
-                cls['c_{m_{w}}'] == 1.0,
+                # # Wing pitching moment coefficient
+                # crs['c_{m_{w}}'] == 1.0,
+                # cls['c_{m_{w}}'] == 1.0,
                 
-                # Horizontal tail x-location constraints
+                # # Horizontal tail x-location constraints
                 TCS([crs['x_{CG}'] + crs['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
                 TCS([cls['x_{CG}'] + cls['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
 
                 aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - cls['x_{CG}'],
                 aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - crs['x_{CG}'],
-                # aircraft.HT['l_{ht}'] <= 15*units('m'),
 
                 # xac - xcg constraints 
                 TCS([aircraft.wing['x_w'] >= cls['x_{CG}'] + cls['\\Delta x_w']]),
                 TCS([aircraft.wing['x_w'] >= crs['x_{CG}'] + crs['\\Delta x_w']]),
+
 
                 # Compute the aerodynamic center location
                 TCS([cls['x_{ac}'] <= cls['x_{CG}'] + cls['\\Delta x_w'] ]),
@@ -926,8 +920,27 @@ class Mission(Model):
                 TCS([aircraft.HT['x_{CG_{ht}}'] >= crs['x_{CG}'] + (crs['\\Delta x_{{lead}_h}'] + crs['\\Delta x_{{trail}_h}']) / 2]),
 
                 #Strategic HT subs
-                # aircraft.HT['x_{CG_{ht}}'] == 23*units('m'),
                 # aircraft.HT['\\Delta x_{{lead}_h}']
+                crs['x_{CG}'] == 15*units('m'),
+                cls['x_{CG}'] == 15*units('m'),
+                crs['x_{ac}'] == 19*units('m'),
+                cls['x_{ac}'] == 19*units('m'),
+                # crs['x_{ac}'] == aircraft.wing['x_w'],
+                # cls['x_{ac}'] == aircraft.wing['x_w'],
+
+                # aircraft.HT['x_{CG_{ht}}'] == 25*units('m'),
+                # aircraft.fuse['l_{fuse}'] == 25*units('m'),
+                # cls['\\Delta x_{{lead}_h}'] == 8.91*units('m'),
+                # crs['\\Delta x_{{lead}_h}'] == 8.91*units('m'),
+                # cls['\\Delta x_{{trail}_h}'] == 9.9*units('m'),
+                # crs['\\Delta x_{{trail}_h}'] == 9.9*units('m'),
+                # cls['\\Delta x_w'] == 4*units('m'),
+                # crs['\\Delta x_w'] == 4*units('m'),
+                # aircraft.HT['l_{ht}'] == 10*units('m'),
+                # # aircraft.wing['\\bar{c}_w'] == 3.0*units('m'),
+                # aircraft.wing['b'] == 35*units('m'),
+
+
                 ])
                                       
 
@@ -1011,6 +1024,8 @@ if __name__ == '__main__':
         'SM_{min}': 0.5,
         '\\Delta x_{CG}': 4,
         '\\bar{c}_w': 2,
+        # 'C_{L_{max}}': 2,
+
 
 
     }
