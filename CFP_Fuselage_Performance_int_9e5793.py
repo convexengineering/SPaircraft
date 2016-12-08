@@ -14,7 +14,6 @@ from gpkit.small_scripts import mag
 # importing from D8_integration
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
-from D8_HT_simple_profile import HorizontalTail, HorizontalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance
 
@@ -23,10 +22,8 @@ sweep = 30
 """
 Models requird to minimize the aircraft total fuel weight. Rate of climb equation taken from John
 Anderson's Aircraft Performance and Design (eqn 5.85).
-
 Inputs
 -----
-
 - Number of passengers
 - Passenger weight [N]
 - Fuselage area per passenger (recommended to use 1 m^2 based on research) [m^2]
@@ -36,14 +33,12 @@ Inputs
 - Oswald efficiency factor
 - Max allowed wing span [m]
 - Cruise altitude [ft]
-
 Sources for substitutions:
 -[b757 freight doc]
 -[Boeing]
 -[Philippe]
 -[stdAtm]
 -[TAS]
-
 Other markers:
 -[SP]
 -[SPEquality]
@@ -61,7 +56,7 @@ class Aircraft(Model):
         self.wing = Wing()
         self.engine = Engine()
         self.VT = VerticalTail()
-        self.HT = HorizontalTail()
+        self.HT = HTail()
 
         # variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
@@ -70,15 +65,11 @@ class Aircraft(Model):
 
         with SignomialsEnabled():
             constraints.extend([numeng == numeng,
-                            # substitutions with replicated variable names
                             self.wing['c_{root}'] == self.fuse['c_0'],
-                            # self.wing.wb['wwb'] == self.fuse['wtc'],
+                            self.wing.wb['wwb'] == self.fuse['wtc'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.fuse['V_{NE}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
-                            self.HT['\\rho_0'] == 1.225*units('kg/m^3'),
-                            self.wing['\\rho_0'] == 1.225*units('kg/m^3'),
-
                             # self.wing['b'] <= 35*units('m'),
                             # self.wing['\\bar{c}_w'] >= 1*units('m'),
                             # self.wing['y_{\\bar{c}_w}'] == 5.675*units('m'),
@@ -88,42 +79,21 @@ class Aircraft(Model):
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
                                 (self.fuse['p_{\\lambda_v}'] - 1) >= self.VT[
                                     'L_{v_{max}}'] * self.VT['b_{vt}'] * (self.fuse['p_{\\lambda_v}']), 
+                            # TCS([Vcone * (1 + lamcone) * (pi + 4 * thetadb) >= self.VT[
+                            #     'M_r'] / taucone * (pi + 2 * thetadb) * (lcone / Rfuse) * 2]),
                             TCS([self.fuse['V_{cone}'] * (1 + self.fuse['\\lambda_{cone}']) * \
                              (pi + 4 * self.fuse['\\theta_{db}']) >= 2*self.VT[
                                 'M_r'] * self.VT['c_{root_{vt}}'] / self.fuse['\\tau_{cone}'] * \
                                  (pi + 2 * self.fuse['\\theta_{db}']) * \
                                   (self.fuse['l_{cone}'] / self.fuse['R_{fuse}'])]), #[SP]
                 
-                            # Tail weight
                             self.fuse['W_{tail}'] >= 2*self.VT['W_{struct}'] + \
-                                self.HT['W_{struct}'] + self.fuse['W_{cone}'],
+                                self.HT['W_{htail}'] + self.fuse['W_{cone}'],
 
-                            # Fuselage bending mat'l sizing - Aero loads constant A1h
+                                            # Aero loads constant A1h
                             self.fuse['A1h'] >= (self.fuse['N_{land}'] * self.fuse['W_{tail}'] \
-                                + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
+                                + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
-
-                            # Horizontal tail sizing
-                            # self.HT['L_{{max}_h}'] == 10000*units('N'),
-                            # Horizontal tail volume coefficient
-                            self.HT['V_{h}'] == self.HT['S_h']*self.HT['x_{CG_{ht}}']/(self.wing['S']*self.wing['\\bar{c}_w']),
-                            # # Horizontal tail maximum load
-                            self.HT['L_{{max}_h}'] == 0.5*self.HT['\\rho_0']*self.wing['V_{ne}']**2*self.HT['S_h']*self.HT['C_{L_{hmax}}'],
-                            # Wing-to-tail lift slope ratio m_ratio
-                            SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_h']), #[SPEquality]
-
-                            # # Enforce max tail location is the end of the fuselage
-                            self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
-
-
-                            # # Set temporarily wing location
-                            # # self.fuse['x_{wing}'] == 0.65*self.fuse['l_{fuse}'],
-                            # # self.fuse['x_{tail}'] == 0.95*self.fuse['l_{fuse}'],
-
-                            # Compute the HT chord at its attachment point to the VT
-                            (self.HT['b_{ht}']/self.fuse['w_{fuse}'])*self.HT['\lambda_h']* \
-                            self.HT['c_{root_h}'] == self.HT['c_{attach}'],
-
                             ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
@@ -156,8 +126,7 @@ class AircraftP(Model):
         self.fuseP = aircraft.fuse.dynamic(state)
         self.engineP = aircraft.engine.dynamic(state)
         self.VTP = aircraft.VT.dynamic(aircraft.fuse,state)
-        self.HTP = aircraft.HT.dynamic(aircraft.fuse,aircraft.wing,state)
-        self.Pmodels = [self.wingP, self.fuseP, self.engineP, self.VTP, self.HTP]
+        self.Pmodels = [self.wingP, self.fuseP, self.engineP]
 
         # variable definitions
         Vstall = Variable('V_{stall}', 'knots', 'Aircraft Stall Speed')
@@ -172,8 +141,6 @@ class AircraftP(Model):
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
         thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
 
-        xCG = Variable('x_{CG}','m','x-location of the CG')
-
         constraints = []
 
         constraints.extend([
@@ -185,11 +152,13 @@ class AircraftP(Model):
             Vstall == 120 * units('kts'),
             WLoadmax == 6664 * units('N/m^2'),
 
-            # Compute the drag
-            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}']]),
+            # compute the drag
+            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}']]),
+            self.VTP['D_{vt}'] >= 5*units('N'),
 
-            # Constrain CL and compute the wing loading
-            W_avg == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * \
+            # constraint CL and compute the wing loading
+            W_avg == .5 * \
+            self.wingP['C_{L}'] * self.aircraft['S'] * \
             state.atm['\\rho'] * state['V']**2,
             WLoad == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * \
             state.atm['\\rho'] * state['V']**2 / self.aircraft.wing['S'],
@@ -208,25 +177,13 @@ class AircraftP(Model):
             # time unit conversion
             t == thours,
 
-            #TODO CG placeholder
-            # xCG == 0.55*self.aircraft.fuse['l_{fuse}'],  # temporary CG substitution #TODO
-            # Wing location constraint
-            aircraft.wing['x_w'] == aircraft.fuse['x_{wing}'],
-
             #VTP constraints
-            aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + xCG,
-            aircraft.VT['x_{CG_{vt}}'] >= xCG +(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
+            # aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + self.fuseP['x_{CG}'],
+            # aircraft.VT['x_{CG_{vt}}'] >= self.fuseP['x_{CG}']+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
 
-            ])
-        with SignomialsEnabled():
-            constraints.extend([
-
-            # Static margin constraint
-            TCS([aircraft.HT['SM_{min}'] + aircraft.HT['\\Delta x_{CG}']/aircraft.wing['\\bar{c}_w'] <=  \
-                aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
-                    aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), #[SP]
-            ])       
-        
+            aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + self.fuseP['x_{CG}'],
+            aircraft.VT['x_{CG_{vt}}'] >= self.fuseP['x_{CG}']+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
+        ])
 
         return self.Pmodels, constraints
 
@@ -275,7 +232,6 @@ class ClimbP(Model):
 
             # makes a small angle assumption during climb
             RngClimb == self.aircraftP['thr'] * state['V'],
-
         ])
 
         return constraints + self.aircraftP
@@ -342,22 +298,22 @@ class ClimbSegment(Model):
 
         return self.state, self.climbP
 
-# class HTail(Model):
+class HTail(Model):
 
-#     def dynamic(self, state):
-#         return HTailP(self, state)
+    def dynamic(self, state):
+        return HTailP(self, state)
 
-#     def setup(self, **kwargs):
-#         Whtail = Variable('W_{htail}', 10000, 'N',
-#                           'Horizontal tail weight')  # Temporarily
-#         Lhmax = Variable('L_{h_{max}}', 35000, 'N', 'Max horizontal tail load')
-#         Shtail = Variable('S_{htail}', 32 * 0.8, 'm^2',
-#                           'Horizontal tail area')  # Temporarily
-#         CLhmax = Variable('C_{L_{h_{max}}}', 2.5, '-',
-#                           'Max lift coefficient')  # Temporarily
-#         constraints = [] 
+    def setup(self, **kwargs):
+        Whtail = Variable('W_{htail}', 10000, 'N',
+                          'Horizontal tail weight')  # Temporarily
+        Lhmax = Variable('L_{h_{max}}', 35000, 'N', 'Max horizontal tail load')
+        Shtail = Variable('S_{htail}', 32 * 0.8, 'm^2',
+                          'Horizontal tail area')  # Temporarily
+        CLhmax = Variable('C_{L_{h_{max}}}', 2.5, '-',
+                          'Max lift coefficient')  # Temporarily
+        constraints = [] 
 
-#         return constraints
+        return constraints
 
 # class VTail(Model):
 
@@ -621,7 +577,7 @@ class Fuselage(Model):
                 Sbulk >= (2 * pi + 4 * thetadb) * Rfuse**2,
 
                 # Fuselage length relations
-                SignomialEquality(lfuse, lnose + lshell + lcone), #[SPEquality] 
+                SignomialEquality(lfuse, lnose + lshell + lcone),  
                 lnose == 0.3 * lshell,  # Temporarily
                 lcone == Rfuse / lamcone,
                 xshell1 == lnose,
@@ -665,7 +621,7 @@ class Fuselage(Model):
                 # [SP] #[SPEquality]
                 SignomialEquality(A0h, A2h * (xshell2 - xhbend) ** 2 + A1h * (xtail - xhbend)),
                 A2h >= Nland * (Wpay + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
-                (2 * lshell * hfuse * sigMh),  # Landing loads constant A2h #[SPEquality]
+                (2 * lshell * hfuse * sigMh),  # Landing loads constant A2h
                 # Shell inertia constant A0h
                 A0h == (Ihshell / (rE * hfuse**2)),
                 # [SP]  # Bending area forward of wingbox
@@ -691,7 +647,7 @@ class Fuselage(Model):
                                   w),  # [SP] [SPEquality]
 
                 sigMh <= sigbend - rE * dPover / 2 * Rfuse / tshell,
-                SignomialEquality(xwing, lnose + 0.6 * lshell),  #[SPEquality] #TODO
+                SignomialEquality(xwing, lnose + 0.6 * lshell),  # TODO remove
 
 
                 # Volume relations
@@ -701,7 +657,8 @@ class Fuselage(Model):
                 Vdb == Adb * lshell,
                 # TODO Revert to posynomial after debugging
                 # [SP] #[SPEquality]
-                SignomialEquality(Vcabin, Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse)),
+                SignomialEquality(
+                    Vcabin, Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse)),
 
                 # Weight relations
                 Wapu == Wpay * fapu,
@@ -737,6 +694,7 @@ class FuselagePerformance(Model):
     """
 
     def setup(self, fuse, state, **kwargs):
+        # new variables
         Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
         Dfuse = Variable('D_{fuse}', 'N', 'Total drag in cruise')
         Dfrict = Variable('D_{friction}', 'N', 'Friction drag')
@@ -744,23 +702,25 @@ class FuselagePerformance(Model):
         f = Variable('f', '-', 'Fineness ratio')
         FF = Variable('FF', '-', 'Fuselage form factor')
         phi = Variable('\\phi', '-', 'Upsweep angle')
+        xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
+
 
         constraints = []
         constraints.extend([
             #Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
-            # Fineness ratio
+            # fineness ratio
             f == fuse['l_{fuse}'] / ((4 / np.pi * fuse['A_{fuse}'])**0.5),
             FF >= 1 + 60 / f**3 + f / 400,  # form factor
             Dfrict >= FF * np.pi * fuse['R_{fuse}'] * state.atm['\\mu'] * state['V'] * 0.074 * (state.atm['\\rho'] * state['V']
                                                                                                 * fuse['l_{fuse}'] / state.atm['\\mu'])**0.8,
-            # Monomial fit of tan(phi)
+            # monomial fit of tan(phi)
             1.13226 * phi**1.03759 == fuse['R_{fuse}'] / fuse['l_{cone}'],
             Dupswp >= 3.83 * phi**2.5 * \
             fuse['A_{fuse}'] * 0.5 * state.atm['\\rho'] * state['V']**2,
             Dfuse >= Dfrict + Dupswp,
             Dfuse == 0.5 * state.atm['\\rho'] * \
             state['V']**2 * Cdfuse * fuse['A_{fuse}'],
-
+            xCG == 0.65*fuse['l_{fuse}']  # temporary CG substitution
         ])
 
         return constraints
@@ -788,8 +748,10 @@ class Mission(Model):
 
         # declare new variables
         W_ftotal = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
-        W_fclimb = Variable('W_{f_{climb}}', 'N', 'Fuel Weight Burned in Climb')
-        W_fcruise = Variable('W_{f_{cruise}}', 'N', 'Fuel Weight Burned in Cruise')
+        W_fclimb = Variable('W_{f_{climb}}', 'N',
+                            'Fuel Weight Burned in Climb')
+        W_fcruise = Variable('W_{f_{cruise}}', 'N',
+                             'Fuel Weight Burned in Cruise')
         W_total = Variable('W_{total}', 'N', 'Total Aircraft Weight')
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
@@ -803,15 +765,18 @@ class Mission(Model):
         constraints = []
 
         constraints.extend([
-            # Weight constraints
+            # weight constraints
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
                  * aircraft['W_{engine}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
 
             cls.climbP.aircraftP['W_{start}'][0] == W_total,
             cls.climbP.aircraftP[
                 'W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
+
+            # similar constraint 1
             TCS([cls.climbP.aircraftP['W_{start}'] >= cls.climbP.aircraftP[
                 'W_{end}'] + cls.climbP.aircraftP['W_{burn}']]),
+            # similar constraint 2
             TCS([crs.cruiseP.aircraftP['W_{start}'] >= crs.cruiseP.aircraftP[
                 'W_{end}'] + crs.cruiseP.aircraftP['W_{burn}']]),
 
@@ -823,130 +788,87 @@ class Mission(Model):
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft['W_{engine}'] + \
                  aircraft.wing.wb['W_{struct}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
 
-            # Fuel burned in climb and cruise
             TCS([W_ftotal >= W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
             TCS([W_fcruise >= sum(crs.cruiseP['W_{burn}'])]),
 
-            # Altitude constraints
+            # altitude constraints
             hftCruise == CruiseAlt,
             TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise - 1] + dhft]),
             TCS([hftClimb[0] >= dhft[0]]),
             hftClimb[-1] <= hftCruise,
 
-            # Compute the dh (climb rate)
+            # compute the dh
             dhft == hftCruise / Nclimb,
 
-            # Constrain the thrust
+            # constrain the thrust
             cls.climbP.engineP['thrust'] <= 2 * \
             max(crs.cruiseP.engineP['thrust']),
 
-            # Set the range for each cruise segment, doesn't take credit for climb
+            # set the range for each cruise segment, doesn't take credit for climb
             # down range disatnce covered
             crs.cruiseP['Rng'] == ReqRng / (Ncruise),
 
-            # Set the TSFC
+            # set the TSFC
             cls.climbP.engineP['TSFC'] == .7 * units('1/hr'),
             crs.cruiseP.engineP['TSFC'] == .5 * units('1/hr'),
 
-            # Wing constraints
+            #wing constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
             cls.climbP.wingP['L_w'] == cls.climbP.aircraftP['W_{avg}'],
             crs.cruiseP.wingP['L_w'] == crs.cruiseP.aircraftP['W_{avg}'],
 
             aircraft.VT['T_e'] == cls.climbP.engineP['thrust'][0],
 
-            # Vertical tail constraints
             # Drag of a windmilling engine
             aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}'],
             
             aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
-
-
+            
         ])
-
-        #Horizontal Tail Constraints
-        with SignomialsEnabled():
-            constraints.extend([
-                # Trim condition for each flight segment
-
-                TCS([crs['x_{ac}']/aircraft.wing['\\bar{c}_w'] <= crs['c_{m_{w}}']/crs['C_{L}'] + \
-                    crs['x_{CG}']/aircraft.wing['\\bar{c}_w'] + aircraft.HT['V_{h}']*(crs['C_{L_h}']/crs['C_{L}'])]), #[SP]
-
-                TCS([cls['x_{ac}']/aircraft.wing['\\bar{c}_w'] <= cls['c_{m_{w}}']/cls['C_{L}'] + \
-                    cls['x_{CG}']/aircraft.wing['\\bar{c}_w'] + aircraft.HT['V_{h}']*(cls['C_{L_h}']/cls['C_{L}'])]), #[SP]
-
-                # # HT AoA constraint
-                # #REMOVE FROM OVERALL MODEL
-                crs['\\alpha'] <= aircraft.HT['\\alpha_{max,h}'],
-                cls['\\alpha'] <= aircraft.HT['\\alpha_{max,h}'],
-                # # HT cruise trim constraints
-                crs['C_{L_h}'] <= 1.3*crs['C_{L_{ah}}']*crs['\\alpha'],
-                crs['C_{L_h}'] >= 0.7*crs['C_{L_{ah}}']*crs['\\alpha'],
-                cls['C_{L_h}'] <= 1.3*cls['C_{L_{ah}}']*cls['\\alpha'],
-                cls['C_{L_h}'] >= 0.7*cls['C_{L_{ah}}']*cls['\\alpha'],
-
-                # # Aoa matching between wing and horizontal tail
-                crs['\\alpha'] == crs['\\alpha_w'],
-                cls['\\alpha'] == cls['\\alpha_w'],
-
-                # # Thin airfoil theory approx for the lift of the horizontal tail
-                cls['C_{L_h}'] == 2*3.14*cls['\\alpha'],
-                crs['C_{L_h}'] == 2*3.14*crs['\\alpha'],
-
-                # # Wing pitching moment coefficient
-                # crs['c_{m_{w}}'] == 1.0,
-                # cls['c_{m_{w}}'] == 1.0,
-                
-                # # Horizontal tail x-location constraints
-                TCS([crs['x_{CG}'] + crs['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
-                TCS([cls['x_{CG}'] + cls['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
-
-                aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - cls['x_{CG}'],
-                aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - crs['x_{CG}'],
-
-                # xac - xcg constraints 
-                TCS([aircraft.wing['x_w'] >= cls['x_{CG}'] + cls['\\Delta x_w']]),
-                TCS([aircraft.wing['x_w'] >= crs['x_{CG}'] + crs['\\Delta x_w']]),
-
-
-                # Compute the aerodynamic center location
-                TCS([cls['x_{ac}'] <= cls['x_{CG}'] + cls['\\Delta x_w'] ]),
-                TCS([crs['x_{ac}'] <= crs['x_{CG}'] + crs['\\Delta x_w'] ]),
-
-
-                # HT CG location constraints
-                TCS([aircraft.HT['x_{CG_{ht}}'] >= cls['x_{CG}'] + (cls['\\Delta x_{{lead}_h}'] + cls['\\Delta x_{{trail}_h}']) / 2]),
-                TCS([aircraft.HT['x_{CG_{ht}}'] >= crs['x_{CG}'] + (crs['\\Delta x_{{lead}_h}'] + crs['\\Delta x_{{trail}_h}']) / 2]),
-
-                #Strategic HT subs
-                # aircraft.HT['\\Delta x_{{lead}_h}']
-                crs['x_{CG}'] == 15*units('m'),
-                cls['x_{CG}'] == 15*units('m'),
-                crs['x_{ac}'] == 19*units('m'),
-                cls['x_{ac}'] == 19*units('m'),
-                # crs['x_{ac}'] == aircraft.wing['x_w'],
-                # cls['x_{ac}'] == aircraft.wing['x_w'],
-
-                # aircraft.HT['x_{CG_{ht}}'] == 25*units('m'),
-                # aircraft.fuse['l_{fuse}'] == 25*units('m'),
-                # cls['\\Delta x_{{lead}_h}'] == 8.91*units('m'),
-                # crs['\\Delta x_{{lead}_h}'] == 8.91*units('m'),
-                # cls['\\Delta x_{{trail}_h}'] == 9.9*units('m'),
-                # crs['\\Delta x_{{trail}_h}'] == 9.9*units('m'),
-                # cls['\\Delta x_w'] == 4*units('m'),
-                # crs['\\Delta x_w'] == 4*units('m'),
-                # aircraft.HT['l_{ht}'] == 10*units('m'),
-                # # aircraft.wing['\\bar{c}_w'] == 3.0*units('m'),
-                # aircraft.wing['b'] == 35*units('m'),
-
-
-                ])
-                                      
 
         self.cost = W_ftotal
 
         return constraints, aircraft, cls, crs 
+
+    def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
+        "Returns model with additional constraints bounding all free variables"
+        lb = lower if lower else eps
+        ub = upper if upper else 1 / eps
+        constraints = []
+        freevks = tuple(vk for vk in model.varkeys if "value" not in vk.descr)
+        for varkey in freevks:
+            units = varkey.descr.get("units", 1)
+            constraints.append([ub * units >= Variable(**varkey.descr),
+                                Variable(**varkey.descr) >= lb * units])
+        m = Model(model.cost, [constraints, model], model.substitutions)
+        m.bound_all = {"lb": lb, "ub": ub, "varkeys": freevks}
+        return m
+
+    # pylint: disable=too-many-locals
+    def determine_unbounded_variables(self, model, solver=None, verbosity=0,
+                                      eps=1e-30, lower=None, upper=None, **kwargs):
+        "Returns labeled dictionary of unbounded variables."
+        m = self.bound_all_variables(model, eps, lower, upper)
+        sol = m.localsolve(solver, verbosity, **kwargs)
+        solhold = sol
+        lam = sol["sensitivities"]["la"][1:]
+        out = defaultdict(list)
+        for i, varkey in enumerate(m.bound_all["varkeys"]):
+            lam_gt, lam_lt = lam[2 * i], lam[2 * i + 1]
+            if abs(lam_gt) >= 1e-7:  # arbitrary threshold
+                out["sensitive to upper bound"].append(varkey)
+            if abs(lam_lt) >= 1e-7:  # arbitrary threshold
+                out["sensitive to lower bound"].append(varkey)
+            value = mag(sol["variables"][varkey])
+            distance_below = np.log(value / m.bound_all["lb"])
+            distance_above = np.log(m.bound_all["ub"] / value)
+            if distance_below <= 3:  # arbitrary threshold
+                out["value near lower bound"].append(varkey)
+            elif distance_above <= 3:  # arbitrary threshold
+                out["value near upper bound"].append(varkey)
+        return out, solhold
+
 
 if __name__ == '__main__':
     substitutions = {
@@ -990,12 +912,14 @@ if __name__ == '__main__':
         'f_{padd}': 0.4,  # [TAS]
 
         # wing subs
+
         'C_{L_{wmax}}': 2.5,
         # 'V_{ne}': 144,
         '\\tan(\\Lambda)': tan(sweep * pi / 180),
         '\\alpha_{max,w}': 0.1,  # (6 deg)
         '\\cos(\\Lambda)': cos(sweep * pi / 180),
         '\\eta': 0.97,
+        '\\rho_0': 1.225,
         '\\rho_{fuel}': 817,  # Kerosene [TASOPT]
 
         #VT subs
@@ -1016,23 +940,11 @@ if __name__ == '__main__':
         '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
 
         'N_{spar}': 2,
-
-        # HT subs
-        '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-        # 'c_{m_{w}}': 1,
-        '\\alpha_{max,h}': 2.5,
-        'SM_{min}': 0.5,
-        '\\Delta x_{CG}': 4,
-        '\\bar{c}_w': 2,
-        # 'C_{L_{max}}': 2,
-
-
-
     }
 
     m = Mission()
     m.substitutions.update(substitutions)
     # m = Model(m.cost,BCS(m))
-    sol = m.localsolve(solver='mosek', verbosity = 4, iteration_limit = 200)
+    sol = m.localsolve(solver='mosek', verbosity = 2)
     # bounds, sol = m.determine_unbounded_variables(
     #     m, solver="mosek", verbosity=2, iteration_limit=50)

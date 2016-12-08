@@ -792,7 +792,7 @@ class FuselagePerformance(Model):
         return constraints
     
 
-class Mission(Model):
+class Mission(Model): 
     """
     mission class, links together all subclasses
     """
