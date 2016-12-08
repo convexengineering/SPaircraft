@@ -56,7 +56,7 @@ class Aircraft(Model):
         self.wing = Wing()
         self.engine = Engine()
         self.VT = VerticalTail()
-        self.HT = HTail()
+        self.HT = HorizontalTail()
 
         # variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
@@ -126,7 +126,8 @@ class AircraftP(Model):
         self.fuseP = aircraft.fuse.dynamic(state)
         self.engineP = aircraft.engine.dynamic(state)
         self.VTP = aircraft.VT.dynamic(aircraft.fuse,state)
-        self.Pmodels = [self.wingP, self.fuseP, self.engineP]
+        self.HTP = aircraft.HT.dynamic(aircraft.fuse,aircraft.wing,state)
+        self.Pmodels = [self.wingP, self.fuseP, self.engineP, self.VTP, self.HTP]
 
         # variable definitions
         Vstall = Variable('V_{stall}', 'knots', 'Aircraft Stall Speed')
@@ -298,10 +299,10 @@ class ClimbSegment(Model):
 
         return self.state, self.climbP
 
-class HTail(Model):
+class HorizontalTail(Model):
 
-    def dynamic(self, state):
-        return HTailP(self, state)
+    def dynamic(self, fuse, wing, state):
+        return HorizontalTailPerformance(self, fuse,wing,state)
 
     def setup(self, **kwargs):
         Whtail = Variable('W_{htail}', 10000, 'N',
@@ -314,6 +315,43 @@ class HTail(Model):
         constraints = [] 
 
         return constraints
+
+
+
+        # self.HTns = HorizontalTailNoStruct()
+        # self.wb = HorizontalTailWingBox(self.HTns)
+
+        # return self.HTns, self.wb
+
+# class HorizontalTailWingBox(Model):
+
+#     def setup(self):
+#         Whtail = Variable('W_{htail}', 10000, 'N',
+#                           'Horizontal tail weight')  # Temporarily
+#         Lhmax = Variable('L_{h_{max}}', 35000, 'N', 'Max horizontal tail load')
+#         Shtail = Variable('S_{htail}', 32 * 0.8, 'm^2',
+#                           'Horizontal tail area')  # Temporarily
+
+# class HorizontalTailNoStruct(Model):
+
+#     def setup(self)
+#         CLhmax = Variable('C_{L_{h_{max}}}', 2.5, '-',
+#                           'Max lift coefficient')  # Temporarily
+#         constraints = [] 
+
+#         return constraints
+
+class HorizontalTailPerformance(Model):
+    def setup(self,ht,fuse,wing,state):
+        self.HT = ht
+        self.fuse = fuse
+        self.wing = wing
+
+        constraints = []
+
+        return constraints
+
+
 
 # class VTail(Model):
 
@@ -703,7 +741,6 @@ class FuselagePerformance(Model):
         FF = Variable('FF', '-', 'Fuselage form factor')
         phi = Variable('\\phi', '-', 'Upsweep angle')
         xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
-
 
         constraints = []
         constraints.extend([
