@@ -1,26 +1,104 @@
 from gpkit import Variable, Model, units, SignomialsEnabled
 from gpkit.constraints.sigeq import SignomialEquality
 from numpy import pi
-from gpkit.constraints.tight import TightConstraintSet as TCS
+from gpkit.constraints.tight import Tight as TCS
 import matplotlib.pyplot as plt
 import numpy as np
 
-class BasicHT(Model):
-    """
-    Basic horizontal tail sizing model. Given a CG travel range the
-    model enforces a minium static margin for aft CG and pitch trim
-    at forward CG and max lift.
-    """
-    def __init__(self, substitutions):
-        #define variables
-        #weight variables
-        W_wing = Variable('W_{wing}', 'N', 'Wing Weight')
-        W_HT = Variable('W_{HT}', 'N', 'Horizontal Tail Weight')
+class TestMission(Model):
+    def setup(self):
+        #create submodels
+        state = TestState()
+        ht = BasicHT()
+        htP = BasicHTPerformance(state, ht)
+        wing = TestWing()
+        wingP = TestWingPerformance(state, wing)
+        fuse = TestFuse()
+
+        submodels = [state, ht, htP, wing, wingP, fuse]
+        
+        #define mission level variables
+        #weights
         W_payload = Variable('W_{payload}', 'N', 'Payload Weight')
         W_fuel = Variable('W_{fuel}', 'N', 'Fuel Weight')
         W_start = Variable('W_{start}', 'N', 'Segment Start Weight')
         W_end = Variable('W_{end}', 'N', 'Segment End Weight')
         W_avg = Variable('W_{avg}', 'N', 'Average Segment Weight')
+
+        D = Variable('D', 'N', 'Drag')
+        Cd0 = Variable('C_{D_{0}}', '-', 'Profile Drag')
+
+        alpha = Variable('\\alpha', '-', 'Angle of Attack')
+
+        with SignomialsEnabled():
+        
+            constraints = [
+                    #mission level
+                    D >= .5*state['\\rho']*wing['S']*state['V']**2*(Cd0 + wing['K']*wingP['C_{L}']**2) + .5*state['\\rho']*ht['Sh']*state['V']**2*(Cd0 + ht['Kh']*htP['C_{L_{h}}']**2),
+
+                    #assumes a 2 hour flight w/TSFC = 0.5 hr^-1
+                    W_fuel == 0.5 * D * 2,
+
+                    #compute the lift
+                    W_start >= wing['W_{wing}']+ ht['W_{HT}'] + W_payload + W_fuel,
+                    W_end >= wing['W_{wing}']+ ht['W_{HT}'] + W_payload,
+                    W_avg == (W_start*W_end)**.5,
+                    wingP['L'] >= W_avg + htP['L_{h}'],
+
+                    #lift coefficient constraints
+                    wingP['C_{L}'] == 2*pi*alpha,
+                    htP['C_{L_{h}}'] <= 2.1*pi*alpha,
+                    htP['C_{L_{h}}'] >= 1.9*pi*alpha,
+
+                    #arbitrary, sturctural model will remove the need for this constraint
+                    ht['b_{h}'] <= .33*wing['b_{max}'],
+
+                    #HT sizing constraints
+                    #compute mrat, is a signomial equality
+                    SignomialEquality(ht['m_{ratio}']*(1+2/wing['AR']), 1 + 2/ht['ARh']),
+
+                    #tail volume coefficient
+                    ht['V_{h}'] == ht['Sh']*ht['l_{h}']/(wing['S']*wing['MAC']),
+
+                    #enforce max tail location is the end of the fuselage
+                    ht['l_{h}'] <= fuse['l_{fuse}'],
+
+                    #Stability constraint, is a signomial
+                    TCS([ht['SM_{min}'] + ht['\\Delta x_{CG}']/wing['MAC'] <= ht['V_{h}']*ht['m_{ratio}'] + wingP['c_{m_{w}}']/wing['C_{L_{max}}'] + ht['V_{h}']*ht['CL_{h_{max}}']/wing['C_{L_{max}}']]), 
+                    ]
+
+        return submodels, constraints
+
+class TestState(Model):
+    def setup(self):
+        #atm
+        rho = Variable('\\rho', 'kg/m^3', 'Air Density')
+        #airspeed
+        V = Variable('V', 'm/s', 'Airspeed')
+
+class TestWingPerformance(Model):
+    def setup(self, state, wing):
+        #aero
+        L = Variable('L', 'N', 'Wing Lift')
+        CL = Variable('C_{L}', '-', 'Wing Lift Coefficient')
+        
+        #Moments
+        cmw = Variable('c_{m_{w}}', '-', 'Wing Pitching Moment Coefficient')   #approximtaed as a constant via TAT
+
+        constraints = [
+            L == .5 * state['\\rho'] * state['V']**2 * wing['S'] * CL,
+
+            CL <= wing['C_{L_{max}}'],
+            ]
+
+        return constraints
+
+class TestWing(Model):
+    def setup(self):
+        #weight variables
+        W_wing = Variable('W_{wing}', 'N', 'Wing Weight')
+
+        CLmax = Variable('C_{L_{max}}', '-', 'Max Wing Lift Coefficient')
 
         #wing geometry
         S = Variable('S', 'm^2', 'Wing Planform Area')
@@ -28,6 +106,41 @@ class BasicHT(Model):
         b = Variable('b', 'm', 'Wing Span')
         b_max = Variable('b_{max}', 'm', 'Max Wing Span')
         MAC = Variable('MAC', 'm', 'Mean Aerodynamic Chord')
+
+        K = Variable('K', '-', 'Induced Drag Parameter')
+        e = Variable('e', '-', 'Oswald Efficiency')
+
+        constraints = [
+            #Wing geometry
+            S == b*MAC,
+            AR == b/MAC,    
+            b <= b_max,
+
+            #drag constraints
+            K == 1/(pi*e*AR),
+
+            #wing weight constraint
+            #based off of a raymer weight and 737 data from TASOPT output file
+            (S/(124.58*units('m^2')))**.65 == W_wing/(105384.1524*units('N')),
+            ]
+
+        return constraints
+
+class TestFuse(Model):
+    def setup(self):
+        #aircraft geometry
+        lfuse = Variable('l_{fuse}', 'm', 'Fuselage Length')
+
+class BasicHT(Model):
+    """
+    Basic horizontal tail sizing model. Given a CG travel range the
+    model enforces a minium static margin for aft CG and pitch trim
+    at forward CG and max lift.
+    """
+    def setup(self):
+        #define variables
+        #weight variables
+        W_HT = Variable('W_{HT}', 'N', 'Horizontal Tail Weight')
 
         #HT geometry
         Sh = Variable('Sh', 'm^2', 'HT Planform Area')
@@ -37,32 +150,14 @@ class BasicHT(Model):
         MACh = Variable('MAC_{h}', 'm', 'HT Mean Aerodynamic Chord')
 
         #aircraft geometry
-        lfuse = Variable('l_{fuse}', 'm', 'Fuselage Length')
         lh = Variable('l_{h}', 'm', 'Horizontal Tail Location')
 
-        #Moments
-        cmw = Variable('c_{m_{w}}', '-', 'Wing Pitching Moment Coefficient')   #approximtaed as a constant via TAT
-
         #aero
-        L = Variable('L', 'N', 'Wing Lift')
-        L_h = Variable('L_{h}', 'N', 'Horizontal Tail Downforce')
-        CLmax = Variable('C_{L_{max}}', '-', 'Max Wing Lift Coefficient')
-        CL = Variable('C_{L}', '-', 'Wing Lift Coefficient')
         CLhmax = Variable('CL_{h_{max}}', '-', 'Max Tail Downforce Coefficient')
-        CLh = Variable('C_{L_{h}}', '-', 'Tail Downforce Coefficient')
-        D = Variable('D', 'N', 'Drag')
-        Cd0 = Variable('C_{D_{0}}', '-', 'Profile Drag')
-        alpha = Variable('\\alpha', '-', 'Angle of Attack')
-        K = Variable('K', '-', 'Induced Drag Parameter')
-        e = Variable('e', '-', 'Oswald Efficiency')
+ 
         Kh = Variable('Kh', '-', 'HT Induced Drag Parameter')
+        eh = Variable('eh', '-', 'HT Oswald Efficiency')
         mrat = Variable('m_{ratio}', '-', 'Wing to Tail Lift Slope Ratio')
-
-        #atm
-        rho = Variable('\\rho', 'kg/m^3', 'Air Density')
-
-        #airspeed
-        V = Variable('V', 'm/s', 'Airspeed')
 
         #min static margin
         SMmin = Variable('SM_{min}', '-', 'Minimum Static Margin')
@@ -74,64 +169,32 @@ class BasicHT(Model):
         with SignomialsEnabled():
 
             constraints.extend([
-                #wing weight constraint
-                #based off of a raymer weight and 737 data from TASOPT output file
-                (S/(124.58*units('m^2')))**.65 == W_wing/(105384.1524*units('N')),
-
                 #HT weight constraint
                 #based off of a raymer weight and 737 data from TASOPT output file
                 (Sh/(46.1*units('m^2')))**.65 == W_HT/(16064.7523*units('N')),
-
-                #Wing geometry
-                S == b*MAC,
-                AR == b/MAC,    
-                b <= b_max,
 
                 #HT geometry
                 Sh == bh*MACh,
                 ARh == bh/MACh,
  
-                #drag constraints
-                K == 1/(pi*e*AR),
-                Kh == 1/(pi*e*ARh),
-                D >= .5*rho*S*V**2*(Cd0 + K*CL**2) + .5*rho*Sh*V**2*(Cd0 + Kh*CLh**2),
-
-                #assumes a 2 hour flight w/TSFC = 0.5 hr^-1
-                W_fuel == 0.5 * D * 2,    
-
-                #compute the lift
-                W_start >= W_wing + W_HT + W_payload + W_fuel,
-                W_end >= W_wing + W_HT + W_payload,
-                W_avg == (W_start*W_end)**.5,
-                L >= W_avg + L_h,
-                L == .5 * rho * V**2 * S * CL,
-                L_h == .5 * rho * V**2 * Sh * CLh,
-
-                #lift coefficient constraints
-                CL == 2*pi*alpha,
-                CLh <= 2.1*pi*alpha,
-                CLh >= 1.9*pi*alpha,
-                    
-                CL <= CLmax,
-                CLh <= CLhmax,
-
-                #compute mrat, is a signomial equality
-                SignomialEquality(mrat*(1+2/AR), 1 + 2/ARh),
-
-                #tail volume coefficient
-                Vh == Sh*lh/(S*MAC),
-
-                #enforce max tail location is the end of the fuselage
-                lh <= lfuse,
-
-                #Stability constraint, is a signomial
-                TCS([SMmin + dxcg/MAC <= Vh*mrat + cmw/CLmax + Vh*CLhmax/CLmax]),
-
-                #arbitrary, sturctural model will remove the need for this constraint
-                bh <= .33*b_max,
+                #HT Drag
+                Kh == 1/(pi*eh*ARh),
                 ])
 
-            Model.__init__(self, W_fuel, constraints, substitutions)
+            return constraints
+
+class BasicHTPerformance(Model):
+    def setup(self, state, ht):
+        L_h = Variable('L_{h}', 'N', 'Horizontal Tail Downforce')
+        CLh = Variable('C_{L_{h}}', '-', 'Tail Downforce Coefficient')
+        
+        constraints = [
+            CLh <= ht['CL_{h_{max}}'],
+
+            L_h == .5 * state['\\rho'] * state['V']**2 * ht['Sh'] * CLh,
+            ]
+
+        return constraints
 
 if __name__ == '__main__':
     PLOT = True
@@ -148,10 +211,12 @@ if __name__ == '__main__':
         'SM_{min}': 0.5,
         'C_{D_{0}}': 0.05,
         'e': 0.9,
+        'eh': 0.9,
         '\\Delta x_{CG}': 4,
     }
 
-    m = BasicHT(substitutions)
+    mission = TestMission()
+    m = Model(mission['W_{fuel}'], mission, substitutions)
 
     sol = m.localsolve(solver="mosek", verbosity=4)
 
@@ -169,10 +234,12 @@ if __name__ == '__main__':
             'SM_{min}': 0.5,
             'C_{D_{0}}': 0.05,
             'e': 0.9,
+            'eh': 0.9,
             '\\Delta x_{CG}': ('sweep', np.linspace(.5,6,10)),
         }
 
-        m = BasicHT(substitutions)
+        mission = TestMission()
+        m = Model(mission['W_{fuel}'], mission, substitutions)
 
         solCGsweep = m.localsolve(solver="mosek", verbosity=1)
 
@@ -201,10 +268,12 @@ if __name__ == '__main__':
             'SM_{min}': ('sweep', np.linspace(.05,1,10)),
             'C_{D_{0}}': 0.05,
             'e': 0.9,
+            'eh': 0.9,
             '\\Delta x_{CG}': 2,
         }
 
-        m = BasicHT(substitutions)
+        mission = TestMission()
+        m = Model(mission['W_{fuel}'], mission, substitutions)
 
         solSMsweep = m.localsolve(solver="mosek", verbosity=1)
 
@@ -233,10 +302,12 @@ if __name__ == '__main__':
             'SM_{min}': .1,
             'C_{D_{0}}': 0.05,
             'e': 0.9,
+            'eh': 0.9,
             '\\Delta x_{CG}': 2,
         }
 
-        m = BasicHT(substitutions)
+        mission = TestMission()
+        m = Model(mission['W_{fuel}'], mission, substitutions)
 
         solPayloadsweep = m.localsolve(solver="mosek", verbosity=1)
 
