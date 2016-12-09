@@ -1,4 +1,4 @@
-from gpkit import Variable, Model, units, SignomialsEnabled
+from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize
 from gpkit.constraints.sigeq import SignomialEquality
 from numpy import pi
 from gpkit.constraints.tight import Tight as TCS
@@ -10,45 +10,52 @@ class TestMission(Model):
         #create submodels
         state = TestState()
         ht = BasicHT()
-        htP = BasicHTPerformance(state, ht)
         wing = TestWing()
-        wingP = TestWingPerformance(state, wing)
         fuse = TestFuse()
+
+        with Vectorize(4):
+            wingP = TestWingPerformance(state, wing)
+            htP = BasicHTPerformance(state, ht)
+            W_fuel = Variable('W_{fuel}', 'N', 'Fuel Weight')
+            W_start = Variable('W_{start}', 'N', 'Segment Start Weight')
+            W_end = Variable('W_{end}', 'N', 'Segment End Weight')
+            W_avg = Variable('W_{avg}', 'N', 'Average Segment Weight')
+            alpha = Variable('\\alpha', '-', 'Angle of Attack')
+            D = Variable('D', 'N', 'Drag')
+            xcg     = Variable('x_{CG}', 'm', 'CG location')
+
+ 
 
         submodels = [state, ht, htP, wing, wingP, fuse]
         
         #define mission level variables
         #weights
         W_payload = Variable('W_{payload}', 'N', 'Payload Weight')
-        W_fuel = Variable('W_{fuel}', 'N', 'Fuel Weight')
-        W_start = Variable('W_{start}', 'N', 'Segment Start Weight')
-        W_end = Variable('W_{end}', 'N', 'Segment End Weight')
-        W_avg = Variable('W_{avg}', 'N', 'Average Segment Weight')
-
-        D = Variable('D', 'N', 'Drag')
+ 
         Cd0 = Variable('C_{D_{0}}', '-', 'Profile Drag')
 
-        alpha = Variable('\\alpha', '-', 'Angle of Attack')
+ 
 
         with SignomialsEnabled():
         
             constraints = [
                     #mission level
-                    D >= .5*state['\\rho']*wing['S']*state['V']**2*(Cd0 + wing['K']*wingP['C_{L}']**2) + .5*state['\\rho']*ht['Sh']*state['V']**2*(Cd0 + ht['Kh']*htP['C_{L_{h}}']**2),
+                    TCS([D >= .5*state['\\rho']*wing['S']*state['V']**2* \
+                    (Cd0 + wing['K']*wingP['C_{L}']**2) + .5*state['\\rho']*ht['Sh']*state['V']**2*(Cd0 + ht['Kh']*htP['C_{L_{h}}']**2)]),
 
                     #assumes a 2 hour flight w/TSFC = 0.5 hr^-1
                     W_fuel == 0.5 * D * 2,
 
                     #compute the lift
-                    W_start >= wing['W_{wing}']+ ht['W_{HT}'] + W_payload + W_fuel,
-                    W_end >= wing['W_{wing}']+ ht['W_{HT}'] + W_payload,
+                    TCS([W_start >= wing['W_{wing}']+ ht['W_{HT}'] + W_payload + W_fuel]),
+                    TCS([W_end >= wing['W_{wing}']+ ht['W_{HT}'] + W_payload]),
                     W_avg == (W_start*W_end)**.5,
-                    wingP['L'] >= W_avg + htP['L_{h}'],
+                    TCS([wingP['L'] >= W_avg + htP['L_{h}']]),
 
                     #lift coefficient constraints
                     wingP['C_{L}'] == 2*pi*alpha,
-                    htP['C_{L_{h}}'] <= 2.1*pi*alpha,
-                    htP['C_{L_{h}}'] >= 1.9*pi*alpha,
+##                    htP['C_{L_{h}}'] <= 2.2*pi*alpha,
+##                    htP['C_{L_{h}}'] >= 1.8*pi*alpha,
 
                     #arbitrary, sturctural model will remove the need for this constraint
                     ht['b_{h}'] <= .33*wing['b_{max}'],
@@ -64,7 +71,15 @@ class TestMission(Model):
                     ht['l_{h}'] <= fuse['l_{fuse}'],
 
                     #Stability constraint, is a signomial
-                    TCS([ht['SM_{min}'] + ht['\\Delta x_{CG}']/wing['MAC'] <= ht['V_{h}']*ht['m_{ratio}'] + wingP['c_{m_{w}}']/wing['C_{L_{max}}'] + ht['V_{h}']*ht['CL_{h_{max}}']/wing['C_{L_{max}}']]), 
+##                    TCS([ht['SM_{min}'] + ht['\\Delta x_{CG}']/wing['MAC'] <= ht['V_{h}']*ht['m_{ratio}'] + wingP['c_{m_{w}}']/wing['C_{L_{max}}'] + ht['V_{h}']*ht['CL_{h_{max}}']/wing['C_{L_{max}}']]),
+                    SignomialEquality(ht['SM_{min}'] + ht['\\Delta x_{CG}']/wing['MAC'], ht['V_{h}']*ht['m_{ratio}'] + wingP['c_{m_{w}}']/wing['C_{L_{max}}'] + ht['V_{h}']*ht['CL_{h_{max}}']/wing['C_{L_{max}}']),
+
+                    # Trim condidtion for each flight segment
+##                    TCS([wingP['x_{ac}']/wing['MAC'] <= wingP['c_{m_{w}}']/wingP['C_{L}'] + xcg/wing['MAC'] + ht['V_{h}']*(htP['C_{L_{h}}']/wingP['C_{L}'])]),
+                    SignomialEquality(wingP['x_{ac}']/wing['MAC'], wingP['c_{m_{w}}']/wingP['C_{L}'] + xcg/wing['MAC'] + ht['V_{h}']*(htP['C_{L_{h}}']/wingP['C_{L}'])),
+
+                    xcg == 15*units('m'),
+
                     ]
 
         return submodels, constraints
@@ -85,10 +100,16 @@ class TestWingPerformance(Model):
         #Moments
         cmw = Variable('c_{m_{w}}', '-', 'Wing Pitching Moment Coefficient')   #approximtaed as a constant via TAT
 
+        xac = Variable('x_{ac}', 'm', 'Position of wing aerodynamic center')
+
         constraints = [
             L == .5 * state['\\rho'] * state['V']**2 * wing['S'] * CL,
 
             CL <= wing['C_{L_{max}}'],
+
+            cmw == 1,
+
+            xac == 20*units('m'),
             ]
 
         return constraints
@@ -197,13 +218,13 @@ class BasicHTPerformance(Model):
         return constraints
 
 if __name__ == '__main__':
-    PLOT = True
+    PLOT = False
     
     substitutions = {
         'W_{payload}': 85100*9.81,
         'b_{max}': 30,
         'l_{fuse}': 30,
-        'c_{m_{w}}': 1,
+##        'c_{m_{w}}': 1,
         'C_{L_{max}}': 2,
         'CL_{h_{max}}': 2.5,
         '\\rho': .8,
@@ -216,7 +237,7 @@ if __name__ == '__main__':
     }
 
     mission = TestMission()
-    m = Model(mission['W_{fuel}'], mission, substitutions)
+    m = Model(sum(mission['W_{fuel}']), mission, substitutions)
 
     sol = m.localsolve(solver="mosek", verbosity=4)
 
@@ -307,7 +328,7 @@ if __name__ == '__main__':
         }
 
         mission = TestMission()
-        m = Model(mission['W_{fuel}'], mission, substitutions)
+        m = Model(sum(mission['W_{fuel}']), mission, substitutions)
 
         solPayloadsweep = m.localsolve(solver="mosek", verbosity=1)
 
