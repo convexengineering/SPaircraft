@@ -869,8 +869,7 @@ class Mission(Model):
                 out["value near upper bound"].append(varkey)
         return out, solhold
 
-
-if __name__ == '__main__':
+def test():
     substitutions = {
         # 'V_{stall}'   : 120,
         '\\delta_P_{over}': 12,
@@ -948,3 +947,6 @@ if __name__ == '__main__':
     sol = m.localsolve(solver='mosek', verbosity = 2)
     # bounds, sol = m.determine_unbounded_variables(
     #     m, solver="mosek", verbosity=2, iteration_limit=50)
+
+if __name__ == '__main__':
+    test()
