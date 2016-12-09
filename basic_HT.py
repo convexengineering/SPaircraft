@@ -31,7 +31,7 @@ class TestMission(Model):
         #define mission level variables
         #weights
         W_payload = Variable('W_{payload}', 'N', 'Payload Weight')
- 
+        W_dry = Variable('W_{dry}', 'N', 'Zero Fuel Aircraft Weight')
         Cd0 = Variable('C_{D_{0}}', '-', 'Profile Drag')
 
  
@@ -47,8 +47,9 @@ class TestMission(Model):
                     W_fuel == 0.5 * D * 2,
 
                     #compute the lift
-                    TCS([W_start >= wing['W_{wing}']+ ht['W_{HT}'] + W_payload + W_fuel]),
-                    TCS([W_end >= wing['W_{wing}']+ ht['W_{HT}'] + W_payload]),
+                    TCS([W_dry >= wing['W_{wing}']+ ht['W_{HT}'] + W_payload]),
+                    TCS([W_start >= W_dry + W_fuel]),
+                    TCS([W_end >= W_dry]),
                     W_avg == (W_start*W_end)**.5,
                     TCS([wingP['L'] >= W_avg + htP['L_{h}']]),
 
@@ -71,14 +72,22 @@ class TestMission(Model):
                     ht['l_{h}'] <= fuse['l_{fuse}'],
 
                     #Stability constraint, is a signomial
-##                    TCS([ht['SM_{min}'] + ht['\\Delta x_{CG}']/wing['MAC'] <= ht['V_{h}']*ht['m_{ratio}'] + wingP['c_{m_{w}}']/wing['C_{L_{max}}'] + ht['V_{h}']*ht['CL_{h_{max}}']/wing['C_{L_{max}}']]),
-                    SignomialEquality(ht['SM_{min}'] + ht['\\Delta x_{CG}']/wing['MAC'], ht['V_{h}']*ht['m_{ratio}'] + wingP['c_{m_{w}}']/wing['C_{L_{max}}'] + ht['V_{h}']*ht['CL_{h_{max}}']/wing['C_{L_{max}}']),
+##                    TCS([ht['SM_{min}'] + ht['\\Delta x_{CG}']/wing['MAC'] <= ht['V_{h}']*ht['m_{ratio}'] \
+##                         + wingP['c_{m_{w}}']/wing['C_{L_{max}}'] + ht['V_{h}']*ht['CL_{h_{max}}']/wing['C_{L_{max}}']]),
+                    SignomialEquality(ht['SM_{min}'] + ht['\\Delta x_{CG}']/wing['MAC'], ht['V_{h}']*ht['m_{ratio}'] \
+                                      + wingP['c_{m_{w}}']/wing['C_{L_{max}}'] + ht['V_{h}']*ht['CL_{h_{max}}']/wing['C_{L_{max}}']),
 
                     # Trim condidtion for each flight segment
 ##                    TCS([wingP['x_{ac}']/wing['MAC'] <= wingP['c_{m_{w}}']/wingP['C_{L}'] + xcg/wing['MAC'] + ht['V_{h}']*(htP['C_{L_{h}}']/wingP['C_{L}'])]),
                     SignomialEquality(wingP['x_{ac}']/wing['MAC'], wingP['c_{m_{w}}']/wingP['C_{L}'] + xcg/wing['MAC'] + ht['V_{h}']*(htP['C_{L_{h}}']/wingP['C_{L}'])),
 
-                    xcg == 15*units('m'),
+                    #modify this
+##                    xcg == 15*units('m'),
+                    wing['x_w'] == 21*units('m'),
+                    fuse['x_{fuse}'] == fuse['l_{fuse}']/2,
+                    fuse['W_{fuse}'] == W_payload,
+
+                    TCS([xcg <= (wing['W_{wing}'] * wing['x_w'] + fuse['x_{fuse}'] * fuse['W_{fuse}'] + ht['l_{h}'] * ht['W_{HT}'])/W_dry])
 
                     ]
 
@@ -131,6 +140,8 @@ class TestWing(Model):
         K = Variable('K', '-', 'Induced Drag Parameter')
         e = Variable('e', '-', 'Oswald Efficiency')
 
+        xw = Variable('x_w', 'm', 'Position of wing CG')
+
         constraints = [
             #Wing geometry
             S == b*MAC,
@@ -151,6 +162,8 @@ class TestFuse(Model):
     def setup(self):
         #aircraft geometry
         lfuse = Variable('l_{fuse}', 'm', 'Fuselage Length')
+        x_fuse = Variable('x_{fuse}', 'm', 'Fuselage CG Location')
+        W_fuse = Variable('W_{fuse}', 'N', 'Fuselage Weight')
 
 class BasicHT(Model):
     """
