@@ -54,12 +54,6 @@ class Aircraft(Model):
         #variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
 
-        constraints = []
-
-        constraints.extend([
-            numeng == numeng, #need numeng in the model
-            ])
-
         self.components = [self.fuse, self.wing, self.engine, self.empennage]
 
         return self.components
