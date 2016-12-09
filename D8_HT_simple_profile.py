@@ -792,32 +792,6 @@ class HorizontalTailNoStruct(Model):
                 taper >= 0.2, # TODO: make less arbitrary
                 taper <= 1,
 
-                tanLh == tanLh,
-
-                tau == tau,
-
-                lht == lht,
-
-                SMmin == SMmin,
-
-                amax == amax,
-
-                xcght == xcght,
-
-                Lmax == Lmax,
-
-                Vh == Vh,
-
-                rho0 == rho0,
-
-                CLhmax == CLhmax,
-
-                mrat == mrat,
-
-                dxcg == dxcg,
-
-                cattach == cattach,
-
 ##                Sh >= .1*units('m^2'),
                 ])
 
@@ -902,10 +876,6 @@ class HorizontalTailPerformance(Model):
 
                 #final geometry constraints
                 dxtrail <= self.fuse['l_{fuse}'],
-
-                dxw == dxw,
-
-                alpha == alpha
                 ])
 
         return constraints
