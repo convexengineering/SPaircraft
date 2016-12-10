@@ -154,8 +154,8 @@ class AircraftP(Model):
             WLoadmax == 6664 * units('N/m^2'),
 
             # compute the drag
-            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}']]),
-            self.VTP['D_{vt}'] >= 5*units('N'),
+            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}']]),
+            # self.VTP['D_{vt}'] >= 5*units('N'),
 
             # constraint CL and compute the wing loading
             W_avg == .5 * \
@@ -305,14 +305,26 @@ class HorizontalTail(Model):
         return HorizontalTailPerformance(self, fuse,wing,state)
 
     def setup(self, **kwargs):
-        Whtail = Variable('W_{htail}', 10000, 'N',
+        ARh = Variable('AR_h', '-', 'HT Aspect Ratio')
+        Whtail = Variable('W_{htail}', 'N',
                           'Horizontal tail weight')  # Temporarily
         Lhmax = Variable('L_{h_{max}}', 35000, 'N', 'Max horizontal tail load')
-        Shtail = Variable('S_{htail}', 32 * 0.8, 'm^2',
-                          'Horizontal tail area')  # Temporarily
-        CLhmax = Variable('C_{L_{h_{max}}}', 2.5, '-',
-                          'Max lift coefficient')  # Temporarily
-        constraints = [] 
+        Sh = Variable('S_{h}',32 * 0.8, 'm^2','Horizontal tail area')  # Temporarily
+        CLhmax = Variable('C_{L_{h_{max}}}', 2.5, '-','Max lift coefficient')  # Temporarily
+        bh = Variable('b_{h}', 'm', 'HT Span')
+        mach = Variable('mac_{h}', 'm', 'HT Mean Aerodynamic Chord')
+
+
+        constraints = [
+                #HT weight constraint
+                #based off of a raymer weight and 737 data from TASOPT output file
+                (Sh/(46.1*units('m^2')))**.65 == Whtail/(16064.7523*units('N')),
+
+                #HT geometry
+                Sh == bh*mach,
+                ARh == bh/mach,
+                ARh == 6,
+                ]
 
         return constraints
 
@@ -347,7 +359,16 @@ class HorizontalTailPerformance(Model):
         self.fuse = fuse
         self.wing = wing
 
-        constraints = []
+        Kh = Variable('Kh', '-', 'HT Induced Drag Parameter')
+        eh = Variable('eh', '-', 'HT Oswald Efficiency')
+        Dht = Variable('D_{ht}','N' ,'HT Drag')
+
+        constraints = [
+                #HT Drag
+                eh == 0.9,
+                Kh == 1/(pi*eh*self.HT['AR_h']),
+                Dht == 0.5*state.atm['\\rho'] * state['V']**2. * self.HT['S_{h}'] * Kh,
+                ]
 
         return constraints
 
@@ -804,7 +825,7 @@ class Mission(Model):
         constraints.extend([
             # weight constraints
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
-                 * aircraft['W_{engine}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
+                 * aircraft['W_{engine}'] + aircraft.wing.wb['W_{struct}'] + aircraft.VT.wb['W_{struct}'] + aircraft.HT['W_{htail}'] <= W_total]),
 
             cls.climbP.aircraftP['W_{start}'][0] == W_total,
             cls.climbP.aircraftP[
