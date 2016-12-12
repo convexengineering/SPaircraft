@@ -323,12 +323,39 @@ class HorizontalTail(Model):
                 #HT geometry
                 Sh == bh*mach,
                 ARh == bh/mach,
-                ARh == 6,
+                ARh <= 6,
                 ]
 
         return constraints
 
+class HorizontalTailPerformance(Model):
+    def setup(self,ht,fuse,wing,state):
+        self.HT = ht
+        self.fuse = fuse
+        self.wing = wing
 
+        Kh = Variable('Kh', '-', 'HT Induced Drag Parameter')
+        eh = Variable('eh', '-', 'HT Oswald Efficiency')
+        Dht = Variable('D_{ht}','N' ,'HT Drag')
+
+        L_h = Variable('L_{h}', 'N', 'Horizontal Tail Downforce')
+        CLh = Variable('C_{L_{h}}', '-', 'Tail Downforce Coefficient')
+
+        SMmin = Variable('SM_{min}', '-', 'Minimum Static Margin')
+
+
+        constraints = [
+                #HT Drag
+                eh == 0.9,
+                SMmin == 0.5,
+                Kh == 1/(pi*eh*self.HT['AR_h']),
+                Dht == 0.5*state.atm['\\rho'] * state['V']**2. * self.HT['S_{h}'] * Kh,
+                #HT Lift
+                CLh <= ht['C_{L_{h_{max}}}'],
+                L_h == .5 * state['\\rho'] * state['V']**2 * ht['S_{h}'] * CLh,
+                ]
+
+        return constraints
 
         # self.HTns = HorizontalTailNoStruct()
         # self.wb = HorizontalTailWingBox(self.HTns)
@@ -352,27 +379,6 @@ class HorizontalTail(Model):
 #         constraints = [] 
 
 #         return constraints
-
-class HorizontalTailPerformance(Model):
-    def setup(self,ht,fuse,wing,state):
-        self.HT = ht
-        self.fuse = fuse
-        self.wing = wing
-
-        Kh = Variable('Kh', '-', 'HT Induced Drag Parameter')
-        eh = Variable('eh', '-', 'HT Oswald Efficiency')
-        Dht = Variable('D_{ht}','N' ,'HT Drag')
-
-        constraints = [
-                #HT Drag
-                eh == 0.9,
-                Kh == 1/(pi*eh*self.HT['AR_h']),
-                Dht == 0.5*state.atm['\\rho'] * state['V']**2. * self.HT['S_{h}'] * Kh,
-                ]
-
-        return constraints
-
-
 
 # class VTail(Model):
 
@@ -882,6 +888,11 @@ class Mission(Model):
             aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}'],
             
             aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
+
+            # HT
+            crs.cruiseP.wingP['c_{m_{w}}'] == 1,
+            cls.climbP.wingP['c_{m_{w}}'] == 1,
+
             
         ])
 
