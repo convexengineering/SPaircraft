@@ -557,7 +557,7 @@ class WingNoStruct(Model):
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
         wwn       = Variable('wwn', 0.5, '-', 'Wingbox-width-to-chord ratio')
         xw     = Variable('x_w', 'm', 'Position of wing aerodynamic center')
-        ymac    = Variable('y_{\\bar{c}_w}', 'm',
+        ymac    = Variable('y_{mac}', 'm',
                            'Spanwise location of mean aerodynamic chord')
 
         #Linked Variables
@@ -569,7 +569,7 @@ class WingNoStruct(Model):
         b       = Variable('b', 'm', 'Wing span')
         #the following two variables have the same name in the flight profile and
         #will be automatically linked by the linked constraint set
-        cwma    = Variable('\\bar{c}_w', 'm',
+        mac    = Variable('mac', 'm',
                           'Mean aerodynamic chord (wing)')
         e       = Variable('e', '-', 'Oswald efficiency factor')
 
@@ -583,7 +583,7 @@ class WingNoStruct(Model):
                  p >= 1 + 2*taper,
                  2*q >= 1 + p,
                  ymac == (b/3)*q/p,
-                 TCS([(2./3)*(1+taper+taper**2)*croot/q <= cwma],
+                 TCS([(2./3)*(1+taper+taper**2)*croot/q <= mac],
                                    reltol=1E-2),
 
                  taper == ctip/croot,
@@ -668,7 +668,7 @@ class WingPerformance(Model):
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CDw,
                 TCS([CDw >= CDp + CLw**2/(pi*self.wing['e']*self.wing['AR'])]),
-                Re == state['\\rho']*state['V']*self.wing['\\bar{c}_w']/state['\\mu'],
+                Re == state['\\rho']*state['V']*self.wing['mac']/state['\\mu'],
                 1 >= (2.56*CLw**5.88/(Re**1.54*self.wing['\\tau']**3.32*CDp**2.62)
                    + 3.8e-9*self.wing['\\tau']**6.23/(CLw**0.92*Re**1.38*CDp**9.57)
                    + 2.2e-3*Re**0.14*self.wing['\\tau']**0.033/(CLw**0.01*CDp**0.73)
