@@ -97,7 +97,7 @@ class Aircraft(Model):
                             # HT Volume Coefficient
                             TCS([self.HT['l_{h}'] <= self.fuse['x_{tail}'] - self.fuse['x_{wing}']]),
                             TCS([self.HT['V_{h}'] == self.HT['S_{h}']*self.HT['l_{h}']/(self.wing['S']*self.wing['y_{mac}'])]),
-                            self.HT['V_{h}'] >= 0.1,
+                            self.HT['V_{h}'] >= 0.05,
 
                             ])
 
@@ -149,6 +149,8 @@ class AircraftP(Model):
 
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
+        SMmin = Variable('SM_{min}', '-', 'Minimum Static Margin')
+        dxcg = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
 
         constraints = []
 
@@ -192,17 +194,30 @@ class AircraftP(Model):
             aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + xCG,
             aircraft.VT['x_{CG_{vt}}'] >= xCG+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
 
-            # Making sure that the center of gravity of the aircraft coincides
-            self.fuseP['x_{CG}'] == xCG,
+            # Center of gravity constraints #TODO Refine
+            xCG >= 0.5*aircraft.fuse['l_{fuse}'], xCG <= 0.6*aircraft.fuse['l_{fuse}'],
+            xAC >= xCG,
+            xAC >= 0.5*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
             xAC == aircraft.fuse['x_{wing}'],
+            # aircraft.fuse['x_{wing}'] == 0.65*aircraft.fuse['l_{fuse}'],
+
+            # MAC constraint (to make MAC constraint tight in Wing; works in Wing_simple_performance, but blows up in D8) #TODO
+            # SignomialEquality((2./3)*(1+aircraft.wing['taper']+aircraft.wing['taper']**2)* \
+            #                   aircraft.wing['c_{root}']/aircraft.wing['q'], aircraft.wing['mac']),
 
             # Trim conditions
             self.wingP['c_{m_{w}}'] == 1,
             # SignomialEquality(xAC/aircraft.wing['mac'],
             #                   self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
             #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}'])),
+            SMmin == 0.5,
+            dxcg == 2*units('m'),
+            SignomialEquality(SMmin + dxcg/aircraft.wing['mac'],
+                              aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
+                    + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
+                              aircraft.HT['V_{h}']*aircraft.HT['C_{L_{h_{max}}}']/aircraft.wing['C_{L_{wmax}}']),
 
-            ])
+           ])
 
         return self.Pmodels, constraints
 
@@ -666,7 +681,7 @@ class Fuselage(Model):
 
                 # Fuselage length relations
                 SignomialEquality(lfuse, lnose + lshell + lcone),  
-                lnose == 0.3 * lshell,  # Temporarily
+                lnose == 0.3 * lshell,  # TODO remove
                 lcone == Rfuse / lamcone,
                 xshell1 == lnose,
                 TCS([xshell2 >= lnose + lshell]), 
@@ -690,7 +705,7 @@ class Fuselage(Model):
                 # Tail cone sizing
                 taucone == sigskin,
                 Wcone >= rhocone * g * Vcone * (1 + fstring + fframe),
-                TCS([xtail >= lnose + lshell + .5 * lcone]),  # Temporarily
+                SignomialEquality(xtail, lnose + lshell + .5 * lcone),  #[SP] #[SPEquality]
                 
                 # Horizontal bending model
                 # Maximum axial stress is the sum of bending and pressurization
@@ -735,8 +750,6 @@ class Fuselage(Model):
                                   w),  # [SP] [SPEquality]
 
                 sigMh <= sigbend - rE * dPover / 2 * Rfuse / tshell,
-                SignomialEquality(xwing, lnose + 0.6 * lshell),  # TODO remove
-
 
                 # Volume relations
                 Vcyl == Askin * lshell,
@@ -790,7 +803,6 @@ class FuselagePerformance(Model):
         f = Variable('f', '-', 'Fineness ratio')
         FF = Variable('FF', '-', 'Fuselage form factor')
         phi = Variable('\\phi', '-', 'Upsweep angle')
-        xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
 
         constraints = []
         constraints.extend([
@@ -807,7 +819,6 @@ class FuselagePerformance(Model):
             Dfuse >= Dfrict + Dupswp,
             Dfuse == 0.5 * state.atm['\\rho'] * \
             state['V']**2 * Cdfuse * fuse['A_{fuse}'],
-            xCG == 0.65*fuse['l_{fuse}']  # temporary CG substitution
         ])
 
         return constraints
@@ -1032,6 +1043,6 @@ if __name__ == '__main__':
     m = Mission()
     m.substitutions.update(substitutions)
     # m = Model(m.cost,BCS(m))
-    sol = m.localsolve(solver='mosek', verbosity = 2)
+    sol = m.localsolve(solver='mosek', verbosity = 4, iteration_limit=50)
     # bounds, sol = m.determine_unbounded_variables(
     #     m, solver="mosek", verbosity=2, iteration_limit=50)
