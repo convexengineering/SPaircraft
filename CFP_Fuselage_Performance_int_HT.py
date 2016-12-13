@@ -70,10 +70,6 @@ class Aircraft(Model):
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.fuse['V_{NE}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
-                            # self.wing['b'] <= 35*units('m'),
-                            # self.wing['\\bar{c}_w'] >= 1*units('m'),
-                            # self.wing['y_{\\bar{c}_w}'] == 5.675*units('m'),
-                            # self.wing.wb['\bar{A}_{fuel, max}'] == 0.069,
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -94,6 +90,15 @@ class Aircraft(Model):
                             self.fuse['A1h'] >= (self.fuse['N_{land}'] * self.fuse['W_{tail}'] \
                                 + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+
+                            # Lift curve slope ratio for HT and Wing
+                            SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_h']),
+
+                            # HT Volume Coefficient
+                            TCS([self.HT['l_{h}'] <= self.fuse['x_{tail}'] - self.fuse['x_{wing}']]),
+                            TCS([self.HT['V_{h}'] == self.HT['S_{h}']*self.HT['l_{h}']/(self.wing['S']*self.wing['y_{mac}'])]),
+                            self.HT['V_{h}'] >= 0.1,
+
                             ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
@@ -142,9 +147,14 @@ class AircraftP(Model):
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
         thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
 
+        xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
+        xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
+
         constraints = []
 
-        constraints.extend([
+        with SignomialsEnabled():
+
+            constraints.extend([
             # speed must be greater than stall speed
             state['V'] >= Vstall,
 
@@ -179,12 +189,20 @@ class AircraftP(Model):
             t == thours,
 
             #VTP constraints
-            # aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + self.fuseP['x_{CG}'],
-            # aircraft.VT['x_{CG_{vt}}'] >= self.fuseP['x_{CG}']+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
+            aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + xCG,
+            aircraft.VT['x_{CG_{vt}}'] >= xCG+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
 
-            aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + self.fuseP['x_{CG}'],
-            aircraft.VT['x_{CG_{vt}}'] >= self.fuseP['x_{CG}']+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
-        ])
+            # Making sure that the center of gravity of the aircraft coincides
+            self.fuseP['x_{CG}'] == xCG,
+            xAC == aircraft.fuse['x_{wing}'],
+
+            # Trim conditions
+            self.wingP['c_{m_{w}}'] == 1,
+            # SignomialEquality(xAC/aircraft.wing['mac'],
+            #                   self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
+            #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}'])),
+
+            ])
 
         return self.Pmodels, constraints
 
@@ -312,7 +330,12 @@ class HorizontalTail(Model):
         Sh = Variable('S_{h}',32 * 0.8, 'm^2','Horizontal tail area')  # Temporarily
         CLhmax = Variable('C_{L_{h_{max}}}', 2.5, '-','Max lift coefficient')  # Temporarily
         bh = Variable('b_{h}', 'm', 'HT Span')
+        lh = Variable('l_{h}','m','HT Moment Arm')
         mach = Variable('mac_{h}', 'm', 'HT Mean Aerodynamic Chord')
+
+        Vh = Variable('V_{h}','-','HT Volume Coefficient')
+
+        mrat = Variable('m_{ratio}','-','Wing to Tail Lift Slope Ratio')
 
 
         constraints = [
@@ -889,11 +912,6 @@ class Mission(Model):
             
             aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
-            # HT
-            crs.cruiseP.wingP['c_{m_{w}}'] == 1,
-            cls.climbP.wingP['c_{m_{w}}'] == 1,
-
-            
         ])
 
         self.cost = W_ftotal
