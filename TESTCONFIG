@@ -1,0 +1,3 @@
+skipsolvers : 
+pip install : 
+gpkit-models branch : master 
