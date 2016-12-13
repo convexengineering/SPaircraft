@@ -60,6 +60,9 @@ class Aircraft(Model):
 
         # variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
+        Vne = Variable('V_{ne}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
+        rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
+
 
         constraints = []
 
@@ -68,7 +71,7 @@ class Aircraft(Model):
                             self.wing['c_{root}'] == self.fuse['c_0'],
                             self.wing.wb['wwb'] == self.fuse['wtc'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
-                            self.fuse['V_{NE}'] == 144*units('m/s'),
+                            self.fuse['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
 
                             # Tail cone sizing
@@ -92,12 +95,14 @@ class Aircraft(Model):
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
                             # Lift curve slope ratio for HT and Wing
-                            SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_h']),
+                            SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_{h}']),
 
                             # HT Volume Coefficient
                             TCS([self.HT['l_{h}'] <= self.fuse['x_{tail}'] - self.fuse['x_{wing}']]),
-                            TCS([self.HT['V_{h}'] == self.HT['S_{h}']*self.HT['l_{h}']/(self.wing['S']*self.wing['y_{mac}'])]),
-                            self.HT['V_{h}'] >= 0.05,
+                            TCS([self.HT['V_{h}'] == self.HT['S_{h}']*self.HT['l_{h}']/(self.wing['S']*self.wing['mac'])]),
+
+                            # HT Max Loading
+                            TCS([self.HT['L_{h_{max}}'] >= 0.5*rhoTO*Vne**2*self.HT['S_{h}']*self.HT['C_{L_{h_{max}}}']]),
 
                             ])
 
@@ -195,23 +200,24 @@ class AircraftP(Model):
             aircraft.VT['x_{CG_{vt}}'] >= xCG+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
 
             # Center of gravity constraints #TODO Refine
-            xCG >= 0.5*aircraft.fuse['l_{fuse}'], xCG <= 0.6*aircraft.fuse['l_{fuse}'],
-            xAC >= xCG,
-            xAC >= 0.5*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
-            xAC == aircraft.fuse['x_{wing}'],
-            # aircraft.fuse['x_{wing}'] == 0.65*aircraft.fuse['l_{fuse}'],
-
-            # MAC constraint (to make MAC constraint tight in Wing; works in Wing_simple_performance, but blows up in D8) #TODO
-            # SignomialEquality((2./3)*(1+aircraft.wing['taper']+aircraft.wing['taper']**2)* \
-            #                   aircraft.wing['c_{root}']/aircraft.wing['q'], aircraft.wing['mac']),
+            xCG >= 0.4*aircraft.fuse['l_{fuse}'], xCG <= 0.7*aircraft.fuse['l_{fuse}'],
+            # xAC >= xCG,
+            xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
+            aircraft.fuse['x_{wing}'] == aircraft.fuse['l_{fuse}']*0.65,
 
             # Trim conditions
             self.wingP['c_{m_{w}}'] == 1,
-            # SignomialEquality(xAC/aircraft.wing['mac'],
-            #                   self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
-            #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}'])),
-            SMmin == 0.5,
-            dxcg == 2*units('m'),
+            # TCS([xAC/aircraft.wing['mac'] <=  (self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
+            #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}']))]),
+            # TCS([xAC/aircraft.wing['mac'] <=  1.2*(self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
+            #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}']))]),
+            SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
+                              aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}'])),
+            SMmin == 0.05,
+            dxcg == 4*units('m'),
+            aircraft.HT['AR_{h}'] >= 6, #TODO remove
+            self.HTP['C_{L_{h}}'] >= 0.1, #TODO remove
+
             SignomialEquality(SMmin + dxcg/aircraft.wing['mac'],
                               aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                     + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
@@ -338,19 +344,19 @@ class HorizontalTail(Model):
         return HorizontalTailPerformance(self, fuse,wing,state)
 
     def setup(self, **kwargs):
-        ARh = Variable('AR_h', '-', 'HT Aspect Ratio')
+        ARh = Variable('AR_{h}', '-', 'HT Aspect Ratio')
         Whtail = Variable('W_{htail}', 'N',
                           'Horizontal tail weight')  # Temporarily
-        Lhmax = Variable('L_{h_{max}}', 35000, 'N', 'Max horizontal tail load')
-        Sh = Variable('S_{h}',32 * 0.8, 'm^2','Horizontal tail area')  # Temporarily
+        Lhmax = Variable('L_{h_{max}}', 'N', 'Max horizontal tail load')
+        Sh = Variable('S_{h}', 'm^2','Horizontal tail area')  # Temporarily
         CLhmax = Variable('C_{L_{h_{max}}}', 2.5, '-','Max lift coefficient')  # Temporarily
         bh = Variable('b_{h}', 'm', 'HT Span')
         lh = Variable('l_{h}','m','HT Moment Arm')
         mach = Variable('mac_{h}', 'm', 'HT Mean Aerodynamic Chord')
 
         Vh = Variable('V_{h}','-','HT Volume Coefficient')
-
         mrat = Variable('m_{ratio}','-','Wing to Tail Lift Slope Ratio')
+
 
 
         constraints = [
@@ -361,7 +367,6 @@ class HorizontalTail(Model):
                 #HT geometry
                 Sh == bh*mach,
                 ARh == bh/mach,
-                ARh <= 6,
                 ]
 
         return constraints
@@ -386,8 +391,8 @@ class HorizontalTailPerformance(Model):
                 #HT Drag
                 eh == 0.9,
                 SMmin == 0.5,
-                Kh == 1/(pi*eh*self.HT['AR_h']),
-                Dht == 0.5*state.atm['\\rho'] * state['V']**2. * self.HT['S_{h}'] * Kh,
+                Kh == 1/(pi*eh*self.HT['AR_{h}']),
+                Dht == 0.5*state.atm['\\rho'] * state['V']**2. * self.HT['S_{h}'] * Kh * CLh**2,
                 #HT Lift
                 CLh <= ht['C_{L_{h_{max}}}'],
                 L_h == .5 * state['\\rho'] * state['V']**2 * ht['S_{h}'] * CLh,
@@ -443,7 +448,7 @@ class Fuselage(Model):
         npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
                          'Emergency landing load factor')  # [TAS]
-        VNE = Variable('V_{NE}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
+        Vne = Variable('V_{ne}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
         SPR = Variable('SPR', '-', 'Number of seats per row')
         nrows = Variable('n_{rows}', '-', 'Number of rows')
         nseat = Variable('n_{seat}', '-', 'Number of seats')
@@ -642,9 +647,6 @@ class Fuselage(Model):
         constraints = []
         with SignomialsEnabled():
             constraints.extend([
-                Nland == Nland,
-                VNE == VNE,
-                plamv == plamv,
 
                 # Passenger constraints
                 Wlugg >= flugg2 * npax * 2 * Wchecked + flugg1 * npax * Wchecked + Wcarryon,
@@ -989,8 +991,6 @@ if __name__ == '__main__':
         'w_{aisle}': 0.51,
         'w_{seat}': 0.5,
         'w_{sys}': 0.1,
-        # 'e': .9,
-        # 'b_{max}'                 : 35,
         'W_{cargo}': 10000,
         'r_E': 1,  # [TAS]
         '\\lambda_{cone}': 0.4,  # [Philippe]
@@ -1012,7 +1012,6 @@ if __name__ == '__main__':
         # wing subs
 
         'C_{L_{wmax}}': 2.5,
-        # 'V_{ne}': 144,
         '\\tan(\\Lambda)': tan(sweep * pi / 180),
         '\\alpha_{max,w}': 0.1,  # (6 deg)
         '\\cos(\\Lambda)': cos(sweep * pi / 180),
@@ -1026,11 +1025,9 @@ if __name__ == '__main__':
        'V_1': 70,
        '\\rho_{TO}': 1.225,
         '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
-##           'c_{l_{vt}}': 0.5, # [2]
         'c_{l_{vtEO}}': 0.5,
         'A_2': np.pi*(.5*1.75)**2, # [1]
         'e_v': 0.8,
-##           'x_{CG}': 18,
         'y_{eng}': 4.83, # [3]
 
         'V_{land}': 72,
