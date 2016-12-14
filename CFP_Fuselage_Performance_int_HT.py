@@ -11,6 +11,9 @@ from gpkit.constraints.bounded import Bounded as BCS
 from collections import defaultdict
 from gpkit.small_scripts import mag
 
+# only needed for plotting
+import matplotlib.pyplot as plt
+
 # importing from D8_integration
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
@@ -48,6 +51,7 @@ Other markers:
 n = 10
 sweeps = False
 sweepSMmin = True
+sweepdxCG = True
 
 plot = True
 
@@ -71,7 +75,7 @@ class Aircraft(Model):
         Vne = Variable('V_{ne}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
 
-        SMmin = Variable('SM_{min}', 0.5,'-', 'Minimum Static Margin')
+        SMmin = Variable('SM_{min}','-', 'Minimum Static Margin')
 
         constraints = []
         with SignomialsEnabled():
@@ -80,7 +84,6 @@ class Aircraft(Model):
                             self.wing['c_{root}'] == self.fuse['c_0'],
                             self.wing.wb['wwb'] == self.fuse['wtc'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
-                            self.fuse['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
 
                             # Tail cone sizing
@@ -163,7 +166,8 @@ class AircraftP(Model):
 
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
-        dxcg = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
+        dxCG = Variable('\\Delta x_{CG}',4., 'm', 'Max CG Travel Range')
+        SM = Variable('SM','-','Static Margin')
 
         constraints = []
 
@@ -221,12 +225,11 @@ class AircraftP(Model):
             #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}']))]),
             SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
                               aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}'])),
-            dxcg == 4*units('m'),
             aircraft.HT['AR_{h}'] >= 6, #TODO remove
             self.HTP['C_{L_{h}}'] >= 0.1, #TODO remove
-            # aircraft['SM_{min}'] >= 0.05,
+            SM >= aircraft['SM_{min}'],
 
-            SignomialEquality(aircraft['SM_{min}'] + dxcg/aircraft.wing['mac'],
+            SignomialEquality(SM + dxCG/aircraft.wing['mac'],
                               aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                     + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
                               aircraft.HT['V_{h}']*aircraft.HT['C_{L_{h_{max}}}']/aircraft.wing['C_{L_{wmax}}']),
@@ -452,7 +455,6 @@ class Fuselage(Model):
         npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
                          'Emergency landing load factor')  # [TAS]
-        Vne = Variable('V_{ne}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
         SPR = Variable('SPR', '-', 'Number of seats per row')
         nrows = Variable('n_{rows}', '-', 'Number of rows')
         nseat = Variable('n_{seat}', '-', 'Number of seats')
@@ -1043,16 +1045,18 @@ if __name__ == '__main__':
 
     m = Mission()
     m.substitutions.update(substitutions)
+    m.substitutions.update({'SM_{min}' : 0.05})
     # m = Model(m.cost,BCS(m))
-    sol = m.localsolve(solver='mosek', verbosity = 4, iteration_limit=50)
+    sol = m.localsolve(solver='mosek', verbosity = 2, iteration_limit=50)
     # bounds, sol = m.determine_unbounded_variables(
     #     m, solver="mosek", verbosity=2, iteration_limit=50)
 
     if sweeps:
         if sweepSMmin:
             m = Mission()
-            SMminArray = np.linspace(0.01,0.2,n)
-            m.substitutions.update({'SM_{min}': ('sweep',SMminArray) })
+            m.substitutions.update(substitutions)
+            SMminArray = np.linspace(0.05,0.5,n)
+            m.substitutions.update({'SM_{min}': ('sweep',SMminArray)})
             solSMsweep = m.localsolve('mosek',verbosity = 2, skipsweepfailures=True)
 
             if plot:
@@ -1060,21 +1064,46 @@ if __name__ == '__main__':
                 plt.xlabel('Minimum Allowed Static Margin')
                 plt.ylabel('Horizontal Tail Area [m$^2$]')
                 plt.title('Horizontal Tail Area vs Min Static Margin')
-                plt.savefig('HT_Sweeps/S_{h}-vs-SM_{min}.pdf')
-                plt.show()
+                plt.savefig('CFP_Sweeps/S_{h}-vs-SM_{min}.pdf')
+                plt.show(), plt.close()
 
                 plt.plot(solSMsweep('SM_{min}'), solSMsweep('V_{h}'), '-r')
                 plt.xlabel('Minimum Allowed Static Margin')
                 plt.ylabel('Horizontal Tail Volume Coefficient')
                 plt.title('Horizontal Tail Volume Coefficient vs Min Static Margin')
-                plt.savefig('HT_Sweeps/V_{h}-vs-SM_{min}.pdf')
-                plt.show()
+                plt.savefig('CFP_Sweeps/V_{h}-vs-SM_{min}.pdf')
+                plt.show(), plt.close()
 
-                plt.plot(solCGsweep('SM_{min}'), solSMsweep('x_{CG}'), '-r')
+                plt.plot(solSMsweep('SM_{min}'), np.mean(solSMsweep('x_{CG}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
                 plt.xlabel('Minimum Allowed Static Margin')
                 plt.ylabel('CG Location [m]')
                 plt.title('CG Location vs Min Static Margin')
-                plt.savefig('HT_Sweeps/x_{CG}-vs-SM_{min}.pdf')
-                plt.show()
+                plt.savefig('CFP_Sweeps/x_{CG}-vs-SM_{min}.pdf')
+                plt.show(), plt.close()
+
+        # if sweepdxCG:
+        #     m = Mission()
+        #     m.substitutions.update(substitutions)
+        #     dxCGArray = np.linspace(1,5,n)
+        #     m.substitutions.update({'\\Delta x_{CG}': (sweep,dxCGArray)})
+        #     soldxCGsweep = m.localsolve('mosek',verbosity=2,skipsweepfailures=True)
+        #
+        #     if plot:
+        #         plt.plot(soldxCGsweep('\\Delta x_{CG}'),soldxCGsweep('V_{h}'),'-r')
+        #         plt.xlabel('Allowed CG shift [m]')
+        #         plt.ylabel('Horizontal Tail Volume Coefficient')
+        #         plt.title('Horizontal Tail Volume Coefficient vs Allowed CG shift')
+        #         plt.savefig('CFP_Sweeps/Vht-vs-dxCG.pdf')
+        #         plt.show()
+        #
+        #         plt.plot('')
+
+
+    # template
+    #             plt.plot()
+    #             plt.xlabel()
+    #             plt.ylabel()
+    #             plt.title()
+    #             plt.savefig('CFP_Sweeps/')
 
 
