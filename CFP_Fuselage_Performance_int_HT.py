@@ -44,6 +44,14 @@ Other markers:
 -[SPEquality]
 """
 
+# Script for doing sweeps
+n = 10
+sweeps = False
+sweepSMmin = True
+
+plot = True
+
+
 g = 9.81 * units('m*s**-2')
 
 
@@ -63,11 +71,12 @@ class Aircraft(Model):
         Vne = Variable('V_{ne}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
 
+        SMmin = Variable('SM_{min}', 0.5,'-', 'Minimum Static Margin')
 
         constraints = []
-
         with SignomialsEnabled():
             constraints.extend([numeng == numeng,
+                            SMmin == SMmin,
                             self.wing['c_{root}'] == self.fuse['c_0'],
                             self.wing.wb['wwb'] == self.fuse['wtc'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
@@ -154,7 +163,6 @@ class AircraftP(Model):
 
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
-        SMmin = Variable('SM_{min}', '-', 'Minimum Static Margin')
         dxcg = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
 
         constraints = []
@@ -213,12 +221,12 @@ class AircraftP(Model):
             #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}']))]),
             SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
                               aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}'])),
-            SMmin == 0.05,
             dxcg == 4*units('m'),
             aircraft.HT['AR_{h}'] >= 6, #TODO remove
             self.HTP['C_{L_{h}}'] >= 0.1, #TODO remove
+            # aircraft['SM_{min}'] >= 0.05,
 
-            SignomialEquality(SMmin + dxcg/aircraft.wing['mac'],
+            SignomialEquality(aircraft['SM_{min}'] + dxcg/aircraft.wing['mac'],
                               aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                     + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
                               aircraft.HT['V_{h}']*aircraft.HT['C_{L_{h_{max}}}']/aircraft.wing['C_{L_{wmax}}']),
@@ -384,13 +392,9 @@ class HorizontalTailPerformance(Model):
         L_h = Variable('L_{h}', 'N', 'Horizontal Tail Downforce')
         CLh = Variable('C_{L_{h}}', '-', 'Tail Downforce Coefficient')
 
-        SMmin = Variable('SM_{min}', '-', 'Minimum Static Margin')
-
-
         constraints = [
                 #HT Drag
                 eh == 0.9,
-                SMmin == 0.5,
                 Kh == 1/(pi*eh*self.HT['AR_{h}']),
                 Dht == 0.5*state.atm['\\rho'] * state['V']**2. * self.HT['S_{h}'] * Kh * CLh**2,
                 #HT Lift
@@ -1043,3 +1047,34 @@ if __name__ == '__main__':
     sol = m.localsolve(solver='mosek', verbosity = 4, iteration_limit=50)
     # bounds, sol = m.determine_unbounded_variables(
     #     m, solver="mosek", verbosity=2, iteration_limit=50)
+
+    if sweeps:
+        if sweepSMmin:
+            m = Mission()
+            SMminArray = np.linspace(0.01,0.2,n)
+            m.substitutions.update({'SM_{min}': ('sweep',SMminArray) })
+            solSMsweep = m.localsolve('mosek',verbosity = 2, skipsweepfailures=True)
+
+            if plot:
+                plt.plot(solSMsweep('SM_{min}'), solSMsweep('S_{h}'), '-r')
+                plt.xlabel('Minimum Allowed Static Margin')
+                plt.ylabel('Horizontal Tail Area [m$^2$]')
+                plt.title('Horizontal Tail Area vs Min Static Margin')
+                plt.savefig('HT_Sweeps/S_{h}-vs-SM_{min}.pdf')
+                plt.show()
+
+                plt.plot(solSMsweep('SM_{min}'), solSMsweep('V_{h}'), '-r')
+                plt.xlabel('Minimum Allowed Static Margin')
+                plt.ylabel('Horizontal Tail Volume Coefficient')
+                plt.title('Horizontal Tail Volume Coefficient vs Min Static Margin')
+                plt.savefig('HT_Sweeps/V_{h}-vs-SM_{min}.pdf')
+                plt.show()
+
+                plt.plot(solCGsweep('SM_{min}'), solSMsweep('x_{CG}'), '-r')
+                plt.xlabel('Minimum Allowed Static Margin')
+                plt.ylabel('CG Location [m]')
+                plt.title('CG Location vs Min Static Margin')
+                plt.savefig('HT_Sweeps/x_{CG}-vs-SM_{min}.pdf')
+                plt.show()
+
+
