@@ -14,18 +14,17 @@ from gpkit.small_scripts import mag
 
 # importing from D8_integration
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
-from VT_simple_profile import VerticalTail, VerticalTailPerformance
+from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
-from D8_integration import Engine, EnginePerformance, Fuselage, FuselagePerformance
-from D8 import D8
-# from CFP_Fuselage_Performance_int import Fuselage, FuselagePerformance, Aircraft, VTail, HTail
+from D8_integration import Engine, EnginePerformance
+from CFP_Fuselage_Performance_int_HT import Fuselage, FuselagePerformance, Aircraft, HorizontalTail, HorizontalTailPerformance
 
 
 def make_figure():
-    # ac = Aircraft()
-    ac = D8()
+    ac = Aircraft()
+    # ac = D8()
 
-    subsystems = [Fuselage(), Engine(), VerticalTail(Fuselage(),Engine()), Wing()] #HTail(),
+    subsystems = [Fuselage(), Engine(), VerticalTail(), HorizontalTail(), Wing()]
 
     keychain = {}
     for vk in ac.varkeys:
@@ -40,10 +39,10 @@ def make_figure():
             if len(keychain[v]) <= 1:
                 del keychain[v]
 
-    # Get all combinations of sub-models
+    # Get all combinations of sub-modelsa
     modellist = [type(ss).__name__ for ss in subsystems]
     modellistcombo = []
-    for n in range(2, 6):
+    for n in range(2, len(modellist)):
         modellistcombo += combinations(modellist, n)
 
     # Create a dictionary that has each combination (tuple) as a key
