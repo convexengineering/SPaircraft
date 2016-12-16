@@ -10,13 +10,13 @@ from collections import defaultdict
 from gpkit.small_scripts import mag
 
 """
-Models requird to minimze the aircraft total fuel weight. Rate of climb equation taken from John
+Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
 Anderson's Aircraft Performance and Design (eqn 5.85).
 Inputs
 -----
-- Number of passtengers
-- Passegner weight [N]
-- Fusealge area per passenger (recommended to use 1 m^2 based on research) [m^2]
+- Number of passengers
+- Passenger weight [N]
+- Fuselage area per passenger (recommended to use 1 m^2 based on research) [m^2]
 - Engine weight [N]
 - Number of engines
 - Required mission range [nm]
@@ -36,6 +36,12 @@ class Aircraft(Model):
 
         #variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
+        Vne     = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
+        rho0    = Variable('\\rho_0', 1.225, 'kg/m^3', 'Air density (0 ft)')
+
+        SMmin = Variable('SM_{min}', '-', 'Minimum Static Margin')
+        dxCG = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
+
 
         constraints = []
 
@@ -85,6 +91,10 @@ class AircraftP(Model):
         WLoad = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
         thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
+
+        xAC = Variable('x_{AC}', 'm', 'Aerodynamic Center Location')
+        xCG     = Variable('x_{CG}', 'm', 'CG location')
+
 
         constraints = []
         with SignomialsEnabled():
@@ -382,9 +392,8 @@ class Wing(Model):
         dum1 = Variable('dum1', 124.58, 'm^2')
         dum2 = Variable('dum2', 105384.1524, 'N')
 
-        cwma    = Variable('\\bar{c}_w', 'm',
+        mac    = Variable('mac', 'm',
                           'Mean aerodynamic chord (wing)')
-        Vne     = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
         cmw = Variable('c_{m_{w}}', '-', 'Wing Pitching Moment Coefficient')
 
         CLmax = Variable('C_{L_{max}}', '-', 'Max Wing Lift Coefficient')
@@ -406,9 +415,7 @@ class Wing(Model):
 
             #compute K for the aircraft
             K == (pi * e * AR)**-1,
-
-            Vne == Vne,
-            cwma == cwma,
+            mac == mac,
             cmw == 1.0,
             CLmax == CLmax,
 
@@ -507,9 +514,6 @@ class FuselagePerformance(Model):
         Dfuse = Variable('D_{fuse}', 'N', 'Total Fuselage Drag')
 
         Cmfu    = Variable('C_{m_{fuse}}', '-', 'Moment coefficient (fuselage)')
-
-        xcg     = Variable('x_{CG}', 'm', 'CG location')
-        
         #constraints
         constraints = []
 
@@ -547,8 +551,6 @@ class Mission(Model):
         W_total = Variable('W_{total}', 'N', 'Total Aircraft Weight')
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
-
-        xcg     = Variable('x_{CG}', 'm', 'CG location')
 
         h = climb['h']
         hftClimb = climb['hft']
@@ -606,56 +608,60 @@ class Mission(Model):
         #Horizontal Tail Constraints
         with SignomialsEnabled():
             constraints.extend([
+
+                # Trim angle of attach
                 cruise['C_{L_h}'] <= 1.1*cruise['C_{L_{ah}}']*cruise['\\alpha'],
                 cruise['C_{L_h}'] >= 0.9*cruise['C_{L_{ah}}']*cruise['\\alpha'],
+                climb['C_{L_h}'] <= 1.1*climb['C_{L_{ah}}']*climb['\\alpha'],
+                climb['C_{L_h}'] >= 0.9*climb['C_{L_{ah}}']*climb['\\alpha'],
 
-                # Trim condidtion for each flight segment
-                TCS([cruise['x_{ac}']/aircraft.wing['\\bar{c}_w'] <= aircraft.wing['c_{m_{w}}']/cruise['C_{L}'] + xcg/aircraft.wing['\\bar{c}_w'] + aircraft.HT['V_{h}']*(cruise['C_{L_h}']/cruise['C_{L}'])]),
-                
-                aircraft.HT['L_{{max}_h}'] == 0.5*aircraft.HT['\\rho_0']*aircraft.wing['V_{ne}']**2*aircraft.HT['S_h']*aircraft.HT['C_{L_{hmax}}'],
+                # Trim condition for each flight segment
+                TCS([cruise['x_{AC}']/aircraft.wing['mac'] <= aircraft.wing['c_{m_{w}}']/cruise['C_{L}'] + \
+                     cruise['x_{CG}']/aircraft.wing['mac'] + aircraft.HT['V_{h}']*(cruise['C_{L_h}']/cruise['C_{L}'])]),
+                TCS([climb['x_{AC}']/aircraft.wing['mac'] <= aircraft.wing['c_{m_{w}}']/climb['C_{L}'] + \
+                     climb['x_{CG}']/aircraft.wing['mac'] + aircraft.HT['V_{h}']*(climb['C_{L_h}']/climb['C_{L}'])]),
+
+
+                aircraft.HT['L_{{max}_h}'] == 0.5*aircraft['\\rho_0']*aircraft['V_{ne}']**2*aircraft.HT['S_h']*aircraft.HT['C_{L_{hmax}}'],
                 #compute mrat, is a signomial equality
                 SignomialEquality(aircraft.HT['m_{ratio}']*(1+2/aircraft.wing['AR']), 1 + 2/aircraft.HT['AR_h']),
 
                 #tail volume coefficient
-                
-                aircraft.HT['V_{h}'] == aircraft.HT['S_h']*aircraft.HT['x_{CG_{ht}}']/(aircraft.wing['S']*aircraft.wing['\\bar{c}_w']),
+                aircraft.HT['V_{h}'] == aircraft.HT['S_h']*aircraft.HT['x_{CG_{ht}}']/(aircraft.wing['S']*aircraft.wing['mac']),
 
                 #enforce max tail location is the end of the fuselage
                 aircraft.HT['x_{CG_{ht}}'] <= aircraft.fuse['l_{fuse}'],
+                aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - cruise['x_{CG}'],
+                aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - climb['x_{CG}'],
 
                 #Stability constraint, is a signomial
-                TCS([aircraft.HT['SM_{min}'] + aircraft.HT['\\Delta x_{CG}']/aircraft.wing['\\bar{c}_w'] <= aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] + aircraft.wing['c_{m_{w}}']/aircraft.wing['C_{L_{max}}'] + aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{max}}']]),
+                TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] <= aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] + aircraft.wing['c_{m_{w}}']/aircraft.wing['C_{L_{max}}'] + aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{max}}']]),
 
-                aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - xcg,
-                TCS([aircraft.wing['x_w'] >= xcg + cruise['\\Delta x_w']]),
-                TCS([xcg + cruise['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
+                TCS([aircraft.wing['x_w'] >= cruise['x_{CG}'] + cruise['\\Delta x_w']]),
+                TCS([aircraft.wing['x_w'] >= climb['x_{CG}'] + climb['\\Delta x_w']]),
 
-                TCS([aircraft.HT['x_{CG_{ht}}'] >= xcg+(cruise['\\Delta x_{{lead}_h}']+cruise['\\Delta x_{{trail}_h}'])/2]),
 
-                climb['C_{L_h}'] <= 1.1*climb['C_{L_{ah}}']*climb['\\alpha'],
-                climb['C_{L_h}'] >= 0.9*climb['C_{L_{ah}}']*climb['\\alpha'],
+                TCS([cruise['x_{CG}'] + cruise['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
+                TCS([climb['x_{CG}'] + climb['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
 
-                # Trim condidtion for each flight segment
-                TCS([climb['x_{ac}']/aircraft.wing['\\bar{c}_w'] <= aircraft.wing['c_{m_{w}}']/climb['C_{L}'] + xcg/aircraft.wing['\\bar{c}_w'] + aircraft.HT['V_{h}']*(climb['C_{L_h}']/climb['C_{L}'])]),
-
-                aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - xcg,
-                TCS([aircraft.wing['x_w'] >= xcg + climb['\\Delta x_w']]),
-                TCS([xcg + climb['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
                 #compute the aerodynamic center location
-                TCS([climb['x_{ac}'] <= xcg + climb['\\Delta x_w'] ]),
+                TCS([climb['x_{AC}'] <= climb['x_{CG}'] + climb['\\Delta x_w'] ]),
+                TCS([cruise['x_{AC}'] <= cruise['x_{CG}'] + cruise['\\Delta x_w'] ]),
 
-##                SignomialEquality(climb['x_{ac}'],xcg + climb['\\Delta x_w'] ),
-                TCS([aircraft.HT['x_{CG_{ht}}'] >= xcg+(climb['\\Delta x_{{lead}_h}']+climb['\\Delta x_{{trail}_h}'])/2]),
-                    
-                TCS([cruise['x_{ac}'] <= xcg + cruise['\\Delta x_w'] ]),
 ##                SignomialEquality(cruise['x_{ac}'],xcg + cruise['\\Delta x_w'] ),
-                TCS([aircraft.HT['x_{CG_{ht}}'] >= xcg+(cruise['\\Delta x_{{lead}_h}']+cruise['\\Delta x_{{trail}_h}'])/2]),
+##                SignomialEquality(climb['x_{ac}'],xcg + climb['\\Delta x_w'] ),
+                TCS([aircraft.HT['x_{CG_{ht}}'] >= climb['x_{CG}'] + (climb['\\Delta x_{{lead}_h}']+climb['\\Delta x_{{trail}_h}'])/2]),
+                TCS([aircraft.HT['x_{CG_{ht}}'] >= cruise['x_{CG}'] + (cruise['\\Delta x_{{lead}_h}']+cruise['\\Delta x_{{trail}_h}'])/2]),
                 #---------------------------------------------------------#
                 #REMOVE FROM OVERALL MODEL
                 cruise['\\alpha'] <= aircraft.HT['\\alpha_{max,h}'],
                 climb['\\alpha'] <= aircraft.HT['\\alpha_{max,h}'],
-                    
-                xcg == 15*units('m'),
+
+                # Substitutions for xCG and xAC
+                cruise['x_{CG}'] == 15*units('m'),
+                climb['x_{CG}'] == 15*units('m'),
+                cruise['x_{AC}'] == aircraft.wing['x_w'],
+                climb['x_{AC}'] == aircraft.wing['x_w'],
 
                 #compute the HT chord at its attachment point to the VT
                 (aircraft.HT['b_{ht}']/aircraft.fuse['w_{fuse}'])*aircraft.HT['\lambda_h']*aircraft.HT['c_{root_h}'] == aircraft.HT['c_{attach}']
@@ -724,7 +730,6 @@ class HorizontalTailNoStruct(Model):
         q       = Variable('q_{ht}', '-', 'Substituted variable = 1 + taper')
 
         
-        rho0    = Variable('\\rho_0', 1.225, 'kg/m^3', 'Air density (0 ft)')
         tanLh   = Variable('\\tan(\\Lambda_{ht})', '-',
                            'tangent of horizontal tail sweep')
         taper   = Variable('\lambda_h', '-', 'Horizontal tail taper ratio')
@@ -748,16 +753,11 @@ class HorizontalTailNoStruct(Model):
                            'Empirical factor for fuselage-wing interference')
         fl      = Variable(r"f(\lambda_h)", '-',
                            'Empirical efficiency function of taper')
-        SMmin   = Variable('S.M._{min}', '-', 'Minimum stability margin')
         CLhmax  = Variable('C_{L_{hmax}}', '-', 'Max lift coefficient')
 
         #new variables
         Vh = Variable('V_{h}', '-', 'Horizontal Tail Volume Coefficient')
         mrat = Variable('m_{ratio}', '-', 'Wing to Tail Lift Slope Ratio')
-        #min static margin
-        SMmin = Variable('SM_{min}', '-', 'Minimum Static Margin')
-        dxcg = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
-
         #variable just for the D8
         cattach = Variable('c_{attach}', 'm', 'HT Chord Where it is Mountded to the VT')
 
@@ -810,7 +810,6 @@ class HorizontalTailPerformance(Model):
 
         D       = Variable('D_{ht}', 'N', 'Horizontal tail drag')
         Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
-        SM      = Variable('S.M.', '-', 'Stability margin')
         Rec     = Variable('Re_{c_h}', '-',
                            'Cruise Reynolds number (Horizontal tail)')
         CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
@@ -840,17 +839,11 @@ class HorizontalTailPerformance(Model):
 
         alpha   = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
 
-        #new variables
-        xac = Variable('x_{ac}', 'm', 'Aerodynamic Center Location')
-        
-        #cosntraints
         constraints = []
 
         with SignomialsEnabled():
            
-            constraints.extend([                
-                xac == self.wing['x_w'],
-                
+            constraints.extend([
                 Lh == 0.5*state['\\rho']*state['V']**2*self.HT['S_h']*CLh,
 
                 # Moment arm and geometry -- same as for vtail
@@ -1004,11 +997,7 @@ if __name__ == '__main__':
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,
             'b_{max}': 35,
-
-             'V_{ne}': 144,
              'C_{L_{hmax}}': 2.5,
-
-             '\\rho_0': 1.225,
              '\\tan(\\Lambda_{ht})': tan(30*pi/180),
              'w_{fuse}': 6,
 
@@ -1027,7 +1016,7 @@ if __name__ == '__main__':
              #think about how to constrain this
              'x_w': 19,
 
-            '\\bar{c}_w': 2,
+            'mac': 2,
             }
     mission = Mission(aircraft)
     m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
@@ -1071,7 +1060,7 @@ if __name__ == '__main__':
     #              #think about how to constrain this
     #              'x_w': 19,
 
-    #             '\\bar{c}_w': 2,
+    #             'mac': 2,
     #             }
                
     #     mission = Mission(aircraft)
@@ -1128,7 +1117,7 @@ if __name__ == '__main__':
     #              #think about how to constrain this
     #              'x_w': 19,
 
-    #             '\\bar{c}_w': 2,
+    #             'mac': 2,
     #             }
                
     #     mission = Mission(aircraft)
