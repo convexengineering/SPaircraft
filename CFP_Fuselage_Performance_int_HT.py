@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 # importing from D8_integration
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
+# from D8_HT_simple_profile.py import HorizontalTail, HorizontalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance
 
@@ -847,10 +848,10 @@ class Mission(Model):
 
         # vectorize
         with Vectorize(Nclimb):
-            cls = ClimbSegment(aircraft)
+            climb = ClimbSegment(aircraft)
 
         with Vectorize(Ncruise):
-            crs = CruiseSegment(aircraft)
+            cruise = CruiseSegment(aircraft)
 
         # declare new variables
         W_ftotal = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
@@ -862,10 +863,10 @@ class Mission(Model):
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
-        h = cls.state['h']
-        hftClimb = cls.state['hft']
-        dhft = cls.climbP['dhft']
-        hftCruise = crs.state['hft']
+        h = climb.state['h']
+        hftClimb = climb.state['hft']
+        dhft = climb.climbP['dhft']
+        hftCruise = cruise.state['hft']
 
         # make overall constraints
         constraints = []
@@ -873,30 +874,30 @@ class Mission(Model):
         constraints.extend([
             # weight constraints
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
-                 * aircraft['W_{engine}'] + aircraft.wing.wb['W_{struct}'] + aircraft.VT.wb['W_{struct}'] + aircraft.HT['W_{htail}'] <= W_total]),
+                 * aircraft.engine['W_{engine}'] + aircraft.wing.wb['W_{struct}'] + aircraft.VT.wb['W_{struct}'] + aircraft.HT['W_{htail}'] <= W_total]),
 
-            cls.climbP.aircraftP['W_{start}'][0] == W_total,
-            cls.climbP.aircraftP[
-                'W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
+            climb.climbP.aircraftP['W_{start}'][0] == W_total,
+            climb.climbP.aircraftP[
+                'W_{end}'][-1] == cruise.cruiseP.aircraftP['W_{start}'][0],
 
             # similar constraint 1
-            TCS([cls.climbP.aircraftP['W_{start}'] >= cls.climbP.aircraftP[
-                'W_{end}'] + cls.climbP.aircraftP['W_{burn}']]),
+            TCS([climb.climbP.aircraftP['W_{start}'] >= climb.climbP.aircraftP[
+                'W_{end}'] + climb.climbP.aircraftP['W_{burn}']]),
             # similar constraint 2
-            TCS([crs.cruiseP.aircraftP['W_{start}'] >= crs.cruiseP.aircraftP[
-                'W_{end}'] + crs.cruiseP.aircraftP['W_{burn}']]),
+            TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP[
+                'W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
 
-            cls.climbP.aircraftP['W_{start}'][
-                1:] == cls.climbP.aircraftP['W_{end}'][:-1],
-            crs.cruiseP.aircraftP['W_{start}'][
-                1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
+            climb.climbP.aircraftP['W_{start}'][
+                1:] == climb.climbP.aircraftP['W_{end}'][:-1],
+            cruise.cruiseP.aircraftP['W_{start}'][
+                1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft['W_{engine}'] + \
-                 aircraft.wing.wb['W_{struct}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
+                 aircraft.wing.wb['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >= W_fclimb + W_fcruise]),
-            TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
-            TCS([W_fcruise >= sum(crs.cruiseP['W_{burn}'])]),
+            TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
+            TCS([W_fcruise >= sum(cruise.cruiseP['W_{burn}'])]),
 
             # altitude constraints
             hftCruise == CruiseAlt,
@@ -908,23 +909,23 @@ class Mission(Model):
             dhft == hftCruise / Nclimb,
 
             # constrain the thrust
-            cls.climbP.engineP['thrust'] <= 2 * \
-            max(crs.cruiseP.engineP['thrust']),
+            climb.climbP.engineP['thrust'] <= 2 * \
+            max(cruise.cruiseP.engineP['thrust']),
 
             # set the range for each cruise segment, doesn't take credit for climb
             # down range disatnce covered
-            crs.cruiseP['Rng'] == ReqRng / (Ncruise),
+            cruise.cruiseP['Rng'] == ReqRng / (Ncruise),
 
             # set the TSFC
-            cls.climbP.engineP['TSFC'] == .7 * units('1/hr'),
-            crs.cruiseP.engineP['TSFC'] == .5 * units('1/hr'),
+            climb.climbP.engineP['TSFC'] == .7 * units('1/hr'),
+            cruise.cruiseP.engineP['TSFC'] == .5 * units('1/hr'),
 
             #wing constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
-            cls.climbP.wingP['L_w'] == cls.climbP.aircraftP['W_{avg}'],
-            crs.cruiseP.wingP['L_w'] == crs.cruiseP.aircraftP['W_{avg}'],
+            climb.climbP.wingP['L_w'] == climb.climbP.aircraftP['W_{avg}'],
+            cruise.cruiseP.wingP['L_w'] == cruise.cruiseP.aircraftP['W_{avg}'],
 
-            aircraft.VT['T_e'] == cls.climbP.engineP['thrust'][0],
+            aircraft.VT['T_e'] == climb.climbP.engineP['thrust'][0],
 
             # Drag of a windmilling engine
             aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}'],
@@ -935,7 +936,7 @@ class Mission(Model):
 
         self.cost = W_ftotal
 
-        return constraints, aircraft, cls, crs 
+        return constraints, aircraft, climb, cruise
 
     def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
         "Returns model with additional constraints bounding all free variables"
@@ -1039,8 +1040,12 @@ if __name__ == '__main__':
         'V_{land}': 72,
         'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
         '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
-
         'N_{spar}': 2,
+
+        #HT subs
+        # '\\alpha_{max,h}': 2.5,
+        # '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+
     }
 
     m = Mission()
