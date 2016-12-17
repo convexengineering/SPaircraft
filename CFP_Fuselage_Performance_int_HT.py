@@ -5,6 +5,8 @@ import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import Tight as TCS
+TCS.reltol = 1e-3
+TCS.raiseerror = False
 from gpkit.constraints.bounded import Bounded as BCS
 
 # only needed for the local bounded debugging tool
@@ -86,6 +88,8 @@ class Aircraft(Model):
                             self.wing.wb['wwb'] == self.fuse['wtc'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
+
+                            self.engine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'), # [1]
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -892,7 +896,7 @@ class Mission(Model):
             cruise.cruiseP.aircraftP['W_{start}'][
                 1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft['W_{engine}'] + \
+            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
                  aircraft.wing.wb['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >= W_fclimb + W_fcruise]),
@@ -1033,7 +1037,7 @@ if __name__ == '__main__':
        '\\rho_{TO}': 1.225,
         '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
         'c_{l_{vtEO}}': 0.5,
-        'A_2': np.pi*(.5*1.75)**2, # [1]
+        # 'A_2': np.pi*(.5*1.75)**2, # [1]
         'e_v': 0.8,
         'y_{eng}': 4.83, # [3]
 

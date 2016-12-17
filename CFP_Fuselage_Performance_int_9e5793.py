@@ -5,6 +5,8 @@ import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import Tight as TCS
+TCS.reltol = 1e-3
+TCS.raiseerror = False
 from gpkit.constraints.bounded import Bounded as BCS
 
 # only needed for the local bounded debugging tool
@@ -74,6 +76,8 @@ class Aircraft(Model):
                             # self.wing['\\bar{c}_w'] >= 1*units('m'),
                             # self.wing['y_{\\bar{c}_w}'] == 5.675*units('m'),
                             # self.wing.wb['\bar{A}_{fuel, max}'] == 0.069,
+
+                            self.engine['A_2'] ==  np.pi*(.5*1.75)**2*units('m^2'), # [1]
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -767,7 +771,7 @@ class Mission(Model):
         constraints.extend([
             # weight constraints
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
-                 * aircraft['W_{engine}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
+                 * aircraft.engine['W_{engine}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
 
             cls.climbP.aircraftP['W_{start}'][0] == W_total,
             cls.climbP.aircraftP[
@@ -785,7 +789,7 @@ class Mission(Model):
             crs.cruiseP.aircraftP['W_{start}'][
                 1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft['W_{engine}'] + \
+            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
                  aircraft.wing.wb['W_{struct}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >= W_fclimb + W_fcruise]),
@@ -929,7 +933,6 @@ def test():
         '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
 ##           'c_{l_{vt}}': 0.5, # [2]
         'c_{l_{vtEO}}': 0.5,
-        'A_2': np.pi*(.5*1.75)**2, # [1]
         'e_v': 0.8,
 ##           'x_{CG}': 18,
         'y_{eng}': 4.83, # [3]
