@@ -947,7 +947,7 @@ def test():
     m = Mission()
     m.substitutions.update(substitutions)
     # m = Model(m.cost,BCS(m))
-    sol = m.localsolve(solver='mosek', verbosity = 2)
+    sol = m.localsolve(verbosity=2)
     # bounds, sol = m.determine_unbounded_variables(
     #     m, solver="mosek", verbosity=2, iteration_limit=50)
 
