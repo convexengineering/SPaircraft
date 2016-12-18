@@ -601,19 +601,13 @@ class Mission(Model):
             climb['TSFC'] == .7*units('1/hr'),
             cruise['TSFC'] == .5*units('1/hr'),
 
-            # climb['C_{L_h}'] == 2*3.14*climb['\\alpha'],
-            # cruise['C_{L_h}'] == 2*3.14*cruise['\\alpha'],
+            # climb['C_{L_h}'] == 2*3.14*climb['\\alpha_{ht}],
+            # cruise['C_{L_h}'] == 2*3.14*cruise['\\alpha_{ht}],
             ])
         
         #Horizontal Tail Constraints
         with SignomialsEnabled():
             constraints.extend([
-
-                # Trim angle of attach
-                cruise['C_{L_h}'] <= 1.1*cruise['C_{L_{ah}}']*cruise['\\alpha'],
-                cruise['C_{L_h}'] >= 0.9*cruise['C_{L_{ah}}']*cruise['\\alpha'],
-                climb['C_{L_h}'] <= 1.1*climb['C_{L_{ah}}']*climb['\\alpha'],
-                climb['C_{L_h}'] >= 0.9*climb['C_{L_{ah}}']*climb['\\alpha'],
 
                 # Trim condition for each flight segment
                 TCS([cruise['x_{AC}']/aircraft.wing['mac'] <= aircraft.wing['c_{m_{w}}']/cruise['C_{L}'] + \
@@ -653,9 +647,6 @@ class Mission(Model):
                 TCS([aircraft.HT['x_{CG_{ht}}'] >= climb['x_{CG}'] + (climb['\\Delta x_{{lead}_h}']+climb['\\Delta x_{{trail}_h}'])/2]),
                 TCS([aircraft.HT['x_{CG_{ht}}'] >= cruise['x_{CG}'] + (cruise['\\Delta x_{{lead}_h}']+cruise['\\Delta x_{{trail}_h}'])/2]),
                 #---------------------------------------------------------#
-                #REMOVE FROM OVERALL MODEL
-                cruise['\\alpha'] <= aircraft.HT['\\alpha_{max,h}'],
-                climb['\\alpha'] <= aircraft.HT['\\alpha_{max,h}'],
 
                 # Substitutions for xCG and xAC
                 cruise['x_{CG}'] == 15*units('m'),
@@ -837,7 +828,7 @@ class HorizontalTailPerformance(Model):
         CD0h    = Variable('C_{D_{0_h}}', '-',
                            'Horizontal tail parasitic drag coefficient')
 
-        alpha   = Variable('\\alpha', '-', 'Horizontal tail angle of attack')
+        alphah   = Variable('\\alpha_{ht}', '-', 'Horizontal tail angle of attack')
 
         constraints = []
 
@@ -846,29 +837,31 @@ class HorizontalTailPerformance(Model):
             constraints.extend([
                 Lh == 0.5*state['\\rho']*state['V']**2*self.HT['S_h']*CLh,
 
+                # Angle of attack and lift slope constraints
+                CLh <= 1.1*CLah*alphah,
+                CLh >= 0.9*CLah*alphah,
+                alphah <= self.HT['\\alpha_{max,h}'],
+
                 # Moment arm and geometry -- same as for vtail
 ##                dxlead >= self.wing['x_w'] + 1.5*units('m'),
                 TCS([dxlead + self.HT['c_{root_h}'] <= dxtrail]),
                 TCS([dxlead + self.HT['y_{\\bar{c}_{ht}}']*self.HT['\\tan(\\Lambda_{ht})'] + 0.25*self.HT['\\bar{c}_{ht}'] >= self.HT['l_{ht}']],
                     reltol=1e-2), # [SP]               
+                dxtrail <= self.fuse['l_{fuse}'],
 
-                #currently using TAT to apporoximat 
+                # Currently using TAT to approximate
                 CLah == 2*3.14,
-##                CLh == CLah*self.wingP['\\alpha'],
 
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.HT['S_h']*CDh,
                 CDh >= CD0h + CLh**2/(pi*self.HT['e_h']*self.HT['AR_h']),
 
-                # same drag model as vtail
+                # Same drag model as VerticalTail
                 CD0h**0.125 >= 0.19*(self.HT['\\tau_h'])**0.0075 *(Rec)**0.0017
                             + 1.83e+04*(self.HT['\\tau_h'])**3.54*(Rec)**-0.494
                             + 0.118*(self.HT['\\tau_h'])**0.0082 *(Rec)**0.00165
                             + 0.198*(self.HT['\\tau_h'])**0.00774*(Rec)**0.00168,
                 Rec == state['\\rho']*state['V']*self.HT['\\bar{c}_{ht}']/state['\\mu'],
-
-                #final geometry constraints
-                dxtrail <= self.fuse['l_{fuse}'],
                 ])
 
         return constraints
