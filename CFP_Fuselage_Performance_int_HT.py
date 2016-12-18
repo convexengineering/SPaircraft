@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 # importing from D8_integration
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
-# from D8_HT_simple_profile.py import HorizontalTail, HorizontalTailPerformance
+from D8_HT_simple_profile import HorizontalTail, HorizontalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance
 
@@ -101,22 +101,29 @@ class Aircraft(Model):
 
                             # Tail weight
                             self.fuse['W_{tail}'] >= 2*self.VT['W_{struct}'] + \
-                                self.HT['W_{htail}'] + self.fuse['W_{cone}'],
+                                self.HT['W_{struct}'] + self.fuse['W_{cone}'],
 
                             # Aero loads constant A1h
                             self.fuse['A1h'] >= (self.fuse['N_{land}'] * self.fuse['W_{tail}'] \
-                                + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
+                                + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
                             # Lift curve slope ratio for HT and Wing
-                            SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_{h}']),
+                            SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_h']),
 
                             # HT Volume Coefficient
-                            TCS([self.HT['l_{h}'] <= self.fuse['x_{tail}'] - self.fuse['x_{wing}']]),
-                            TCS([self.HT['V_{h}'] == self.HT['S_{h}']*self.HT['l_{h}']/(self.wing['S']*self.wing['mac'])]),
+                            TCS([self.HT['l_{ht}'] <= self.fuse['x_{tail}'] - self.fuse['x_{wing}']]),
+                            TCS([self.HT['V_{h}'] == self.HT['S_h']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
 
                             # HT Max Loading
-                            TCS([self.HT['L_{h_{max}}'] >= 0.5*rhoTO*Vne**2*self.HT['S_{h}']*self.HT['C_{L_{h_{max}}}']]),
+                            TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
+
+                            # HT Location constraints
+                            self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
+
+                            # HT/VT joint constraint
+                            self.HT['b_{ht}']/self.fuse['w_{fuse}']*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}']
+
 
                             ])
 
@@ -168,7 +175,7 @@ class AircraftP(Model):
 
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
-        dxCG = Variable('\\Delta x_{CG}',4., 'm', 'Max CG Travel Range')
+        dxCG = Variable('\\Delta x_{CG}',1., 'm', 'Max CG Travel Range')
         SM = Variable('SM','-','Static Margin')
 
         constraints = []
@@ -209,27 +216,36 @@ class AircraftP(Model):
 
             # Center of gravity constraints #TODO Refine
             xCG >= 0.4*aircraft.fuse['l_{fuse}'], xCG <= 0.7*aircraft.fuse['l_{fuse}'],
-            xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
-            xAC >= xCG,
-            aircraft.fuse['x_{wing}'] == aircraft.fuse['l_{fuse}']*0.65,
+            # xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
+            # xAC >= xCG,
+            aircraft.fuse['x_{wing}'] == aircraft.fuse['l_{fuse}']*0.65, #TODO remove
 
             # Trim conditions
             self.wingP['c_{m_{w}}'] == 1,
-            # TCS([xAC/aircraft.wing['mac'] <=  (self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
-            #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}']))]),
-            # TCS([xAC/aircraft.wing['mac'] <=  1.2*(self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
-            #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}']))]),
             SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
-                              aircraft.HT['V_{h}']*(self.HTP['C_{L_{h}}']/self.wingP['C_{L}'])),
-            aircraft.HT['AR_{h}'] >= 6, #TODO remove
-            self.HTP['C_{L_{h}}'] >= 0.1, #TODO remove
+                              aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])),
+            aircraft.HT['AR_h'] >= 6, #TODO remove
+            aircraft.VT['A_{vt}'] >= 3, #TODO remove
+            self.HTP['C_{L_h}'] >= 0.05, #TODO remove
 
             # Static margin constraint
             SM >= aircraft['SM_{min}'],
             SignomialEquality(SM + dxCG/aircraft.wing['mac'],
                               aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                     + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
-                              aircraft.HT['V_{h}']*aircraft.HT['C_{L_{h_{max}}}']/aircraft.wing['C_{L_{wmax}}']),
+                              aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']),
+
+            # HT Constraints
+            aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - xCG,
+
+
+            # Wing location and AC constraints
+            aircraft.fuse['x_{wing}'] >= xCG + self.HTP['\\Delta x_w'],
+            TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]),
+            xAC <= xCG + self.HTP['\\Delta x_w'],
+
+            TCS([aircraft.HT['x_{CG_{ht}}'] >= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]),
+
 
            ])
 
@@ -346,68 +362,68 @@ class ClimbSegment(Model):
 
         return self.state, self.climbP
 
-class HorizontalTail(Model):
-
-    def dynamic(self, fuse, wing, state):
-        return HorizontalTailPerformance(self, fuse,wing,state)
-
-    def setup(self, **kwargs):
-        ARh = Variable('AR_{h}', '-', 'HT Aspect Ratio')
-        Whtail = Variable('W_{htail}', 'N',
-                          'Horizontal tail weight')  # Temporarily
-        Lhmax = Variable('L_{h_{max}}', 'N', 'Max horizontal tail load')
-        Sh = Variable('S_{h}', 'm^2','Horizontal tail area')  # Temporarily
-        CLhmax = Variable('C_{L_{h_{max}}}', 2.5, '-','Max lift coefficient')  # Temporarily
-        bh = Variable('b_{h}', 'm', 'HT Span')
-        lh = Variable('l_{h}','m','HT Moment Arm')
-        mach = Variable('mac_{h}', 'm', 'HT Mean Aerodynamic Chord')
-
-        Vh = Variable('V_{h}','-','HT Volume Coefficient')
-        mrat = Variable('m_{ratio}','-','Wing to Tail Lift Slope Ratio')
-
-
-
-        constraints = [
-                #HT weight constraint
-                #based off of a raymer weight and 737 data from TASOPT output file
-                (Sh/(46.1*units('m^2')))**.65 == Whtail/(16064.7523*units('N')),
-
-                #HT geometry
-                Sh == bh*mach,
-                ARh == bh/mach,
-                ]
-
-        return constraints
-
-class HorizontalTailPerformance(Model):
-    def setup(self,ht,fuse,wing,state):
-        self.HT = ht
-        self.fuse = fuse
-        self.wing = wing
-
-        Kh = Variable('Kh', '-', 'HT Induced Drag Parameter')
-        eh = Variable('eh', '-', 'HT Oswald Efficiency')
-        Dht = Variable('D_{ht}','N' ,'HT Drag')
-
-        L_h = Variable('L_{h}', 'N', 'Horizontal Tail Downforce')
-        CLh = Variable('C_{L_{h}}', '-', 'Tail Downforce Coefficient')
-
-        constraints = [
-                #HT Drag
-                eh == 0.9,
-                Kh == 1/(pi*eh*self.HT['AR_{h}']),
-                Dht == 0.5*state.atm['\\rho'] * state['V']**2. * self.HT['S_{h}'] * Kh * CLh**2,
-                #HT Lift
-                CLh <= ht['C_{L_{h_{max}}}'],
-                L_h == .5 * state['\\rho'] * state['V']**2 * ht['S_{h}'] * CLh,
-                ]
-
-        return constraints
-
-        # self.HTns = HorizontalTailNoStruct()
-        # self.wb = HorizontalTailWingBox(self.HTns)
-
-        # return self.HTns, self.wb
+# class HorizontalTail(Model):
+#
+#     def dynamic(self, fuse, wing, state):
+#         return HorizontalTailPerformance(self, fuse,wing,state)
+#
+#     def setup(self, **kwargs):
+#         ARh = Variable('AR_{h}', '-', 'HT Aspect Ratio')
+#         Whtail = Variable('W_{htail}', 'N',
+#                           'Horizontal tail weight')  # Temporarily
+#         Lhmax = Variable('L_{h_{max}}', 'N', 'Max horizontal tail load')
+#         Sh = Variable('S_{h}', 'm^2','Horizontal tail area')  # Temporarily
+#         CLhmax = Variable('C_{L_{h_{max}}}', 2.5, '-','Max lift coefficient')  # Temporarily
+#         bh = Variable('b_{h}', 'm', 'HT Span')
+#         lh = Variable('l_{ht}','m','HT Moment Arm')
+#         mach = Variable('mac_{h}', 'm', 'HT Mean Aerodynamic Chord')
+#
+#         Vh = Variable('V_{h}','-','HT Volume Coefficient')
+#         mrat = Variable('m_{ratio}','-','Wing to Tail Lift Slope Ratio')
+#
+#
+#
+#         constraints = [
+#                 #HT weight constraint
+#                 #based off of a raymer weight and 737 data from TASOPT output file
+#                 (Sh/(46.1*units('m^2')))**.65 == Whtail/(16064.7523*units('N')),
+#
+#                 #HT geometry
+#                 Sh == bh*mach,
+#                 ARh == bh/mach,
+#                 ]
+#
+#         return constraints
+#
+# class HorizontalTailPerformance(Model):
+#     def setup(self,ht,fuse,wing,state):
+#         self.HT = ht
+#         self.fuse = fuse
+#         self.wing = wing
+#
+#         Kh = Variable('Kh', '-', 'HT Induced Drag Parameter')
+#         eh = Variable('eh', '-', 'HT Oswald Efficiency')
+#         Dht = Variable('D_{ht}','N' ,'HT Drag')
+#
+#         Lh = Variable('L_{ht}', 'N', 'Horizontal Tail Downforce')
+#         CLh = Variable('C_{L_{h}}', '-', 'Tail Downforce Coefficient')
+#
+#         constraints = [
+#                 #HT Drag
+#                 eh == 0.9,
+#                 Kh == 1/(pi*eh*self.HT['AR_{h}']),
+#                 Dht == 0.5*state.atm['\\rho'] * state['V']**2. * self.HT['S_{h}'] * Kh * CLh**2,
+#                 #HT Lift
+#                 CLh <= ht['C_{L_{h_{max}}}'],
+#                 Lh == .5 * state['\\rho'] * state['V']**2 * ht['S_{h}'] * CLh,
+#                 ]
+#
+#         return constraints
+#
+#         # self.HTns = HorizontalTailNoStruct()
+#         # self.wb = HorizontalTailWingBox(self.HTns)
+#
+#         # return self.HTns, self.wb
 
 # class HorizontalTailWingBox(Model):
 
@@ -870,7 +886,7 @@ class Mission(Model):
         constraints.extend([
             # weight constraints
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
-                 * aircraft.engine['W_{engine}'] + aircraft.wing.wb['W_{struct}'] + aircraft.VT.wb['W_{struct}'] + aircraft.HT['W_{htail}'] <= W_total]),
+                 * aircraft.engine['W_{engine}'] + aircraft.wing.wb['W_{struct}'] + aircraft.VT.wb['W_{struct}'] + aircraft.HT['W_{struct}'] <= W_total]),
 
             climb.climbP.aircraftP['W_{start}'][0] == W_total,
             climb.climbP.aircraftP[
@@ -988,14 +1004,15 @@ if __name__ == '__main__':
         'N_{spar}': 2,
 
         #HT subs
-        # '\\alpha_{max,h}': 2.5,
-        # '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+        '\\alpha_{max,h}': 2.5,
+        '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+        'C_{L_{hmax}}': 2.5,
 
     }
 
     m = Mission()
     m.substitutions.update(substitutions)
-    m.substitutions.update({'SM_{min}' : 0.05})
+    m.substitutions.update({'SM_{min}' : 0.5})
     # m = Model(m.cost,BCS(m))
     sol = m.localsolve(solver='mosek', verbosity = 2, iteration_limit=50)
 
