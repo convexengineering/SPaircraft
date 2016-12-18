@@ -17,27 +17,51 @@ from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance
-from CFP_Fuselage_Performance_int_HT import Fuselage, FuselagePerformance, Aircraft, HorizontalTail, HorizontalTailPerformance
+from CFP_Fuselage_Performance_int_HT import Mission,Fuselage, FuselagePerformance, Aircraft, AircraftP, HorizontalTail, HorizontalTailPerformance
 
 
 def make_figure():
-    ac = Aircraft()
-    # ac = D8()
+    m = Mission()
+    sol = m.localsolve(verbosity=2)
 
-    subsystems = [Fuselage(), Engine(), VerticalTail(), HorizontalTail(), Wing()]
+    ac = Aircraft()
+    acP = AircraftP()
+
+    # keychain = {}
+    # for vk in ac.varkeys:
+    #     keychain[vk.str_without(['models'])] = vk.models
+    #     # model = vk.descr.get("models")
+    #     # if 'Aircraft' in model or 'AircraftP' in model:  # and vk not in ac.substitutions:
+    #     #     v = vk.str_without(['models'])
+    #     #     keychain[v] = []
+    #     #     for ss in subsystems:
+    #     #         for i in ss.varkeys:
+    #     #             if v == i.str_without(['models']):
+    #     #                 keychain[v].append(type(ss).__name__)
+    #     #     # if len(keychain[v]) <= 1:
+    #     #     #     del keychain[v]
+    # for vk in acP.varkeys:
+    #     keychain[vk.str_without(['models'])] = vk.models
+    # for vk in m.varkeys:
+    #      keychain[vk.str_without(['models'])] = vk.models
+    #
+    # for key in keychain.keys():
+    #     if 'VerticalTailNoStruct' in keychain[key] :
+    #         keychain[key].remove('VerticalTailNoStruct')
+    #     if 'HorizontalTailNoStruct' in keychain[key]:
+    #         keychain[key].remove('HorizontalTailNoStruct')
+    #     if 'WingNoStruct' in keychain[key]:
+    #         keychain[key].remove('WingNoStruct')
+    #     if 'WingBox' in keychain[key]:
+    #         keychain[key].remove('WingBox')
 
     keychain = {}
-    for vk in ac.varkeys:
-        model = vk.descr.get("models")
-        if 'Aircraft' in model:  # and vk not in ac.substitutions:
-            v = vk.str_without(['models'])
-            keychain[v] = []
-            for ss in subsystems:
-                for i in ss.varkeys:
-                    if v == i.str_without(['models']):
-                        keychain[v].append(type(ss).__name__)
-            if len(keychain[v]) <= 1:
-                del keychain[v]
+
+    constraints = ac.flat(constraintsets=True)
+    counter = 0
+    for i in constraints:
+        vars = i.varkeys
+        keychain[counter] = i
 
     # Get all combinations of sub-modelsa
     modellist = [type(ss).__name__ for ss in subsystems]
