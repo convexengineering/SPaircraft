@@ -52,9 +52,10 @@ Other markers:
 
 # Script for doing sweeps
 n = 10
-sweeps = False
-sweepSMmin = True
-sweepdxCG = True
+sweeps = True
+sweepSMmin = False
+sweepdxCG = False
+sweepReqRng = True
 
 plot = True
 
@@ -221,6 +222,7 @@ class AircraftP(Model):
 
             # Center of gravity constraints #TODO Refine
             xCG >= 0.4*aircraft.fuse['l_{fuse}'], xCG <= 0.7*aircraft.fuse['l_{fuse}'],
+            # xCG >= 0.5*aircraft.fuse['l_{fuse}'],
             # xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
             # xAC >= xCG,
             aircraft.fuse['x_{wing}'] >= aircraft.fuse['l_{fuse}']*0.5, #TODO remove
@@ -876,12 +878,13 @@ class Mission(Model):
             cruise = CruiseSegment(aircraft)
 
         # declare new variables
-        W_ftotal = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
-        W_fclimb = Variable('W_{f_{climb}}', 'N',
+        W_ftotal = Variable('W_{f_{total}}', 'lbf', 'Total Fuel Weight')
+        W_fclimb = Variable('W_{f_{climb}}', 'lbf',
                             'Fuel Weight Burned in Climb')
-        W_fcruise = Variable('W_{f_{cruise}}', 'N',
+        W_fcruise = Variable('W_{f_{cruise}}', 'lbf',
                              'Fuel Weight Burned in Cruise')
-        W_total = Variable('W_{total}', 'N', 'Total Aircraft Weight')
+        W_total = Variable('W_{total}', 'lbf', 'Total Aircraft Weight')
+        W_dry = Variable('W_{dry}', 'lbf', 'Dry Aircraft Weight')
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
@@ -947,6 +950,12 @@ class Mission(Model):
             climb.climbP.wingP['L_w'] == climb.climbP.aircraftP['W_{avg}'],
             cruise.cruiseP.wingP['L_w'] == cruise.cruiseP.aircraftP['W_{avg}'],
         ])
+
+        with SignomialsEnabled():
+            constraints.extend([
+                SignomialEquality(W_dry, aircraft['W_{fuse}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
+                 aircraft.wing.wb['W_{struct}']),
+            ])
 
         self.cost = W_ftotal
 
@@ -1017,14 +1026,14 @@ if __name__ == '__main__':
         '\\alpha_{max,h}': 2.5,
         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
         'C_{L_{hmax}}': 2.5,
+        'SM_{min}': 0.05,
 
     }
 
     m = Mission()
     m.substitutions.update(substitutions)
-    m.substitutions.update({'SM_{min}' : 0.05})
     # m = Model(m.cost,BCS(m))
-    sol = m.localsolve(solver='mosek', verbosity = 2, iteration_limit=50)
+    sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:
         if sweepSMmin:
@@ -1032,7 +1041,7 @@ if __name__ == '__main__':
             m.substitutions.update(substitutions)
             SMminArray = np.linspace(0.05,0.5,n)
             m.substitutions.update({'SM_{min}': ('sweep',SMminArray)})
-            solSMsweep = m.localsolve('mosek',verbosity = 2, skipsweepfailures=True)
+            solSMsweep = m.localsolve(verbosity = 2, skipsweepfailures=True)
 
             if plot:
                 plt.plot(solSMsweep('SM_{min}'), solSMsweep('S_{h}'), '-r')
@@ -1056,12 +1065,49 @@ if __name__ == '__main__':
                 plt.savefig('CFP_Sweeps/x_{CG}-vs-SM_{min}.pdf')
                 plt.show(), plt.close()
 
+        if sweepReqRng:
+            m = Mission()
+            m.substitutions.update(substitutions)
+            ReqRngArray = np.linspace(500,3000,n)
+            m.substitutions.update({'ReqRng': ('sweep',ReqRngArray)})
+            solReqRngsweep = m.localsolve(verbosity=2, iteration_limit=25, skipsweepfailures=True)
+
+            if plot:
+                plt.plot(solReqRngsweep('ReqRng'),solReqRngsweep('W_{f_{total}}'))
+                plt.xlabel('Range [nmi]')
+                plt.ylabel('Total Fuel Weight [lbf]')
+                plt.title('Total Fuel Weight vs Range')
+                plt.savefig('CFP_Sweeps/W_ftotal-vs-ReqRng.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solReqRngsweep('ReqRng'),solReqRngsweep('W_{dry}'))
+                plt.xlabel('Range [nmi]')
+                plt.ylabel('Dry Weight [lbf]')
+                plt.title('Dry Weight vs Range')
+                plt.savefig('CFP_Sweeps/W_dry-vs-ReqRng.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solReqRngsweep('ReqRng'),solReqRngsweep('S'))
+                plt.xlabel('Range [nmi]')
+                plt.ylabel('Wing Area [m^2]')
+                plt.title('Wing Area vs Range')
+                plt.savefig('CFP_Sweeps/S-vs-ReqRng.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solReqRngsweep('ReqRng'),solReqRngsweep('b'))
+                plt.xlabel('Range [nmi]')
+                plt.ylabel('Wing Span [m]')
+                plt.title('Wing Span vs Range')
+                plt.savefig('CFP_Sweeps/b-vs-ReqRng.pdf')
+                plt.show(), plt.close()
+
+        if sweep
         # if sweepdxCG:
         #     m = Mission()
         #     m.substitutions.update(substitutions)
         #     dxCGArray = np.linspace(1,5,n)
         #     m.substitutions.update({'\\Delta x_{CG}': (sweep,dxCGArray)})
-        #     soldxCGsweep = m.localsolve('mosek',verbosity=2,skipsweepfailures=True)
+        #     soldxCGsweep = m.localsolve(verbosity=2,skipsweepfailures=True)
         #
         #     if plot:
         #         plt.plot(soldxCGsweep('\\Delta x_{CG}'),soldxCGsweep('V_{h}'),'-r')
