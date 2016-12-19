@@ -112,7 +112,8 @@ class Aircraft(Model):
                             SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_h']),
 
                             # HT Volume Coefficient
-                            TCS([self.HT['l_{ht}'] <= self.fuse['x_{tail}'] - self.fuse['x_{wing}']]),
+                            self.fuse['x_{tail}'] == self.VT['x_{CG_{vt}}'],
+                            # TCS([self.HT['l_{ht}'] <= self.fuse['x_{tail}'] - self.fuse['x_{wing}']]),
                             TCS([self.HT['V_{h}'] == self.HT['S_h']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
 
                             # HT Max Loading
@@ -122,8 +123,12 @@ class Aircraft(Model):
                             self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
 
                             # HT/VT joint constraint
-                            self.HT['b_{ht}']/self.fuse['w_{fuse}']*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}']
+                            self.HT['b_{ht}']/self.fuse['w_{fuse}']*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
+                            # VT height constraint (4*engine radius)
+                            self.VT['b_{vt}']**2 >= 16.*self.engine['A_2']/np.pi,
+                            # VT root chord constraint #TODO find better constraint
+                            self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
 
                             ])
 
@@ -175,7 +180,7 @@ class AircraftP(Model):
 
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
-        dxCG = Variable('\\Delta x_{CG}',1., 'm', 'Max CG Travel Range')
+        dxCG = Variable('\\Delta x_{CG}',2., 'm', 'Max CG Travel Range')
         SM = Variable('SM','-','Static Margin')
 
         constraints = []
@@ -218,14 +223,18 @@ class AircraftP(Model):
             xCG >= 0.4*aircraft.fuse['l_{fuse}'], xCG <= 0.7*aircraft.fuse['l_{fuse}'],
             # xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
             # xAC >= xCG,
-            aircraft.fuse['x_{wing}'] == aircraft.fuse['l_{fuse}']*0.65, #TODO remove
+            aircraft.fuse['x_{wing}'] >= aircraft.fuse['l_{fuse}']*0.5, #TODO remove
+            aircraft.fuse['x_{wing}'] <= aircraft.fuse['l_{fuse}']*0.7, #TODO remove
 
-            # Trim conditions
+
+            # Aircraft trim conditions
             self.wingP['c_{m_{w}}'] == 1,
             SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
                               aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])),
-            aircraft.HT['AR_h'] >= 6, #TODO remove
-            aircraft.VT['A_{vt}'] >= 3, #TODO remove
+
+            # Tail aspect ratio constraints
+            aircraft.HT['AR_h'] >= 6, #TODO change to tip Re constraint
+            aircraft.VT['A_{vt}'] >= 1.5, #TODO change to tip Re constraint
             self.HTP['C_{L_h}'] >= 0.05, #TODO remove
 
             # Static margin constraint
@@ -235,16 +244,17 @@ class AircraftP(Model):
                     + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
                               aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']),
 
-            # HT Constraints
-            aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - xCG,
+            # HT/VT moment arm constraints
+            aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG,
+            aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG,
 
 
             # Wing location and AC constraints
             aircraft.fuse['x_{wing}'] >= xCG + self.HTP['\\Delta x_w'],
-            TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]),
-            xAC <= xCG + self.HTP['\\Delta x_w'],
+            TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]), #TODO tighten
+            xAC <= xCG + self.HTP['\\Delta x_w'], #TODO tighten
 
-            TCS([aircraft.HT['x_{CG_{ht}}'] >= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]),
+            TCS([aircraft.HT['x_{CG_{ht}}'] >= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
 
            ])
@@ -635,20 +645,20 @@ class Fuselage(Model):
         Wchecked = Variable('W_{checked}', 'lbf',
                             'Ave. checked bag weight')  # [Philippe]
         Wcone = Variable('W_{cone}', 'lbf', 'Cone weight')
-        Wdb = Variable('W_{db}', 'N', 'Web weight')
+        Wdb = Variable('W_{db}', 'lbf', 'Web weight')
         Wfix = Variable(
             'W_{fix}', 3000, 'lbf', 'Fixed weights (pilots, cockpit seats, navcom)')  # [Philippe]
         Wfloor = Variable('W_{floor}', 'lbf', 'Floor weight')
         Wfuse = Variable('W_{fuse}', 'lbf', 'Fuselage weight')
         Winsul = Variable('W_{insul}', 'lbf', 'Insulation material weight')
-        Wlugg = Variable('W_{lugg}', 'N', 'Passenger luggage weight')
+        Wlugg = Variable('W_{lugg}', 'lbf', 'Passenger luggage weight')
         Wpadd = Variable('W_{padd}', 'lbf',
                          'Misc weights (galley, toilets, doors etc.)')
-        Wpax = Variable('W_{pax}', 'N', 'Passenger weight')
-        Wpay = Variable('W_{payload}', 'N', 'Payload weight')
+        Wpax = Variable('W_{pax}', 'lbf', 'Passenger weight')
+        Wpay = Variable('W_{payload}', 'lbf', 'Payload weight')
         Wseat = Variable('W_{seat}', 'lbf', 'Seating weight')
-        Wshell = Variable('W_{shell}', 'N', 'Shell weight')
-        Wskin = Variable('W_{skin}', 'N', 'Skin weight')
+        Wshell = Variable('W_{shell}', 'lbf', 'Shell weight')
+        Wskin = Variable('W_{skin}', 'lbf', 'Skin weight')
         Wtail = Variable('W_{tail}', 'lbf', 'Total tail weight')
         Wwindow = Variable('W_{window}', 'lbf', 'Window weight')
 
@@ -1012,7 +1022,7 @@ if __name__ == '__main__':
 
     m = Mission()
     m.substitutions.update(substitutions)
-    m.substitutions.update({'SM_{min}' : 0.5})
+    m.substitutions.update({'SM_{min}' : 0.05})
     # m = Model(m.cost,BCS(m))
     sol = m.localsolve(solver='mosek', verbosity = 2, iteration_limit=50)
 
