@@ -52,10 +52,11 @@ Other markers:
 
 # Script for doing sweeps
 n = 10
-sweeps = True
+sweeps = False
 sweepSMmin = False
 sweepdxCG = False
-sweepReqRng = True
+sweepReqRng = False
+sweepthetadb = True
 
 plot = True
 
@@ -969,6 +970,7 @@ if __name__ == '__main__':
         'SPR': 8,
         'p_s': 81.,
         'ReqRng': 1000,
+        # '\\theta_{db}' : 0.366,
         'CruiseAlt': 30000,
         'numeng': 2,
         'n_{pax}': 150,
@@ -1101,7 +1103,37 @@ if __name__ == '__main__':
                 plt.savefig('CFP_Sweeps/b-vs-ReqRng.pdf')
                 plt.show(), plt.close()
 
-        if sweep
+        if sweepthetadb:
+            m = Mission()
+            m.substitutions.update(substitutions)
+            thetadbArray = np.linspace(0,0.5,n)
+            m.substitutions.update({'\\theta_{db}': ('sweep', thetadbArray)})
+            solthetadbsweep = m.localsolve(verbosity=2, iteration_limit=25, skipsweepfailures=True)
+
+            if plot:
+                plt.plot(solthetadbsweep('\\theta_{db}'),solthetadbsweep('W_{f_{total}}'))
+                plt.xlabel('Fuselage Joint Angle [radians]')
+                plt.ylabel('Total Fuel Weight [lbf]')
+                plt.title('Total Fuel Weight vs Fuselage Joint Angle')
+                plt.savefig('CFP_Sweeps/W_ftotal-vs-thetadb.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solthetadbsweep('\\theta_{db}'),solthetadbsweep('W_{dry}'))
+                plt.xlabel('Fuselage Joint Angle [radians]')
+                plt.ylabel('Dry Weight [lbf]')
+                plt.title('Dry Weight vs Fuselage Joint Angle')
+                plt.savefig('CFP_Sweeps/W_dry-vs-thetadb.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solthetadbsweep('\\theta_{db}'),solthetadbsweep('W_{fuse}'))
+                plt.xlabel('Fuselage Joint Angle [radians]')
+                plt.ylabel('Fuselage Weight [lbf]')
+                plt.title('Fuselage Weight vs Fuselage Joint Angle')
+                plt.savefig('CFP_Sweeps/W_fuse-vs-thetadb.pdf')
+                plt.show(), plt.close()
+
+
+
         # if sweepdxCG:
         #     m = Mission()
         #     m.substitutions.update(substitutions)
