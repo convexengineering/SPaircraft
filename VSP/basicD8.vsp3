@@ -9,8 +9,8 @@
         <AxisLength Value="1.000000000000000000e+000" ID="VIYORMQSLLV"/>
       </Axis>
       <BBox>
-        <X_Len Value="2.580268960314260000e+001" ID="IEEMLRKKBUW"/>
-        <X_Min Value="-1.480297366166875300e-016" ID="JSKTAFROZMU"/>
+        <X_Len Value="2.550000000000000000e+001" ID="IEEMLRKKBUW"/>
+        <X_Min Value="0.000000000000000000e+000" ID="JSKTAFROZMU"/>
         <Y_Len Value="3.368042515301752400e+001" ID="FWMRQFQTNAI"/>
         <Y_Min Value="-1.684021257650876200e+001" ID="WBMPFNETECL"/>
         <Z_Len Value="7.164037313951277900e+000" ID="AZJNNOKKMYG"/>
@@ -30,7 +30,7 @@
         <ViewType Value="3.000000000000000000e+000" ID="WKREMJZEINK"/>
       </DXFSettings>
       <Design>
-        <Working_XDDM_Type Value="0.000000000000000000e+000" ID="DKWXXKNVQEP"/>
+        <Working_XDDM_Type Value="0.000000000000000000e+000" ID="ZULZWRGBSRI"/>
       </Design>
       <ExportFlag>
         <CompGeom_CSV_Export Value="1.000000000000000000e+000" ID="RVUSZKUPXOY"/>
@@ -39,12 +39,12 @@
         <DragBuild_TSV_Export Value="1.000000000000000000e+000" ID="DEYTWFIGISG"/>
       </ExportFlag>
       <FitModel>
-        <Select_Box_Flag Value="0.000000000000000000e+000" ID="HWPKRYVCIOV"/>
-        <Select_One_Flag Value="0.000000000000000000e+000" ID="QYSIWRRWTJK"/>
-        <U_TargetPt Value="0.000000000000000000e+000" ID="FLEPKJZMHCA"/>
-        <U_Type Value="1.000000000000000000e+000" ID="PBXPSDBYTIV"/>
-        <W_TargetPt Value="0.000000000000000000e+000" ID="HUJIVHFAXMS"/>
-        <W_Type Value="1.000000000000000000e+000" ID="WWIFGPTDKOH"/>
+        <Select_Box_Flag Value="0.000000000000000000e+000" ID="IQCYRZCSYKE"/>
+        <Select_One_Flag Value="0.000000000000000000e+000" ID="ZKNPBSQJTMM"/>
+        <U_TargetPt Value="0.000000000000000000e+000" ID="YHJYQHMGTVD"/>
+        <U_Type Value="1.000000000000000000e+000" ID="BANCSADIAMK"/>
+        <W_TargetPt Value="0.000000000000000000e+000" ID="GLFIHGTIKCF"/>
+        <W_Type Value="1.000000000000000000e+000" ID="AAGPXEWZZVR"/>
       </FitModel>
       <IGESSettings>
         <LenUnit Value="4.000000000000000000e+000" ID="AOXZFAKYUUD"/>
@@ -202,7 +202,7 @@
         </Attach>
         <BBox>
           <X_Len Value="1.100268960314259900e+001" ID="YWJHIIZALKH"/>
-          <X_Min Value="1.480000000000000100e+001" ID="UFCISGNIPTR"/>
+          <X_Min Value="9.169747899159663300e+000" ID="UFCISGNIPTR"/>
           <Y_Len Value="3.368042515301752400e+001" ID="VULXSFKYDWE"/>
           <Y_Min Value="-1.684021257650876200e+001" ID="DZJASKEEVZI"/>
           <Z_Len Value="3.364889604300032900e+000" ID="ORMVHMKIEYQ"/>
@@ -260,8 +260,8 @@
           <Last_Scale Value="1.000000000000000000e+000" ID="SOBPIJXDGJV"/>
           <Origin Value="0.000000000000000000e+000" ID="KACQWDVPPPF"/>
           <Scale Value="1.000000000000000000e+000" ID="WUSRQYGXMCV"/>
-          <X_Location Value="1.480000000000000100e+001" ID="KBCKTDRVMOY"/>
-          <X_Rel_Location Value="1.480000000000000100e+001" ID="UOBOGEWYYZZ"/>
+          <X_Location Value="9.169747899159663300e+000" ID="KBCKTDRVMOY"/>
+          <X_Rel_Location Value="9.169747899159663300e+000" ID="UOBOGEWYYZZ"/>
           <X_Rel_Rotation Value="0.000000000000000000e+000" ID="ELXIPCREMVR"/>
           <X_Rotation Value="0.000000000000000000e+000" ID="SMCAVCZXJSG"/>
           <Y_Location Value="0.000000000000000000e+000" ID="UGCWNKYYWZP"/>
@@ -279,7 +279,11 @@
         <TypeID>5</TypeID>
         <TypeFixed>0</TypeFixed>
         <ParentID>NONE</ParentID>
-        <Child_List/>
+        <Child_List>
+          <Child>
+            <ID>GKBJAHNHYM</ID>
+          </Child>
+        </Child_List>
       </GeomBase>
       <Material>
         <Name>Default</Name>
@@ -496,6 +500,113 @@
     </Geom>
     <Geom>
       <ParmContainer>
+        <ID>GKBJAHNHYM</ID>
+        <Name>PodGeom</Name>
+        <Attach>
+          <Rots_Attach_Flag Value="0.000000000000000000e+000" ID="FIQJSPSKXJU"/>
+          <Trans_Attach_Flag Value="0.000000000000000000e+000" ID="NOFVWDDILXW"/>
+          <U_Attach_Location Value="9.999999999999999500e-007" ID="JOALAMQZMML"/>
+          <V_Attach_Location Value="9.999999999999999500e-007" ID="TKHQEULAYLZ"/>
+        </Attach>
+        <BBox>
+          <X_Len Value="5.500000000000000000e+000" ID="YHCLEVPNABK"/>
+          <X_Min Value="2.000000000000000000e+001" ID="JSNAFRLDUPO"/>
+          <Y_Len Value="5.549999999999999800e+000" ID="ZSQVDEWRPWF"/>
+          <Y_Min Value="-2.774999999999999900e+000" ID="AZCJCYIYVNO"/>
+          <Z_Len Value="2.750000000000000000e+000" ID="AJSNVNFNCJV"/>
+          <Z_Min Value="6.250000000000000000e-001" ID="SERDOOJRQPA"/>
+        </BBox>
+        <Design>
+          <FineRatio Value="4.000000000000000000e+000" ID="QRBDHPAPDFX"/>
+          <Length Value="5.500000000000000000e+000" ID="JTPPOOJVVPE"/>
+        </Design>
+        <EndCap>
+          <CapUMaxLength Value="1.000000000000000000e+000" ID="QZDTMRDAQJJ"/>
+          <CapUMaxOffset Value="0.000000000000000000e+000" ID="LJUHEUYSVUP"/>
+          <CapUMaxOption Value="0.000000000000000000e+000" ID="UEIVZFCENWV"/>
+          <CapUMaxStrength Value="5.000000000000000000e-001" ID="NKZOBKUXQTF"/>
+          <CapUMaxSweepFlag Value="0.000000000000000000e+000" ID="LDTWMLRQTEO"/>
+          <CapUMinLength Value="1.000000000000000000e+000" ID="AAXLZTNDPVI"/>
+          <CapUMinOffset Value="0.000000000000000000e+000" ID="JUADLGKYSUF"/>
+          <CapUMinOption Value="0.000000000000000000e+000" ID="TXVOQSUKOCY"/>
+          <CapUMinStrength Value="5.000000000000000000e-001" ID="MYNUAFFCXTL"/>
+          <CapUMinSweepFlag Value="0.000000000000000000e+000" ID="DUKBHBXGUBV"/>
+          <CapUMinTess Value="3.000000000000000000e+000" ID="VXHFFCVZJFY"/>
+          <CapWMaxOption Value="0.000000000000000000e+000" ID="FKIOIJSGVLV"/>
+          <CapWMinOption Value="0.000000000000000000e+000" ID="CANREFPIULF"/>
+        </EndCap>
+        <Mass_Props>
+          <Density Value="1.000000000000000000e+000" ID="RZRTDYMTWGG"/>
+          <Mass_Area Value="1.000000000000000000e+000" ID="FTAHIYSFWTY"/>
+          <Mass_Prior Value="0.000000000000000000e+000" ID="AXBICZNRZNA"/>
+          <Shell_Flag Value="0.000000000000000000e+000" ID="TBUXMTXJOLQ"/>
+        </Mass_Props>
+        <Negative_Volume_Props>
+          <Negative_Volume_Flag Value="0.000000000000000000e+000" ID="ANTJTTPMWXE"/>
+        </Negative_Volume_Props>
+        <Shape>
+          <Tess_U Value="1.000000000000000000e+001" ID="BMWRKLMQPEJ"/>
+          <Tess_W Value="9.000000000000000000e+000" ID="GCPLRECPMKC"/>
+          <Wake Value="0.000000000000000000e+000" ID="CHUHZTMWLQS"/>
+        </Shape>
+        <Sym>
+          <Sym_Ancestor Value="1.000000000000000000e+000" ID="JWCEMXRNFOG"/>
+          <Sym_Ancestor_Origin_Flag Value="1.000000000000000000e+000" ID="YLTVHPSAODH"/>
+          <Sym_Axial_Flag Value="0.000000000000000000e+000" ID="JSZWPUUTQQX"/>
+          <Sym_Planar_Flag Value="2.000000000000000000e+000" ID="ZNSWDKRORLU"/>
+          <Sym_Rot_N Value="2.000000000000000000e+000" ID="XODEATFKNQR"/>
+        </Sym>
+        <XForm>
+          <Abs_Or_Relitive_flag Value="1.000000000000000000e+000" ID="DTVRRPTJLWY"/>
+          <Last_Scale Value="1.000000000000000000e+000" ID="DPEFSROZAOK"/>
+          <Origin Value="0.000000000000000000e+000" ID="ENSTUCJDHTJ"/>
+          <Scale Value="1.000000000000000000e+000" ID="EQNHVAXDZWV"/>
+          <X_Location Value="2.000000000000000000e+001" ID="WCZWGLVKJGR"/>
+          <X_Rel_Location Value="2.000000000000000000e+001" ID="REBAHPKXPRR"/>
+          <X_Rel_Rotation Value="0.000000000000000000e+000" ID="TQDMJDZAWVY"/>
+          <X_Rotation Value="0.000000000000000000e+000" ID="IWKBTLPUCBS"/>
+          <Y_Location Value="1.399999999999999900e+000" ID="TYYLOYCJLYB"/>
+          <Y_Rel_Location Value="1.399999999999999900e+000" ID="GKMTRGNCEVD"/>
+          <Y_Rel_Rotation Value="0.000000000000000000e+000" ID="MOJIOSTWQKQ"/>
+          <Y_Rotation Value="0.000000000000000000e+000" ID="CUFSXAJHCQS"/>
+          <Z_Location Value="2.000000000000000000e+000" ID="SASAEWRKCRI"/>
+          <Z_Rel_Location Value="2.000000000000000000e+000" ID="XFTWTTHLVRI"/>
+          <Z_Rel_Rotation Value="0.000000000000000000e+000" ID="HPKIECJXVOP"/>
+          <Z_Rotation Value="0.000000000000000000e+000" ID="EZKEJWHJRLJ"/>
+        </XForm>
+      </ParmContainer>
+      <GeomBase>
+        <TypeName>Pod</TypeName>
+        <TypeID>3</TypeID>
+        <TypeFixed>0</TypeFixed>
+        <ParentID>ZOELFBWEHO</ParentID>
+        <Child_List/>
+      </GeomBase>
+      <Material>
+        <Name>Default</Name>
+      </Material>
+      <Wire_Color>
+        <ParmContainer>
+          <ID>HGRAUYQGDR</ID>
+          <Name>Default</Name>
+          <Color_Parm>
+            <Alpha Value="2.550000000000000000e+002" ID="YSZPYOTENHL"/>
+            <Blue Value="2.550000000000000000e+002" ID="HIOBYTAMLCF"/>
+            <Green Value="0.000000000000000000e+000" ID="ORSSUAZAIMJ"/>
+            <Red Value="0.000000000000000000e+000" ID="ADSAGZPCMPK"/>
+          </Color_Parm>
+        </ParmContainer>
+      </Wire_Color>
+      <Textures>
+        <Num_of_Tex>0</Num_of_Tex>
+      </Textures>
+      <Geom>
+        <Set_List>1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, </Set_List>
+        <SubSurfaces/>
+      </Geom>
+    </Geom>
+    <Geom>
+      <ParmContainer>
         <ID>GZCEVHAMAC</ID>
         <Name>Fuselage</Name>
         <Attach>
@@ -506,7 +617,7 @@
         </Attach>
         <BBox>
           <X_Len Value="2.450000000000000700e+001" ID="LZYICNFFMGI"/>
-          <X_Min Value="-1.480297366166875300e-016" ID="XVYLJVIMDYP"/>
+          <X_Min Value="0.000000000000000000e+000" ID="XVYLJVIMDYP"/>
           <Y_Len Value="5.226684020246116400e+000" ID="ALULFTETHHS"/>
           <Y_Min Value="-2.613342010123058200e+000" ID="CTNMTKKMFBL"/>
           <Z_Len Value="3.500000000000000000e+000" ID="VSZQRIIKQUR"/>

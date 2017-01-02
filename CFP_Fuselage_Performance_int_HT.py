@@ -962,8 +962,7 @@ class Mission(Model):
 
         return constraints, aircraft, climb, cruise
 
-if __name__ == '__main__':
-    substitutions = {
+substitutions = {
         # 'V_{stall}'   : 120,
         '\\delta_P_{over}': 12,
         'N_{land}': 6,
@@ -1030,7 +1029,10 @@ if __name__ == '__main__':
         'C_{L_{hmax}}': 2.5,
         'SM_{min}': 0.05,
 
-    }
+}
+
+if __name__ == '__main__':
+
 
     m = Mission()
     m.substitutions.update(substitutions)
