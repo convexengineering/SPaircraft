@@ -1128,6 +1128,7 @@ if __name__ == '__main__':
                 plt.plot(solthetadbsweep('\\theta_{db}'),solthetadbsweep('W_{fuse}'))
                 plt.xlabel('Fuselage Joint Angle [radians]')
                 plt.ylabel('Fuselage Weight [lbf]')
+
                 plt.title('Fuselage Weight vs Fuselage Joint Angle')
                 plt.savefig('CFP_Sweeps/W_fuse-vs-thetadb.pdf')
                 plt.show(), plt.close()

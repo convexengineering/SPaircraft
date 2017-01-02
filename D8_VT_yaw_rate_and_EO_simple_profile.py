@@ -782,7 +782,6 @@ class VerticalTailPerformance(Model):
             ])
 
         return constraints
-
 class WingBox(Model):
     """
     Structural model for a wing

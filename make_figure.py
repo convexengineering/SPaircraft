@@ -22,24 +22,25 @@ from CFP_Fuselage_Performance_int_HT import Mission,Fuselage, FuselagePerformanc
 
 def make_figure():
     m = Mission()
-    sol = m.localsolve(verbosity=2)
+    # sol = m.localsolve(verbosity=2)
 
     ac = Aircraft()
-    acP = AircraftP()
+    acP = AircraftP(ac, FlightState())
+    subsystems = [Engine(),Wing(),HorizontalTail(),VerticalTail(),Fuselage()]
 
-    # keychain = {}
-    # for vk in ac.varkeys:
-    #     keychain[vk.str_without(['models'])] = vk.models
-    #     # model = vk.descr.get("models")
-    #     # if 'Aircraft' in model or 'AircraftP' in model:  # and vk not in ac.substitutions:
-    #     #     v = vk.str_without(['models'])
-    #     #     keychain[v] = []
-    #     #     for ss in subsystems:
-    #     #         for i in ss.varkeys:
-    #     #             if v == i.str_without(['models']):
-    #     #                 keychain[v].append(type(ss).__name__)
-    #     #     # if len(keychain[v]) <= 1:
-    #     #     #     del keychain[v]
+    keychain = {}
+    for vk in ac.varkeys:
+        keychain[vk.str_without(['models'])] = vk.models
+        model = vk.descr.get("models")
+        if 'Aircraft' in model or 'AircraftP' in model:  # and vk not in ac.substitutions:
+            v = vk.str_without(['models'])
+            keychain[v] = []
+            for ss in subsystems:
+                for i in ss.varkeys:
+                    if v == i.str_without(['models']):
+                        keychain[v].append(type(ss).__name__)
+            if len(keychain[v]) <= 1:
+                del keychain[v]
     # for vk in acP.varkeys:
     #     keychain[vk.str_without(['models'])] = vk.models
     # for vk in m.varkeys:
@@ -55,13 +56,31 @@ def make_figure():
     #     if 'WingBox' in keychain[key]:
     #         keychain[key].remove('WingBox')
 
-    keychain = {}
+    # keychain = {}
+    #
+    # constraints = ac.flat(constraintsets=True)
+    # constraintsP = acP.flat(constraintsets=True)
+    # counter = 0
+    #
+    # for i in constraints:
+    #     counter += 1
+    #     vars = i.varkeys.models
+    #     print vars
+    #     # keychain[vars.str_without(['models'])] = vk.models
+    #     keychain[counter] = i
+    #
+    # for i in constraintsP:
+    #     counter += 1
+    #     vars = i.varkeys
+    #     keychain[counter] = i
 
-    constraints = ac.flat(constraintsets=True)
-    counter = 0
-    for i in constraints:
-        vars = i.varkeys
-        keychain[counter] = i
+
+    # counter = 0
+    # modellinks = {}
+    # while counter < len(keychain):
+    #     counter += 1
+    #     modellinks[counter]
+
 
     # Get all combinations of sub-modelsa
     modellist = [type(ss).__name__ for ss in subsystems]
