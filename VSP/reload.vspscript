@@ -1,0 +1,9 @@
+void main() {
+	ClearVSPModel();
+	ReadVSPFile("/home/lochie/concepts/2016/December/17/outline.vsp3");
+	Update();
+	Print("Update .vsp3 file\n",true);
+        ReadApplyDESFile('/home/lochie/concepts/2016/December/17/design.des');
+	Print("Apply .des file\n",true);
+	Update();
+}
