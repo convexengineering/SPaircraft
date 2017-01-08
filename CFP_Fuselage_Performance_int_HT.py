@@ -52,7 +52,7 @@ Other markers:
 
 # Script for doing sweeps
 n = 10
-sweeps = True
+sweeps = False
 sweepSMmin = False
 sweepdxCG = False
 sweepReqRng = False
@@ -195,7 +195,7 @@ class AircraftP(Model):
             state['V'] >= Vstall,
 
             # compute the drag
-            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}']]),
+            D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}'],
             # self.VTP['D_{vt}'] >= 5*units('N'),
 
             # constraint CL and compute the wing loading
@@ -216,21 +216,19 @@ class AircraftP(Model):
             t == thours,
 
             #VTP constraints
-            aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{lead_v}'] + xCG,
-            aircraft.VT['x_{CG_{vt}}'] >= xCG+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2,
+            TCS([aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{trail_v}'] + xCG]),
+            TCS([aircraft.VT['x_{CG_{vt}}'] >= xCG+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2]),
             aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
             # Drag of a windmilling engine
-            aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}'],
+            TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
 
             # Center of gravity constraints #TODO Refine
             xCG >= 0.4*aircraft.fuse['l_{fuse}'], xCG <= 0.7*aircraft.fuse['l_{fuse}'],
             xCG >= aircraft['x_{CG_{min}}'],
-            # xCG >= 0.5*aircraft.fuse['l_{fuse}'],
             # xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
             # xAC >= xCG,
             aircraft.fuse['x_{wing}'] >= aircraft.fuse['l_{fuse}']*0.5, #TODO remove
             aircraft.fuse['x_{wing}'] <= aircraft.fuse['l_{fuse}']*0.7, #TODO remove
-
 
             # Aircraft trim conditions
             self.wingP['c_{m_{w}}'] == 1,
@@ -251,8 +249,8 @@ class AircraftP(Model):
                               aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']),
 
             # HT/VT moment arm constraints
-            aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG,
-            aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG,
+            TCS([aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG]),
+            TCS([aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG]),
 
 
             # Wing location and AC constraints
@@ -261,8 +259,6 @@ class AircraftP(Model):
             xAC <= xCG + self.HTP['\\Delta x_w'], #TODO tighten
 
             TCS([aircraft.HT['x_{CG_{ht}}'] >= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
-
-
            ])
 
         return self.Pmodels, constraints
@@ -763,28 +759,22 @@ class Fuselage(Model):
                 A2h >= Nland * (Wpay + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
                 (2 * lshell * hfuse * sigMh),  # Landing loads constant A2h
                 # Shell inertia constant A0h
-                A0h == (Ihshell / (rE * hfuse**2)),
-                # [SP]  # Bending area forward of wingbox
-                Ahbendf >= A2h * (xshell2 - xf)**2 + A1h * (xtail - xf) - A0h,
-                # [SP]  # Bending area behind wingbox
+                A0h == (Ihshell / (rE * hfuse**2)), # [SP]  # Bending area forward of wingbox
+                Ahbendf >= A2h * (xshell2 - xf)**2 + A1h * (xtail - xf) - A0h, # [SP]  # Bending area behind wingbox
                 Ahbendb >= A2h * (xshell2 - xb)**2 + A1h * (xtail - xb) - A0h, # [SP]
-
                 Vhbendf >= A2h / 3 * ((xshell2 - xf)**3 - (xshell2 - xhbend)**3) \
                 + A1h / 2 * ((xtail - xf)**2 - (xtail - xhbend)**2) \
-                + A0h * (xhbend - xf),  # [SP]
-
+                + A0h * (xhbend - xf),  # [SP] # Bending volume forward of wingbox
                 Vhbendb >= A2h / 3 * ((xshell2 - xb)**3 - (xshell2 - xhbend)**3) \
                 + A1h / 2 * ((xtail - xb)**2 - (xtail - xhbend)**2) \
-                + A0h * (xhbend - xb),  # [SP]
-                Vhbendc >= .5 * (Ahbendf + Ahbendb) * c0 * w,
+                + A0h * (xhbend - xb),  # [SP] # Bending volume behind wingbox
+                Vhbendc >= .5 * (Ahbendf + Ahbendb) * c0 * w, # Bending volume over wingbox
                 Vhbend >= Vhbendc + Vhbendf + Vhbendb,
                 Whbend >= g * rhobend * Vhbend,
 
                 # Wing variable substitutions
-                SignomialEquality(xf, xwing + .5 * c0 * \
-                                  w),  # [SP] [SPEquality]
-                SignomialEquality(xb, xwing - .5 * c0 * \
-                                  w),  # [SP] [SPEquality]
+                SignomialEquality(xf, xwing + .5 * c0 * w),  # [SP] [SPEquality]
+                SignomialEquality(xb, xwing - .5 * c0 * w),  # [SP] [SPEquality]
 
                 sigMh <= sigbend - rE * dPover / 2 * Rfuse / tshell,
 
@@ -795,26 +785,21 @@ class Fuselage(Model):
                 Vdb == Adb * lshell,
                 # TODO Revert to posynomial after debugging
                 # [SP] #[SPEquality]
-                SignomialEquality(
-                    Vcabin, Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse)),
+                SignomialEquality(Vcabin, Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse)),
 
                 # Weight relations
                 Wapu == Wpay * fapu,
                 Wdb == rhoskin * g * Vdb,
-                Winsul >= Wppinsul * \
-                ((1.1 * pi + 2 * thetadb) * Rfuse * \
-                 lshell + 0.55 * (Snose + Sbulk)),
+                Winsul >= Wppinsul * ((1.1 * pi + 2 * thetadb) * Rfuse * lshell + 0.55 * (Snose + Sbulk)),
                 Wlugg >= flugg2 * npax * 2 * Wchecked + flugg1 * npax * Wchecked + Wcarryon,
                 Wwindow >= Wpwindow * lshell,
                 Wpadd == Wpay * fpadd,
                 Wseat == Wpseat * nseat,
 
                 Wskin >= rhoskin * g * (Vcyl + Vnose + Vbulk),
-                # + Whbend, #+ Wvbend,
                 Wshell >= Wskin * (1 + fstring + ffadd + fframe) + Wdb,
                 Wfuse >= Wshell + Wfloor + Wtail + Winsul + \
-                Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend,
-
+                    Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend,
             ])
 
         return constraints
@@ -849,13 +834,11 @@ class FuselagePerformance(Model):
             FF >= 1 + 60 / f**3 + f / 400,  # form factor
             Dfrict >= FF * np.pi * fuse['R_{fuse}'] * state.atm['\\mu'] * state['V'] * 0.074 * (state.atm['\\rho'] * state['V']
                                                                                                 * fuse['l_{fuse}'] / state.atm['\\mu'])**0.8,
-            # monomial fit of tan(phi)
+            # Monomial fit of tan(phi)
             1.13226 * phi**1.03759 == fuse['R_{fuse}'] / fuse['l_{cone}'],
-            Dupswp >= 3.83 * phi**2.5 * \
-            fuse['A_{fuse}'] * 0.5 * state.atm['\\rho'] * state['V']**2,
+            Dupswp >= 3.83 * phi**2.5 * fuse['A_{fuse}'] * 0.5 * state.atm['\\rho'] * state['V']**2,
             Dfuse >= Dfrict + Dupswp,
-            Dfuse == 0.5 * state.atm['\\rho'] * \
-            state['V']**2 * Cdfuse * fuse['A_{fuse}'],
+            Dfuse == 0.5 * state.atm['\\rho'] * state['V']**2 * Cdfuse * fuse['A_{fuse}'],
         ])
 
         return constraints
@@ -1032,7 +1015,7 @@ substitutions = {
         'C_{L_{hmax}}': 2.5,
         'SM_{min}': 0.05,
         '\\Delta x_{CG_{min}}': 2.*units('m'),
-        'x_{CG_{min}}':10*units('m'),
+        'x_{CG_{min}}':1*units('m'),
 
 }
 
