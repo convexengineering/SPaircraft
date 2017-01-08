@@ -52,17 +52,16 @@ Other markers:
 
 # Script for doing sweeps
 n = 10
-sweeps = False
+sweeps = True
 sweepSMmin = False
 sweepdxCG = False
 sweepReqRng = False
-sweepthetadb = True
+sweepthetadb = False
+sweepxCG = True
 
 plot = True
 
-
 g = 9.81 * units('m*s**-2')
-
 
 class Aircraft(Model):
     "Aircraft class"
@@ -81,6 +80,8 @@ class Aircraft(Model):
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
 
         SMmin = Variable('SM_{min}','-', 'Minimum Static Margin')
+        dxCGmin = Variable('\\Delta x_{CG_{min}}','m','Minimum Allowed CG Shift')
+        xCGmin = Variable('x_{CG_{min}}','m','Maximum Forward CG')
 
         constraints = []
         with SignomialsEnabled():
@@ -182,7 +183,7 @@ class AircraftP(Model):
 
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
-        dxCG = Variable('\\Delta x_{CG}',2., 'm', 'Max CG Travel Range')
+        dxCG = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
         SM = Variable('SM','-','Static Margin')
 
         constraints = []
@@ -223,6 +224,7 @@ class AircraftP(Model):
 
             # Center of gravity constraints #TODO Refine
             xCG >= 0.4*aircraft.fuse['l_{fuse}'], xCG <= 0.7*aircraft.fuse['l_{fuse}'],
+            xCG >= aircraft['x_{CG_{min}}'],
             # xCG >= 0.5*aircraft.fuse['l_{fuse}'],
             # xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
             # xAC >= xCG,
@@ -242,6 +244,7 @@ class AircraftP(Model):
 
             # Static margin constraint
             SM >= aircraft['SM_{min}'],
+            dxCG >= aircraft['\\Delta x_{CG_{min}}'],
             SignomialEquality(SM + dxCG/aircraft.wing['mac'],
                               aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                     + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
@@ -964,29 +967,29 @@ class Mission(Model):
 
 substitutions = {
         # 'V_{stall}'   : 120,
-        '\\delta_P_{over}': 12,
+        '\\delta_P_{over}': 12*units('psi'),
         'N_{land}': 6,
         'SPR': 8,
         'p_s': 81.,
-        'ReqRng': 1000,
+        'ReqRng': 1000*units('nmi'),
         # '\\theta_{db}' : 0.366,
-        'CruiseAlt': 30000,
+        'CruiseAlt': 30000*units('ft'),
         'numeng': 2,
         'n_{pax}': 150,
-        'W_{avg. pass}': 180,
+        'W_{avg. pass}': 180*units('lbf'),
         'W_{carry on}': 15,
-        'W_{cargo}': 10000,
-        'W_{checked}': 40,
-        'w_{aisle}': 0.51,
-        'w_{seat}': 0.5,
+        'W_{cargo}': 10000*units('N'),
+        'W_{checked}': 40*units('lbf'),
+        'w_{aisle}': 0.51*units('m'),
+        'w_{seat}': 0.5*units('m'),
         'w_{sys}': 0.1,
         'W_{cargo}': 10000,
         'r_E': 1,  # [TAS]
         '\\lambda_{cone}': 0.4,  # [Philippe]
-        '\\rho_{cone}': 2700,  # [TAS]
-        '\\rho_{bend}': 2700,  # [TAS]
-        '\\rho_{floor}': 2700,  # [TAS]
-        '\\rho_{skin}': 2700,  # [TAS]
+        '\\rho_{cone}': 2700,#*units('kg/m^3'),  # [TAS]
+        '\\rho_{bend}': 2700,#*units('kg/m^3'),  # [TAS]
+        '\\rho_{floor}': 2700,#*units('kg/m^3'),  # [TAS]
+        '\\rho_{skin}': 2700,#*units('kg/m^3'),  # [TAS]
         'W\'\'_{floor}': 60,  # [TAS]
         'W\'\'_{insul}': 22,  # [TAS]
         'W\'_{seat}': 150,  # [TAS]
@@ -1005,20 +1008,20 @@ substitutions = {
         '\\alpha_{max,w}': 0.1,  # (6 deg)
         '\\cos(\\Lambda)': cos(sweep * pi / 180),
         '\\eta': 0.97,
-        '\\rho_0': 1.225,
-        '\\rho_{fuel}': 817,  # Kerosene [TASOPT]
+        '\\rho_0': 1.225*units('kg/m^3'),
+        '\\rho_{fuel}': 817*units('kg/m^3'),  # Kerosene [TASOPT]
 
         #VT subs
        'C_{D_{wm}}': 0.5, # [2]
        'C_{L_{vmax}}': 2.6, # [2]
-       'V_1': 70,
-       '\\rho_{TO}': 1.225,
+       'V_1': 70, #*units('m'),
+       '\\rho_{TO}': 1.225, #*units('kg/m^3'),
         '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
         'c_{l_{vtEO}}': 0.5,
         'e_v': 0.8,
-        'y_{eng}': 4.83, # [3]
+        'y_{eng}': 4.83, #*units('m'), # [3]
 
-        'V_{land}': 72,
+        'V_{land}': 72*units('m/s'),
         'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
         '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
         'N_{spar}': 2,
@@ -1028,16 +1031,18 @@ substitutions = {
         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
         'C_{L_{hmax}}': 2.5,
         'SM_{min}': 0.05,
+        '\\Delta x_{CG_{min}}': 2.*units('m'),
+        'x_{CG_{min}}':10*units('m'),
 
 }
 
 if __name__ == '__main__':
 
-
-    m = Mission()
-    m.substitutions.update(substitutions)
-    # m = Model(m.cost,BCS(m))
-    sol = m.localsolve( verbosity = 2, iteration_limit=50)
+    if sweeps == False:
+        m = Mission()
+        m.substitutions.update(substitutions)
+        # m = Model(m.cost,BCS(m))
+        sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:
         if sweepSMmin:
@@ -1048,7 +1053,7 @@ if __name__ == '__main__':
             solSMsweep = m.localsolve(verbosity = 2, skipsweepfailures=True)
 
             if plot:
-                plt.plot(solSMsweep('SM_{min}'), solSMsweep('S_{h}'), '-r')
+                plt.plot(solSMsweep('SM_{min}'), solSMsweep('S_h'), '-r')
                 plt.xlabel('Minimum Allowed Static Margin')
                 plt.ylabel('Horizontal Tail Area [m$^2$]')
                 plt.title('Horizontal Tail Area vs Min Static Margin')
@@ -1137,23 +1142,59 @@ if __name__ == '__main__':
 
 
 
-        # if sweepdxCG:
-        #     m = Mission()
-        #     m.substitutions.update(substitutions)
-        #     dxCGArray = np.linspace(1,5,n)
-        #     m.substitutions.update({'\\Delta x_{CG}': (sweep,dxCGArray)})
-        #     soldxCGsweep = m.localsolve(verbosity=2,skipsweepfailures=True)
-        #
-        #     if plot:
-        #         plt.plot(soldxCGsweep('\\Delta x_{CG}'),soldxCGsweep('V_{h}'),'-r')
-        #         plt.xlabel('Allowed CG shift [m]')
-        #         plt.ylabel('Horizontal Tail Volume Coefficient')
-        #         plt.title('Horizontal Tail Volume Coefficient vs Allowed CG shift')
-        #         plt.savefig('CFP_Sweeps/Vht-vs-dxCG.pdf')
-        #         plt.show()
-        #
-        #         plt.plot('')
+        if sweepdxCG:
+            m = Mission()
+            m.substitutions.update(substitutions)
+            dxCGArray = np.linspace(0.5,2.5,n)
+            m.substitutions.update({'\\Delta x_{CG_{min}}': ('sweep',dxCGArray)})
+            soldxCGsweep = m.localsolve(verbosity=2,skipsweepfailures=True)
 
+            if plot:
+                plt.plot(soldxCGsweep('\\Delta x_{CG_{min}}'),soldxCGsweep('V_{h}'),'-r')
+                plt.xlabel('Allowed CG shift [m]')
+                plt.ylabel('Horizontal Tail Volume Coefficient')
+                plt.title('Horizontal Tail Volume Coefficient vs Allowed CG Shift')
+                plt.savefig('CFP_Sweeps/Vht-vs-dxCG.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(soldxCGsweep('\\Delta x_{CG_{min}}'),np.mean(soldxCGsweep('x_{CG}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
+                plt.xlabel('Allowed CG shift [m]')
+                plt.ylabel('Nominal CG location [m]')
+                plt.title('CG Location vs Allowed CG Shift')
+                plt.savefig('CFP_Sweeps/xCG-vs-dxCG.pdf')
+
+                plt.plot(soldxCGsweep('\\Delta x_{CG_{min}}'),np.mean(soldxCGsweep('x_{AC}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
+                plt.xlabel('Allowed CG shift [m]')
+                plt.ylabel('Average AC location [m]')
+                plt.title('AC Location vs Allowed CG Shift')
+                plt.savefig('CFP_Sweeps/xAC-vs-dxCG.pdf')
+
+        if sweepxCG:
+            m = Mission()
+            m.substitutions.update(substitutions)
+            xCGArray = np.linspace(8,12.75,n)
+            m.substitutions.update({'x_{CG_{min}}': ('sweep',xCGArray)})
+            solxCGsweep = m.localsolve(verbosity=2,skipsweepfailures=True,iteration_limit=30)
+
+            if plot:
+                plt.plot(solxCGsweep('x_{CG_{min}}'),solxCGsweep('V_{h}'),'-r')
+                plt.xlabel('Max Forward CG [m]')
+                plt.ylabel('Horizontal Tail Volume Coefficient')
+                plt.title('Horizontal Tail Volume Coefficient vs Max Forward CG')
+                plt.savefig('CFP_Sweeps/Vht-vs-xCG.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solxCGsweep('x_{CG_{min}}'),np.mean(solxCGsweep('x_{CG}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
+                plt.xlabel('Max Forward CG [m]')
+                plt.ylabel('Nominal CG location [m]')
+                plt.title('CG Location vs Max Forward CG')
+                plt.savefig('CFP_Sweeps/xCG-vs-xCG.pdf')
+
+                plt.plot(solxCGsweep('x_{CG_{min}}'),np.mean(solxCGsweep('x_{AC}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
+                plt.xlabel('Max Forward CG [m]')
+                plt.ylabel('Average AC location [m]')
+                plt.title('AC Location vs Max Forward CG')
+                plt.savefig('CFP_Sweeps/xAC-vs-xCG.pdf')
 
     # template
     #             plt.plot()
