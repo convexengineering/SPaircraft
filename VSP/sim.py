@@ -5,28 +5,28 @@ import gpkit
 from CFP_Fuselage_Performance_int_HT import Mission
 
 def updateOpenVSP(inputDict):
-	filename = 'VSP/design.des'
-	with open(filename,'r+') as f:
-		result = f.read()
-		a = result.split('\n')
-		outputLines = []
-		for line in a:
-			words = line.split(':')
-			if len(words) > 1:
-				key = words[0]
-				value = float(words[-1])
-				if key in inputDict:
-					value = " " + str(inputDict[key])
-				words[-1] = value
-			outputLine = ":".join(words)
-			outputLines += [outputLine]
-		output = '\n'.join(outputLines)
-		print('OpenVSP .des output:')
-		print(output)
-		f.seek(0)
-		f.write(output)
-		f.truncate()
-		f.close()
+    filename = 'VSP/design.des'
+    with open(filename,'r+') as f:
+        result = f.read()
+        a = result.split('\n')
+        outputLines = []
+        for line in a:
+            words = line.split(':')
+            if len(words) > 1:
+                key = words[0]
+                value = float(words[-1])
+                if key in inputDict:
+                    value = " " + str(inputDict[key])
+                words[-1] = value
+            outputLine = ":".join(words)
+            outputLines += [outputLine]
+        output = '\n'.join(outputLines)
+        print('OpenVSP .des output:')
+        print(output)
+        f.seek(0)
+        f.write(output)
+        f.truncate()
+        f.close()
 
 sweep = 30
 substitutions = {
@@ -101,11 +101,95 @@ m = Mission()
 m.substitutions.update(substitutions)
 sol = m.localsolve('mosek',verbosity=2)
 
-print sol.table()
+# print sol.table()
+
+# Vehicle descriptors
+xCG = sol('x_{CG}')
+xAC = sol('x_{AC}')
+
+# Wing descriptors
 b = sol('b')
 croot = sol('c_{root}')
+ctip = sol('c_{tip}')
 S = sol('S')
 xwing = sol('x_{wing}')
-# print(sol(S_v))
-resultsDict = {'FLUGWUJQBVD':float(S.magnitude),'UOBOGEWYYZZ':float((xwing + 0.5*croot).magnitude)}
+
+# Fuselage descriptors
+lnose = sol('l_{nose}')
+lshell = sol('l_{shell}')
+lcone = sol('l_{cone}')
+lfuse = sol('l_{fuse}')
+hfuse = sol('h_{fuse}')
+wfuse = sol('w_{fuse}')
+wdb = sol('w_{db}')
+Rfuse = sol('R_{fuse}')
+
+# Horizontal Tail descriptors
+xCGht = sol('x_{CG_{ht}}')
+crootht = sol('c_{root_h}')
+ctipht = sol('c_{tip_h}')
+# dxleadht = sol('\\Delta x_{{lead}_h}')
+tanht = sol('\\tan(\\Lambda_{ht})')
+
+# Vertical Tail descriptors
+xCGvt = sol('x_{CG_{vt}}')
+xtail = sol('x_{tail}')
+Svt = sol('S_{vt}')
+bvt = sol('b_{vt}')
+crootvt = sol('c_{root_{vt}}')
+ctipvt = sol('c_{tip_{vt}}')
+dxleadvt = sol('\\Delta x_{lead_v}')
+dxtrailvt = sol('\\Delta x_{trail_v}')
+tanvt = sol('\\tan(\\Lambda_{vt})')
+
+# Engine descriptors
+A_2 = sol('A_2') # Engine frontal area
+
+
+# List of variables still to integrate
+# Root chord of wing (c_0)
+# Length of nose cone (l_{nose})
+# Length of tail cone (l_{cone})
+#
+
+
+# Things to integrate later
+# Web half-weight (h_{db})
+# h_{floor}
+# n_{rows}
+# wingbox (x_b) (x_f)
+
+
+
+resultsDict = {
+    # Wing variables
+    'FLUGWUJQBVD':float(S.magnitude), # Wing surface area
+    'UOBOGEWYYZZ':float((xwing - 0.5*croot).magnitude), # Wing x-location
+    'MOGKYBMVMPD':float(-1*hfuse.magnitude + 0.2), # Wing z-location
+    'NNIHPEXRTCP':float(croot.magnitude), # Wing root chord
+    'HGZBRNOPIRD':float(ctip.magnitude), # Wing tip chord
+
+    # Fuselage variables
+    'KBKZBHMUHEP':float((lnose/lfuse).magnitude), # Nose location as % of fuse length
+    'OVEJIBRDSBJ':float(1. - (lcone/lfuse).magnitude), # Tailcone location as % of fuse length
+
+    # VT variables
+    'LLYTEYDPDID':float(dxleadvt.magnitude),# VT x location (LE location)
+    # VT TE location (LE location + chord)
+    'BFZDOVCXTAV':float(wfuse.magnitude/2), # VT y location (as wide as fuselage)
+    'FQDVQTUBLUX':float(0.5),# VT z location (0.5 m off the widest point of the fuselage)
+
+    # HT Variables
+    'USGQFZQKJWC':float((dxleadvt + tanvt*bvt - 1.2*tanht*0.5*wfuse).magnitude),
+    'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),
+
+    # Engine Variables
+    'REBAHPKXPRR':float(xCGvt.magnitude), # Engine x location
+    'GKMTRGNCEVD':float((wdb + 0.4*Rfuse).magnitude), #Engine y location
+    'XFTWTTHLVRI':float(hfuse.magnitude - (2*(A_2/pi)**0.5/10).magnitude), # Engine z location
+    'JTPPOOJVVPE':float((2*(A_2/pi)**0.5).magnitude),# Engine length
+    'QRBDHPAPDFX':float(2) # Engine fineness ratio (set at 2 for now)
+
+
+}
 updateOpenVSP(resultsDict)
