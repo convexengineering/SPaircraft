@@ -1024,7 +1024,7 @@ if __name__ == '__main__':
     if sweeps == False:
         m = Mission()
         m.substitutions.update(substitutions)
-        # m = Model(m.cost,BCS(m))
+        m = Model(m.cost,BCS(m))
         sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:
