@@ -151,8 +151,14 @@ class ClimbP(Model):
             dhft == self.aircraftP['tmin'] * RC,
         
             #makes a small angle assumption during climb
-            RngClimb == self.aircraftP['thr']*state['V'],
+##            RngClimb == self.aircraftP['thr']*state['V'],
             ])
+
+        with SignomialsEnabled():
+            constraints.extend([
+                #time
+                TCS([self.aircraftP['thr'] * state['V'] >= RngClimb + (.5*theta**2)*self.aircraftP['thr'] * state['V']]),
+                ])
 
         return constraints, self.aircraftP
 
@@ -172,30 +178,47 @@ class CruiseP(Model):
         Rng = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
         TotRng = Variable('TotRng', 'nautical_miles', 'Total Cruise Range')
 
+        #new varibales for the TASOPT flight profile
+        gammaCruise = Variable('\\gamma_{cruise}', '-', 'Cruise Climb Angle')
+        RCCruise = Variable('RC_{cruise}', 'ft/min', 'Cruise Climb Rate')
+        excessP = Variable('excessP', 'W', 'Excess Power During Cruise')
+
         constraints = []
 
-        constraints.extend([
-             #steady level flight constraint on D 
-             self.aircraftP['D'] == aircraft['numeng'] * self.engineP['thrust'],
-
+##        constraints.extend([
              #taylor series expansion to get the weight term
-             TCS([self.aircraftP['W_{burn}']/self.aircraftP['W_{end}'] >=
-                  te_exp_minus1(z_bre, nterm=3)]),
+##             TCS([self.aircraftP['W_{burn}']/self.aircraftP['W_{end}'] >=
+##                  te_exp_minus1(z_bre, nterm=3)]),
+##
+##             #breguet range eqn
+##             TCS([z_bre >= (self.engineP['TSFC'] * self.aircraftP['thr']*
+##                            self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
 
-             #breguet range eqn
-             # old version -- possibly unneeded numeng
- #            TCS([z_bre >= (self.aircraft['numeng'] * self.engineP['TSFC'] * self.aircraftP['thr']*
- #                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
+##             #time
+##             self.aircraftP['thr'] * state['V'] == Rng,
+##             ])
 
-            # new version -- needs to be thought through carefully
-             # seems correct to me - I switched T to D below (steady level flight) but fogot
-             #about the Negn term
-             TCS([z_bre >= (self.engineP['TSFC'] * self.aircraftP['thr']*
-                            self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
+        #new constarints for the TASOPT flight profile
 
-             #time
-             self.aircraftP['thr'] * state['V'] == Rng,
-             ])
+        with SignomialsEnabled():
+            constraints.extend([
+                #compute the cruise climb angle
+                state['\\rho']*self.aircraftP['V']**2 == gammaCruise * state["P_{atm}"] * self.aircraftP['M']**2,
+                
+                #compute the cruise climb rate
+                self.aircraftP['V'] * gammaCruise == RCCruise,
+
+                #constraint on drag and thrust
+                self.aircraft['numeng']*self.engineP['thrust'] >= self.aircraftP['D'] + self.aircraftP['W_{avg}'] * gammaCruise,
+
+                RCCruise == excessP/self.aircraftP['W_{avg}'],
+
+                #climb rate constraints
+                TCS([excessP + state['V'] * self.aircraftP['D'] <=  state['V'] * aircraft['numeng'] * self.engineP['thrust']]),
+
+                #time
+                TCS([self.aircraftP['thr'] * state['V'] >= Rng + (.5*gammaCruise**2)*self.aircraftP['thr'] * state['V']]),
+                ])
 
         return constraints, self.aircraftP
 
@@ -575,6 +598,13 @@ class Mission(Model):
                 #individual cruise segment range
                 cruise.cruiseP['Rng'] == cruise['TotRng']/(Ncruise),
                 ])
+
+        #TASOPT flight profile cruise constraints
+        with SignomialsEnabled():
+            constraints.extend([
+                #enforce a constant mach number
+                cruise['M'][0] == cruise['M'][1],
+                ])           
         
         # Model.setup(self, W_ftotal + s*units('N'), constraints + ac + climb + cruise, subs)
         return constraints + ac + climb + cruise
