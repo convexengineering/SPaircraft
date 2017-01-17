@@ -803,9 +803,9 @@ class HorizontalTailPerformance(Model):
         Rec     = Variable('Re_{c_h}', '-',
                            'Cruise Reynolds number (Horizontal tail)')
         CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
-        CLah0   = Variable('C_{L_{ah_0}}', '-',
-                           'Isolated lift curve slope (htail)')
-        CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
+        # CLah0   = Variable('C_{L_{ah_0}}', '-',
+        #                    'Isolated lift curve slope (htail)')
+        # CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
 
         
         CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
@@ -816,10 +816,10 @@ class HorizontalTailPerformance(Model):
         dxw     = Variable('\\Delta x_w', 'm',
                            'Distance from aerodynamic centre to CG')
         
-        etaht   = Variable('\\eta_{ht}', '-', 'Tail efficiency')
-        eta     = Variable('\\eta_h', '-',
-                           ("Lift efficiency (diff between sectional and "
-                            "actual lift)"))
+        # etaht   = Variable('\\eta_{ht}', '-', 'Tail efficiency')
+        # eta     = Variable('\\eta_h', '-',
+        #                    ("Lift efficiency (diff between sectional and "
+        #                     "actual lift)"))
         CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
         CD0h    = Variable('C_{D_{0_h}}', '-',
                            'Horizontal tail parasitic drag coefficient')

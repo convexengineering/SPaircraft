@@ -747,11 +747,11 @@ class VerticalTailPerformance(Model):
         #define new variables
  
         CLvt   = Variable('C_{L_{vt}}', '-', 'Vertical tail lift coefficient')
-        clvt   = Variable('c_{l_{vt}}', '-',
-                          'Sectional lift force coefficient')
+        # clvt   = Variable('c_{l_{vt}}', '-',
+        #                   'Sectional lift force coefficient')
         Dvt    = Variable('D_{vt}', 'N', 'Vertical tail viscous drag, cruise')
         Rec    = Variable('Re_{vt}', '-', 'Vertical tail reynolds number, cruise')
-        Vinf   = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
+        # Vinf   = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
         CDvis  = Variable('C_{D_{vis}}', '-', 'Viscous drag coefficient')
 
         #constraints

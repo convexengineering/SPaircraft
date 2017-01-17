@@ -222,7 +222,7 @@ class AircraftP(Model):
             TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
 
             # Center of gravity constraints #TODO Refine
-            xCG >= 0.4*aircraft.fuse['l_{fuse}'], 
+            # xCG >= 0.4*aircraft.fuse['l_{fuse}'],
             xCG <= 0.7*aircraft.fuse['l_{fuse}'],
             xCG >= aircraft['x_{CG_{min}}'],
             # xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
@@ -232,8 +232,10 @@ class AircraftP(Model):
 
             # Aircraft trim conditions
             self.wingP['c_{m_{w}}'] == 1,
-            SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
-                              aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])),
+            # SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
+            #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])),
+            TCS([xAC/aircraft.wing['mac'] >= self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
+                              aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
 
             # Tail aspect ratio constraints
             aircraft.HT['AR_h'] >= 6, #TODO change to tip Re constraint
@@ -562,8 +564,8 @@ class Fuselage(Model):
                            'Horizontal bending area at rear wingbox')
         Ahbendf = Variable('A_{hbendf}', 'm^2',
                            'Horizontal bending area at front wingbox')
-        Avbendb = Variable('A_{vbendb}', 'm^2',
-                           'Vertical bending material area at rear wingbox')
+        # Avbendb = Variable('A_{vbendb}', 'm^2',
+        #                    'Vertical bending material area at rear wingbox')
         # B0           = Variable('B0','m^2','Vertical bending area constant B0') #(shell inertia contribution)
         # B1           = Variable('B1','m','Vertical bending area constant B1')
         # #(vertical tail bending load)
@@ -1013,8 +1015,8 @@ substitutions = {
         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
         'C_{L_{hmax}}': 2.5,
         'SM_{min}': 0.05,
-        '\\Delta x_{CG}': 2,#.*units('m'),
-        'x_{CG_{min}}' : 9.0,#.*units('m'),
+        '\\Delta x_{CG}': 2.0,#.*units('m'),
+        'x_{CG_{min}}' : 10.0,#.*units('m'),
 
 }
 
