@@ -733,7 +733,6 @@ class HorizontalTailNoStruct(Model):
         ARh     = Variable('AR_h', '-', 'Horizontal tail aspect ratio')
         amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack, htail')
         e       = Variable('e_h', '-', 'Oswald efficiency factor')
-        Sw      = Variable('S_w', 'm^2', 'Wing area')
         Sh      = Variable('S_h', 'm^2', 'Horizontal tail area')
         bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
         chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
@@ -821,9 +820,6 @@ class HorizontalTailPerformance(Model):
         eta     = Variable('\\eta_h', '-',
                            ("Lift efficiency (diff between sectional and "
                             "actual lift)"))
-        
-        Cmac    = Variable('|C_{m_{ac}}|', '-', # Absolute value of CMwing
-                           'Moment coefficient about aerodynamic centre (wing)')
         CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
         CD0h    = Variable('C_{D_{0_h}}', '-',
                            'Horizontal tail parasitic drag coefficient')
