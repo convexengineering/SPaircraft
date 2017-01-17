@@ -129,7 +129,8 @@ class ClimbP(Model):
         excessP = Variable('excessP', 'W', 'Excess Power During Climb')
         RC = Variable('RC', 'feet/min', 'Rate of Climb/Decent')
         dhft = Variable('dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
-        RngClimb = Variable('RngClimb', 'nautical_miles', 'Down Range Covered in Each Climb Segment')
+        RngClimb = Variable('RngClimb', 'nautical_miles', 'Down Range Distance Covered in Each Climb Segment')
+        TotRngClimb = Variable('TotRngClimb', 'nautical_miles', 'Down Range Distance Covered in Climb')
 
         #constraints
         constraints = []
@@ -169,6 +170,7 @@ class CruiseP(Model):
         #variable definitions
         z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
         Rng = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
+        TotRng = Variable('TotRng', 'nautical_miles', 'Total Cruise Range')
 
         constraints = []
 
@@ -554,19 +556,28 @@ class Mission(Model):
 
             #constrain the thrust
             climb['thrust'] <= 2 * max(cruise['thrust']),
-
-            #set the range for each cruise segment, doesn't take credit for climb
-            #down range disatnce covered
-            cruise.cruiseP['Rng'] == ReqRng/(Ncruise),
-
+                       
             #set the TSFC
             climb['TSFC'] == .7*units('1/hr'),
             cruise['TSFC'] == .5*units('1/hr'),
             ])
+
+        with SignomialsEnabled():
+            constraints.extend([
+                #re-evaluate this term
+                climb['TotRngClimb'] <= sum(climb['RngClimb']),
+
+                #set the range for each cruise segment, doesn't take credit for climb
+                #down range disatnce covered
+                climb['TotRngClimb'] + cruise['TotRng']  >= ReqRng,
+                #+ decent['TotRng']
+
+                #individual cruise segment range
+                cruise.cruiseP['Rng'] == cruise['TotRng']/(Ncruise),
+                ])
         
         # Model.setup(self, W_ftotal + s*units('N'), constraints + ac + climb + cruise, subs)
         return constraints + ac + climb + cruise
-
 
 if __name__ == '__main__':
     #build required submodels
@@ -605,7 +616,7 @@ if __name__ == '__main__':
             }
     mission = Mission(ac)
     m = Model(mission['W_{f_{total}}'], mission, substitutions)
-    solRsweep = m.localsolve(solver='mosek', verbosity = 4)
+##    solRsweep = m.localsolve(solver='mosek', verbosity = 4)
 
 ##    plt.plot(solRsweep('ReqRng'), solRsweep('W_{f_{total}}'), '-r')
 ##    plt.xlabel('Mission Range [nm]')
@@ -629,7 +640,7 @@ if __name__ == '__main__':
            
     mmission = Mission(ac)
     m = Model(mission['W_{f_{total}}'], mission, substitutions)
-    solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
+##    solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
 
 ##    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('W_{f_{total}}'), '-r')
 ##    plt.xlabel('Cruise Alt [ft]')
