@@ -196,10 +196,8 @@ class AircraftP(Model):
 
             # compute the drag
             D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}'],
-            # self.VTP['D_{vt}'] >= 5*units('N'),
 
             # constraint CL and compute the wing loading
-            # W_avg == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * state.atm['\\rho'] * state['V']**2,
             WLoad == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * state.atm['\\rho'] * state['V']**2 / self.aircraft.wing['S'],
 
             # Geometric average of start and end weights of flight segment
@@ -217,15 +215,16 @@ class AircraftP(Model):
 
             #VTP constraints
             TCS([aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{trail_v}'] + xCG]),
-            TCS([aircraft.VT['x_{CG_{vt}}'] >= xCG+(aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2]),
+            TCS([aircraft.VT['x_{CG_{vt}}'] >= xCG + (aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2]),
             aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
+
             # Drag of a windmilling engine
             TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
 
             # Center of gravity constraints #TODO Refine
             xCG >= 0.4*aircraft.fuse['l_{fuse}'], 
             xCG <= 0.7*aircraft.fuse['l_{fuse}'],
-            # xCG >= aircraft['x_{CG_{min}}'],
+            xCG >= aircraft['x_{CG_{min}}'],
             # xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
             # xAC >= xCG,
             aircraft.fuse['x_{wing}'] >= aircraft.fuse['l_{fuse}']*0.5, #TODO remove
@@ -884,7 +883,7 @@ class Mission(Model):
         constraints.extend([
             # weight constraints
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
-                 * aircraft.engine['W_{engine}'] + aircraft.wing.wb['W_{struct}'] + aircraft.VT.wb['W_{struct}'] + aircraft.HT['W_{struct}'] <= W_total]),
+                 * aircraft.engine['W_{engine}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
 
             climb.climbP.aircraftP['W_{start}'][0] == W_total,
             climb.climbP.aircraftP[
@@ -1014,8 +1013,8 @@ substitutions = {
         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
         'C_{L_{hmax}}': 2.5,
         'SM_{min}': 0.05,
-        '\\Delta x_{CG}': 4,#.*units('m'),
-        'x_{CG_{min}}' : 9,#.*units('m'),
+        '\\Delta x_{CG}': 2,#.*units('m'),
+        'x_{CG_{min}}' : 9.0,#.*units('m'),
 
 }
 
