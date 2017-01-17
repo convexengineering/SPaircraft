@@ -78,9 +78,9 @@ class Aircraft(Model):
         numeng = Variable('numeng', '-', 'Number of Engines')
         Vne = Variable('V_{ne}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
-
+        
         SMmin = Variable('SM_{min}','-', 'Minimum Static Margin')
-        dxCGmin = Variable('\\Delta x_{CG_{min}}','m','Minimum Allowed CG Shift')
+        dxCG = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
         xCGmin = Variable('x_{CG_{min}}','m','Maximum Forward CG')
 
         constraints = []
@@ -133,6 +133,7 @@ class Aircraft(Model):
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
 
+                            # Static margin constraint
                             ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
@@ -183,8 +184,7 @@ class AircraftP(Model):
 
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
-        dxCG = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
-        SM = Variable('SM','-','Static Margin')
+
 
         constraints = []
 
@@ -242,14 +242,6 @@ class AircraftP(Model):
             self.HTP['C_{L_h}'] >= 0.05, #TODO remove
             # self.HTP['L_h'] >= 1000*units('N'), #TODO remove
 
-            # Static margin constraint
-            SM >= aircraft['SM_{min}'],
-            dxCG >= aircraft['\\Delta x_{CG_{min}}'],
-            SignomialEquality(SM + dxCG/aircraft.wing['mac'],
-                              aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
-                    + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
-                              aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']),
-
             # HT/VT moment arm constraints
             TCS([aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG]),
             TCS([aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG]),
@@ -261,6 +253,12 @@ class AircraftP(Model):
             xAC <= xCG + self.HTP['\\Delta x_w'], #TODO tighten
 
             TCS([aircraft.HT['x_{CG_{ht}}'] >= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
+
+            # Static margin constraint
+            SignomialEquality(aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'],
+                                            aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
+                                          + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
+                                            aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']),
            ])
 
         return self.Pmodels, constraints
@@ -1016,8 +1014,8 @@ substitutions = {
         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
         'C_{L_{hmax}}': 2.5,
         'SM_{min}': 0.05,
-        '\\Delta x_{CG_{min}}': 4.*units('m'),
-        'x_{CG_{min}}' : 9.*units('m'),
+        '\\Delta x_{CG}': 4,#.*units('m'),
+        'x_{CG_{min}}' : 9,#.*units('m'),
 
 }
 
@@ -1131,24 +1129,24 @@ if __name__ == '__main__':
             m = Mission()
             m.substitutions.update(substitutions)
             dxCGArray = np.linspace(0.5,2.5,n)
-            m.substitutions.update({'\\Delta x_{CG_{min}}': ('sweep',dxCGArray)})
+            m.substitutions.update({'\\Delta x_{CG}': ('sweep',dxCGArray)})
             soldxCGsweep = m.localsolve(verbosity=2,skipsweepfailures=True)
 
             if plot:
-                plt.plot(soldxCGsweep('\\Delta x_{CG_{min}}'),soldxCGsweep('V_{h}'),'-r')
+                plt.plot(soldxCGsweep('\\Delta x_{CG}'),soldxCGsweep('V_{h}'),'-r')
                 plt.xlabel('Allowed CG shift [m]')
                 plt.ylabel('Horizontal Tail Volume Coefficient')
                 plt.title('Horizontal Tail Volume Coefficient vs Allowed CG Shift')
                 plt.savefig('CFP_Sweeps/Vht-vs-dxCG.pdf')
                 plt.show(), plt.close()
 
-                plt.plot(soldxCGsweep('\\Delta x_{CG_{min}}'),np.mean(soldxCGsweep('x_{CG}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
+                plt.plot(soldxCGsweep('\\Delta x_{CG}'),np.mean(soldxCGsweep('x_{CG}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
                 plt.xlabel('Allowed CG shift [m]')
                 plt.ylabel('Nominal CG location [m]')
                 plt.title('CG Location vs Allowed CG Shift')
                 plt.savefig('CFP_Sweeps/xCG-vs-dxCG.pdf')
 
-                plt.plot(soldxCGsweep('\\Delta x_{CG_{min}}'),np.mean(soldxCGsweep('x_{AC}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
+                plt.plot(soldxCGsweep('\\Delta x_{CG}'),np.mean(soldxCGsweep('x_{AC}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
                 plt.xlabel('Allowed CG shift [m]')
                 plt.ylabel('Average AC location [m]')
                 plt.title('AC Location vs Allowed CG Shift')
