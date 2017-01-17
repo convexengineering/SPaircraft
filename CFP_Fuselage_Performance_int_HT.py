@@ -223,8 +223,9 @@ class AircraftP(Model):
             TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
 
             # Center of gravity constraints #TODO Refine
-            xCG >= 0.4*aircraft.fuse['l_{fuse}'], xCG <= 0.7*aircraft.fuse['l_{fuse}'],
-            xCG >= aircraft['x_{CG_{min}}'],
+            xCG >= 0.4*aircraft.fuse['l_{fuse}'], 
+            xCG <= 0.7*aircraft.fuse['l_{fuse}'],
+            # xCG >= aircraft['x_{CG_{min}}'],
             # xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
             # xAC >= xCG,
             aircraft.fuse['x_{wing}'] >= aircraft.fuse['l_{fuse}']*0.5, #TODO remove
@@ -239,6 +240,7 @@ class AircraftP(Model):
             aircraft.HT['AR_h'] >= 6, #TODO change to tip Re constraint
             aircraft.VT['A_{vt}'] >= 1.5, #TODO change to tip Re constraint
             self.HTP['C_{L_h}'] >= 0.05, #TODO remove
+            # self.HTP['L_h'] >= 1000*units('N'), #TODO remove
 
             # Static margin constraint
             SM >= aircraft['SM_{min}'],
@@ -689,8 +691,6 @@ class Fuselage(Model):
 
                 # Fuselage joint angle relations
                 thetadb == wdb / Rfuse,  # first order Taylor works...
-                # thetadb >= 0.05, thetadb <= 0.5,  # Temporarily
-                thetadb == 0.366,
                 hdb >= Rfuse * (1.0 - .5 * thetadb**2),  # [SP]
 
                 # Cross-sectional constraints
@@ -934,14 +934,16 @@ class Mission(Model):
 
             #wing constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
-            climb.climbP.wingP['L_w'] == climb.climbP.aircraftP['W_{avg}'],
-            cruise.cruiseP.wingP['L_w'] == cruise.cruiseP.aircraftP['W_{avg}'],
+            climb.climbP.wingP['L_w'] == climb.climbP.aircraftP['W_{avg}'], #+ climb.climbP.aircraftP['L_h'],
+            cruise.cruiseP.wingP['L_w'] == cruise.cruiseP.aircraftP['W_{avg}'], #+ cruise.cruiseP.aircraftP['L_h'],
         ])
 
         with SignomialsEnabled():
             constraints.extend([
                 SignomialEquality(W_dry, aircraft['W_{fuse}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
                  aircraft.wing.wb['W_{struct}']),
+                # SignomialEquality(climb.climbP.wingP['L_w'],climb.climbP.aircraftP['W_{avg}'] + climb.climbP.aircraftP['L_h']),
+                # SignomialEquality(cruise.cruiseP.wingP['L_w'],cruise.cruiseP.aircraftP['W_{avg}'] + cruise.cruiseP.aircraftP['L_h']),
             ])
 
         self.cost = W_ftotal
@@ -955,7 +957,7 @@ substitutions = {
         'SPR': 8,
         'p_s': 81.,
         'ReqRng': 1000*units('nmi'),
-        # '\\theta_{db}' : 0.366,
+        '\\theta_{db}' : 0.366,
         'CruiseAlt': 30000*units('ft'),
         'numeng': 2,
         'n_{pax}': 150,
@@ -997,12 +999,12 @@ substitutions = {
         #VT subs
        'C_{D_{wm}}': 0.5, # [2]
        'C_{L_{vmax}}': 2.6, # [2]
-       'V_1': 70, #*units('m'),
+       'V_1': 70*units('m/s'),
        '\\rho_{TO}': 1.225, #*units('kg/m^3'),
         '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
         'c_{l_{vtEO}}': 0.5,
         'e_v': 0.8,
-        'y_{eng}': 4.83, #*units('m'), # [3]
+        'y_{eng}': 4.83*units('m'), # [3]
 
         'V_{land}': 72*units('m/s'),
         'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
@@ -1014,8 +1016,8 @@ substitutions = {
         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
         'C_{L_{hmax}}': 2.5,
         'SM_{min}': 0.05,
-        '\\Delta x_{CG_{min}}': 2.*units('m'),
-        'x_{CG_{min}}':1*units('m'),
+        '\\Delta x_{CG_{min}}': 4.*units('m'),
+        'x_{CG_{min}}' : 9.*units('m'),
 
 }
 
@@ -1024,7 +1026,7 @@ if __name__ == '__main__':
     if sweeps == False:
         m = Mission()
         m.substitutions.update(substitutions)
-        m = Model(m.cost,BCS(m))
+        # m = Model(m.cost,BCS(m))
         sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:

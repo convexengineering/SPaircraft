@@ -907,6 +907,7 @@ def test():
     m = Mission()
     m.substitutions.update(substitutions)
     sol = m.localsolve(verbosity = 2)
+    print sol.table()
 
 if __name__ == '__main__':
     test()
