@@ -199,7 +199,7 @@ class AircraftP(Model):
             # self.VTP['D_{vt}'] >= 5*units('N'),
 
             # constraint CL and compute the wing loading
-            W_avg == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * state.atm['\\rho'] * state['V']**2,
+            # W_avg == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * state.atm['\\rho'] * state['V']**2,
             WLoad == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * state.atm['\\rho'] * state['V']**2 / self.aircraft.wing['S'],
 
             # Geometric average of start and end weights of flight segment
@@ -932,8 +932,8 @@ class Mission(Model):
 
             #wing constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
-            climb.climbP.wingP['L_w'] == climb.climbP.aircraftP['W_{avg}'], #+ climb.climbP.aircraftP['L_h'],
-            cruise.cruiseP.wingP['L_w'] == cruise.cruiseP.aircraftP['W_{avg}'], #+ cruise.cruiseP.aircraftP['L_h'],
+            climb.climbP.wingP['L_w'] >= climb.climbP.aircraftP['W_{avg}'] + climb.climbP.aircraftP['L_h'],
+            cruise.cruiseP.wingP['L_w'] >= cruise.cruiseP.aircraftP['W_{avg}'] + cruise.cruiseP.aircraftP['L_h'],
         ])
 
         with SignomialsEnabled():
