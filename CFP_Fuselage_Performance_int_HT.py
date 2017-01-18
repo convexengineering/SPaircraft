@@ -119,6 +119,7 @@ class Aircraft(Model):
                             self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
                             self.fuse['x_{tail}'] == self.VT['x_{CG_{vt}}'],
                             TCS([self.HT['V_{h}'] == self.HT['S_h']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
+                            # self.HT['V_{h}'] >= 0.4,
 
                             # HT Max Loading
                             TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
@@ -182,6 +183,7 @@ class AircraftP(Model):
 
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
+        # SM = Variable('SM','-','Stability Margin of Aircraft')
 
 
         constraints = []
@@ -220,7 +222,6 @@ class AircraftP(Model):
             TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
 
             # Center of gravity constraints #TODO Refine
-            # xCG >= 0.4*aircraft.fuse['l_{fuse}'],
             xCG <= 0.7*aircraft.fuse['l_{fuse}'],
             xCG >= aircraft['x_{CG_{min}}'],
             # xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
@@ -253,11 +254,16 @@ class AircraftP(Model):
 
             TCS([aircraft.HT['x_{CG_{ht}}'] >= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
-            # Static margin constraint
-            SignomialEquality(aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'],
+            # Static margin constraint #TODO validate if this works as intended
+            # SM >= aircraft['SM_{min}'],
+            TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] <=
                                             aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                                           + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
-                                            aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']),
+                                            aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]),
+            # SignomialEquality(SM + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'],
+            #                                 aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
+            #                               + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
+            #                                 aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']),
            ])
 
         return self.Pmodels, constraints
@@ -926,8 +932,9 @@ class Mission(Model):
             climb.climbP.engineP['TSFC'] == .7 * units('1/hr'),
             cruise.cruiseP.engineP['TSFC'] == .5 * units('1/hr'),
 
-            #wing constraints
+            # Wing constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
+            # Tail downforce penalty
             climb.climbP.wingP['L_w'] >= climb.climbP.aircraftP['W_{avg}'] + climb.climbP.aircraftP['L_h'],
             cruise.cruiseP.wingP['L_w'] >= cruise.cruiseP.aircraftP['W_{avg}'] + cruise.cruiseP.aircraftP['L_h'],
         ])
@@ -1010,7 +1017,7 @@ substitutions = {
         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
         'C_{L_{hmax}}': 2.5,
         'SM_{min}': 0.05,
-        '\\Delta x_{CG}': 4.0,#units('m'),
+        '\\Delta x_{CG}': 2.0,#units('m'),
         'x_{CG_{min}}' : 13.0,#.*units('m'),
 
 }
@@ -1020,7 +1027,7 @@ if __name__ == '__main__':
     if sweeps == False:
         m = Mission()
         m.substitutions.update(substitutions)
-        m = Model(m.cost,BCS(m))
+        # m = Model(m.cost,BCS(m))
         sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:
