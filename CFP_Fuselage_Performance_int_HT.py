@@ -88,6 +88,7 @@ class Aircraft(Model):
             constraints.extend([
                             self.wing['c_{root}'] == self.fuse['c_0'],
                             self.wing.wb['wwb'] == self.fuse['wtc'],
+                            self.wing['x_w'] == self.fuse['x_{wing}'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
                             self.engine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'), # [1]
@@ -114,16 +115,13 @@ class Aircraft(Model):
                             # Lift curve slope ratio for HT and Wing
                             SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_h']),
 
-                            # HT Volume Coefficient
+                            # HT Location and Volume Coefficient
+                            self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
                             self.fuse['x_{tail}'] == self.VT['x_{CG_{vt}}'],
-                            # TCS([self.HT['l_{ht}'] <= self.fuse['x_{tail}'] - self.fuse['x_{wing}']]),
                             TCS([self.HT['V_{h}'] == self.HT['S_h']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
 
                             # HT Max Loading
                             TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
-
-                            # HT Location constraints
-                            self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
 
                             # HT/VT joint constraint
                             self.HT['b_{ht}']/self.fuse['w_{fuse}']*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
@@ -226,15 +224,15 @@ class AircraftP(Model):
             xCG <= 0.7*aircraft.fuse['l_{fuse}'],
             xCG >= aircraft['x_{CG_{min}}'],
             # xAC >= 0.4*aircraft.fuse['l_{fuse}'], xAC <= 0.7*aircraft.fuse['l_{fuse}'],
-            # xAC >= xCG,
+            xAC >= xCG,
             aircraft.fuse['x_{wing}'] >= aircraft.fuse['l_{fuse}']*0.5, #TODO remove
-            aircraft.fuse['x_{wing}'] <= aircraft.fuse['l_{fuse}']*0.7, #TODO remove
+            aircraft.fuse['x_{wing}'] <= aircraft.fuse['l_{fuse}']*0.6, #TODO remove
 
             # Aircraft trim conditions
             self.wingP['c_{m_{w}}'] == 1,
             # SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
             #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])),
-            TCS([xAC/aircraft.wing['mac'] >= self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
+            TCS([xAC/aircraft.wing['mac'] <= self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
                               aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
 
             # Tail aspect ratio constraints
@@ -249,9 +247,9 @@ class AircraftP(Model):
 
 
             # Wing location and AC constraints
-            aircraft.fuse['x_{wing}'] >= xCG + self.HTP['\\Delta x_w'],
             TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]), #TODO tighten
-            xAC <= xCG + self.HTP['\\Delta x_w'], #TODO tighten
+            xAC == aircraft['x_{wing}'], #TODO improve, only works because cmw == 1
+            SignomialEquality(xAC,xCG + self.HTP['\\Delta x_w']),
 
             TCS([aircraft.HT['x_{CG_{ht}}'] >= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
@@ -512,7 +510,7 @@ class Fuselage(Model):
             '\\lambda_{cone}', '-', 'Tailcone radius taper ratio (xshell2->xtail)')
         lcone = Variable('l_{cone}', 'm', 'Cone length')
         plamv = Variable('p_{\\lambda_v}', 1.5, '-', '1 + 2*Tail taper ratio')
-        tcone = Variable('t_{cone}', 'm', 'Cone thickness')
+        # tcone = Variable('t_{cone}', 'm', 'Cone thickness')
 
         # Lengths (free)
         c0 = Variable('c_0', 'm', 'Root chord of the wing')
@@ -585,12 +583,10 @@ class Fuselage(Model):
                           'Horizontal bending material volume')
         Vhbendb = Variable(
             'V_{hbendb}', 'm^3', 'Horizontal bending material volume b')  # back fuselage
-        # center fuselage
         Vhbendc = Variable('V_{hbendc}', 'm^3',
-                           'Horizontal bending material volume c')
-        # front fuselage
+                           'Horizontal bending material volume c') # center fuselage
         Vhbendf = Variable('V_{hbendf}', 'm^3',
-                           'Horizontal bending material volume f')
+                           'Horizontal bending material volume f') # front fuselage
         #Vvbend       = Variable('V_{vbend}','m^3','Vertical bending material volume')
         # Vvbendb      = Variable('V_{vbendb}','m^3','Vertical bending material volume b') #back fuselage
         # Vvbendc      = Variable('V_{vbendc}','m^3','Vertical bending material
@@ -602,8 +598,7 @@ class Fuselage(Model):
         #xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
 
         # Material properties
-        rE = Variable('r_E', 1., '-', 'Ratio of stringer/skin moduli')  # [TAS]
-        # [b757 freight doc]
+        rE = Variable('r_E', 1., '-', 'Ratio of stringer/skin moduli')  # [TAS] # [b757 freight doc]
         rhocargo = Variable('\\rho_{cargo}', 150, 'kg/m^3', 'Cargo density')
         rhocone = Variable('\\rho_{cone}', 'kg/m^3',
                            'Cone material density')  # [TAS]
@@ -1015,8 +1010,8 @@ substitutions = {
         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
         'C_{L_{hmax}}': 2.5,
         'SM_{min}': 0.05,
-        '\\Delta x_{CG}': 2.0,#.*units('m'),
-        'x_{CG_{min}}' : 10.0,#.*units('m'),
+        '\\Delta x_{CG}': 4.0,#units('m'),
+        'x_{CG_{min}}' : 13.0,#.*units('m'),
 
 }
 
@@ -1025,7 +1020,7 @@ if __name__ == '__main__':
     if sweeps == False:
         m = Mission()
         m.substitutions.update(substitutions)
-        # m = Model(m.cost,BCS(m))
+        m = Model(m.cost,BCS(m))
         sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:

@@ -739,8 +739,8 @@ class HorizontalTailNoStruct(Model):
         croot   = Variable('c_{root_h}', 'm', 'Horizontal tail root chord')
         ctip    = Variable('c_{tip_h}', 'm', 'Horizontal tail tip chord')
         Lmax    = Variable('L_{{max}_h}', 'N', 'Maximum load')
-        Kf      = Variable('K_f', '-',
-                           'Empirical factor for fuselage-wing interference')
+        # Kf      = Variable('K_f', '-',
+        #                    'Empirical factor for fuselage-wing interference')
         fl      = Variable(r"f(\lambda_h)", '-',
                            'Empirical efficiency function of taper')
         CLhmax  = Variable('C_{L_{hmax}}', '-', 'Max lift coefficient')
