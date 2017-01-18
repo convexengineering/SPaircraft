@@ -37,7 +37,8 @@ class Aircraft(Model):
         #variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
 
-        constraints = []
+        constraints = [self.wing['x_w'] == self.fuse['l_{fuse}']*0.6,
+                       ]
 
         constraints.extend([
             numeng == numeng, #need numeng in the model
@@ -271,7 +272,7 @@ class Altitude(Model):
 class Atmosphere(Model):
     def setup(self, alt, **kwargs):
         # g = 9.81*units('m*s^-2')
-        g = Variable('g', 'm/s^2', 'Gravitational acceleration')
+        # g = Variable('g', 'm/s^2', 'Gravitational acceleration')
         p_sl = Variable("p_{sl}", 101325, "Pa", "Pressure at sea level")
         T_sl = Variable("T_{sl}", 288.15, "K", "Temperature at sea level")
         L_atm = Variable("L_{atm}", .0065, "K/m", "Temperature lapse rate")
@@ -372,11 +373,15 @@ class Fuselage(Model):
         Afuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
 
+        lfuse = Variable('l_{fuse}','m','Estimated Fuselage Length' )
+
+
         constraints = []
         
         constraints.extend([
             #compute fuselage area for drag approximation
             Afuse == pax_area * npax,
+            lfuse == 1.3*npax/8*units('m'),
 
             #constraints on the various weights
             W_payload == npax * Wpax,
@@ -495,6 +500,8 @@ class Mission(Model):
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
             climb.climbP.wingP['L_w'] == climb.climbP.aircraftP['W_{avg}'],
             cruise.cruiseP.wingP['L_w'] == cruise.cruiseP.aircraftP['W_{avg}'],
+            climb['c_{m_{w}}'] == 1.0, # for boundedness
+            cruise['c_{m_{w}}'] == 1.0, # for boundedness
             ])
         
         # self.cost = W_ftotal
@@ -509,7 +516,9 @@ class Wing(Model):
         self.wns = WingNoStruct()
         self.wb = WingBox(self.wns)
 
-        return self.wns, self.wb
+        constraints = [self.wns['\\lambda'] == self.wb['taper']]
+
+        return self.wns, self.wb, constraints
         
     def dynamic(self, state):
         """
@@ -553,8 +562,6 @@ class WingNoStruct(Model):
                            'Tangent of quarter-chord sweep angle')
         taper   = Variable('\\lambda', '-', 'Wing taper ratio')
         tau     = Variable('\\tau', '-', 'Wing thickness/chord ratio')
-        tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
-        tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
         wwn       = Variable('wwn', 0.5, '-', 'Wingbox-width-to-chord ratio')
         xw     = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{mac}', 'm',
@@ -608,12 +615,6 @@ class WingNoStruct(Model):
                 WfuelWing <= rhofuel*Afuel*Vfuel*g,
                   
                 Lmax == 0.5*rho0*Vne**2*Sw*CLwmax,
-
-                tanL == tanL,
-                eta == eta,
-                amax == amax,
-                xw == xw,
-                CLwmax == CLwmax,
                 ])
 
         return constraints
@@ -630,7 +631,6 @@ class WingPerformance(Model):
         alpha   = Variable('\\alpha_w', '-', 'Wing angle of attack')
         CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope, wing')
         
-        M       = Variable('M', '-', 'Cruise Mach number')
         Re      = Variable('Re_w', '-', 'Reynolds number (wing)')
         CDp     = Variable('C_{D_{p_w}}', '-',
                            'Wing parasitic drag coefficient')
@@ -639,16 +639,14 @@ class WingPerformance(Model):
  
         D       = Variable('D_{wing}', 'N', 'Wing drag')
         Lw      = Variable('L_w', 'N', 'Wing lift')
-        W0      = Variable('W_0', 'N', 'Weight excluding wing')
 
-        #wing moment variables -- need a good way to model this, currenlty using TAT
+        #wing moment variables -- need a good way to model this, currently using TAT
         cmw = Variable('c_{m_{w}}', '-', 'Wing Pitching Moment Coefficient')
         
         #make constraints
         constraints = []
 
         with SignomialsEnabled():
-            
             constraints.extend([
                 Lw == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw,
 
@@ -674,8 +672,6 @@ class WingPerformance(Model):
                    + 2.2e-3*Re**0.14*self.wing['\\tau']**0.033/(CLw**0.01*CDp**0.73)
                    + 6.14e-6*CLw**6.53/(Re**0.99*self.wing['\\tau']**0.52*CDp**5.19)
                    + 1.19e4*CLw**9.78*self.wing['\\tau']**1.76/(Re*CDp**0.91)),
-
-                cmw == cmw
                 ])
 
         return constraints
@@ -762,7 +758,7 @@ class WingBox(Model):
 
                        # Weight of spar caps and shear webs
                        Wcap >= 8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5),
-                       Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
+                       TCS([Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5)]),
 
                        # Total wing weight using an additional weight fraction
                        Wstruct >= (1 + fwadd)*(Wweb + Wcap),
@@ -771,7 +767,7 @@ class WingBox(Model):
         return constraints
 
 if __name__ == '__main__':
-    plot = True
+    plot = False
 
     sweep = 30 #[deg]
     
