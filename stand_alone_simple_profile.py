@@ -271,7 +271,7 @@ class Altitude(Model):
 
 class Atmosphere(Model):
     def setup(self, alt, **kwargs):
-        g = Variable('g', 'm/s^2', 'Gravitational acceleration')
+        # g = Variable('g', 'm/s^2', 'Gravitational acceleration')
         p_sl = Variable("p_{sl}", 101325, "Pa", "Pressure at sea level")
         T_sl = Variable("T_{sl}", 288.15, "K", "Temperature at sea level")
         L_atm = Variable("L_{atm}", .0065, "K/m", "Temperature lapse rate")
