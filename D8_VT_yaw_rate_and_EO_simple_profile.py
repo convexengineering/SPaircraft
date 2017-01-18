@@ -272,7 +272,7 @@ class Altitude(Model):
 
 class Atmosphere(Model):
     def setup(self, alt, **kwargs):
-        g = Variable('g', 'm/s^2', 'Gravitational acceleration')
+        # g = Variable('g', 'm/s^2', 'Gravitational acceleration')
         p_sl = Variable("p_{sl}", 101325, "Pa", "Pressure at sea level")
         T_sl = Variable("T_{sl}", 288.15, "K", "Temperature at sea level")
         L_atm = Variable("L_{atm}", .0065, "K/m", "Temperature lapse rate")
@@ -611,7 +611,9 @@ class VerticalTail(Model):
         self.vtns = VerticalTailNoStruct()
         self.wb = WingBox(self.vtns)
 
-        return self.vtns, self.wb
+        constraints = [self.vtns['\\lambda_{vt}'] == self.wb['taper']]
+
+        return self.vtns, self.wb, constraints
 
     def dynamic(self, fuse, state):
         """"
@@ -647,7 +649,6 @@ class VerticalTailNoStruct(Model):
         Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area (half)')
         V1     = Variable('V_1', 'm/s', 'Minimum takeoff velocity')
         Vne    = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
-        Wvt    = Variable('W_{vt}', 'N', 'Vertical tail weight')
         bvt    = Variable('b_{vt}', 'm', 'Vertical tail half span')
         cma    = Variable('\\bar{c}_{vt}', 'm', 'Vertical tail mean aero chord')
         croot  = Variable('c_{root_{vt}}', 'm', 'Vertical tail root chord')
@@ -660,11 +661,10 @@ class VerticalTailNoStruct(Model):
         lvt    = Variable('l_{vt}', 'm', 'Vertical tail moment arm')
         mu0    = Variable('\\mu_0', 1.8E-5, 'N*s/m^2', 'Dynamic viscosity (SL)')
         p      = Variable('p_{vt}', '-', 'Substituted variable = 1 + 2*taper')
-        plamv  = Variable('p_{\\lambda_v}', '-',
-                          'Dummy variable = 1 + 2\\lambda') # fuselage
+        # plamv  = Variable('p_{\\lambda_v}', '-',
+        #                   'Dummy variable = 1 + 2\\lambda') # fuselage
         q      = Variable('q_{vt}', '-', 'Substituted variable = 1 + taper')
         rho0   = Variable('\\rho_{TO}', 'kg/m^3', 'Air density (SL))')
-        rho_c  = Variable('\\rho_c', 'kg/m^3', 'Air density (35,000ft)')
         tanL   = Variable('\\tan(\\Lambda_{vt})', '-',
                           'Tangent of leading edge sweep (40 deg)')
         taper  = Variable('\\lambda_{vt}', '-', 'Vertical tail taper ratio')
@@ -746,7 +746,7 @@ class VerticalTailPerformance(Model):
 
         #define new variables
  
-        CLvt   = Variable('C_{L_{vt}}', '-', 'Vertical tail lift coefficient')
+        # CLvt   = Variable('C_{L_{vt}}', '-', 'Vertical tail lift coefficient')
         # clvt   = Variable('c_{l_{vt}}', '-',
         #                   'Sectional lift force coefficient')
         Dvt    = Variable('D_{vt}', 'N', 'Vertical tail viscous drag, cruise')
