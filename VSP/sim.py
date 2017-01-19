@@ -97,14 +97,14 @@ substitutions = {
         'SM_{min}': 0.05,
 }
 
-m = Mission()
-m.substitutions.update(substitutions)
-sol = m.localsolve('mosek',verbosity=2)
+# m = Mission()
+# m.substitutions.update(substitutions)
+# sol = m.localsolve('mosek',verbosity=2)
 
 # print sol.table()
 
 # Vehicle descriptors
-xCG = sol('x_{CG}')
+xCGmin = sol('x_{CG_{min}}')
 xAC = sol('x_{AC}')
 
 # Wing descriptors
@@ -129,6 +129,7 @@ xCGht = sol('x_{CG_{ht}}')
 crootht = sol('c_{root_h}')
 ctipht = sol('c_{tip_h}')
 # dxleadht = sol('\\Delta x_{{lead}_h}')
+lht = sol('l_{ht}')
 tanht = sol('\\tan(\\Lambda_{ht})')
 
 # Vertical Tail descriptors
@@ -136,6 +137,7 @@ xCGvt = sol('x_{CG_{vt}}')
 xtail = sol('x_{tail}')
 Svt = sol('S_{vt}')
 bvt = sol('b_{vt}')
+lvt = sol('l_{vt}')
 crootvt = sol('c_{root_{vt}}')
 ctipvt = sol('c_{tip_{vt}}')
 dxleadvt = sol('\\Delta x_{lead_v}')
@@ -174,14 +176,14 @@ resultsDict = {
     'OVEJIBRDSBJ':float(1. - (lcone/lfuse).magnitude), # Tailcone location as % of fuse length
 
     # VT variables
-    'LLYTEYDPDID':float(dxleadvt.magnitude),# VT x location (LE location)
+    'LLYTEYDPDID':float(xCGmin.magnitude + dxleadvt.magnitude),# VT x location (LE location)
     # VT TE location (LE location + chord)
     'BFZDOVCXTAV':float(wfuse.magnitude/2), # VT y location (as wide as fuselage)
     'FQDVQTUBLUX':float(0.5),# VT z location (0.5 m off the widest point of the fuselage)
 
     # HT Variables
-    'USGQFZQKJWC':float((dxleadvt + tanvt*bvt - 1.2*tanht*0.5*wfuse).magnitude),
-    'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),
+    'USGQFZQKJWC':float((xCGmin + dxleadvt + tanvt*bvt - 1.5*tanht*0.5*wfuse).magnitude),
+    'BLMHVDOLAQJ':float(0.5 + 0.8*bvt.magnitude),
 
     # Engine Variables
     'REBAHPKXPRR':float(xCGvt.magnitude), # Engine x location
