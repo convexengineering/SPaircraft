@@ -57,7 +57,8 @@ sweepSMmin = False
 sweepdxCG = False
 sweepReqRng = False
 sweepthetadb = False
-sweepxCG = True
+sweepxCG = False
+sweepCruiseAlt = True
 
 plot = True
 
@@ -1131,7 +1132,7 @@ if __name__ == '__main__':
         if sweepdxCG:
             m = Mission()
             m.substitutions.update(substitutions)
-            dxCGArray = np.linspace(0.5,2.5,n)
+            dxCGArray = np.linspace(0.5,3.5,n)
             m.substitutions.update({'\\Delta x_{CG}': ('sweep',dxCGArray)})
             soldxCGsweep = m.localsolve(verbosity=2,skipsweepfailures=True)
 
@@ -1158,7 +1159,7 @@ if __name__ == '__main__':
         if sweepxCG:
             m = Mission()
             m.substitutions.update(substitutions)
-            xCGArray = np.linspace(8,12.75,n)
+            xCGArray = np.linspace(8,14,n)
             m.substitutions.update({'x_{CG_{min}}': ('sweep',xCGArray)})
             solxCGsweep = m.localsolve(verbosity=2,skipsweepfailures=True,iteration_limit=30)
 
@@ -1175,13 +1176,50 @@ if __name__ == '__main__':
                 plt.ylabel('Nominal CG location [m]')
                 plt.title('CG Location vs Max Forward CG')
                 plt.savefig('CFP_Sweeps/xCG-vs-xCG.pdf')
+                plt.show(), plt.close()
 
                 plt.plot(solxCGsweep('x_{CG_{min}}'),np.mean(solxCGsweep('x_{AC}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
                 plt.xlabel('Max Forward CG [m]')
                 plt.ylabel('Average AC location [m]')
                 plt.title('AC Location vs Max Forward CG')
                 plt.savefig('CFP_Sweeps/xAC-vs-xCG.pdf')
+                plt.show(), plt.close()
 
+        if sweepCruiseAlt:
+            m = Mission()
+            m.substitutions.update(substitutions)
+            CruiseAltArray = np.linspace(25000,40000,n)
+            m.substitutions.update({'CruiseAlt': ('sweep',CruiseAltArray)})
+            solCruiseAltsweep = m.localsolve(verbosity=2,skipsweepfailures=True,iteration_limit=30)
+
+            if plot:
+                plt.plot(solCruiseAltsweep('CruiseAlt'),solCruiseAltsweep('W_{f_{total}}'))
+                plt.xlabel('Cruise Altitude [ft]')
+                plt.ylabel('Mission Fuel Burn [lbs]')
+                plt.title('Fuel Burn vs Cruise Altitude')
+                plt.savefig('CFP_Sweeps/Wftotal-vs-CruiseAlt.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solCruiseAltsweep('CruiseAlt'),solCruiseAltsweep('AR'))
+                plt.xlabel('Cruise Altitude [ft]')
+                plt.ylabel('Aspect Ratio')
+                plt.title('Aspect Ratio vs Cruise Altitude')
+                plt.savefig('CFP_Sweeps/AR-vs-CruiseAlt.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solCruiseAltsweep('CruiseAlt'),solCruiseAltsweep('S'))
+                plt.xlabel('Cruise Altitude [ft]')
+                plt.ylabel('Wing Area [ft^2]')
+                plt.title('Wing Area vs Cruise Altitude')
+                plt.savefig('CFP_Sweeps/S-vs-CruiseAlt.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solCruiseAltsweep('CruiseAlt'),np.mean(solCruiseAltsweep('M_Mission, CruiseSegment, FlightState'),axis = 1))
+                plt.xlabel('Cruise Altitude [m]')
+                plt.ylabel('Mach Number')
+                plt.title('Average Mach Number vs Cruise Altitude')
+                plt.savefig('CFP_Sweeps/M-vs-CruiseAlt.pdf')
+                plt.show(), plt.close()
     # template
     #             plt.plot()
     #             plt.xlabel()
