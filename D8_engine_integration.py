@@ -986,7 +986,6 @@ class Mission(Model):
             #--edit
             aircraft.VT['T_e'] == aircraft.engine['F'][0],
             climb.climbP.engineP['thrust'] <= 2 * max(cruise.cruiseP.engineP['thrust']),
-##            aircraft.VT['T_e'] == climb.climbP.engineP['thrust'][0],
 
             # set the range for each cruise segment, doesn't take credit for climb
             # down range disatnce covered
@@ -1021,11 +1020,10 @@ class Mission(Model):
         M0 = .8
         M25 = .6
         M4a = .1025
-        Mexit = 1
         
         engineclimb = [
-            aircraft.engine.engineP['M_2'][0] == .8,#climb['M'][0],
-            aircraft.engine.engineP['M_2'][1] == .8,#climb['M'][1],
+            aircraft.engine.engineP['M_2'][0] == climb['M'][0],
+            aircraft.engine.engineP['M_2'][1] == climb['M'][1],
             aircraft.engine.engineP['M_{2.5}'][0] == M25,
             aircraft.engine.engineP['M_{2.5}'][1] == M25,
             aircraft.engine.compressor['hold_{2}'] == 1+.5*(1.398-1)*M2**2,
@@ -1036,11 +1034,10 @@ class Mission(Model):
 
         M25 = .6
         M4a = .1025
-        Mexit = 1
 
         enginecruise = [
-            aircraft.engine.engineP['M_2'][2] == .8,#cruise['M'][0],
-            aircraft.engine.engineP['M_2'][3] == .8,#cruise['M'][1],
+            aircraft.engine.engineP['M_2'][2] == cruise['M'][0],
+            aircraft.engine.engineP['M_2'][3] == cruise['M'][1],
 
 ##            cruise['M'] == .8,
 
