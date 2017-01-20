@@ -984,9 +984,9 @@ class Mission(Model):
 
             # constrain the thrust
             #--edit
-##            aircraft.VT['T_e'] == 10000*units('N'),#aircraft.engine['F'][0],
+            aircraft.VT['T_e'] == aircraft.engine['F'][0],
             climb.climbP.engineP['thrust'] <= 2 * max(cruise.cruiseP.engineP['thrust']),
-            aircraft.VT['T_e'] == climb.climbP.engineP['thrust'][0],
+##            aircraft.VT['T_e'] == climb.climbP.engineP['thrust'][0],
 
             # set the range for each cruise segment, doesn't take credit for climb
             # down range disatnce covered
@@ -994,6 +994,7 @@ class Mission(Model):
 
             # Wing constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
+
             # Tail downforce penalty
             climb.climbP.wingP['L_w'] >= climb.climbP.aircraftP['W_{avg}'] + climb.climbP.aircraftP['L_h'],
             cruise.cruiseP.wingP['L_w'] >= cruise.cruiseP.aircraftP['W_{avg}'] + cruise.cruiseP.aircraftP['L_h'],
