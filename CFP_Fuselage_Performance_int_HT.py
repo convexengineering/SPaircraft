@@ -890,7 +890,7 @@ substitutions = {
         'C_{L_{hmax}}': 2.5,
         'SM_{min}': 0.05,
         '\\Delta x_{CG}': 2.0*units('m'),
-        'x_{CG_{min}}' : 13.0,*units('m'),
+        'x_{CG_{min}}' : 13.0*units('m'),
 
 }
 
