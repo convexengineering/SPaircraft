@@ -1047,7 +1047,7 @@ class Mission(Model):
             aircraft.engine.engineP['M_{2.5}'][3] == M25,
             ]
 
-        self.cost = W_ftotal/(1*units('N * hr')) + (10*aircraft.engine['TSFC'][2]+aircraft.engine['TSFC'][1]+aircraft.engine['TSFC'][0]+aircraft.engine['TSFC'][3])
+        self.cost = W_ftotal
 
         return constraints, aircraft, climb, cruise, statelinking, enginestate, enginecruise, engineclimb
     
