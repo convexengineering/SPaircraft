@@ -99,6 +99,7 @@ class Aircraft(Model):
                             self.wing['x_w'] == self.fuse['x_{wing}'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
+                            #--edit
                             self.oldengine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'), # [1]
 
                             # Tail cone sizing
@@ -136,9 +137,8 @@ class Aircraft(Model):
                             self.HT['b_{ht}']/self.fuse['w_{fuse}']*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
                             # VT height constraint (4*engine radius)
-                            #--edit
-##                            self.VT['b_{vt}']**2 >= .5*units('m^2'),#16.*self.engine['A_2']/np.pi,
-                            self.VT['b_{vt}']**2 >= 16.*self.oldengine['A_2']/np.pi,
+                            self.VT['b_{vt}']**2 >= 16.*self.engine['A_2']/np.pi,
+
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
 
@@ -225,9 +225,7 @@ class AircraftP(Model):
             aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Drag of a windmilling engine
-            #--edit
-           TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.oldengine['A_2']*aircraft.VT['C_{D_{wm}}']]),
-##            aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*.05*units('m^2')*aircraft.VT['C_{D_{wm}}'],#0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}'],
+            TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
 
             # Center of gravity constraints #TODO Refine
             xCG <= 0.7*aircraft.fuse['l_{fuse}'],
@@ -238,7 +236,7 @@ class AircraftP(Model):
             aircraft.fuse['x_{wing}'] <= aircraft.fuse['l_{fuse}']*0.6, #TODO remove
 
             # Aircraft trim conditions
-            self.wingP['c_{m_{w}}'] == 0.1,
+            self.wingP['c_{m_{w}}'] == 1,
             # SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
             #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])),
             TCS([xAC/aircraft.wing['mac'] <= self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
@@ -960,9 +958,8 @@ class Mission(Model):
 
         constraints.extend([
             # weight constraints
-            #--edit
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
-                 * aircraft.oldengine['W_{engine}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
+                 * aircraft.engine['W_{engine}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
 
             climb.climbP.aircraftP['W_{start}'][0] == W_total,
             climb.climbP.aircraftP[
@@ -980,8 +977,7 @@ class Mission(Model):
             cruise.cruiseP.aircraftP['W_{start}'][
                 1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
-            #--edit
-            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft.oldengine['W_{engine}'] + \
+            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
                  aircraft.wing.wb['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >= W_fclimb + W_fcruise]),
@@ -1062,7 +1058,7 @@ class Mission(Model):
             aircraft.engine.engineP['M_{2.5}'][3] == M25,
             ]
 
-        self.cost = W_ftotal/(1*units('N * hr')) + (10*aircraft.engine['TSFC'][2]+aircraft.engine['TSFC'][1]+aircraft.engine['TSFC'][0]+aircraft.engine['TSFC'][3])* (((aircraft.engine['W_{engine}']*units('1/N'))**.00001))
+        self.cost = W_ftotal/(1*units('N * hr')) + (10*aircraft.engine['TSFC'][2]+aircraft.engine['TSFC'][1]+aircraft.engine['TSFC'][0]+aircraft.engine['TSFC'][3])
 
         return constraints, aircraft, climb, cruise, statelinking, enginestate, enginecruise, engineclimb
     
