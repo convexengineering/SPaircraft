@@ -61,9 +61,9 @@ sweepdxCG = False
 sweepReqRng = False
 sweepthetadb = False
 sweepxCG = False
-sweepCruiseAlt = True
+sweepCruiseAlt = False
 
-plot = True
+plot = False
 
 g = 9.81 * units('m*s**-2')
 
@@ -971,9 +971,80 @@ class Mission(Model):
                 # SignomialEquality(cruise.cruiseP.wingP['L_w'],cruise.cruiseP.aircraftP['W_{avg}'] + cruise.cruiseP.aircraftP['L_h']),
             ])
 
+        M2 = .8
+        M0 = .8
+        M25 = .6
+        M4a = .1025
+        Mexit = 1
+        
+        engineclimb = [
+            aircraft.engine.engineP['M_2'][0] == .8,#climb['M'][0],
+            aircraft.engine.engineP['M_2'][1] == 8,#climb['M'][1],
+            aircraft.engine.engineP['M_{2.5}'][0] == M25,
+            aircraft.engine.engineP['M_{2.5}'][1] == M25,
+            aircraft.engine.compressor['hold_{2}'] == 1+.5*(1.398-1)*M2**2,
+            aircraft.engine.compressor['hold_{2.5}'] == 1+.5*(1.354-1)*M25**2,
+            aircraft.engine.compressor['c1'] == 1+.5*(.401)*M0**2,
+            ]
+
+
+        M25 = .6
+        M4a = .1025
+        Mexit = 1
+
+        enginecruise = [
+            aircraft.engine.engineP['M_2'][2] == 8,#cruise['M'][0],
+            aircraft.engine.engineP['M_2'][3] == 8,#cruise['M'][1],
+
+##            cruise['M'] == .8,
+
+            aircraft.engine.engineP['M_{2.5}'][2] == M25,
+            aircraft.engine.engineP['M_{2.5}'][3] == M25,
+            ]
+
         self.cost = W_ftotal
 
-        return constraints, aircraft, climb, cruise, statelinking, enginestate
+        return constraints, aircraft, climb, cruise, statelinking, enginestate, enginecruise, engineclimb
+    
+    def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
+        "Returns model with additional constraints bounding all free variables"
+        lb = lower if lower else eps
+        ub = upper if upper else 1/eps
+        constraints = []
+        freevks = tuple(vk for vk in model.varkeys if "value" not in vk.descr)
+        for varkey in freevks:
+            units = varkey.descr.get("units", 1)
+            varub = Variable('varub', ub, units)
+            varlb = Variable('varls', lb, units)
+            constraints.append([varub >= Variable(**varkey.descr),
+                                Variable(**varkey.descr) >= varlb])
+        m = Model(model.cost, [constraints, model], model.substitutions)
+        m.bound_all = {"lb": lb, "ub": ub, "varkeys": freevks}
+        return m
+
+    # pylint: disable=too-many-locals
+    def determine_unbounded_variables(self, model, verbosity=4,
+                                      eps=1e-30, lower=None, upper=None, **kwargs):
+        "Returns labeled dictionary of unbounded variables."
+        m = self.bound_all_variables(model, eps, lower, upper)
+        sol = m.localsolve(solver='mosek', verbosity=4, iteration_limit = 100, **kwargs)
+        solhold = sol
+        lam = sol["sensitivities"]["la"][1:]
+        out = defaultdict(list)
+        for i, varkey in enumerate(m.bound_all["varkeys"]):
+            lam_gt, lam_lt = lam[2*i], lam[2*i+1]
+            if abs(lam_gt) >= 1e-7:  # arbitrary threshold
+                out["sensitive to upper bound"].append(varkey)
+            if abs(lam_lt) >= 1e-7:  # arbitrary threshold
+                out["sensitive to lower bound"].append(varkey)
+            value = mag(sol["variables"][varkey])
+            distance_below = np.log(value/m.bound_all["lb"])
+            distance_above = np.log(m.bound_all["ub"]/value)
+            if distance_below <= 3:  # arbitrary threshold
+                out["value near lower bound"].append(varkey)
+            elif distance_above <= 3:  # arbitrary threshold
+                out["value near upper bound"].append(varkey)
+        return out, solhold
 
 if __name__ == '__main__':
     M4a = .1025
@@ -1083,10 +1154,11 @@ if __name__ == '__main__':
     }
     
     if sweeps == False:
-        m = Mission()
-        m.substitutions.update(substitutions)
-        m = Model(m.cost,BCS(m))
-        sol = m.localsolve( verbosity = 4, iteration_limit=100)
+        mission = Mission()
+        mission.substitutions.update(substitutions)
+        mission = Model(mission.cost,BCS(mission))
+##        bounds, sol = mission.determine_unbounded_variables(mission)
+        sol = mission.localsolve( verbosity = 4, iteration_limit=100)
 
     if sweeps:
         if sweepSMmin:
