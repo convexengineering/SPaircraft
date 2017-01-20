@@ -23,6 +23,9 @@ from D8_HT_simple_profile import HorizontalTail, HorizontalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from TASOPT_engine import Engine
 
+from gpkit.small_scripts import mag
+from collections import defaultdict
+
 sweep = 30
 
 """
@@ -1078,11 +1081,12 @@ if __name__ == '__main__':
             'Cp_c': 1216,
 
     }
+    
     if sweeps == False:
         m = Mission()
         m.substitutions.update(substitutions)
         m = Model(m.cost,BCS(m))
-        sol = m.localsolve( verbosity = 4, iteration_limit=50)
+        sol = m.localsolve( verbosity = 4, iteration_limit=100)
 
     if sweeps:
         if sweepSMmin:
@@ -1091,7 +1095,7 @@ if __name__ == '__main__':
             SMminArray = np.linspace(0.05,0.5,n)
             m.substitutions.update({'SM_{min}': ('sweep',SMminArray)})
             solSMsweep = m.localsolve(verbosity = 2, skipsweepfailures=True)
-
+ 
             if plot:
                 plt.plot(solSMsweep('SM_{min}'), solSMsweep('S_h'), '-r')
                 plt.xlabel('Minimum Allowed Static Margin')
