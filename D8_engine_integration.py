@@ -270,11 +270,6 @@ class AircraftP(Model):
             #                                 aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
             #                               + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
             #                                 aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']),
-
-            #--edit
-            # Fuel burn computation
-            W_burn == aircraft['numeng'] * self.engineP['TSFC'] * \
-            thours * self.engineP['thrust'],
            ])
 
         return self.Pmodels, constraints
@@ -340,11 +335,8 @@ class ClimbP(Model):
             RngClimb == self.aircraftP['thr'] * state['V'],
 
             #Fuel burn computation
-##            self.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][:Nsplit] * \
-##            self.aircraftP['thr'] * aircraft.engine['F'][:Nsplit],
-            #--edit
-##            self.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][:Nsplit] * \
-##            self.aircraftP['thr'] * self.aircraftP['F'],
+            self.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][:Nsplit] * \
+            self.aircraftP['thr'] * aircraft.engine['F'][:Nsplit],
         ])
 
         return constraints + self.aircraftP
@@ -393,11 +385,8 @@ class CruiseP(Model):
             self.aircraftP['thr'] * state['V'] == Rng,
 
             # Fuel burn computation
-##            self.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][Nsplit:] * \
-##            self.aircraftP['thr'] * aircraft.engine['F'][Nsplit:],
-            #--edit
-##            self.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][Nsplit:] * \
-##            self.aircraftP['thr'] * self.aircraftP['F'],
+            self.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][Nsplit:] * \
+            self.aircraftP['thr'] * aircraft.engine['F'][Nsplit:],
         ])
 
         return constraints + self.aircraftP
