@@ -246,11 +246,16 @@ class AircraftP(Model):
 
             TCS([aircraft.HT['x_{CG_{ht}}'] >= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
-            # Static margin constraint #TODO validate if this works as intended
+            # Static margin constraint with and without dxCG #TODO validate if this works as intended
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] <=
                                             aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                                           + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
-                                            aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]),
+                                            aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
+            TCS([aircraft['SM_{min}'] <=
+                                            aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
+                                          + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
+                                            aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
+
             # SignomialEquality(SM + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'],
             #                                 aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
             #                               + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
@@ -839,13 +844,12 @@ substitutions = {
         'w_{aisle}': 0.51*units('m'),
         'w_{seat}': 0.5*units('m'),
         'w_{sys}': 0.1*units('m'),
-        'W_{cargo}': 10000*units('N'),
         'r_E': 1,  # [TAS]
         '\\lambda_{cone}': 0.4,  # [Philippe]
-        '\\rho_{cone}': 2700*units('kg/m^3'),  # [TAS]
-        '\\rho_{bend}': 2700*units('kg/m^3'),  # [TAS]
-        '\\rho_{floor}': 2700*units('kg/m^3'),  # [TAS]
-        '\\rho_{skin}': 2700*units('kg/m^3'),  # [TAS]
+        '\\rho_{cone}': 2700,#*units('kg/m^3'),  # [TAS]
+        '\\rho_{bend}': 2700,#*units('kg/m^3'),  # [TAS]
+        '\\rho_{floor}': 2700,#*units('kg/m^3'),  # [TAS]
+        '\\rho_{skin}': 2700,#*units('kg/m^3'),  # [TAS]
         '\\sigma_{floor}': 30000 / 0.000145, # [TAS] [Al]
         '\\sigma_{skin}': 15000 / 0.000145,  # [TAS] [Al]
         '\\tau_{floor}': 30000 / 0.000145, # [TAS] [Al]
@@ -890,8 +894,7 @@ substitutions = {
         'C_{L_{hmax}}': 2.5,
         'SM_{min}': 0.05,
         '\\Delta x_{CG}': 2.0*units('m'),
-        'x_{CG_{min}}' : 13.0,*units('m'),
-
+        'x_{CG_{min}}' : 13.0*units('m'),
 }
 
 if __name__ == '__main__':

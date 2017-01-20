@@ -657,6 +657,7 @@ class WingPerformance(Model):
 ##                TCS([(self.wing['AR']/self.wing['\\eta'])**2*(1 + self.wing['\\tan(\\Lambda)']**2 - state['M']**2) + 8*pi*self.wing['AR']/CLaw
 ##                      <= (2*pi*self.wing['AR']/CLaw)**2]),
 
+                # Swept wing lift curve slope constraint
                 SignomialEquality((self.wing['AR']/self.wing['\\eta'])**2*(1 + self.wing['\\tan(\\Lambda)']**2 - state['M']**2) + 8*pi*self.wing['AR']/CLaw
                       , (2*pi*self.wing['AR']/CLaw)**2),
                 
@@ -726,8 +727,6 @@ class WingBox(Model):
             q = surface['q']
             tau = surface['\\tau']
             Lmax = surface['L_{max}']
-
- 
 
         constraints = [
                        # Aspect ratio definition
