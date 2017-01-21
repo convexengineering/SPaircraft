@@ -99,8 +99,6 @@ class Aircraft(Model):
                             self.wing['x_w'] == self.fuse['x_{wing}'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
-                            #--edit
-##                            self.oldengine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'), # [1]
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -175,9 +173,8 @@ class AircraftP(Model):
         self.fuseP = aircraft.fuse.dynamic(state)
         self.VTP = aircraft.VT.dynamic(aircraft.fuse,state)
         self.HTP = aircraft.HT.dynamic(aircraft.fuse,aircraft.wing,state)
-        #--edit
-        self.engineP = aircraft.oldengine.dynamic(state)
-        self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP, self.engineP]
+        
+        self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP]
 
         # variable definitions
         Vstall = Variable('V_{stall}',120, 'knots', 'Aircraft Stall Speed')
@@ -286,7 +283,9 @@ class ClimbP(Model):
         self.wingP = self.aircraftP.wingP
         self.fuseP = self.aircraftP.fuseP
         #--edit
-        self.engineP = self.aircraftP.engineP
+##        self.engineP = self.aircraftP.engineP
+        #--edit
+##        self.engineP = aircraft.oldengine.dynamic(state)
 
         # variable definitions
         theta = Variable('\\theta', '-', 'Aircraft Climb Angle')
@@ -302,24 +301,24 @@ class ClimbP(Model):
 
         constraints.extend([
             # constraint on drag and thrust
-##            self.aircraft['numeng'] * self.aircraft.engine['F_{spec}'][:Nsplit] >= self.aircraftP[
-##                'D'] + self.aircraftP['W_{avg}'] * theta,
+            self.aircraft['numeng'] * self.aircraft.engine['F_{spec}'][:Nsplit] >= self.aircraftP[
+                'D'] + self.aircraftP['W_{avg}'] * theta,
 
             # constraint on drag and thrust
             #--edit
 ##            self.aircraft['numeng'] * self.aircraftP['F'] >= self.aircraftP[
 ##                'D'] + self.aircraftP['W_{avg}'] * theta,
-            self.aircraft['numeng'] * self.engineP['thrust'] >= self.aircraftP[
-                'D'] + self.aircraftP['W_{avg}'] * theta,
+##            self.aircraft['numeng'] * self.engineP['thrust'] >= self.aircraftP[
+##                'D'] + self.aircraftP['W_{avg}'] * theta,
 
             # climb rate constraints
-##            TCS([excessP + state['V'] * self.aircraftP['D'] <= state['V']
-##                 * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nsplit]]),
+            TCS([excessP + state['V'] * self.aircraftP['D'] <= state['V']
+                 * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nsplit]]),
             #--edit
 ##            TCS([excessP + state['V'] * self.aircraftP['D'] <= state['V']
 ##                 * aircraft['numeng'] * self.aircraftP['F']]),
-            TCS([excessP + state['V'] * self.aircraftP['D'] <= state['V']
-                 * aircraft['numeng'] * self.engineP['thrust']]),
+##            TCS([excessP + state['V'] * self.aircraftP['D'] <= state['V']
+##                 * aircraft['numeng'] * self.engineP['thrust']]),
 
 
 
@@ -339,7 +338,7 @@ class ClimbP(Model):
             self.aircraftP['thr'] * aircraft.engine['F'][:Nsplit],
         ])
 
-        return constraints + self.aircraftP
+        return constraints + self.aircraftP  #+self.engineP
 
 
 class CruiseP(Model):
@@ -352,7 +351,9 @@ class CruiseP(Model):
         self.wingP = self.aircraftP.wingP
         self.fuseP = self.aircraftP.fuseP
         #--edit
-        self.engineP = self.aircraftP.engineP
+##        self.engineP = self.aircraftP.engineP
+        #--edit
+        self.engineP = aircraft.oldengine.dynamic(state)
         
         # variable definitions
         z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
@@ -389,7 +390,7 @@ class CruiseP(Model):
             self.aircraftP['thr'] * aircraft.engine['F'][Nsplit:],
         ])
 
-        return constraints + self.aircraftP
+        return constraints + self.aircraftP + self.engineP
 
 class CruiseSegment(Model):
     """
@@ -985,7 +986,7 @@ class Mission(Model):
             # constrain the thrust
             #--edit
             aircraft.VT['T_e'] == aircraft.engine['F'][0],
-            climb.climbP.engineP['thrust'] <= 2 * max(cruise.cruiseP.engineP['thrust']),
+##            climb.climbP.engineP['thrust'] <= 2 * max(cruise.cruiseP.engineP['thrust']),
 
             # set the range for each cruise segment, doesn't take credit for climb
             # down range disatnce covered
@@ -999,12 +1000,18 @@ class Mission(Model):
             cruise.cruiseP.wingP['L_w'] >= cruise.cruiseP.aircraftP['W_{avg}'] + cruise.cruiseP.aircraftP['L_h'],
 
             #--edit
-            aircraft.engine['F_{spec}'][0] == 63.184 * units('kN'),#94.971 * units('kN'),
-            aircraft.engine['F_{spec}'][1] == 40 * units('kN'),#63.184 * units('kN'),
-            aircraft.engine['F_{spec}'][2] == 30.109* units('kN'),
-            aircraft.engine['F_{spec}'][3] == 22.182 * units('kN'),
+##            aircraft.engine['F_{spec}'][0] == 63.184 * units('kN'),#94.971 * units('kN'),
+##            aircraft.engine['F_{spec}'][1] == 40 * units('kN'),#63.184 * units('kN'),
+##            aircraft.engine['F_{spec}'][2] == 40567 * units('kN'),
+##            aircraft.engine['F_{spec}'][3] == 39811* units('kN'),
+
+##            aircraft.engine['F_{spec}'][0] == 63.184 * units('kN'),#94.971 * units('kN'),
+##            aircraft.engine['F_{spec}'][1] == 40 * units('kN'),#63.184 * units('kN'),
+##            aircraft.engine['F_{spec}'][2] == 30.109* units('kN'),
+##            aircraft.engine['F_{spec}'][3] == 22.182 * units('kN'),
+            aircraft.engine['F_{spec}'] >= 10000 * units('N'),
             # Set the TSFC
-            climb.climbP.engineP['TSFC'] == .7 * units('1/hr'),
+##            climb.climbP.engineP['TSFC'] == .7 * units('1/hr'),
             cruise.cruiseP.engineP['TSFC'] == .5 * units('1/hr'),
         ])
 
