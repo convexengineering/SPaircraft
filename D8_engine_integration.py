@@ -368,8 +368,8 @@ class CruiseP(Model):
             #--edit
 ##            self.aircraftP['D'] == aircraft[
 ##                'numeng'] * self.aircraftP['F'],
-            self.aircraftP['D'] == aircraft[
-                'numeng'] * self.engineP['thrust'],
+##            self.aircraftP['D'] == aircraft[
+##                'numeng'] * self.engineP['thrust'],
 
             # Taylor series expansion to get the weight term
             TCS([self.aircraftP['W_{burn}'] / self.aircraftP['W_{end}'] >=
@@ -379,7 +379,9 @@ class CruiseP(Model):
 ##            TCS([z_bre >= (aircraft.engine['TSFC'][Nsplit:] * self.aircraftP['thr'] *
 ##                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
             #--edit
-            TCS([z_bre >= (self.engineP['TSFC'] * self.aircraftP['thr'] *
+##            TCS([z_bre >= (self.engineP['TSFC'] * self.aircraftP['thr'] *
+##                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
+            TCS([z_bre >= (.5*units('1/hr') * self.aircraftP['thr'] *
                            self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
 
             # Time
@@ -1012,7 +1014,7 @@ class Mission(Model):
             aircraft.engine['F_{spec}'] >= 10000 * units('N'),
             # Set the TSFC
 ##            climb.climbP.engineP['TSFC'] == .7 * units('1/hr'),
-            cruise.cruiseP.engineP['TSFC'] == .5 * units('1/hr'),
+##            cruise.cruiseP.engineP['TSFC'] == .5 * units('1/hr'),
         ])
 
 ##        with SignomialsEnabled():
