@@ -368,8 +368,8 @@ class CruiseP(Model):
             #--edit
 ##            self.aircraftP['D'] == aircraft[
 ##                'numeng'] * self.aircraftP['F'],
-##            self.aircraftP['D'] == aircraft[
-##                'numeng'] * self.engineP['thrust'],
+            self.aircraftP['D'] == aircraft[
+                'numeng'] * self.engineP['thrust'],
 
             # Taylor series expansion to get the weight term
             TCS([self.aircraftP['W_{burn}'] / self.aircraftP['W_{end}'] >=
@@ -378,6 +378,8 @@ class CruiseP(Model):
             # Breguet range eqn
 ##            TCS([z_bre >= (aircraft.engine['TSFC'][Nsplit:] * self.aircraftP['thr'] *
 ##                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
+##            TCS([z_bre >= (aircraft.engine['TSFC'][Nsplit:] * self.aircraftP['thr'] *
+##                           aircraft.engine['F'][Nsplit:]) / self.aircraftP['W_{avg}']]),
             #--edit
 ##            TCS([z_bre >= (self.engineP['TSFC'] * self.aircraftP['thr'] *
 ##                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
@@ -936,7 +938,7 @@ class Mission(Model):
         W_fcruise = Variable('W_{f_{cruise}}', 'lbf',
                              'Fuel Weight Burned in Cruise')
         W_total = Variable('W_{total}', 'lbf', 'Total Aircraft Weight')
-        W_dry = Variable('W_{dry}', 'lbf', 'Dry Aircraft Weight')
+##        W_dry = Variable('W_{dry}', 'lbf', 'Dry Aircraft Weight')
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
@@ -1011,10 +1013,12 @@ class Mission(Model):
 ##            aircraft.engine['F_{spec}'][1] == 40 * units('kN'),#63.184 * units('kN'),
 ##            aircraft.engine['F_{spec}'][2] == 30.109* units('kN'),
 ##            aircraft.engine['F_{spec}'][3] == 22.182 * units('kN'),
-            aircraft.engine['F_{spec}'] >= 10000 * units('N'),
+            aircraft.engine['F_{spec}'] >= 37000 * units('N'),
             # Set the TSFC
 ##            climb.climbP.engineP['TSFC'] == .7 * units('1/hr'),
 ##            cruise.cruiseP.engineP['TSFC'] == .5 * units('1/hr'),
+            #--edit
+            aircraft['V_{h}'] >= .05,
         ])
 
 ##        with SignomialsEnabled():
@@ -1208,10 +1212,10 @@ if __name__ == '__main__':
     if sweeps == False:
         mission = Mission()
         mission.substitutions.update(substitutions)
-##        mission = Model(mission.cost, BCS(mission))
-        mission = Model(mission.cost, mission)
+        mission = Model(mission.cost, BCS(mission))
+##        mission = Model(mission.cost, mission)
 ##        bounds, sol = mission.determine_unbounded_variables(mission)
-        sol = mission.localsolve( verbosity = 4, iteration_limit=100)
+        sol = mission.localsolve( verbosity = 4, iteration_limit=150)
 
     if sweeps:
         if sweepSMmin:
