@@ -92,8 +92,8 @@ class Aircraft(Model):
                             self.wing['x_w'] == self.fuse['x_{wing}'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
-                            self.engine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'),
-                            self.engine['W_{engine}'] == 10000.*units('N'),
+                            # self.engine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'),
+                            # self.engine['W_{engine}'] == 10000.*units('N'),
 
 
                             # Tail cone sizing
@@ -903,8 +903,8 @@ substitutions = {
         'x_{CG_{min}}' : 13.0*units('m'),
 
         # Engine substitutions
-        # 'W_{engine}': 10000, # Engine weight substitution
-        # 'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
+        'W_{engine}': 20000, # Engine weight substitution
+        'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
 
 }
 
