@@ -11,15 +11,14 @@ class Engine(Model):
     """
     def setup(self, **kwargs):
         #new variables
-##        W_engine = Variable('W_{engine}', 'N', 'Weight of a Single Turbofan Engine')
-##        A2 = Variable('A_2', 'm^2', 'Fan Area')
+        W_engine = Variable('W_{engine}', 'N', 'Weight of a Single Turbofan Engine')
+        A2 = Variable('A_2', 'm^2', 'Fan Area')
         
         constraints = []
 
         constraints.extend([
-##            W_engine == 1000 * units('N'),
-
-##            A2 == A2,
+           W_engine == W_engine,
+           A2 == A2,
             ])
 
         return constraints
@@ -36,17 +35,11 @@ class EnginePerformance(Model):
     """
     def setup(self, engine, state, **kwargs):
         #new variables
-##        TSFC = Variable('TSFC', '1/hr', 'Thrust Specific Fuel Consumption')
+        TSFC = Variable('TSFC', '1/hr', 'Thrust Specific Fuel Consumption')
         thrust = Variable('thrust', 'N', 'Thrust')
         
         #constraints
-        constraints = []
-
-        constraints.extend([
-##            TSFC == TSFC,
-
-            thrust == thrust, #want thrust to enter the model
-            ])
+        constraints = [TSFC == TSFC, thrust == thrust]
 
         return constraints
 

@@ -415,9 +415,8 @@ class Wing(Model):
             #compute K for the aircraft
             K == (pi * e * AR)**-1,
             mac == mac,
-            cmw == 0.1,
             CLmax == CLmax,
-
+            cmw == cmw,
             xw == xw,
             ])
 

@@ -233,7 +233,7 @@ class AircraftP(Model):
             aircraft.fuse['x_{wing}'] <= aircraft.fuse['l_{fuse}']*0.6, #TODO remove
 
             # Aircraft trim conditions
-            self.wingP['c_{m_{w}}'] == 1,
+            self.wingP['c_{m_{w}}'] == 0.1,
             # SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
             #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])),
             TCS([xAC/aircraft.wing['mac'] <= self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
@@ -807,8 +807,8 @@ class Fuselage(Model):
                 Ihshell <= ((pi + 4 * thetadb) * Rfuse**2) * \
                 Rfuse * tshell + 2 / 3 * hdb**3 * tdb,  # [SP]
                 # Ivshell <= (pi*Rfuse**2 + 8*wdb*Rfuse +
-                # (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell
-                # approximation needs to be improved
+                # (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell approximation needs to be improved
+
                 sigbend == rE * sigskin,
 
                 # Horizontal bending material model
@@ -1162,7 +1162,7 @@ if __name__ == '__main__':
             '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
             'c_{l_{vtEO}}': 0.5,
             'e_v': 0.8,
-            'y_{eng}': 4.83*units('m'), # [3]
+            'y_{eng}': 5.2/4.*units('m'), # [3]
 
             'V_{land}': 72*units('m/s'),
             'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
@@ -1406,6 +1406,8 @@ if __name__ == '__main__':
                 plt.title('Average Mach Number vs Cruise Altitude')
                 plt.savefig('CFP_Sweeps/M-vs-CruiseAlt.pdf')
                 plt.show(), plt.close()
+
+
     # template
     #             plt.plot()
     #             plt.xlabel()

@@ -678,9 +678,9 @@ class VerticalTailNoStruct(Model):
         Te     = Variable('T_e', 'N', 'Thrust per engine at takeoff')
 
         #variables specific to yaw rate sizing
-        Vland = Variable('V_{land}', 'm/s', 'Aricraft Landing Speed')
+        Vland = Variable('V_{land}', 'm/s', 'Aircraft Landing Speed')
         CLvyaw = Variable('C_{L_{vyaw}}', '-', 'VT CL at rotation')
-        Iz = Variable('I_{z}', 'kg*m^2', 'Aircrat Z-axis Moment of Inertia')
+        Iz = Variable('I_{z}', 'kg*m^2', 'Aircraft Z-axis Moment of Inertia')
         rreq = Variable('\\dot{r}_{req}', 's^-2', 'Required Yaw Rate at Landing')
         
         #constraints
