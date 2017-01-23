@@ -500,8 +500,8 @@ class Mission(Model):
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
             climb.climbP.wingP['L_w'] == climb.climbP.aircraftP['W_{avg}'],
             cruise.cruiseP.wingP['L_w'] == cruise.cruiseP.aircraftP['W_{avg}'],
-            climb['c_{m_{w}}'] == 1.0, # for boundedness
-            cruise['c_{m_{w}}'] == 1.0, # for boundedness
+            climb['c_{m_{w}}'] == .10, # for boundedness
+            cruise['c_{m_{w}}'] == .10, # for boundedness
             ])
         
         # self.cost = W_ftotal
