@@ -351,7 +351,7 @@ class CruiseP(Model): # Cruise performance constraints
         self.wingP = self.aircraftP.wingP
         self.fuseP = self.aircraftP.fuseP
 ##        self.oldengineP = self.aircraftP.oldengineP
-        self.oldengineP = aircraft.oldengine.dynamic(state)
+##        self.oldengineP = aircraft.oldengine.dynamic(state)
 
         # variable definitions
         z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
@@ -361,8 +361,8 @@ class CruiseP(Model): # Cruise performance constraints
 
         constraints.extend([
             # Steady level flight constraint on D
-            self.aircraftP['D'] == aircraft[
-                'numeng'] * self.oldengineP['thrust'],
+##            self.aircraftP['D'] == aircraft[
+##                'numeng'] * self.oldengineP['thrust'],
 
             self.aircraftP['D'] == aircraft[
                 'numeng'] * aircraft['F'][Nsplit:],
@@ -372,8 +372,10 @@ class CruiseP(Model): # Cruise performance constraints
                  te_exp_minus1(z_bre, nterm=3)]),
 
             # Breguet range eqn
-            TCS([z_bre >= (self.oldengineP['TSFC'] * self.aircraftP['thr'] *
-                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
+##            TCS([z_bre >= (self.oldengineP['TSFC'] * self.aircraftP['thr'] *
+##                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
+            TCS([z_bre >= (aircraft.engine['TSFC'][Nsplit:] * self.aircraftP['thr'] *
+               self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
 
             # Time
             self.aircraftP['thr'] * state['V'] == Rng,
@@ -876,7 +878,8 @@ class Mission(Model):
             dhft == hftCruise / Nclimb,
 
             # Thrust constraint
-            climb.climbP.oldengineP['thrust'] <= 2 * max(cruise.cruiseP.oldengineP['thrust']),
+##            climb.climbP.oldengineP['thrust'] <= 2 * max(cruise.cruiseP.oldengineP['thrust']),
+            climb.climbP.oldengineP['thrust'] <= 2 * max(cruise['F']),
             aircraft.VT['T_e'] == climb['F'][0],
 
             # Set the range for each cruise segment, doesn't take credit for
@@ -885,7 +888,7 @@ class Mission(Model):
 
             # Set the TSFC
             climb.climbP.oldengineP['TSFC'] == .7 * units('1/hr'),
-            cruise.cruiseP.oldengineP['TSFC'] == .5 * units('1/hr'),
+##            cruise.cruiseP.oldengineP['TSFC'] == .5 * units('1/hr'),
 
             # Wing fuel constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
