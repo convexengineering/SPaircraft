@@ -59,6 +59,7 @@ sweepReqRng = False
 sweepthetadb = False
 sweepxCG = False
 sweepCruiseAlt = False
+sweepW_engine = True
 
 plot = True
 
@@ -903,7 +904,7 @@ substitutions = {
         'x_{CG_{min}}' : 13.0*units('m'),
 
         # Engine substitutions
-        'W_{engine}': 20000, # Engine weight substitution
+        'W_{engine}': 40000, # Engine weight substitution
         'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
 
 }
@@ -1104,6 +1105,41 @@ if __name__ == '__main__':
                 plt.ylabel('Mach Number')
                 plt.title('Average Mach Number vs Cruise Altitude')
                 plt.savefig('CFP_Sweeps/M-vs-CruiseAlt.pdf')
+                plt.show(), plt.close()
+
+        if sweepW_engine:
+            m = Mission()
+            m.substitutions.update(substitutions)
+            W_engineArray = np.linspace(10000,75000,n) # Tiny engine to GE90 weight
+            m.substitutions.update({'W_{engine}':('sweep',W_engineArray)})
+            solW_enginesweep = m.localsolve(verbosity=2,skipsweepfailures=True,iteration_limit=30)
+            if plot:
+                plt.plot(solW_enginesweep('W_{engine}'),solW_enginesweep('W_{f_{total}}'))
+                plt.xlabel('Engine Weight [N]')
+                plt.ylabel('Mission Fuel Burn [lbs]')
+                plt.title('Fuel Burn vs Engine Weight')
+                plt.savefig('CFP_Sweeps/Wftotal-vs-W_engine.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solW_enginesweep('W_{engine}'),solW_enginesweep('W_{tail}'))
+                plt.xlabel('Engine Weight [N]')
+                plt.ylabel('Tail Weight [lbs]')
+                plt.title('Tail Weight vs Engine Weight')
+                plt.savefig('CFP_Sweeps/Wtail-vs-W_engine.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solW_enginesweep('W_{engine}'),solW_enginesweep('W_{hbend}'))
+                plt.xlabel('Engine Weight [N]')
+                plt.ylabel('Fuselage Bending Reinforcement Weight [lbs]')
+                plt.title('Fuselage Bending Reinforcement Weight vs Engine Weight')
+                plt.savefig('CFP_Sweeps/Whbend-vs-W_engine.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solW_enginesweep('W_{engine}'),solW_enginesweep('f_{string}'))
+                plt.xlabel('Engine Weight [N]')
+                plt.ylabel('Stringer Mass Fraction')
+                plt.title('Stringer Mass Fraction vs Engine Weight')
+                plt.savefig('CFP_Sweeps/fstring-vs-W_engine.pdf')
                 plt.show(), plt.close()
     # template
     #             plt.plot()
