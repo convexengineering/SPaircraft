@@ -186,10 +186,23 @@ class AircraftP(Model):
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
 
+        Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
+        W_buoy = Variable('W_{buoy}','lbf','Buoyancy Weight')
+        Tcabin = Variable('T_{cabin}','K','Cabin Air Temperature')
+        rhocabin = Variable('rho_{cabin}','kg/m^3','Cabin Air Density')
+
         constraints = []
 
         with SignomialsEnabled():
             constraints.extend([
+            # Cabin Air properties
+            rhocabin == Pcabin/(state['R']*Tcabin),
+            Pcabin == 75000*units('Pa'),
+            Tcabin == 297*units('K'),
+
+            # Buoyancy weight
+            SignomialEquality(W_buoy,(rhocabin - state['\\rho'])*g*aircraft['V_{cabin}']),
+
             # speed must be greater than stall speed
             state['V'] >= Vstall,
 
@@ -908,6 +921,7 @@ substitutions = {
         'W_{engine}': 40000, # Engine weight substitution
         'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
 
+        # Cabin air substitutions in AircraftP
 }
 
 if __name__ == '__main__':
