@@ -1158,7 +1158,7 @@ if __name__ == '__main__':
             '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
             'c_{l_{vtEO}}': 0.5,
             'e_v': 0.8,
-            'y_{eng}': 4.83*units('m'), # [3]
+            'y_{eng}': 5.2/4.*units('m'), # [3]
 
             'V_{land}': 72*units('m/s'),
             'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)

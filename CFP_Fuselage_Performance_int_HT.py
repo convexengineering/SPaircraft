@@ -53,12 +53,12 @@ Other markers:
 # Script for doing sweeps
 n = 10
 sweeps = False
-sweepSMmin = False
-sweepdxCG = False
+sweepSMmin = True
+sweepdxCG = True
 sweepReqRng = False
 sweepthetadb = False
 sweepxCG = False
-sweepCruiseAlt = True
+sweepCruiseAlt = False
 
 plot = True
 
@@ -92,7 +92,9 @@ class Aircraft(Model):
                             self.wing['x_w'] == self.fuse['x_{wing}'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
-                            self.engine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'), # [1]
+                            self.engine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'),
+                            self.engine['W_{engine}'] == 10000.*units('N'),
+
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -130,8 +132,12 @@ class Aircraft(Model):
 
                             # VT height constraint (4*engine radius)
                             self.VT['b_{vt}']**2 >= 16.*self.engine['A_2']/np.pi,
+
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
+
+                            # Engine out moment arm,
+                            self.VT['y_{eng}'] == 0.25*self.fuse['w_{fuse}'],
 
                             ])
 
@@ -222,7 +228,6 @@ class AircraftP(Model):
             aircraft.fuse['x_{wing}'] <= aircraft.fuse['l_{fuse}']*0.6, #TODO remove
 
             # Aircraft trim conditions
-            self.wingP['c_{m_{w}}'] == 0.1, # Wing moment coefficient #TODO refine
             # SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
             #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])),
             TCS([xAC/aircraft.wing['mac'] <= self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
@@ -241,12 +246,13 @@ class AircraftP(Model):
 
             # Wing location and AC constraints
             TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]), #TODO tighten
-            xAC == aircraft['x_{wing}'], #TODO improve, only works because cmw == 1
+            xAC == aircraft['x_{wing}'], #TODO improve, only works because cmw == 0.1
             SignomialEquality(xAC,xCG + self.HTP['\\Delta x_w']),
 
             TCS([aircraft.HT['x_{CG_{ht}}'] >= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
             # Static margin constraint with and without dxCG #TODO validate if this works as intended
+            self.wingP['c_{m_{w}}'] == 0.1,
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] <=
                                             aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                                           + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
@@ -882,7 +888,7 @@ substitutions = {
         '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
         'c_{l_{vtEO}}': 0.5,
         'e_v': 0.8,
-        'y_{eng}': 4.83*units('m'), # [3]
+        # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72*units('m/s'),
         'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
         '\\dot{r}_{req}': 0.174533, # 10 deg/s yaw rate
@@ -895,6 +901,11 @@ substitutions = {
         'SM_{min}': 0.05,
         '\\Delta x_{CG}': 2.0*units('m'),
         'x_{CG_{min}}' : 13.0*units('m'),
+
+        # Engine substitutions
+        # 'W_{engine}': 10000, # Engine weight substitution
+        # 'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
+
 }
 
 if __name__ == '__main__':
