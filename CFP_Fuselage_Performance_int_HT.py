@@ -112,7 +112,8 @@ class Aircraft(Model):
                                 self.HT['W_{struct}'] + self.fuse['W_{cone}'],
 
                             # Horizontal tail aero loads constant A1h
-                            self.fuse['A1h'] >= (self.fuse['N_{land}'] * self.fuse['W_{tail}'] \
+                            self.fuse['A1h'] >= (self.fuse['N_{land}'] * \
+                                                 (self.fuse['W_{tail}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{apu}']) \
                                 + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
