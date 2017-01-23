@@ -189,7 +189,7 @@ class AircraftP(Model):
         Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
         W_buoy = Variable('W_{buoy}','lbf','Buoyancy Weight')
         Tcabin = Variable('T_{cabin}','K','Cabin Air Temperature')
-        rhocabin = Variable('rho_{cabin}','kg/m^3','Cabin Air Density')
+        rhocabin = Variable('\\rho_{cabin}','kg/m^3','Cabin Air Density')
 
         constraints = []
 
@@ -200,8 +200,9 @@ class AircraftP(Model):
             Pcabin == 75000*units('Pa'),
             Tcabin == 297*units('K'),
 
-            # Buoyancy weight
-            SignomialEquality(W_buoy,(rhocabin - state['\\rho'])*g*aircraft['V_{cabin}']),
+            # Buoyancy weight #TODO relax the equality
+            SignomialEquality(W_buoy,(rhocabin - state['\\rho'])*g*aircraft['V_{cabin}']),  #[SP] #[SPEquality]
+            # W_buoy >= (rhocabin - state['\\rho'])*g*aircraft['V_{cabin}'], # [SP]
 
             # speed must be greater than stall speed
             state['V'] >= Vstall,
@@ -213,7 +214,7 @@ class AircraftP(Model):
             WLoad == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * state.atm['\\rho'] * state['V']**2 / self.aircraft.wing['S'],
 
             # Geometric average of start and end weights of flight segment
-            W_avg == (W_start * W_end)**.5,
+            W_avg >= (W_start * W_end)**.5 + W_buoy, # Buoyancy weight included in Breguet Range
 
             # Maximum wing loading constraint
             WLoad <= WLoadmax,
