@@ -651,12 +651,6 @@ class WingPerformance(Model):
                 Lw == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw,
 
                 # DATCOM formula (Mach number makes it SP)
-
-                #THIS IS THE NOT TIGHT CONSTRAINT
-                
-##                TCS([(self.wing['AR']/self.wing['\\eta'])**2*(1 + self.wing['\\tan(\\Lambda)']**2 - state['M']**2) + 8*pi*self.wing['AR']/CLaw
-##                      <= (2*pi*self.wing['AR']/CLaw)**2]),
-
                 # Swept wing lift curve slope constraint
                 SignomialEquality((self.wing['AR']/self.wing['\\eta'])**2*(1 + self.wing['\\tan(\\Lambda)']**2 - state['M']**2) + 8*pi*self.wing['AR']/CLaw
                       , (2*pi*self.wing['AR']/CLaw)**2),
