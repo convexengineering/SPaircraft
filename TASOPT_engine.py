@@ -1211,7 +1211,10 @@ class TestMission(Model):
         return rotation, toclimb, cruise
 
 if __name__ == "__main__":
-    engine = Engine(0, True, 3)
+    with Vectorize(3):
+        state = TestState()
+
+    engine = Engine(0, True, 3, state)
     mission = TestMission(engine)
 
     M4a = .1025
