@@ -510,10 +510,10 @@ class Mission(Model):
 
         #vectorize
         with Vectorize(Nclimb):
-            cls = ClimbSegment(ac)
+            climb = ClimbSegment(ac)
 
         with Vectorize(Ncruise):
-            crs = CruiseSegment(ac)
+            cruise = CruiseSegment(ac)
 
         #declare new variables
         W_ftotal = Variable('W_{f_{total}}', 'N', 'Total Fuel Weight')
@@ -523,10 +523,10 @@ class Mission(Model):
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
-        h = cls.state['h']
-        hftClimb = cls.state['hft']
-        dhft = cls.climbP['dhft']
-        hftCruise = crs.state['hft']
+        h = climb.state['h']
+        hftClimb = climb.state['hft']
+        dhft = climb.climbP['dhft']
+        hftCruise = cruise.state['hft']
 
         #make overall constraints
         constraints = []
@@ -535,22 +535,22 @@ class Mission(Model):
             #weight constraints
             TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + 2*ac.VT['W_{struct}'] <= W_total]),
 
-            cls.climbP.aircraftP['W_{start}'][0] == W_total,
-            cls.climbP.aircraftP['W_{end}'][-1] == crs.cruiseP.aircraftP['W_{start}'][0],
+            climb.climbP.aircraftP['W_{start}'][0] == W_total,
+            climb.climbP.aircraftP['W_{end}'][-1] == cruise.cruiseP.aircraftP['W_{start}'][0],
 
             # similar constraint 1
-            TCS([cls.climbP.aircraftP['W_{start}'] >= cls.climbP.aircraftP['W_{end}'] + cls.climbP.aircraftP['W_{burn}']]),
+            TCS([climb.climbP.aircraftP['W_{start}'] >= climb.climbP.aircraftP['W_{end}'] + climb.climbP.aircraftP['W_{burn}']]),
             # similar constraint 2
-            TCS([crs.cruiseP.aircraftP['W_{start}'] >= crs.cruiseP.aircraftP['W_{end}'] + crs.cruiseP.aircraftP['W_{burn}']]),
+            TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP['W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
 
-            cls.climbP.aircraftP['W_{start}'][1:] == cls.climbP.aircraftP['W_{end}'][:-1],
-            crs.cruiseP.aircraftP['W_{start}'][1:] == crs.cruiseP.aircraftP['W_{end}'][:-1],
+            climb.climbP.aircraftP['W_{start}'][1:] == climb.climbP.aircraftP['W_{end}'][:-1],
+            cruise.cruiseP.aircraftP['W_{start}'][1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + 2*ac.VT['W_{struct}'] <= crs.cruiseP.aircraftP['W_{end}'][-1]]),
+            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac['W_{wing}'] + 2*ac.VT['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >=  W_fclimb + W_fcruise]),
-            TCS([W_fclimb >= sum(cls.climbP['W_{burn}'])]),
-            TCS([W_fcruise >= sum(crs.cruiseP['W_{burn}'])]),
+            TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
+            TCS([W_fcruise >= sum(cruise.cruiseP['W_{burn}'])]),
 
             #altitude constraints
             hftCruise == CruiseAlt,
@@ -562,20 +562,20 @@ class Mission(Model):
             dhft == hftCruise/Nclimb,
 
             #constrain the thrust
-            cls.climbP.engineP['thrust'] <= 2 * max(crs.cruiseP.engineP['thrust']),
+            climb.climbP.engineP['thrust'] <= 2 * max(cruise.cruiseP.engineP['thrust']),
 
             #set the range for each cruise segment, doesn't take credit for climb
             #down range disatnce covered
-            crs.cruiseP['Rng'] == ReqRng/(Ncruise),
+            cruise.cruiseP['Rng'] == ReqRng/(Ncruise),
 
             #set the TSFC
-            cls.climbP.engineP['TSFC'] == .7*units('1/hr'),
-            crs.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
+            climb.climbP.engineP['TSFC'] == .7*units('1/hr'),
+            cruise.cruiseP.engineP['TSFC'] == .5*units('1/hr'),
             ])
 
         #VT constriants
         constraints.extend([
-            ac.VT['T_e'] == cls.climbP.engineP['thrust'][0],
+            ac.VT['T_e'] == climb.climbP.engineP['thrust'][0],
 
             # Drag of a windmilling engine
             ac.VT['D_{wm}'] >= 0.5*ac.VT['\\rho_{TO}']*ac.VT['V_1']**2*ac.engine['A_2']*ac.VT['C_{D_{wm}}'],
@@ -583,16 +583,16 @@ class Mission(Model):
             ac.VT['x_{CG_{vt}}'] <= ac.fuse['l_{fuse}'],
             
             #VTP constraints
-            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + cls.climbP.aircraftP['x_{CG}'],
-            ac.VT['x_{CG_{vt}}'] >= cls.climbP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
+            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + climb.climbP.aircraftP['x_{CG}'],
+            ac.VT['x_{CG_{vt}}'] >= climb.climbP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
 
-            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + crs.cruiseP.aircraftP['x_{CG}'],
-            ac.VT['x_{CG_{vt}}'] >= crs.cruiseP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
+            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + cruise.cruiseP.aircraftP['x_{CG}'],
+            ac.VT['x_{CG_{vt}}'] >= cruise.cruiseP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
             ])
         
-        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + cls + crs, subs)
+        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + climb + cruise, subs)
         self.cost = W_ftotal
-        return constraints, ac, crs, cls
+        return constraints, ac, cruise, climb
 
 class VerticalTail(Model):
     """
