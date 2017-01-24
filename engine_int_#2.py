@@ -97,8 +97,6 @@ class Aircraft(Model):
                             self.wing['x_w'] == self.fuse['x_{wing}'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
-                            # self.oldengine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'),
-                            # self.oldengine['W_{engine}'] == 10000.*units('N'),
                             self.oldengine['W_{engine}'] == self.engine['W_{engine}'],
                             self.oldengine['A_2'] == self.engine['A_2'],
 
@@ -176,10 +174,11 @@ class AircraftP(Model):
         self.aircraft = aircraft
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
+        self.oldengineP = aircraft.oldengine.dynamic(state)
         
         self.VTP = aircraft.VT.dynamic(aircraft.fuse,state)
         self.HTP = aircraft.HT.dynamic(aircraft.fuse,aircraft.wing,state)
-        self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP]
+        self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP, self.oldengineP]
 
         # variable definitions
         Vstall = Variable('V_{stall}',120, 'knots', 'Aircraft Stall Speed')
@@ -238,7 +237,7 @@ class AircraftP(Model):
             aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Drag of a windmilling engine (VT sizing)
-            TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*self.aircraft.oldengine['A_2']*aircraft.VT['C_{D_{wm}}']]),
+            TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*self.aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
 
             # Center of gravity constraints #TODO Refine
             xCG <= 0.7*aircraft.fuse['l_{fuse}'],
@@ -258,7 +257,7 @@ class AircraftP(Model):
             # Tail aspect ratio and lift constraints
             aircraft.HT['AR_h'] >= 6, #TODO change to tip Re constraint
             self.HTP['C_{L_h}'] >= 0.01, #TODO remove
-            # aircraft.VT['AR_{vt}'] >= 1.5,
+            aircraft.VT['A_{vt}'] >= 1.5,
 
             # HT/VT moment arm constraints
             TCS([aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG]),
@@ -303,7 +302,8 @@ class ClimbP(Model): # Climb performance constraints
         self.wingP = self.aircraftP.wingP
         self.fuseP = self.aircraftP.fuseP
 ##        self.oldengineP = self.aircraftP.oldengineP
-        self.oldengineP = aircraft.oldengine.dynamic(state)
+        # self.oldengineP = aircraft.oldengine.dynamic(state)
+        self.oldengineP = self.aircraftP.oldengineP
 
         # variable definitions
         theta = Variable('\\theta', '-', 'Aircraft Climb Angle')
@@ -332,7 +332,7 @@ class ClimbP(Model): # Climb performance constraints
             # TCS([excessP + state['V'] * self.aircraftP['D'] <= \
             #      state['V'] * aircraft['numeng'] * self.aircraft.engine['F'][:Nsplit]]),
 
-            # self.oldengineP['thrust'] <= self.aircraft.engine['F'][:Nsplit],
+            # self.oldengineP['thrust'] == self.aircraft.engine['F'][:Nsplit], # Matching thrust
 
             RC == excessP / self.aircraftP['W_{avg}'],
             RC >= 500 * units('ft/min'),
@@ -896,17 +896,14 @@ class Mission(Model):
             # Set the range for each cruise segment; take credit for
             # down range distance covered during climb
             TCS([cruise.cruiseP['Rng'] >= 0.8*ReqRng/(Ncruise)]),
+            cruise.cruiseP['Rng'][0] == cruise.cruiseP['Rng'][1],
             ReqRng <= sum(cruise.cruiseP['Rng']) + sum(climb.climbP['RngClimb']), #[SP]
-
-            # Set the TSFC
-            # climb.climbP.oldengineP['TSFC'] == .7 * units('1/hr'),
-##            cruise.cruiseP.oldengineP['TSFC'] == .5 * units('1/hr'),
 
             # Wing fuel constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
 
-            aircraft.engine['F_{spec}'][0] == 63.184 * units('kN'), #94.971 * units('kN'),
-            aircraft.engine['F_{spec}'][1] == 40 * units('kN'), #63.184 * units('kN'),
+            aircraft.engine['F_{spec}'][0] == 63.184*units('kN'),#94.971 * units('kN'), #63.184 * units('kN'),
+            aircraft.engine['F_{spec}'][1] == 40.*units('kN'),#63.184 * units('kN'), #40 * units('kN'),
 ##          aircraft.engine['F_{spec}'][2] == 30.109* units('kN'),
 ##          aircraft.engine['F_{spec}'][3] == 22.182 * units('kN'),
 
@@ -960,7 +957,7 @@ if __name__ == '__main__':
             'p_s': 81.*units('cm'),
             'ReqRng': 1000*units('nmi'),
             '\\theta_{db}' : 0.366,
-            # 'CruiseAlt': 35000*units('ft'),
+            'CruiseAlt': 30000*units('ft'),
             'numeng': 2,
             'n_{pax}': 150,
             'W_{avg. pass}': 180*units('lbf'),
