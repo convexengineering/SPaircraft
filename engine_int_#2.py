@@ -332,10 +332,11 @@ class ClimbP(Model): # Climb performance constraints
             # TCS([excessP + state['V'] * self.aircraftP['D'] <= \
             #      state['V'] * aircraft['numeng'] * self.aircraft.engine['F'][:Nsplit]]),
 
-            # self.oldengineP['thrust'] == self.aircraft.engine['F'][:Nsplit],
+            # self.oldengineP['thrust'] <= self.aircraft.engine['F'][:Nsplit],
 
             RC == excessP / self.aircraftP['W_{avg}'],
             RC >= 500 * units('ft/min'),
+            self.oldengineP['TSFC'] == aircraft.engine['TSFC'][:Nsplit],
 
             # Climb angle and rate constraint
             theta * state['V'] == RC,
@@ -898,7 +899,7 @@ class Mission(Model):
             ReqRng <= sum(cruise.cruiseP['Rng']) + sum(climb.climbP['RngClimb']), #[SP]
 
             # Set the TSFC
-            climb.climbP.oldengineP['TSFC'] == .7 * units('1/hr'),
+            # climb.climbP.oldengineP['TSFC'] == .7 * units('1/hr'),
 ##            cruise.cruiseP.oldengineP['TSFC'] == .5 * units('1/hr'),
 
             # Wing fuel constraints
