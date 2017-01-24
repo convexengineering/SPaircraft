@@ -602,21 +602,15 @@ if __name__ == '__main__':
     sweep = 30 #[deg]
     
     substitutions = {      
-##            'V_{stall}': 120,
             'ReqRng': 2000, #('sweep', np.linspace(500,2000,4)),
-##            'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 1,
-##            'W_{Load_max}': 6664,
             'W_{pax}': 91 * 9.81,
             'n_{pax}': 150,
             'pax_{area}': 1,
-##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,
-##            'b_{max}': 35,
 
             #wing subs
             'C_{L_{wmax}}': 2.5,
-##            'V_{ne}': 144,
             '\\alpha_{max,w}': 0.1, # (6 deg)
             '\\cos(\\Lambda)': cos(sweep*pi/180),
             '\\eta': 0.97,
@@ -628,21 +622,15 @@ if __name__ == '__main__':
            'C_{D_{wm}}': 0.5, # [2]
            'C_{L_{vmax}}': 2.6, # [2]
            'V_1': 70,
-##           'V_{ne}': 144, # [2]
            '\\rho_{TO}': 1.225,
            '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
-##           'c_{l_{vt}}': 0.5, # [2]
            'c_{l_{vtEO}}': 0.5,
-##           'A_2': np.pi*(.5*1.75)**2, # [1]
            'e_v': 0.8,
            'l_{fuse}': 39,
-##           'x_{CG}': 18,
            'y_{eng}': 4.83, # [3]
-
            'V_{land}': 72,
            'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
            '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
-
             'N_{spar}': 2,
 
             #engine subs
@@ -662,7 +650,6 @@ if __name__ == '__main__':
 
             '\\alpha_{OD}': 5.105,
 
-##            'M_{4a}': M4a,
             'hold_{4a}': 1+.5*(1.313-1)*M4a**2,#sol('hold_{4a}'),
             'r_{uc}': .01,
             '\\alpha_c': .19036,
