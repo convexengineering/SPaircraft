@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from TASOPT_engine import Engine
 from gpkit.small_scripts import mag
 from Wing_simple_performance import Wing, WingPerformance
-##from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
+from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
 
 """
 Models requird to minimze the aircraft total fuel weight. Rate of climb equation taken from John
@@ -34,11 +34,12 @@ class Aircraft(Model):
         self.fuse = Fuselage()
         self.wing = Wing()
         self.engine = Engine(0, True, Nclimb + Ncruise, enginestate)
+        self.VT = VerticalTail()
 
         #variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
 
-        self.components = [self.fuse, self.wing, self.engine]
+        self.components = [self.fuse, self.wing, self.engine, self.VT]
 
         return self.components
         
@@ -64,8 +65,9 @@ class AircraftP(Model):
         self.aircraft = aircraft
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
+        self.VTP = aircraft.VT.dynamic(aircraft.fuse, state)
 
-        self.Pmodels = [self.wingP, self.fuseP]
+        self.Pmodels = [self.wingP, self.fuseP, self.VTP]
 
         #variable definitions
         Vstall = Variable('V_{stall}', 'knots', 'Aircraft Stall Speed')
@@ -91,7 +93,7 @@ class AircraftP(Model):
             WLoadmax == 6664 * units('N/m^2'),
 
             #compute the drag
-            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}']]),
+            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}']]),
 
             #constraint CL and compute the wing loading
             W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,      
@@ -313,78 +315,6 @@ class Atmosphere(Model):
 
         return constraints
 
-##class Wing(Model):
-##    """
-##    place holder wing model
-##    """
-##    def setup(self, ** kwargs):
-##        #new variables
-##        W_wing = Variable('W_{wing}', 'N', 'Wing Weight')
-##                           
-##        #aircraft geometry
-##        S = Variable('S', 'm^2', 'Wing Planform Area')
-##        AR = Variable('AR', '-', 'Aspect Ratio')
-##        span = Variable('b', 'm', 'Wing Span')
-##        span_max = Variable('b_{max}', 'm', 'Max Wing Span')
-##
-##        K = Variable('K', '-', 'K for Parametric Drag Model')
-##        e = Variable('e', '-', 'Oswald Span Efficiency Factor')
-##
-##        dum1 = Variable('dum1', 124.58, 'm^2')
-##        dum2 = Variable('dum2', 105384.1524, 'N')
-##        
-##        constraints = []
-##
-##        constraints.extend([
-##            #wing weight constraint
-##            #based off of a raymer weight and 737 data from TASOPT output file
-##            (S/(dum1))**.65 == W_wing/(dum2),
-##
-##            #compute wing span and aspect ratio, subject to a span constraint
-##            AR == (span**2)/S,
-##            #AR == 9,
-##
-##            span <= span_max,
-##
-##            #compute K for the aircraft
-##            K == (pi * e * AR)**-1,
-##            ])
-##
-##        return constraints
-##
-##    def dynamic(self, state):
-##        """
-##        creates an instance of the wing's performance model
-##        """
-##        return WingPerformance(self, state)
-        
-
-##class WingPerformance(Model):
-##    """
-##    wing aero modeling
-##    """
-##    def setup(self, wing, state, **kwargs):
-##        #new variables
-##        CL= Variable('C_{L}', '-', 'Lift Coefficient')
-##        Cdw = Variable('C_{d_w}', '-', 'Cd for a NC130 Airfoil at Re=2e7')
-##        Dwing = Variable('D_{wing}', 'N', 'Total Wing Drag')
-##        Lwing = Variable('L_{wing}', 'N', 'Wing Lift')
-##
-##        #constraints
-##        constraints = []
-##
-##        constraints.extend([
-##            #airfoil drag constraint
-##            Lwing == (.5*wing['S']*state.atm['\\rho']*state['V']**2)*CL,
-##            TCS([Cdw**6.5 >= (1.02458748e10 * CL**15.587947404823325 * state['M']**156.86410659495155 +
-##                         2.85612227e-13 * CL**1.2774976672501526 * state['M']**6.2534328002723703 +
-##                         2.08095341e-14 * CL**0.8825277088649582 * state['M']**0.0273667615730107 +
-##                         1.94411925e+06 * CL**5.6547413360261691 * state['M']**146.51920742858428)]),
-##            TCS([Dwing >= (.5*wing['S']*state.atm['\\rho']*state['V']**2)*(Cdw + wing['K']*CL**2)]),
-##            ])
-##
-##        return constraints
-
 class Fuselage(Model):
     """
     place holder fuselage model
@@ -401,6 +331,8 @@ class Fuselage(Model):
         A_fuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
 
+        lfuse   = Variable('l_{fuse}', 'm', 'Fuselage length')
+
         constraints = []
         
         constraints.extend([
@@ -412,6 +344,9 @@ class Fuselage(Model):
             
             #estimate based on TASOPT 737 model
             W_e == .75*W_payload,
+
+            lfuse == lfuse,
+            
             ])
 
         return constraints
@@ -430,7 +365,7 @@ class FuselagePerformance(Model):
         #new variables
         Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
         Dfuse = Variable('D_{fuse}', 'N', 'Total Fuselage Drag')
-        
+        xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
         #constraints
         constraints = []
 
@@ -438,10 +373,11 @@ class FuselagePerformance(Model):
             Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
 
             Cdfuse == .005,
+
+            xCG == 18*units('m'),
             ])
 
         return constraints
-    
 
 class Mission(Model):
     """
@@ -489,7 +425,7 @@ class Mission(Model):
         constraints.extend([
             #weight constraints
             TCS([W_dry + W_ftotal <= W_total]),
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac.wing['W_{struct}'] <= W_dry]),
+            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac.wing['W_{struct}'] + 2*ac.VT['W_{struct}'] <= W_dry]),
 
             climb['W_{start}'][0] == W_total,
             climb['W_{end}'][-1] == cruise['W_{start}'][0],
@@ -517,16 +453,9 @@ class Mission(Model):
             #compute the dh
             dhft == hftCruise/Nclimb,
 
-            #constrain the thrust
-##            climb['thrust'] <= 2 * max(cruise['thrust']),
-
             #set the range for each cruise segment, doesn't take credit for climb
             #down range disatnce covered
             cruise.cruiseP['Rng'] == ReqRng/(Ncruise),
-
-            #set the TSFC
-##            climb['TSFC'] == .7*units('1/hr'),
-##            cruise['TSFC'] == .5*units('1/hr'),
 
             #compute fuel burn from TSFC
             cruise['W_{burn}'][0] == ac['numeng']*ac.engine['TSFC'][2] * cruise['thr'] * ac.engine['F'][2],
@@ -536,13 +465,6 @@ class Mission(Model):
 
             #min climb rate constraint
             climb['RC'][0] >= RCmin,
-
-            #wing constraints
-            ac.wing['W_{fuel_{wing}}'] == W_ftotal,
-            climb.climbP.wingP['L_w'] == climb.climbP.aircraftP['W_{avg}'],
-            cruise.cruiseP.wingP['L_w'] == cruise.cruiseP.aircraftP['W_{avg}'],
-            climb['c_{m_{w}}'] == .10, # for boundedness
-            cruise['c_{m_{w}}'] == .10, # for boundedness
             ])
 
         M2 = .8
@@ -598,9 +520,38 @@ class Mission(Model):
             TCS([cruise['z_{bre}'][1] >= (ac.engine['TSFC'][3] * cruise['thr'][1]*
             cruise['D'][1]) / cruise['W_{avg}'][1]]),
             ]
+
+        wing = [
+            #wing constraints
+            ac.wing['W_{fuel_{wing}}'] == W_ftotal,
+            climb.climbP.wingP['L_w'] == climb.climbP.aircraftP['W_{avg}'],
+            cruise.cruiseP.wingP['L_w'] == cruise.cruiseP.aircraftP['W_{avg}'],
+            climb['c_{m_{w}}'] == .10, # for boundedness
+            cruise['c_{m_{w}}'] == .10, # for boundedness
+            ac.wing['V_{ne}'] == 144*units('m/s'),
+            ]
+
+        #VT constriants
+        VT = [
+            ac.VT['T_e'] == ac.engine['F'][0],
+
+            # Drag of a windmilling engine
+            ac.VT['D_{wm}'] >= 0.5*ac.VT['\\rho_{TO}']*ac.VT['V_1']**2*ac.engine['A_2']*ac.VT['C_{D_{wm}}'],
+            
+            ac.VT['x_{CG_{vt}}'] <= ac.fuse['l_{fuse}'],
+            
+            #VTP constraints
+            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + climb.climbP.aircraftP['x_{CG}'],
+            ac.VT['x_{CG_{vt}}'] >= climb.climbP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
+
+            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + cruise.cruiseP.aircraftP['x_{CG}'],
+            ac.VT['x_{CG_{vt}}'] >= cruise.cruiseP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
+
+            ac.VT['V_{ne}'] == 144*units('m/s'),
+            ]
         
         # Model.setup(self, W_ftotal + s*units('N'), constraints + ac + climb + cruise, subs)
-        return constraints + ac + climb + cruise + enginecruise + engineclimb + enginestate + statelinking
+        return constraints + ac + climb + cruise + enginecruise + engineclimb + enginestate + statelinking + VT + wing
 
     def bound_all_variables(self, model, eps=1e-30, lower=None, upper=None):
         "Returns model with additional constraints bounding all free variables"
@@ -665,13 +616,34 @@ if __name__ == '__main__':
 
             #wing subs
             'C_{L_{wmax}}': 2.5,
-            'V_{ne}': 144,
+##            'V_{ne}': 144,
             '\\alpha_{max,w}': 0.1, # (6 deg)
             '\\cos(\\Lambda)': cos(sweep*pi/180),
             '\\eta': 0.97,
             '\\rho_0': 1.225,
             '\\rho_{fuel}': 817, # Kerosene [TASOPT]
             '\\tan(\\Lambda)': tan(sweep*pi/180),
+
+            #VT subs
+           'C_{D_{wm}}': 0.5, # [2]
+           'C_{L_{vmax}}': 2.6, # [2]
+           'V_1': 70,
+##           'V_{ne}': 144, # [2]
+           '\\rho_{TO}': 1.225,
+           '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
+##           'c_{l_{vt}}': 0.5, # [2]
+           'c_{l_{vtEO}}': 0.5,
+##           'A_2': np.pi*(.5*1.75)**2, # [1]
+           'e_v': 0.8,
+           'l_{fuse}': 39,
+##           'x_{CG}': 18,
+           'y_{eng}': 4.83, # [3]
+
+           'V_{land}': 72,
+           'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
+           '\\dot{r}_{req}': 0.174533, #10 deg/s yaw rate
+
+            'N_{spar}': 2,
 
             #engine subs
             '\\pi_{tn}': .98,
