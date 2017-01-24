@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from TASOPT_engine import Engine
 from gpkit.small_scripts import mag
 from Wing_simple_performance import Wing, WingPerformance
+##from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
+
 """
 Models requird to minimze the aircraft total fuel weight. Rate of climb equation taken from John
 Anderson's Aircraft Performance and Design (eqn 5.85).
@@ -470,6 +472,7 @@ class Mission(Model):
         W_fclimb = Variable('W_{f_{climb}}', 'N', 'Fuel Weight Burned in Climb')
         W_fcruise = Variable('W_{f_{cruise}}', 'N', 'Fuel Weight Burned in Cruise')
         W_total = Variable('W_{total}', 'N', 'Total Aircraft Weight')
+        W_dry = Variable('W_{dry}', 'N', 'Total Zero Fuel Aircraft Weight')
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
@@ -485,7 +488,8 @@ class Mission(Model):
 
         constraints.extend([
             #weight constraints
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + W_ftotal + ac['numeng'] * ac['W_{engine}'] + ac.wing['W_{struct}'] <= W_total]),
+            TCS([W_dry + W_ftotal <= W_total]),
+            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac.wing['W_{struct}'] <= W_dry]),
 
             climb['W_{start}'][0] == W_total,
             climb['W_{end}'][-1] == cruise['W_{start}'][0],
@@ -498,7 +502,7 @@ class Mission(Model):
             climb['W_{start}'][1:] == climb['W_{end}'][:-1],
             cruise['W_{start}'][1:] == cruise['W_{end}'][:-1],
 
-            TCS([ac['W_{e}'] + ac['W_{payload}'] + ac['numeng'] * ac['W_{engine}'] + ac.wing['W_{struct}'] <= cruise['W_{end}'][-1]]),
+            TCS([W_dry <= cruise['W_{end}'][-1]]),
 
             TCS([W_ftotal >=  W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(climb['W_{burn}'])]),
