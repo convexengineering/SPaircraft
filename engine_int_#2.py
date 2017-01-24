@@ -99,7 +99,8 @@ class Aircraft(Model):
                             self.VT['V_{ne}'] == 144*units('m/s'),
                             # self.oldengine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'),
                             # self.oldengine['W_{engine}'] == 10000.*units('N'),
-
+                            self.oldengine['W_{engine}'] == self.engine['W_{engine}'],
+                            self.oldengine['A_2'] == self.engine['A_2'],
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \

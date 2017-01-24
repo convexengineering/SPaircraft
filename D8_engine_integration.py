@@ -114,8 +114,9 @@ class Aircraft(Model):
                             self.fuse['W_{tail}'] >= 2*self.VT['W_{struct}'] + \
                                 self.HT['W_{struct}'] + self.fuse['W_{cone}'],
 
-                            # Aero loads constant A1h
-                            self.fuse['A1h'] >= (self.fuse['N_{land}'] * self.fuse['W_{tail}'] \
+                            # Horizontal tail aero+landing loads constant A1h
+                            self.fuse['A1h'] >= (self.fuse['N_{land}'] * \
+                                                 (self.fuse['W_{tail}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{apu}']) \
                                 + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
@@ -139,6 +140,9 @@ class Aircraft(Model):
 
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
+
+                            # Engine out moment arm,
+                            self.VT['y_{eng}'] == 0.25*self.fuse['w_{fuse}'],
 
                             # Static margin constraint
                             ])
@@ -233,7 +237,6 @@ class AircraftP(Model):
             aircraft.fuse['x_{wing}'] <= aircraft.fuse['l_{fuse}']*0.6, #TODO remove
 
             # Aircraft trim conditions
-            self.wingP['c_{m_{w}}'] == 0.1,
             # SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
             #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])),
             TCS([xAC/aircraft.wing['mac'] <= self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
@@ -259,6 +262,7 @@ class AircraftP(Model):
 
             # Static margin constraint #TODO validate if this works as intended
             # SM >= aircraft['SM_{min}'],
+            self.wingP['c_{m_{w}}'] == 0.1,
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] <=
                                             aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                                           + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
@@ -1162,7 +1166,6 @@ if __name__ == '__main__':
             '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
             'c_{l_{vtEO}}': 0.5,
             'e_v': 0.8,
-            'y_{eng}': 5.2/4.*units('m'), # [3]
 
             'V_{land}': 72*units('m/s'),
             'I_{z}': 12495000, #estimate for late model 737 at max takeoff weight (m l^2/12)
