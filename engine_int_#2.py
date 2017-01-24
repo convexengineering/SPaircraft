@@ -22,9 +22,6 @@ from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerfo
 from D8_HT_simple_profile import HorizontalTail, HorizontalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from TASOPT_engine import Engine
-#--edit
-from D8_integration import Engine as OldEngine
-from D8_integration import EnginePerformance as OldEnginePerformance
 
 sweep = 30
 
@@ -75,7 +72,6 @@ class Aircraft(Model):
         # create submodels
         self.fuse = Fuselage()
         self.wing = Wing()
-        self.oldengine = OldEngine()
         self.VT = VerticalTail()
         self.HT = HorizontalTail()
         self.engine = Engine(0, True, Nclimb + Ncruise, enginestate)
@@ -97,10 +93,6 @@ class Aircraft(Model):
                             self.wing['x_w'] == self.fuse['x_{wing}'],
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
-                            # self.oldengine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'),
-                            # self.oldengine['W_{engine}'] == 10000.*units('N'),
-                            self.oldengine['W_{engine}'] == self.engine['W_{engine}'],
-                            self.oldengine['A_2'] == self.engine['A_2'],
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -118,7 +110,7 @@ class Aircraft(Model):
 
                             # Horizontal tail aero loads constant A1h
                             self.fuse['A1h'] >= (self.fuse['N_{land}'] * \
-                                                 (self.fuse['W_{tail}'] + numeng*self.oldengine['W_{engine}'] + self.fuse['W_{apu}']) \
+                                                 (self.fuse['W_{tail}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{apu}']) \
                                 + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
@@ -138,7 +130,7 @@ class Aircraft(Model):
                             self.HT['b_{ht}']/self.fuse['w_{fuse}']*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
                             # VT height constraint (4*engine radius)
-                            self.VT['b_{vt}']**2 >= 16.*self.oldengine['A_2']/np.pi,
+                            self.VT['b_{vt}']**2 >= 16.*self.engine['A_2']/np.pi,
 
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
@@ -148,7 +140,7 @@ class Aircraft(Model):
 
                             ])
 
-        self.components = [self.fuse, self.wing, self.oldengine, self.VT, self.HT, self.engine]
+        self.components = [self.fuse, self.wing, self.VT, self.HT, self.engine]
 
         return self.components, constraints
 
@@ -176,7 +168,6 @@ class AircraftP(Model):
         self.aircraft = aircraft
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
-        
         self.VTP = aircraft.VT.dynamic(aircraft.fuse,state)
         self.HTP = aircraft.HT.dynamic(aircraft.fuse,aircraft.wing,state)
         self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP]
@@ -238,7 +229,7 @@ class AircraftP(Model):
             aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Drag of a windmilling engine (VT sizing)
-            TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*self.aircraft.oldengine['A_2']*aircraft.VT['C_{D_{wm}}']]),
+            TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*self.aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
 
             # Center of gravity constraints #TODO Refine
             xCG <= 0.7*aircraft.fuse['l_{fuse}'],
@@ -258,6 +249,7 @@ class AircraftP(Model):
             # Tail aspect ratio and lift constraints
             aircraft.HT['AR_h'] >= 6, #TODO change to tip Re constraint
             self.HTP['C_{L_h}'] >= 0.01, #TODO remove
+            aircraft.VT['A_{vt}'] >= 1.5,
 
             # HT/VT moment arm constraints
             TCS([aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG]),
@@ -279,10 +271,10 @@ class AircraftP(Model):
                                             aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                                           + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
                                             aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
-            TCS([aircraft['SM_{min}'] <=
-                                            aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
-                                          + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
-                                            aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
+            # TCS([aircraft['SM_{min}'] <=
+            #                                 aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
+            #                               + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
+            #                                 aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
 
             # SignomialEquality(SM + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'],
             #                                 aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
@@ -299,10 +291,6 @@ class ClimbP(Model): # Climb performance constraints
         # submodels
         self.aircraft = aircraft
         self.aircraftP = AircraftP(aircraft, state)
-        self.wingP = self.aircraftP.wingP
-        self.fuseP = self.aircraftP.fuseP
-##        self.oldengineP = self.aircraftP.oldengineP
-        self.oldengineP = aircraft.oldengine.dynamic(state)
 
         # variable definitions
         theta = Variable('\\theta', '-', 'Aircraft Climb Angle')
@@ -312,21 +300,29 @@ class ClimbP(Model): # Climb performance constraints
             'dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
         RngClimb = Variable('RngClimb', 'nautical_miles',
                             'Down Range Covered in Each Climb Segment')
+        # Fsub = Variable('Fsub','N','Thrust substitution for climb')
 
         # constraints
         constraints = []
 
         constraints.extend([
             # Thrust >= Drag + Vertical Potential Energy
-            self.aircraft['numeng'] * self.oldengineP['thrust'] >= self.aircraftP[
+            self.aircraft['numeng'] * self.aircraft.engine['F'][:Nsplit] >= self.aircraftP[
                 'D'] + self.aircraftP['W_{avg}'] * theta,
+            # self.aircraft['numeng'] * Fsub >= self.aircraftP[
+            #     'D'] + self.aircraftP['W_{avg}'] * theta,
 
             # Excess power for climb
-            TCS([excessP + state['V'] * self.aircraftP['D'] <= state['V']
-                 * aircraft['numeng'] * self.oldengineP['thrust']]),
+            TCS([excessP + state['V'] * self.aircraftP['D'] <= \
+                 state['V'] * self.aircraft['numeng'] * self.aircraft.engine['F'][:Nsplit]]),
+            # TCS([excessP + state['V'] * self.aircraftP['D'] <= \
+            #      state['V'] * self.aircraft['numeng'] * Fsub]),
 
             RC == excessP / self.aircraftP['W_{avg}'],
             RC >= 500 * units('ft/min'),
+
+            # Fsub[0] == 63.*units('kN'),
+            # Fsub[1] == 45.*units('kN'),
 
             # Climb angle and rate constraint
             theta * state['V'] == RC,
@@ -337,8 +333,8 @@ class ClimbP(Model): # Climb performance constraints
             RngClimb == self.aircraftP['thr'] * state['V'],
 
             #Fuel burn computation
-            self.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][:Nsplit] * \
-            self.aircraftP['thr'] * aircraft.engine['F'][:Nsplit],
+            self.aircraftP['W_{burn}'] == self.aircraft['numeng'] * self.aircraft.engine['TSFC'][:Nsplit] * \
+            self.aircraftP['thr'] * self.aircraft.engine['F'][:Nsplit],
         ])
 
         return constraints + self.aircraftP
@@ -349,10 +345,6 @@ class CruiseP(Model): # Cruise performance constraints
     def setup(self, aircraft, state, Nsplit, **kwargs):
         self.aircraft = aircraft
         self.aircraftP = AircraftP(aircraft, state)
-        self.wingP = self.aircraftP.wingP
-        self.fuseP = self.aircraftP.fuseP
-##        self.oldengineP = self.aircraftP.oldengineP
-##        self.oldengineP = aircraft.oldengine.dynamic(state)
 
         # variable definitions
         z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
@@ -362,9 +354,6 @@ class CruiseP(Model): # Cruise performance constraints
 
         constraints.extend([
             # Steady level flight constraint on D
-##            self.aircraftP['D'] == aircraft[
-##                'numeng'] * self.oldengineP['thrust'],
-
             self.aircraftP['D'] == aircraft[
                 'numeng'] * aircraft['F'][Nsplit:],
 
@@ -373,8 +362,6 @@ class CruiseP(Model): # Cruise performance constraints
                  te_exp_minus1(z_bre, nterm=3)]),
 
             # Breguet range eqn
-##            TCS([z_bre >= (self.oldengineP['TSFC'] * self.aircraftP['thr'] *
-##                           self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
             TCS([z_bre >= (aircraft.engine['TSFC'][Nsplit:] * self.aircraftP['thr'] *
                self.aircraftP['D']) / self.aircraftP['W_{avg}']]),
 
@@ -839,11 +826,11 @@ class Mission(Model):
 
         # make overall constraints
         constraints = []
-
-        constraints.extend([
+        with SignomialsEnabled():
+            constraints.extend([
             # Total takeoff weight constraint
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
-                 * aircraft.oldengine['W_{engine}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
+                 * aircraft.engine['W_{engine}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
 
 
             climb.climbP.aircraftP['W_{start}'][0] == W_total,
@@ -862,7 +849,7 @@ class Mission(Model):
             cruise.cruiseP.aircraftP['W_{start}'][
                 1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft.oldengine['W_{engine}'] + \
+            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
                  aircraft.wing.wb['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >= W_fclimb + W_fcruise]),
@@ -879,33 +866,25 @@ class Mission(Model):
             dhft == hftCruise / Nclimb,
 
             # Thrust constraint
-##            climb.climbP.oldengineP['thrust'] <= 2 * max(cruise.cruiseP.oldengineP['thrust']),
-            climb.climbP.oldengineP['thrust'] <= 2 * max(cruise['F']),
-            aircraft.VT['T_e'] == climb['F'][0],
+            aircraft.VT['T_e'] == aircraft.engine['F'][0],
 
-            # Set the range for each cruise segment, doesn't take credit for
+            # Set the range for each cruise segment; take credit for
             # down range distance covered during climb
-            cruise.cruiseP['Rng'] == ReqRng / (Ncruise),
-
-            # Set the TSFC
-            climb.climbP.oldengineP['TSFC'] == .7 * units('1/hr'),
-##            cruise.cruiseP.oldengineP['TSFC'] == .5 * units('1/hr'),
+            TCS([cruise.cruiseP['Rng'] >= 0.8*ReqRng/(Ncruise)]),
+            cruise.cruiseP['Rng'][0] == cruise.cruiseP['Rng'][1],
+            ReqRng <= sum(cruise.cruiseP['Rng']) + sum(climb.climbP['RngClimb']), #[SP]
 
             # Wing fuel constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
 
-            aircraft.engine['F_{spec}'][0] == 63.184 * units('kN'),#94.971 * units('kN'),
-            aircraft.engine['F_{spec}'][1] == 40 * units('kN'),#63.184 * units('kN'),
-##            aircraft.engine['F_{spec}'][2] == 30.109* units('kN'),
-##            aircraft.engine['F_{spec}'][3] == 22.182 * units('kN'),
+            aircraft.engine['F_{spec}'][0] == 63.*units('kN'), #94.971 * units('kN'), #63.184 * units('kN'),
+            aircraft.engine['F_{spec}'][1] == 45.*units('kN'), #63.184 * units('kN'), #40 * units('kN'),
+##          aircraft.engine['F_{spec}'][2] == 30.109* units('kN'),
+##          aircraft.engine['F_{spec}'][3] == 22.182 * units('kN'),
 
-        ])
-
-##        with SignomialsEnabled():
-##            constraints.extend([
-##                SignomialEquality(W_dry, aircraft['W_{fuse}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
-##                 aircraft.wing.wb['W_{struct}']),
-##            ])
+            SignomialEquality(W_dry, aircraft['W_{fuse}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
+                aircraft.wing.wb['W_{struct}']),
+            ])
 
         M2 = .8
         M0 = .8
@@ -936,7 +915,7 @@ class Mission(Model):
             aircraft.engine.engineP['M_{2.5}'][3] == M25,
             ]
 
-        self.cost = W_ftotal * units('1/N') + (10*aircraft.engine['TSFC'][2]+aircraft.engine['TSFC'][1]+aircraft.engine['TSFC'][0]+aircraft.engine['TSFC'][3])*units('hr') * ((aircraft.engine['W_{engine}'] * units('1/N'))**.00001)
+        self.cost = W_ftotal * units('1/N') + (aircraft.engine['TSFC'][2]+aircraft.engine['TSFC'][1]+aircraft.engine['TSFC'][0]+aircraft.engine['TSFC'][3])*units('hr') * ((aircraft.engine['W_{engine}'] * units('1/N'))**.00001)
 
         return constraints, aircraft, climb, cruise, statelinking, enginestate, enginecruise, engineclimb
 
@@ -1057,7 +1036,7 @@ if __name__ == '__main__':
         m = Mission()
         m.substitutions.update(substitutions)
         # m = Model(m.cost,BCS(m))
-        sol = m.localsolve( verbosity = 4, iteration_limit=50)
+        sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:
         if sweepSMmin:
@@ -1252,7 +1231,7 @@ if __name__ == '__main__':
         if sweepW_engine:
             m = Mission()
             m.substitutions.update(substitutions)
-            W_engineArray = np.linspace(10000,75000,n) # Tiny engine to GE90 weight
+            W_engineArray = np.linspace(10000,30000,n) # Tiny engine to GE90 weight
             m.substitutions.update({'W_{engine}':('sweep',W_engineArray)})
             solW_enginesweep = m.localsolve(verbosity=2,skipsweepfailures=True,iteration_limit=30)
             if plot:
@@ -1283,6 +1262,11 @@ if __name__ == '__main__':
                 plt.title('Stringer Mass Fraction vs Engine Weight')
                 plt.savefig('CFP_Sweeps/fstring-vs-W_engine.pdf')
                 plt.show(), plt.close()
+
+        if sweepCruiseMach:
+            m = Mission()
+            m.substitutions.update(substitutions)
+            CruiseMachArray
     # template
     #             plt.plot()
     #             plt.xlabel()
