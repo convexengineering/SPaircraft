@@ -85,6 +85,10 @@ class Aircraft(Model):
         dxCG = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
         xCGmin = Variable('x_{CG_{min}}','m','Maximum Forward CG')
 
+        Izwing = Variable('I_{z_{wing}}','kg*m**2','Wing moment of inertia')
+        Iztail = Variable('I_{z_{tail}}','kg*m**2','Tail moment of inertia')
+        Izfuse = Variable('I_{z_{fuse}}','kg*m**2','Fuselage moment of inertia')
+
         constraints = []
         with SignomialsEnabled():
             constraints.extend([
@@ -140,6 +144,15 @@ class Aircraft(Model):
 
                             # Engine out moment arm,
                             self.VT['y_{eng}'] == 0.25*self.fuse['w_{fuse}'],
+
+                            # Moment of inertia
+                            Izwing >= (self.wing['W_{fuel_{wing}}'] + self.wing['W_{struct}'])/(self.wing['S']*g)* \
+                                    self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1-self.wing['\\lambda'])/16), #[SP]
+                            Iztail >= (self.fuse['W_{apu}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
+                            Izfuse >= self.fuse['W_{fuse}']/self.fuse['l_{fuse}'] * \
+                                    (xCGmin**3 + self.VT['l_{vt}']**3)/(3.*g), #+ (self.fuse['l_{fuse}'] - xCGmin)**3. #TODO determine the weird units error
+
+                            TCS([self.VT['I_{z}'] >= Izwing + Iztail + Izfuse]),
 
                             ])
 
@@ -697,7 +710,7 @@ class Fuselage(Model):
 
                 Wskin >= rhoskin * g * (Vcyl + Vnose + Vbulk),
                 Wshell >= Wskin * (1 + fstring + ffadd + fframe) + Wdb,
-                Wfuse >= Wshell + Wfloor + Wtail + Winsul + \
+                Wfuse >= Wshell + Wfloor + Winsul + \
                     Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend,
             ])
 
@@ -785,7 +798,7 @@ class Mission(Model):
         constraints.extend([
             # Total takeoff weight constraint
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
-                 * aircraft.engine['W_{engine}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
+                 * aircraft.engine['W_{engine}'] + aircraft['W_{tail}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
 
 
             climb.climbP.aircraftP['W_{start}'][0] == W_total,
@@ -804,8 +817,8 @@ class Mission(Model):
             cruise.cruiseP.aircraftP['W_{start}'][
                 1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
-                 aircraft.wing.wb['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
+            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] \
+                 + aircraft['W_{tail}'] + aircraft.wing.wb['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >= W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
@@ -839,7 +852,7 @@ class Mission(Model):
 
         with SignomialsEnabled():
             constraints.extend([
-                SignomialEquality(W_dry, aircraft['W_{fuse}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
+                SignomialEquality(W_dry, aircraft['W_{fuse}'] + aircraft['W_{tail}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
                  aircraft.wing.wb['W_{struct}']),
             ])
 
@@ -853,7 +866,7 @@ substitutions = {
         'N_{land}': 6,
         'SPR': 8,
         'p_s': 81.*units('cm'),
-        'ReqRng': 1000*units('nmi'),
+        'ReqRng': 3000*units('nmi'),
         '\\theta_{db}' : 0.366,
         'CruiseAlt': 30000*units('ft'),
         'numeng': 2,
@@ -906,7 +919,7 @@ substitutions = {
         'e_v': 0.8,
         # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72*units('m/s'),
-        'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
+        # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
         '\\dot{r}_{req}': 0.174533, # 10 deg/s yaw rate
         'N_{spar}': 2,
 
