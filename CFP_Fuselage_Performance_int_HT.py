@@ -52,13 +52,13 @@ Other markers:
 
 # Script for doing sweeps
 n = 10
-sweeps = False
-sweepSMmin = True
+sweeps = True
+sweepSMmin = False
 sweepdxCG = True
 sweepReqRng = False
-sweepthetadb = False
-sweepxCG = False
-sweepCruiseAlt = False
+sweepthetadb = True
+sweepxCG = True
+sweepCruiseAlt = True
 sweepW_engine = True
 
 plot = True
@@ -251,6 +251,11 @@ class AircraftP(Model):
             xCG <= 0.7*aircraft.fuse['l_{fuse}'],
             xCG >= aircraft['x_{CG_{min}}'],
             xAC >= xCG,
+
+            # TCS([xCG*W_avg >= (0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+            #         + (aircraft['W_{tail}']+aircraft['numeng']*aircraft*['W_{engine}'])*aircraft['x_{tail}'] \
+            #         + (aircraft.wing['W_{struct']*aircraft['x_wing']))]),
+
 
             # Wing location constraints
             aircraft.fuse['x_{wing}'] >= aircraft.fuse['l_{fuse}']*0.5, #TODO remove
