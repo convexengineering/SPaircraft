@@ -116,7 +116,7 @@ class Aircraft(Model):
                                 + self.fuse['r_{M_h}'] * Lhmax) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
-                            Lhmax == 35000*units('N'),
+                            Lhmax == 15000*units('N'),
 
                             # Lift curve slope ratio for HT and Wing
                             # SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['ARh']),
@@ -193,22 +193,22 @@ class AircraftP(Model):
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
 
-        Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
-        W_buoy = Variable('W_{buoy}','lbf','Buoyancy Weight')
-        Tcabin = Variable('T_{cabin}','K','Cabin Air Temperature')
-        rhocabin = Variable('rho_{cabin}','kg/m^3','Cabin Air Density')
+        # Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
+        # W_buoy = Variable('W_{buoy}','lbf','Buoyancy Weight')
+        # Tcabin = Variable('T_{cabin}','K','Cabin Air Temperature')
+        # rhocabin = Variable('rho_{cabin}','kg/m^3','Cabin Air Density')
 
         constraints = []
 
         with SignomialsEnabled():
             constraints.extend([
             # Cabin Air properties
-            rhocabin == Pcabin/(state['R']*Tcabin),
-            Pcabin == 75000*units('Pa'),
-            Tcabin == 297*units('K'),
+            # rhocabin == Pcabin/(state['R']*Tcabin),
+            # Pcabin == 75000*units('Pa'),
+            # Tcabin == 297*units('K'),
 
             # Buoyancy weight
-            SignomialEquality(W_buoy,(rhocabin - state['\\rho'])*g*aircraft['V_{cabin}']),
+            # SignomialEquality(W_buoy,(rhocabin - state['\\rho'])*g*aircraft['V_{cabin}']),
 
             # speed must be greater than stall speed
             state['V'] >= Vstall,
@@ -238,8 +238,8 @@ class AircraftP(Model):
 
             # Center of gravity constraints #TODO Refine
             xCG == 0.55*aircraft.fuse['l_{fuse}'],
-            xCG >= aircraft['x_{CG_{min}}'],
-            xAC >= xCG,
+            # xCG >= aircraft['x_{CG_{min}}'],
+            # xAC >= xCG,
 
             # Wing location constraints
             # aircraft.fuse['x_{wing}'] >= aircraft.fuse['l_{fuse}']*0.5, #TODO remove
@@ -882,8 +882,8 @@ class Mission(Model):
             # Wing fuel constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
 
-            aircraft.engine['F_{spec}'][0] == 63.*units('kN'), #94.971 * units('kN'), #63.184 * units('kN'),
-            aircraft.engine['F_{spec}'][1] == 45.*units('kN'), #63.184 * units('kN'), #40 * units('kN'),
+            # aircraft.engine['F_{spec}'][0] == 63.*units('kN'), #94.971 * units('kN'), #63.184 * units('kN'),
+            # aircraft.engine['F_{spec}'][1] == 45.*units('kN'), #63.184 * units('kN'), #40 * units('kN'),
 ##          aircraft.engine['F_{spec}'][2] == 30.109* units('kN'),
 ##          aircraft.engine['F_{spec}'][3] == 22.182 * units('kN'),
 
@@ -937,7 +937,7 @@ if __name__ == '__main__':
             'p_s': 81.*units('cm'),
             'ReqRng': 1000*units('nmi'),
             '\\theta_{db}' : 0.366,
-            'CruiseAlt': 30000*units('ft'),
+            # 'CruiseAlt': 30000*units('ft'),
             'numeng': 2,
             'n_{pax}': 150,
             'W_{avg. pass}': 180*units('lbf'),
@@ -998,7 +998,7 @@ if __name__ == '__main__':
             # 'CL_{h_{max}}': 2.5,
             'SM_{min}': 0.05,
             '\\Delta x_{CG}': 2.0*units('m'),
-            'x_{CG_{min}}' : 10.0*units('m'),
+            'x_{CG_{min}}' : 1.0*units('m'),
 
             # Engine substitutions
     ##        'W_{engine}': 40000, # Engine weight substitution
@@ -1129,7 +1129,7 @@ if __name__ == '__main__':
         m = Mission()
         m.substitutions.update(substitutions)
         # m = Model(m.cost,BCS(m))
-        sol = m.localsolve( verbosity = 3, iteration_limit=50)
+        sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:
         if sweepSMmin:
