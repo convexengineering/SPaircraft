@@ -608,11 +608,12 @@ class WingNoStruct(Model):
                 taper >= 0.2, # TODO
 
                 # Fuel volume [TASOPT doc]
-                TCS([Afuel <= wwn*0.92*tau]),
+                TCS([Afuel <= wwn*.92*tau]),
                 # GP approx of the signomial constraint:
-                # Afuel <= (w - 2*tweb)*(0.92*tau - 2*tcap),
-                Vfuel <= croot**2 * (b/6) * (1+taper+taper**2)*cosL,
-                WfuelWing <= rhofuel*Afuel*Vfuel*g,
+##                Afuel <= (w - 2*tweb)*(0.92*tau - 2*tcap),
+                Vfuel <= croot**2 * (b/6) * (1+taper+taper**2)*cosL + croot**2 * (b/2),
+##                Vfuel <= croot**2 * (b) * (1+taper+taper**2)*cosL,
+                TCS([WfuelWing <= rhofuel*Afuel*Vfuel*g]),
                   
                 Lmax == 0.5*rho0*Vne**2*Sw*CLwmax,
                 ])
@@ -755,8 +756,15 @@ class WingBox(Model):
 
                        # Total wing weight using an additional weight fraction
                        Wstruct >= (1 + fwadd)*(Wweb + Wcap),
+
+ 
                        ]
-        
+
+##        with SignomialsEnabled():
+##            constraints.extend([
+##                      #edit
+##                       surface['\\bar{A}_{fuel, max}'] <= (surface['wwn']*0.92*tau- 2*tweb*0.92*tau - surface['wwn']*2*tcap + 2*tweb*2*tcap),
+##                       ])
         return constraints
 
 if __name__ == '__main__':
@@ -769,12 +777,10 @@ if __name__ == '__main__':
             'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 1,
-##            'W_{Load_max}': 6664,
             'W_{pax}': 91 * 9.81,
             'n_{pax}': 150,
             'pax_{area}': 1,
-##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
-
+            
             #wing subs
             'C_{L_{wmax}}': 2.5,
             'V_{ne}': 144,
