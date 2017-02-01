@@ -705,9 +705,8 @@ class Fuselage(Model):
                 Vnose == Snose * tskin,
                 Vbulk == Sbulk * tskin,
                 Vdb == Adb * lshell,
-                # TODO Revert to posynomial after debugging
                 # [SP] #[SPEquality]
-                SignomialEquality(Vcabin, Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse)),
+                Vcabin >= Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse),
 
                 # Weight relations
                 Wapu == Wpay * fapu,
