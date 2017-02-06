@@ -19,7 +19,7 @@ class Aircraft(Model):
 
         self.components = [self.wing]
 
-        constraints = [Wdry >= Wstruct + Wpay]
+        constraints = [Wdry >= Wstruct + Wpay + self.wing["W"]]
 
         return constraints, self.components
 
@@ -93,13 +93,16 @@ class FlightState(Model):
         a = Variable('a', 'm/s', 'Speed of Sound')
         Rspec = Variable('R_{spec}', 287, 'J/kg/K', 'Air Specific Heat')
         gamma = Variable('\\gamma', 1.4, '-', 'Air Specific Heat Ratio')
-        M = Variable('M', '-', 'Mach Number')
+        m = Variable('M', '-', 'Mach Number')
         Tatm = Variable("T_{atm}", "K", "air temperature")
+        Tsl = Variable("T_{sl}", 288.15, "K", "sea level temperature")
         rho = Variable('\\rho', 'kg/m^3', 'Density of air')
+        rhosl = Variable('\\rho_{sl}', 'kg/m^3', 'Density of air')
         mu = Variable('\\mu', 'kg/(m*s)', 'Dynamic viscosity')
 
         constraints = [a == (gamma*Rspec*Tatm)**.5,
-                       V == M * a,
+                       V == m*a,
+                       Tatm/Tsl == (rho/rhosl)**0.23490721
                       ]
 
         return constraints
@@ -113,6 +116,7 @@ class Wing(Model):
         b = Variable('b', 'm', 'Wing Span')
         K = Variable('K', '-', 'K for Parametric Drag Model')
         e = Variable('e', '-', 'Oswald Span Efficiency Factor')
+        W = Variable('W', 1, 'N', 'Wing Weight')
 
         constraints = [
             AR == b**2/S,
