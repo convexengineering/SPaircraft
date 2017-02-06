@@ -31,7 +31,7 @@ class Mission(Model):
     """
     def setup(self, Nclimb, Ncruise, substitutions = None, **kwargs):
         ac = Aircraft(Nclimb, Ncruise)
-        
+
         #Vectorize
         with Vectorize(Nclimb):
             climb = ClimbSegment(ac)
@@ -88,7 +88,7 @@ class Mission(Model):
             TCS([hftClimb[0] >= dhft[0]]),
             hftClimb[-1] <= hftCruise,
 
-            #compute the dhand 
+            #compute the dhand
             dhfthold == hftCruise[0]/Nclimb,
 
             dhft == dhfthold,
@@ -96,9 +96,9 @@ class Mission(Model):
             #set the range for each cruise segment, doesn't take credit for climb
             #down range disatnce covered
             cruise.cruiseP['Rng'] == ReqRng/(Ncruise),
-            
+
             #compute fuel burn from TSFC
-            cruise['W_{burn}'] == ac['numeng']*cruise['TSFC'] * cruise['thr'] * cruise['F'],              
+            cruise['W_{burn}'] == ac['numeng']*cruise['TSFC'] * cruise['thr'] * cruise['F'],
             climb['W_{burn}'] == ac['numeng']*climb['TSFC'] * climb['thr'] * climb['F'],
 
             #min climb rate constraint
@@ -131,22 +131,22 @@ class Mission(Model):
         M25 = .6
 
         enginecruise = [
-            #steady level flight constraint on D 
+            #steady level flight constraint on D
             cruise['D'] == ac['numeng'] * cruise['F'],
 
             #breguet range eqn
             TCS([cruise['z_{bre}'] >= (cruise['TSFC'] * cruise['thr']*
             cruise['D']) / cruise['W_{avg}']]),
             ]
-        
+
         return constraints + ac + climb + cruise + enginecruise + engineclimb
 
 if __name__ == '__main__':
     plotRC = False
     plotR = False
     plotAlt = False
-        
-    substitutions = {      
+
+    substitutions = {
             'ReqRng': 2000,
             'numeng': 2,
             'W_{pax}': 91 * 9.81,
@@ -157,7 +157,7 @@ if __name__ == '__main__':
 
             'RC_{min}': 500,
             }
-           
+
     mission = Mission(2, 2)
     m = Model(mission['W_{f_{total}}'], mission, substitutions)
     sol = m.localsolve(solver='mosek', verbosity = 4)
@@ -215,7 +215,7 @@ if __name__ == '__main__':
 
                 'RC_{min}': 500,
                 }
-        
+
         mission = Mission(2, 2)
         m = Model(mission['W_{f_{total}}'], mission, substitutions, x0=x0)
         solRsweep = m.localsolve(solver='mosek', verbosity = 4, skipsweepfailures=True)
@@ -254,7 +254,7 @@ if __name__ == '__main__':
         plt.title('Fan Area vs Range')
         plt.savefig('engine_Rsweeps/fan_area_R.pdf')
         plt.show()
-        
+
         irc = []
         f = []
         f6 = []
@@ -264,7 +264,7 @@ if __name__ == '__main__':
         maxm = []
         maxF = []
         cruiseF = []
-        
+
         i=0
         while i < len(solRsweep('RC')):
             irc.append(mag(solRsweep('RC')[i][0]))
@@ -435,7 +435,7 @@ if __name__ == '__main__':
         plt.show()
 
     if plotAlt == True:
-        substitutions = {      
+        substitutions = {
                 'ReqRng': 2000,
                 'CruiseAlt': ('sweep', np.linspace(30000,40000,20)),
                 'numeng': 1,
@@ -479,7 +479,7 @@ if __name__ == '__main__':
 
                 'RC_{min}': 1000,
                 }
-               
+
         mmission = Mission(2, 8)
         m = Model(mission['W_{f_{total}}'], mission, substitutions)
         solAltsweep = m.localsolve(solver='mosek', verbosity = 4, skipsweepfailures=True)
@@ -631,7 +631,7 @@ if __name__ == '__main__':
 
                 'RC_{min}': ('sweep', np.linspace(1000,7000,60)),
                 }
-        
+
         mission = Mission(2, 2)
         m = Model(mission['W_{f_{total}}'], mission, substitutions, x0=x0)
         solRCsweep = m.localsolve(solver='mosek', verbosity = 2, skipsweepfailures=True)

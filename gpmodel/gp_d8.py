@@ -1,6 +1,6 @@
 " gp model of GA aircraft "
 import numpy as np
-from gpkit import Model, Variable, units, Vectorize
+from gpkit import Model, Variable, Vectorize
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import Tight as TCS
 
@@ -8,9 +8,9 @@ from gpkit.constraints.tight import Tight as TCS
 
 class Aircraft(Model):
     "Aircraft class"
-    def setup(self):
+    def setup(self, wing):
 
-        self.wing = Wing()
+        self.wing = wing
 
         Wpay = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
         Wstruct = Variable("W_{struct}", "N", "structural weight")
@@ -93,7 +93,6 @@ class FlightState(Model):
         a = Variable('a', 'm/s', 'Speed of Sound')
         Rspec = Variable('R_{spec}', 287, 'J/kg/K', 'Air Specific Heat')
         gamma = Variable('\\gamma', 1.4, '-', 'Air Specific Heat Ratio')
-        gamma = Variable('\\gamma', 1.4, '-', 'Air Specific Heat Ratio')
         M = Variable('M', '-', 'Mach Number')
         Tatm = Variable("T_{atm}", "K", "air temperature")
         rho = Variable('\\rho', 'kg/m^3', 'Density of air')
@@ -116,6 +115,33 @@ class Wing(Model):
         e = Variable('e', '-', 'Oswald Span Efficiency Factor')
 
         constraints = [
+            AR == b**2/S,
+            K == (np.pi*e*AR)**-1,
+            ]
+
+        return constraints
+
+    def dynamic(self, state):
+        " wing aero "
+        return WingPerf(self, state)
+
+class WingRaymer(Model):
+    """
+    place holder wing model
+    """
+    def setup(self):
+
+        W = Variable('W', 'N', 'Wing Weight')
+        S = Variable('S', 'm^2', 'Wing Planform Area')
+        AR = Variable('AR', '-', 'Aspect Ratio')
+        b = Variable('b', 'm', 'Wing Span')
+        K = Variable('K', '-', 'K for Parametric Drag Model')
+        e = Variable('e', '-', 'Oswald Span Efficiency Factor')
+        dum1 = Variable('dum1', 124.58, 'm^2')
+        dum2 = Variable('dum2', 105384.1524, 'N')
+
+        constraints = [
+            (S/(dum1))**.65 * (AR/10.1)**.5 == W/(dum2),
             AR == b**2/S,
             K == (np.pi*e*AR)**-1,
             ]
@@ -154,11 +180,9 @@ class WingPerf(Model):
 
 class Mission(Model):
     " fly a mission "
-    def setup(self):
+    def setup(self, aircraft, Ncruise=3):
 
-        ac = Aircraft()
-
-        cruise = FlightSegment(ac, N=3)
+        cruise = FlightSegment(aircraft, N=Ncruise)
 
         mission = [cruise]
 
@@ -167,13 +191,13 @@ class Mission(Model):
 
         constraints = [
             Wtot == mission[0]["W_{start}"][0],
-            Wtot >= Wfueltot + ac["W_{dry}"],
+            Wtot >= Wfueltot + aircraft["W_{dry}"],
             Wfueltot >= sum([fs["W_{fuel}"] for fs in mission]),
-            mission[-1]["W_{end}"][-1] >= ac["W_{dry}"],
-            ac["W_{struct}"] >= Wtot*ac["f_{struct}"]
+            mission[-1]["W_{end}"][-1] >= aircraft["W_{dry}"],
+            aircraft["W_{struct}"] >= Wtot*aircraft["f_{struct}"]
             ]
 
-        return ac, mission, constraints
+        return aircraft, mission, constraints
 
 def subbing(model, substitutions):
     " sub in dict "
@@ -184,11 +208,17 @@ def subbing(model, substitutions):
         else:
             model.substitutions.update({s: substitutions[s]})
 
-if __name__ == "__main__":
-    M = Mission()
+def init_subs(model):
+    " initialize substitutions "
     subs = {"W_{payload}": 1000, "f_{struct}": 0.5, "V_{stall}": 120,
             "TSFC": 0.7, "R": 1000, "T_{atm}": 223, "\\rho": 0.4135,
             "AR": 15, "e": 0.9, "CDA": 0.01}
-    subbing(M, subs)
+    subbing(model, subs)
+
+if __name__ == "__main__":
+    wing = Wing()
+    aircraft = Aircraft(wing)
+    M = Mission(aircraft)
+    init_subs(M)
     M.cost = M["W_{fuel-tot}"]
     sol = M.solve("mosek")
