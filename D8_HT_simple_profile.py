@@ -548,38 +548,30 @@ if __name__ == '__main__':
             'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 2,
-##            'W_{Load_max}': 6664,
             'W_{pax}': 91 * 9.81,
             'n_{pax}': 150,
             'pax_{area}': 1,
-##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,
-            'b_{max}': 10000,
-             'C_{L_{hmax}}': 2.5,
-             '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-             'w_{fuse}': 6,
+            'b_{max}': 60,
 
-##            'l_{fuse}': 30,
+            #HT subs
+            'C_{L_{hmax}}': 2.5,
+            '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+            'w_{fuse}': 6,
             'c_{m_{w}}': 1,
             'C_{L_{max}}': 2,
-
             '\\alpha_{max,h}': 2.5,
-
-     
             'SM_{min}': 0.5,
-
             '\\Delta x_{CG}': 4,
 
 ##            'x_{CG}': [17, 18],
-             #think about how to constrain this
-             'x_w': 19,
-
+            #think about how to constrain this
+            'x_w': 19,
             'mac': 2,
             }
     mission = Mission(aircraft)
     m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
     sol = m.localsolve(solver='mosek', verbosity = 4)
-##    bounds, sol = m.determine_unbounded_variables(m, solver="mosek",verbosity=4, iteration_limit=100)
 
     # if plot == True:
 
