@@ -64,6 +64,8 @@ sweepMmin = True
 
 plot = True
 
+D80 = True
+
 g = 9.81 * units('m*s**-2')
 
 class Aircraft(Model):
@@ -145,6 +147,10 @@ class Aircraft(Model):
 
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
+
+                            # Vertical bending material coefficient (VT aero loads)
+                            self.fuse['B1v'] == self.fuse['r_{M_v}']*2.*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
+
 
                             # Wing root chord constraint #TODO find better constraint
                             # self.wing['c_{root}'] <= 0.25*self.fuse['l_{fuse}'],
@@ -495,21 +501,21 @@ class Fuselage(Model):
                            'Horizontal bending area at rear wingbox')
         Ahbendf = Variable('A_{hbendf}', 'm^2',
                            'Horizontal bending area at front wingbox')
-        # Avbendb = Variable('A_{vbendb}', 'm^2',
-        #                    'Vertical bending material area at rear wingbox')
-        # B0           = Variable('B0','m^2','Vertical bending area constant B0') #(shell inertia contribution)
-        # B1           = Variable('B1','m','Vertical bending area constant B1')
+        Avbendb = Variable('A_{vbendb}', 'm^2',
+                           'Vertical bending material area at rear wingbox')
+        B0v           = Variable('B0v','m^2','Vertical bending area constant B0') #(shell inertia contribution)
+        B1v         = Variable('B1v','m','Vertical bending area constant B1')
         # #(vertical tail bending load)
         Ihshell = Variable('I_{hshell}', 'm^4',
                            'Shell horizontal bending inertia')
-        #Ivshell      = Variable('I_{vshell}','m^4','Shell vertical bending inertia')
+        Ivshell      = Variable('I_{vshell}','m^4','Shell vertical bending inertia')
         rMh = Variable('r_{M_h}', .4, '-','Horizontal inertial relief factor')  # [TAS]
         rMv = Variable('r_{M_v}', .7, '-','Vertical inertial relief factor')  # [TAS]
         sigbend = Variable('\\sigma_{bend}', 'N/m^2',
                            'Bending material stress')
         sigMh = Variable('\\sigma_{M_h}', 'N/m^2',
                          'Horizontal bending material stress')
-        #sigMv        = Variable('\\sigma_{M_v}','N/m^2','Vertical bending material stress')
+        sigMv        = Variable('\\sigma_{M_v}','N/m^2','Vertical bending material stress')
         Vhbend = Variable('V_{hbend}', 'm^3',
                           'Horizontal bending material volume')
         Vhbendb = Variable(
@@ -518,15 +524,14 @@ class Fuselage(Model):
                            'Horizontal bending material volume c') # center fuselage
         Vhbendf = Variable('V_{hbendf}', 'm^3',
                            'Horizontal bending material volume f') # front fuselage
-        #Vvbend       = Variable('V_{vbend}','m^3','Vertical bending material volume')
-        # Vvbendb      = Variable('V_{vbendb}','m^3','Vertical bending material volume b') #back fuselage
-        # Vvbendc      = Variable('V_{vbendc}','m^3','Vertical bending material
-        # volume c') #center fuselage
+        Vvbend       = Variable('V_{vbend}','m^3','Vertical bending material volume')
+        Vvbendb      = Variable('V_{vbendb}','m^3','Vertical bending material volume b') #back fuselage
+        Vvbendc      = Variable('V_{vbendc}','m^3','Vertical bending material volume c') #center fuselage
         Whbend = Variable('W_{hbend}', 'lbf',
                           'Horizontal bending material weight')
-        #Wvbend       = Variable('W_{vbend}','N','Vertical bending material weight')
+        Wvbend       = Variable('W_{vbend}','N','Vertical bending material weight')
         xhbend = Variable('x_{hbend}', 'm', 'Horizontal zero bending location')
-        #xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
+        xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
 
         # Material properties
         rE = Variable('r_E', 1., '-', 'Ratio of stringer/skin moduli')  # [TAS] # [b757 freight doc]
@@ -622,8 +627,6 @@ class Fuselage(Model):
                 Adb == (2 * hdb) * tdb,
                 Afuse >= (pi + 2 * thetadb + 2 * thetadb * \
                           (1 - thetadb**2 / 2)) * Rfuse**2,  # [SP]
-                # Afuse       >= (pi + 4*thetadb)*Rfuse**2, #Bad approx, should
-                # improve
                 Askin >= (2 * pi + 4 * thetadb) * Rfuse * \
                 tskin + Adb,  # no delta R for now
                 wfloor == .5 * wfuse,
@@ -665,22 +668,21 @@ class Fuselage(Model):
                 Wcone >= rhocone * g * Vcone * (1 + fstring + fframe),
                 SignomialEquality(xtail, lnose + lshell + .5 * lcone),  #[SP] #[SPEquality]
                 
-                # Horizontal bending model
+                # BENDING MODEL
                 # Maximum axial stress is the sum of bending and pressurization
                 # stresses
                 Ihshell <= ((pi + 4 * thetadb) * Rfuse**2) * \
                 Rfuse * tshell + 2 / 3 * hdb**3 * tdb,  # [SP]
-                # Ivshell <= (pi*Rfuse**2 + 8*wdb*Rfuse +
-                # (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell
+                Ivshell <= (pi*Rfuse**2 + 8*wdb*Rfuse +
+                (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell
                 # approximation needs to be improved
                 sigbend == rE * sigskin,
 
                 # Horizontal bending material model
-                # Calculating xbend, the location where additional bending
+                # Calculating xhbend, the location where additional bending
                 # material is required
                 xhbend >= xwing,
-                # [SP] #[SPEquality]
-                SignomialEquality(A0h, A2h * (xshell2 - xhbend) ** 2 + A1h * (xtail - xhbend)),
+                SignomialEquality(A0h, A2h * (xshell2 - xhbend) ** 2 + A1h * (xtail - xhbend)), # [SP] #[SPEquality]
                 A2h >= Nland * (Wpay + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
                 (2 * lshell * hfuse * sigMh),  # Landing loads constant A2h
                 # Shell inertia constant A0h
@@ -697,11 +699,26 @@ class Fuselage(Model):
                 Vhbend >= Vhbendc + Vhbendf + Vhbendb,
                 Whbend >= g * rhobend * Vhbend,
 
+                # Vertical bending material model
+                # Calculating xvbend, the location where additional bending
+                # material is required
+                xvbend >= xwing,
+                SignomialEquality(B0v, B1v * (xtail - xhbend)), # [SP] #[SPEquality]
+                #B1v definition in Aircraft()
+                B0v == Ivshell/(rE*wfuse**2),
+                Avbendb >= B1v * (xtail - xb) - B0v,
+                Vvbendb >= 0.5*B1v * ((xtail-xb)**2 - (xtail - xvbend)**2) - B0v * (xvbend - xb),
+                Vvbendc >= 0.5*Avbendb*c0*w,
+                Vvbend >= Vvbendb + Vvbendc,
+                Wvbend >= rhobend*g*Vvbend,
+
                 # Wing variable substitutions
                 SignomialEquality(xf, xwing + .5 * c0 * w),  # [SP] [SPEquality]
                 SignomialEquality(xb, xwing - .5 * c0 * w),  # [SP] [SPEquality]
 
                 sigMh <= sigbend - rE * dPover / 2 * Rfuse / tshell,
+                sigMv <= sigbend - rE * dPover / 2 * Rfuse / tshell,
+
 
                 # Volume relations
                 Vcyl == Askin * lshell,
@@ -723,7 +740,7 @@ class Fuselage(Model):
                 Wskin >= rhoskin * g * (Vcyl + Vnose + Vbulk),
                 Wshell >= Wskin * (1 + fstring + ffadd + fframe) + Wdb,
                 Wfuse >= Wshell + Wfloor + Winsul + \
-                    Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend,
+                    Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend + Wvbend,
             ])
 
         return constraints
@@ -963,6 +980,11 @@ if __name__ == '__main__':
         m = Mission()
         m.substitutions.update(substitutions)
         # m = Model(m.cost,BCS(m))
+        if D80:
+            print('D80 executing...')
+            for constraint in m.flat(constraintsets=False):
+                    if 'l_{nose}' in constraint.varkeys:
+                        print constraint
         sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:
@@ -1246,4 +1268,6 @@ if __name__ == '__main__':
                 plt.title('Cruise Altitude vs. Minimum Cruise Mach Number')
                 plt.savefig('CFP_Sweeps/CruiseAlt-vs-Mmin.pdf')
                 plt.show(),plt.close()
+
+
 
