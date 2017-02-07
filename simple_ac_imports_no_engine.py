@@ -531,7 +531,6 @@ class FuselagePerformance(Model):
         #new variables
         Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
         Dfuse = Variable('D_{fuse}', 'N', 'Total Fuselage Drag')
-        xCG    = Variable('x_{CG}', 'm', 'x-location of CG')
         Cmfu    = Variable('C_{m_{fuse}}', '-', 'Moment coefficient (fuselage)')
         
         #constraints
@@ -543,8 +542,6 @@ class FuselagePerformance(Model):
             Cdfuse == .005,
 
             Cmfu == .05,
-
-            xCG == 18*units('m'),
             ])
 
         return constraints
