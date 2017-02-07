@@ -62,7 +62,7 @@ sweepCruiseAlt = False
 sweepW_engine = False
 sweepMmin = True
 
-plot = False
+plot = True
 
 g = 9.81 * units('m*s**-2')
 
@@ -145,6 +145,9 @@ class Aircraft(Model):
 
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
+
+                            # Wing root chord constraint #TODO find better constraint
+                            # self.wing['c_{root}'] <= 0.25*self.fuse['l_{fuse}'],
 
                             # Engine out moment arm,
                             self.VT['y_{eng}'] == 0.25*self.fuse['w_{fuse}'],
@@ -881,9 +884,9 @@ substitutions = {
         'p_s': 81.*units('cm'),
         'ReqRng': 3000*units('nmi'),
         '\\theta_{db}' : 0.366,
-        # 'CruiseAlt': 30000*units('ft'),
+        'CruiseAlt': 36632*units('ft'),
         'numeng': 2,
-        'n_{pax}': 150,
+        'n_{pax}': 180,
         'W_{avg. pass}': 180*units('lbf'),
         'W_{carry on}': 15*units('lbf'),
         'W_{cargo}': 10000*units('N'),
@@ -945,13 +948,13 @@ substitutions = {
         'x_{CG_{min}}' : 13.0*units('m'),
 
         # Engine substitutions
-        'W_{engine}': 40000, # Engine weight substitution
+        'W_{engine}': 20000, # Engine weight substitution
         'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
 
         # Cabin air substitutions in AircraftP
 
         # Minimum Cruise Mach Number
-        'M_{min}': 0.3,
+        'M_{min}': 0.8,
 }
 
 if __name__ == '__main__':
@@ -1238,5 +1241,9 @@ if __name__ == '__main__':
                 plt.show(),plt.close()
 
                 plt.plot(solMminsweep('M_{min}'),solMminsweep('CruiseAlt'))
-
+                plt.xlabel('Minimum Cruise Mach Number')
+                plt.ylabel('Cruise Altitude')
+                plt.title('Cruise Altitude vs. Minimum Cruise Mach Number')
+                plt.savefig('CFP_Sweeps/CruiseAlt-vs-Mmin.pdf')
+                plt.show(),plt.close()
 
