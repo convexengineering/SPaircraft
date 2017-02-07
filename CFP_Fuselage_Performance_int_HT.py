@@ -52,14 +52,15 @@ Other markers:
 
 # Script for doing sweeps
 n = 10
-sweeps = True
+sweeps = False
 sweepSMmin = False
-sweepdxCG = True
+sweepdxCG = False
 sweepReqRng = False
-sweepthetadb = True
-sweepxCG = True
-sweepCruiseAlt = True
-sweepW_engine = True
+sweepthetadb = False
+sweepxCG = False
+sweepCruiseAlt = False
+sweepW_engine = False
+sweepMmin = True
 
 plot = True
 
@@ -88,6 +89,9 @@ class Aircraft(Model):
         Izwing = Variable('I_{z_{wing}}','kg*m**2','Wing moment of inertia')
         Iztail = Variable('I_{z_{tail}}','kg*m**2','Tail moment of inertia')
         Izfuse = Variable('I_{z_{fuse}}','kg*m**2','Fuselage moment of inertia')
+
+        Mmin = Variable('M_{min}','-','Minimum Cruise Mach Number')
+
 
         constraints = []
         with SignomialsEnabled():
@@ -142,6 +146,9 @@ class Aircraft(Model):
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
 
+                            # Wing root chord constraint #TODO find better constraint
+                            # self.wing['c_{root}'] <= 0.25*self.fuse['l_{fuse}'],
+
                             # Engine out moment arm,
                             self.VT['y_{eng}'] == 0.25*self.fuse['w_{fuse}'],
 
@@ -149,7 +156,7 @@ class Aircraft(Model):
                             Izwing >= (self.wing['W_{fuel_{wing}}'] + self.wing['W_{struct}'])/(self.wing['S']*g)* \
                                     self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1-self.wing['\\lambda'])/16), #[SP]
                             Iztail >= (self.fuse['W_{apu}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
-                            Izfuse >= self.fuse['W_{fuse}']/self.fuse['l_{fuse}'] * \
+                            Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
                                     (xCGmin**3 + self.VT['l_{vt}']**3)/(3.*g), #+ (self.fuse['l_{fuse}'] - xCGmin)**3. #TODO determine the weird units error
 
                             TCS([self.VT['I_{z}'] >= Izwing + Iztail + Izfuse]),
@@ -300,6 +307,7 @@ class AircraftP(Model):
             #                                 aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
             #                               + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
             #                                 aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']),
+
            ])
 
         return self.Pmodels, constraints
@@ -700,9 +708,8 @@ class Fuselage(Model):
                 Vnose == Snose * tskin,
                 Vbulk == Sbulk * tskin,
                 Vdb == Adb * lshell,
-                # TODO Revert to posynomial after debugging
                 # [SP] #[SPEquality]
-                SignomialEquality(Vcabin, Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse)),
+                Vcabin >= Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse),
 
                 # Weight relations
                 Wapu == Wpay * fapu,
@@ -830,7 +837,8 @@ class Mission(Model):
             TCS([W_fcruise >= sum(cruise.cruiseP['W_{burn}'])]),
 
             # Altitude constraints
-            hftCruise == CruiseAlt,
+            hftCruise >= CruiseAlt,
+            hftCruise <= 40000*units('ft'),
             TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise - 1] + dhft]),
             TCS([hftClimb[0] >= dhft[0]]),
             hftClimb[-1] <= hftCruise,
@@ -853,6 +861,9 @@ class Mission(Model):
             # Wing fuel constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
 
+            # Cruise Mach Number constraint
+            cruise['M'] >= aircraft['M_{min}'],
+
         ])
 
         with SignomialsEnabled():
@@ -873,9 +884,9 @@ substitutions = {
         'p_s': 81.*units('cm'),
         'ReqRng': 3000*units('nmi'),
         '\\theta_{db}' : 0.366,
-        'CruiseAlt': 30000*units('ft'),
+        'CruiseAlt': 36632*units('ft'),
         'numeng': 2,
-        'n_{pax}': 150,
+        'n_{pax}': 180,
         'W_{avg. pass}': 180*units('lbf'),
         'W_{carry on}': 15*units('lbf'),
         'W_{cargo}': 10000*units('N'),
@@ -937,10 +948,13 @@ substitutions = {
         'x_{CG_{min}}' : 13.0*units('m'),
 
         # Engine substitutions
-        'W_{engine}': 40000, # Engine weight substitution
+        'W_{engine}': 20000, # Engine weight substitution
         'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
 
         # Cabin air substitutions in AircraftP
+
+        # Minimum Cruise Mach Number
+        'M_{min}': 0.8,
 }
 
 if __name__ == '__main__':
@@ -1175,11 +1189,61 @@ if __name__ == '__main__':
                 plt.title('Stringer Mass Fraction vs Engine Weight')
                 plt.savefig('CFP_Sweeps/fstring-vs-W_engine.pdf')
                 plt.show(), plt.close()
-    # template
-    #             plt.plot()
-    #             plt.xlabel()
-    #             plt.ylabel()
-    #             plt.title()
-    #             plt.savefig('CFP_Sweeps/')
 
+        if sweepMmin:
+            m = Mission()
+            m.substitutions.update(substitutions)
+            MminArray = np.linspace(0.4,0.9,n) # No lower limit to high Mach
+            m.substitutions.update({'M_{min}':('sweep',MminArray)})
+            solMminsweep = m.localsolve(verbosity=2,skipsweepfailures=True,iteration_limit=30)
+
+            if plot:
+                plt.plot(solMminsweep('M_{min}'),solMminsweep('W_{f_{total}}'))
+                plt.xlabel('Minimum Cruise Mach Number')
+                plt.ylabel('Total Fuel Weight [lbf]')
+                plt.title('Total Fuel Weight vs Minimum Cruise Mach Number')
+                plt.savefig('CFP_Sweeps/Wftotal-vs-Mmin.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solMminsweep('M_{min}'),solMminsweep('M_Mission, CruiseSegment, FlightState')[:,0])
+                plt.xlabel('Minimum Cruise Mach Number')
+                plt.ylabel('TOC Mach Number')
+                plt.title('TOC vs Minimum Cruise Mach Number')
+                plt.savefig('CFP_Sweeps/M-vs-Mmin.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solMminsweep('M_{min}'),solMminsweep('W_{dry}'))
+                plt.xlabel('Minimum Cruise Mach Number')
+                plt.ylabel('Aircraft Dry Weight [lbf]')
+                plt.title('Aircraft Dry Weight vs Minimum Cruise Mach Number')
+                plt.savefig('CFP_Sweeps/W_dry-vs-Mmin.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solMminsweep('M_{min}'),solMminsweep('b'))
+                plt.xlabel('Minimum Cruise Mach Number')
+                plt.ylabel('Wingspan [m]')
+                plt.title('Wing Span vs Minimum Cruise Mach Number')
+                plt.savefig('CFP_Sweeps/b-vs-Mmin.pdf')
+                plt.show(), plt.close()
+
+                plt.plot(solMminsweep('M_{min}'),solMminsweep('AR'))
+                plt.xlabel('Minimum Cruise Mach Number')
+                plt.ylabel('Aspect Ratio')
+                plt.title('Aspect Ratio vs Minimum Cruise Mach Number')
+                plt.savefig('CFP_Sweeps/AR-vs-Mmin.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solMminsweep('M_{min}'),solMminsweep('S'))
+                plt.xlabel('Minimum Cruise Mach Number')
+                plt.ylabel('Wing Area [m^2]')
+                plt.title('Wing Are vs. Minimum Cruise Mach Number')
+                plt.savefig('CFP_Sweeps/S-vs-Mmin.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solMminsweep('M_{min}'),solMminsweep('CruiseAlt'))
+                plt.xlabel('Minimum Cruise Mach Number')
+                plt.ylabel('Cruise Altitude')
+                plt.title('Cruise Altitude vs. Minimum Cruise Mach Number')
+                plt.savefig('CFP_Sweeps/CruiseAlt-vs-Mmin.pdf')
+                plt.show(),plt.close()
 
