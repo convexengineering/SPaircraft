@@ -94,6 +94,9 @@ class Aircraft(Model):
 
         Mmin = Variable('M_{min}','-','Minimum Cruise Mach Number')
 
+        Wwing = Variable('W_{wing}','lbf','Wing Weight')
+        WHT = Variable('W_{HT}','lbf','Horizontal Tail Weight')
+        WVT = Variable('W_{VT}','lbf','Vertical Tail Weight')
 
         constraints = []
         with SignomialsEnabled():
@@ -106,6 +109,9 @@ class Aircraft(Model):
                             # self.engine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'),
                             # self.engine['W_{engine}'] == 10000.*units('N'),
 
+                            Wwing == self.wing['W_{struct}'],
+                            WHT == self.HT['W_{struct}'],
+                            WVT == self.VT['W_{struct}'],
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -118,8 +124,8 @@ class Aircraft(Model):
                                   (self.fuse['l_{cone}'] / self.fuse['R_{fuse}'])]), #[SP]
 
                             # Tail weight
-                            self.fuse['W_{tail}'] >= 2*self.VT['W_{struct}'] + \
-                                self.HT['W_{struct}'] + self.fuse['W_{cone}'],
+                            self.fuse['W_{tail}'] >= 2*WVT + \
+                                WHT + self.fuse['W_{cone}'],
 
                             # Horizontal tail aero+landing loads constant A1h
                             self.fuse['A1h'] >= (self.fuse['N_{land}'] * \
@@ -159,7 +165,7 @@ class Aircraft(Model):
                             self.VT['y_{eng}'] == 0.25*self.fuse['w_{fuse}'],
 
                             # Moment of inertia
-                            Izwing >= (self.wing['W_{fuel_{wing}}'] + self.wing['W_{struct}'])/(self.wing['S']*g)* \
+                            Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
                                     self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1-self.wing['\\lambda'])/16), #[SP]
                             Iztail >= (self.fuse['W_{apu}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
                             Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
@@ -200,10 +206,10 @@ class AircraftP(Model):
         Vstall = Variable('V_{stall}',120, 'knots', 'Aircraft Stall Speed')
         D = Variable('D', 'N', 'Total Aircraft Drag')
         W_avg = Variable(
-            'W_{avg}', 'N', 'Geometric Average of Segment Start and End Weight')
-        W_start = Variable('W_{start}', 'N', 'Segment Start Weight')
-        W_end = Variable('W_{end}', 'N', 'Segment End Weight')
-        W_burn = Variable('W_{burn}', 'N', 'Segment Fuel Burn Weight')
+            'W_{avg}', 'lbf', 'Geometric Average of Segment Start and End Weight')
+        W_start = Variable('W_{start}', 'lbf', 'Segment Start Weight')
+        W_end = Variable('W_{end}', 'lbf', 'Segment End Weight')
+        W_burn = Variable('W_{burn}', 'lbf', 'Segment Fuel Burn Weight')
         WLoadmax = Variable('W_{Load_max}',6664, 'N/m^2', 'Max Wing Loading')
         WLoad = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
@@ -529,7 +535,7 @@ class Fuselage(Model):
         Vvbendc      = Variable('V_{vbendc}','m^3','Vertical bending material volume c') #center fuselage
         Whbend = Variable('W_{hbend}', 'lbf',
                           'Horizontal bending material weight')
-        Wvbend       = Variable('W_{vbend}','N','Vertical bending material weight')
+        Wvbend       = Variable('W_{vbend}','lbf','Vertical bending material weight')
         xhbend = Variable('x_{hbend}', 'm', 'Horizontal zero bending location')
         xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
 
@@ -827,7 +833,7 @@ class Mission(Model):
         constraints.extend([
             # Total takeoff weight constraint
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
-                 * aircraft.engine['W_{engine}'] + aircraft['W_{tail}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
+                 * aircraft.engine['W_{engine}'] + aircraft['W_{tail}'] + aircraft['W_{wing}'] <= W_total]),
 
 
             climb.climbP.aircraftP['W_{start}'][0] == W_total,
@@ -847,7 +853,7 @@ class Mission(Model):
                 1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] \
-                 + aircraft['W_{tail}'] + aircraft.wing.wb['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
+                 + aircraft['W_{tail}'] + aircraft['W_{wing}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >= W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
@@ -886,7 +892,7 @@ class Mission(Model):
         with SignomialsEnabled():
             constraints.extend([
                 SignomialEquality(W_dry, aircraft['W_{fuse}'] + aircraft['W_{tail}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
-                 aircraft.wing.wb['W_{struct}']),
+                 aircraft['W_{wing}']),
             ])
 
         self.cost = W_ftotal
@@ -923,7 +929,7 @@ substitutions = {
         '\\tau_{floor}': 30000 / 0.000145, # [TAS] [Al]
         'W\'\'_{floor}': 60,  # [TAS]
         'W\'\'_{insul}': 22,  # [TAS]
-        'W\'_{seat}': 150,  # [TAS]
+        'W\'_{seat}': 150*units('N'),  # [TAS]
         'W\'_{window}': 145. * 3,  # [TAS]
 
         # Fractional weights
@@ -965,7 +971,7 @@ substitutions = {
         'x_{CG_{min}}' : 13.0*units('m'),
 
         # Engine substitutions
-        'W_{engine}': 20000, # Engine weight substitution
+        'W_{engine}': 20000*units('N'), # Engine weight substitution
         'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
 
         # Cabin air substitutions in AircraftP
@@ -1268,6 +1274,4 @@ if __name__ == '__main__':
                 plt.title('Cruise Altitude vs. Minimum Cruise Mach Number')
                 plt.savefig('CFP_Sweeps/CruiseAlt-vs-Mmin.pdf')
                 plt.show(),plt.close()
-
-
 
