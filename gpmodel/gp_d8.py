@@ -58,8 +58,10 @@ class FlightSegment(Model):
     "flight segment that include cruise and climb"
     def setup(self, aircraft, N=3):
 
+        rho = Variable('\\rho', 'kg/m^3', 'Density of air')
+
         with Vectorize(N):
-            self.state = FlightState()
+            self.state = FlightState(rho)
             self.perf = aircraft.dynamic(self.state)
             Wstart = Variable('W_{start}', 'N', 'Segment Start Weight')
             Wend = Variable('W_{end}', 'N', 'Segment End Weight')
@@ -87,7 +89,7 @@ class FlightSegment(Model):
 
 class FlightState(Model):
     " flight state, air and velocity "
-    def setup(self):
+    def setup(self, rho):
 
         V = Variable('V', 'kts', 'Aircraft Flight Speed')
         a = Variable('a', 'm/s', 'Speed of Sound')
@@ -96,9 +98,7 @@ class FlightState(Model):
         m = Variable('M', '-', 'Mach Number')
         Tatm = Variable("T_{atm}", "K", "air temperature")
         Tsl = Variable("T_{sl}", 288.15, "K", "sea level temperature")
-        rho = Variable('\\rho', 'kg/m^3', 'Density of air')
-        rhosl = Variable('\\rho_{sl}', 'kg/m^3', 'Density of air')
-        mu = Variable('\\mu', 'kg/(m*s)', 'Dynamic viscosity')
+        rhosl = Variable('\\rho_{sl}', 1.225, 'kg/m^3', 'Density of air')
 
         constraints = [a == (gamma*Rspec*Tatm)**.5,
                        V == m*a,
@@ -215,8 +215,8 @@ def subbing(model, substitutions):
 def init_subs(model):
     " initialize substitutions "
     subs = {"W_{payload}": 1000, "f_{struct}": 0.5, "V_{stall}": 120,
-            "TSFC": 0.7, "R": 1000, "T_{atm}": 223, "\\rho": 0.4135,
-            "AR": 15, "e": 0.9, "CDA": 0.01}
+            "TSFC": 0.7, "R": 1000, "\\rho": 0.4135,
+            "AR": 15, "e": 0.9, "CDA": 0.1}
     subbing(model, subs)
 
 if __name__ == "__main__":
