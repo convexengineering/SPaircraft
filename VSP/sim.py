@@ -98,8 +98,16 @@ resultsDict = {
     'HGZBRNOPIRD':float(ctip.magnitude), # Wing tip chord
 
     # Fuselage variables
+    'HOVDTKFGFQC':float(lfuse.magnitude), # Fuselage length
     'KBKZBHMUHEP':float((lnose/lfuse).magnitude), # Nose location as % of fuse length
     'OVEJIBRDSBJ':float(1. - (lcone/lfuse).magnitude), # Tailcone location as % of fuse length
+    'JMWPVNGZBYQ':float(2.0*hfuse.magnitude), # Fuselage height
+    'KFWNCSRQOCQ':float(wfuse.magnitude), # Fuselage width
+    'WKRLDITVGSF':float(2.0*hfuse.magnitude), # Fuselage height
+    'TBCZTWFMJDM':float(wfuse.magnitude), # Fuselage width
+    'JOBWSWPMZIB':float(2.0*hfuse.magnitude), # Fuselage height
+    'HPKOTUWYSIY':float(wfuse.magnitude), # Fuselage width
+
 
     # VT variables
     'LLYTEYDPDID':float(xCGmin.magnitude + dxleadvt.magnitude),# VT x location (LE location)
