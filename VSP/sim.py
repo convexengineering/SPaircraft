@@ -54,7 +54,7 @@ xCGht = sol('x_{CG_{ht}}')
 crootht = sol('c_{root_h}')
 ctipht = sol('c_{tip_h}')
 bht = sol('b_{ht}')
-# dxleadht = sol('\\Delta x_{{lead}_h}')
+xCGht = sol('x_{CG_{ht}}')
 lht = sol('l_{ht}')
 tanht = sol('\\tan(\\Lambda_{ht})')
 
@@ -110,7 +110,7 @@ resultsDict = {
 
 
     # VT variables
-    'LLYTEYDPDID':float(xCGmin.magnitude + dxleadvt.magnitude),# VT x location (LE location)
+    'LLYTEYDPDID':float(xCGvt.magnitude - 0.5*crootvt.magnitude), # VT x location (LE location)
     'BFZDOVCXTAV':float(wfuse.magnitude/2),                    # VT y location (as wide as fuselage)
     'FQDVQTUBLUX':float(0.5),                                  # VT z location (0.5 m off the widest point of the fuselage)
     'JXFRWSLYWDH':float(bvt.magnitude),                        # VT span
@@ -118,7 +118,7 @@ resultsDict = {
     'CUIMIUZJQMS':float(ctipvt.magnitude),                     # VT tip chord
 
     # HT Variables
-    'USGQFZQKJWC':float((xCGmin + dxleadvt + tanvt*bvt).magnitude),                   # HT x location # - 1.5*tanht*0.5*wfuse
+    'USGQFZQKJWC':float(xCGht.magnitude - 0.5*crootht.magnitude - 1.5*tanht*0.5*wfuse.magnitude), # HT x location
     'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),                                         # HT z location
     'IFZAMYYJPRP':float(30.),                                                             # HT sweep
     'CHYQUCYJMPS':float(bht.magnitude*0.5),                                               # HT half-span

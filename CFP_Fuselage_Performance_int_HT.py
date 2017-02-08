@@ -971,7 +971,7 @@ substitutions = {
         'x_{CG_{min}}' : 13.0*units('m'),
 
         # Engine substitutions
-        'W_{engine}': 20000*units('N'), # Engine weight substitution
+        'W_{engine}': 20000, # Engine weight substitution
         'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
 
         # Cabin air substitutions in AircraftP
