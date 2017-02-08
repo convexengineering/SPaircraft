@@ -61,8 +61,11 @@ sweepxCG = False
 sweepCruiseAlt = False
 sweepW_engine = False
 sweepMmin = True
+sweepnpax = True
 
 plot = True
+
+D80 = True
 
 g = 9.81 * units('m*s**-2')
 
@@ -92,6 +95,9 @@ class Aircraft(Model):
 
         Mmin = Variable('M_{min}','-','Minimum Cruise Mach Number')
 
+        Wwing = Variable('W_{wing}','lbf','Wing Weight')
+        WHT = Variable('W_{HT}','lbf','Horizontal Tail Weight')
+        WVT = Variable('W_{VT}','lbf','Vertical Tail Weight')
 
         constraints = []
         with SignomialsEnabled():
@@ -104,6 +110,9 @@ class Aircraft(Model):
                             # self.engine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'),
                             # self.engine['W_{engine}'] == 10000.*units('N'),
 
+                            Wwing == self.wing['W_{struct}'],
+                            WHT == self.HT['W_{struct}'],
+                            WVT == self.VT['W_{struct}'],
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -116,8 +125,8 @@ class Aircraft(Model):
                                   (self.fuse['l_{cone}'] / self.fuse['R_{fuse}'])]), #[SP]
 
                             # Tail weight
-                            self.fuse['W_{tail}'] >= 2*self.VT['W_{struct}'] + \
-                                self.HT['W_{struct}'] + self.fuse['W_{cone}'],
+                            self.fuse['W_{tail}'] >= 2*WVT + \
+                                WHT + self.fuse['W_{cone}'],
 
                             # Horizontal tail aero+landing loads constant A1h
                             self.fuse['A1h'] >= (self.fuse['N_{land}'] * \
@@ -146,6 +155,10 @@ class Aircraft(Model):
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
 
+                            # Vertical bending material coefficient (VT aero loads)
+                            self.fuse['B1v'] == self.fuse['r_{M_v}']*2.*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
+
+
                             # Wing root chord constraint #TODO find better constraint
                             # self.wing['c_{root}'] <= 0.25*self.fuse['l_{fuse}'],
 
@@ -153,7 +166,7 @@ class Aircraft(Model):
                             self.VT['y_{eng}'] == 0.25*self.fuse['w_{fuse}'],
 
                             # Moment of inertia
-                            Izwing >= (self.wing['W_{fuel_{wing}}'] + self.wing['W_{struct}'])/(self.wing['S']*g)* \
+                            Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
                                     self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1-self.wing['\\lambda'])/16), #[SP]
                             Iztail >= (self.fuse['W_{apu}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
                             Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
@@ -194,10 +207,10 @@ class AircraftP(Model):
         Vstall = Variable('V_{stall}',120, 'knots', 'Aircraft Stall Speed')
         D = Variable('D', 'N', 'Total Aircraft Drag')
         W_avg = Variable(
-            'W_{avg}', 'N', 'Geometric Average of Segment Start and End Weight')
-        W_start = Variable('W_{start}', 'N', 'Segment Start Weight')
-        W_end = Variable('W_{end}', 'N', 'Segment End Weight')
-        W_burn = Variable('W_{burn}', 'N', 'Segment Fuel Burn Weight')
+            'W_{avg}', 'lbf', 'Geometric Average of Segment Start and End Weight')
+        W_start = Variable('W_{start}', 'lbf', 'Segment Start Weight')
+        W_end = Variable('W_{end}', 'lbf', 'Segment End Weight')
+        W_burn = Variable('W_{burn}', 'lbf', 'Segment Fuel Burn Weight')
         WLoadmax = Variable('W_{Load_max}',6664, 'N/m^2', 'Max Wing Loading')
         WLoad = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
@@ -495,21 +508,21 @@ class Fuselage(Model):
                            'Horizontal bending area at rear wingbox')
         Ahbendf = Variable('A_{hbendf}', 'm^2',
                            'Horizontal bending area at front wingbox')
-        # Avbendb = Variable('A_{vbendb}', 'm^2',
-        #                    'Vertical bending material area at rear wingbox')
-        # B0           = Variable('B0','m^2','Vertical bending area constant B0') #(shell inertia contribution)
-        # B1           = Variable('B1','m','Vertical bending area constant B1')
+        Avbendb = Variable('A_{vbendb}', 'm^2',
+                           'Vertical bending material area at rear wingbox')
+        B0v           = Variable('B0v','m^2','Vertical bending area constant B0') #(shell inertia contribution)
+        B1v         = Variable('B1v','m','Vertical bending area constant B1')
         # #(vertical tail bending load)
         Ihshell = Variable('I_{hshell}', 'm^4',
                            'Shell horizontal bending inertia')
-        #Ivshell      = Variable('I_{vshell}','m^4','Shell vertical bending inertia')
+        Ivshell      = Variable('I_{vshell}','m^4','Shell vertical bending inertia')
         rMh = Variable('r_{M_h}', .4, '-','Horizontal inertial relief factor')  # [TAS]
         rMv = Variable('r_{M_v}', .7, '-','Vertical inertial relief factor')  # [TAS]
         sigbend = Variable('\\sigma_{bend}', 'N/m^2',
                            'Bending material stress')
         sigMh = Variable('\\sigma_{M_h}', 'N/m^2',
                          'Horizontal bending material stress')
-        #sigMv        = Variable('\\sigma_{M_v}','N/m^2','Vertical bending material stress')
+        sigMv        = Variable('\\sigma_{M_v}','N/m^2','Vertical bending material stress')
         Vhbend = Variable('V_{hbend}', 'm^3',
                           'Horizontal bending material volume')
         Vhbendb = Variable(
@@ -518,15 +531,14 @@ class Fuselage(Model):
                            'Horizontal bending material volume c') # center fuselage
         Vhbendf = Variable('V_{hbendf}', 'm^3',
                            'Horizontal bending material volume f') # front fuselage
-        #Vvbend       = Variable('V_{vbend}','m^3','Vertical bending material volume')
-        # Vvbendb      = Variable('V_{vbendb}','m^3','Vertical bending material volume b') #back fuselage
-        # Vvbendc      = Variable('V_{vbendc}','m^3','Vertical bending material
-        # volume c') #center fuselage
+        Vvbend       = Variable('V_{vbend}','m^3','Vertical bending material volume')
+        Vvbendb      = Variable('V_{vbendb}','m^3','Vertical bending material volume b') #back fuselage
+        Vvbendc      = Variable('V_{vbendc}','m^3','Vertical bending material volume c') #center fuselage
         Whbend = Variable('W_{hbend}', 'lbf',
                           'Horizontal bending material weight')
-        #Wvbend       = Variable('W_{vbend}','N','Vertical bending material weight')
+        Wvbend       = Variable('W_{vbend}','lbf','Vertical bending material weight')
         xhbend = Variable('x_{hbend}', 'm', 'Horizontal zero bending location')
-        #xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
+        xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
 
         # Material properties
         rE = Variable('r_E', 1., '-', 'Ratio of stringer/skin moduli')  # [TAS] # [b757 freight doc]
@@ -622,8 +634,6 @@ class Fuselage(Model):
                 Adb == (2 * hdb) * tdb,
                 Afuse >= (pi + 2 * thetadb + 2 * thetadb * \
                           (1 - thetadb**2 / 2)) * Rfuse**2,  # [SP]
-                # Afuse       >= (pi + 4*thetadb)*Rfuse**2, #Bad approx, should
-                # improve
                 Askin >= (2 * pi + 4 * thetadb) * Rfuse * \
                 tskin + Adb,  # no delta R for now
                 wfloor == .5 * wfuse,
@@ -665,22 +675,21 @@ class Fuselage(Model):
                 Wcone >= rhocone * g * Vcone * (1 + fstring + fframe),
                 SignomialEquality(xtail, lnose + lshell + .5 * lcone),  #[SP] #[SPEquality]
                 
-                # Horizontal bending model
+                # BENDING MODEL
                 # Maximum axial stress is the sum of bending and pressurization
                 # stresses
                 Ihshell <= ((pi + 4 * thetadb) * Rfuse**2) * \
                 Rfuse * tshell + 2 / 3 * hdb**3 * tdb,  # [SP]
-                # Ivshell <= (pi*Rfuse**2 + 8*wdb*Rfuse +
-                # (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell
+                Ivshell <= (pi*Rfuse**2 + 8*wdb*Rfuse +
+                (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell
                 # approximation needs to be improved
                 sigbend == rE * sigskin,
 
                 # Horizontal bending material model
-                # Calculating xbend, the location where additional bending
+                # Calculating xhbend, the location where additional bending
                 # material is required
                 xhbend >= xwing,
-                # [SP] #[SPEquality]
-                SignomialEquality(A0h, A2h * (xshell2 - xhbend) ** 2 + A1h * (xtail - xhbend)),
+                SignomialEquality(A0h, A2h * (xshell2 - xhbend) ** 2 + A1h * (xtail - xhbend)), # [SP] #[SPEquality]
                 A2h >= Nland * (Wpay + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
                 (2 * lshell * hfuse * sigMh),  # Landing loads constant A2h
                 # Shell inertia constant A0h
@@ -697,11 +706,26 @@ class Fuselage(Model):
                 Vhbend >= Vhbendc + Vhbendf + Vhbendb,
                 Whbend >= g * rhobend * Vhbend,
 
+                # Vertical bending material model
+                # Calculating xvbend, the location where additional bending
+                # material is required
+                xvbend >= xwing,
+                SignomialEquality(B0v, B1v * (xtail - xhbend)), # [SP] #[SPEquality]
+                #B1v definition in Aircraft()
+                B0v == Ivshell/(rE*wfuse**2),
+                Avbendb >= B1v * (xtail - xb) - B0v,
+                Vvbendb >= 0.5*B1v * ((xtail-xb)**2 - (xtail - xvbend)**2) - B0v * (xvbend - xb),
+                Vvbendc >= 0.5*Avbendb*c0*w,
+                Vvbend >= Vvbendb + Vvbendc,
+                Wvbend >= rhobend*g*Vvbend,
+
                 # Wing variable substitutions
                 SignomialEquality(xf, xwing + .5 * c0 * w),  # [SP] [SPEquality]
                 SignomialEquality(xb, xwing - .5 * c0 * w),  # [SP] [SPEquality]
 
                 sigMh <= sigbend - rE * dPover / 2 * Rfuse / tshell,
+                sigMv <= sigbend - rE * dPover / 2 * Rfuse / tshell,
+
 
                 # Volume relations
                 Vcyl == Askin * lshell,
@@ -723,7 +747,7 @@ class Fuselage(Model):
                 Wskin >= rhoskin * g * (Vcyl + Vnose + Vbulk),
                 Wshell >= Wskin * (1 + fstring + ffadd + fframe) + Wdb,
                 Wfuse >= Wshell + Wfloor + Winsul + \
-                    Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend,
+                    Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend + Wvbend,
             ])
 
         return constraints
@@ -810,7 +834,7 @@ class Mission(Model):
         constraints.extend([
             # Total takeoff weight constraint
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
-                 * aircraft.engine['W_{engine}'] + aircraft['W_{tail}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
+                 * aircraft.engine['W_{engine}'] + aircraft['W_{tail}'] + aircraft['W_{wing}'] <= W_total]),
 
 
             climb.climbP.aircraftP['W_{start}'][0] == W_total,
@@ -830,7 +854,7 @@ class Mission(Model):
                 1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] \
-                 + aircraft['W_{tail}'] + aircraft.wing.wb['W_{struct}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
+                 + aircraft['W_{tail}'] + aircraft['W_{wing}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >= W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(climb.climbP['W_{burn}'])]),
@@ -869,7 +893,7 @@ class Mission(Model):
         with SignomialsEnabled():
             constraints.extend([
                 SignomialEquality(W_dry, aircraft['W_{fuse}'] + aircraft['W_{tail}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
-                 aircraft.wing.wb['W_{struct}']),
+                 aircraft['W_{wing}']),
             ])
 
         self.cost = W_ftotal
@@ -906,7 +930,7 @@ substitutions = {
         '\\tau_{floor}': 30000 / 0.000145, # [TAS] [Al]
         'W\'\'_{floor}': 60,  # [TAS]
         'W\'\'_{insul}': 22,  # [TAS]
-        'W\'_{seat}': 150,  # [TAS]
+        'W\'_{seat}': 150*units('N'),  # [TAS]
         'W\'_{window}': 145. * 3,  # [TAS]
 
         # Fractional weights
@@ -963,6 +987,11 @@ if __name__ == '__main__':
         m = Mission()
         m.substitutions.update(substitutions)
         # m = Model(m.cost,BCS(m))
+        if D80:
+            print('D80 executing...')
+            for constraint in m.flat(constraintsets=False):
+                    if 'l_{nose}' in constraint.varkeys:
+                        print constraint
         sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:
@@ -1246,4 +1275,78 @@ if __name__ == '__main__':
                 plt.title('Cruise Altitude vs. Minimum Cruise Mach Number')
                 plt.savefig('CFP_Sweeps/CruiseAlt-vs-Mmin.pdf')
                 plt.show(),plt.close()
+
+        if sweepnpax:
+            m = Mission()
+            m.substitutions.update(substitutions)
+            npaxArray = np.linspace(150,400,n)
+            m.substitutions.update({'n_{pax}':('sweep',npaxArray)})
+            solnpaxsweep = m.localsolve(verbosity=2,skipsweepfailures=True,iteration_limit=30)
+
+            if plot:
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{total}')),
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Takeoff Weight [lbf]')
+                plt.title('Takeoff Weight vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/Wtotal-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{f_{total}}'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Total Fuel Weight [lbf]')
+                plt.title('Total Fuel Weight vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/Wftotal-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('AR'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Aspect Ratio')
+                plt.title('Aspect Ratio vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/AR-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('CruiseAlt'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Cruise Altitude [ft]')
+                plt.title('Cruise Altitude vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/CruiseAlt-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('S'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Wing Area [m^2]')
+                plt.title('Wing Area vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/S-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{fuse}'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Fuselage Weight [lbf]')
+                plt.title('Fuselage Weight vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/Wfuse-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{f_{total}}')/solnpaxsweep('W_{total}'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Fuel Mass Fraction')
+                plt.title('Fuel Mass Fraction vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/ffuel-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{payload}')/solnpaxsweep('W_{total}'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Payload Mass Fraction')
+                plt.title('Payload Mass Fraction vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/fpayload-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{wing}')/solnpaxsweep('W_{total}'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Wing Mass Fraction')
+                plt.title('Wing Mass Fraction vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/fwing-vs-npax.pdf')
+                plt.show(),plt.close()
+
+
+
 
