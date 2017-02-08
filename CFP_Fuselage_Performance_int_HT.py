@@ -61,6 +61,7 @@ sweepxCG = False
 sweepCruiseAlt = False
 sweepW_engine = False
 sweepMmin = True
+sweepnpax = True
 
 plot = True
 
@@ -1274,4 +1275,78 @@ if __name__ == '__main__':
                 plt.title('Cruise Altitude vs. Minimum Cruise Mach Number')
                 plt.savefig('CFP_Sweeps/CruiseAlt-vs-Mmin.pdf')
                 plt.show(),plt.close()
+
+        if sweepnpax:
+            m = Mission()
+            m.substitutions.update(substitutions)
+            npaxArray = np.linspace(150,400,n)
+            m.substitutions.update({'n_{pax}':('sweep',npaxArray)})
+            solnpaxsweep = m.localsolve(verbosity=2,skipsweepfailures=True,iteration_limit=30)
+
+            if plot:
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{total}')),
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Takeoff Weight [lbf]')
+                plt.title('Takeoff Weight vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/Wtotal-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{f_{total}}'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Total Fuel Weight [lbf]')
+                plt.title('Total Fuel Weight vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/Wftotal-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('AR'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Aspect Ratio')
+                plt.title('Aspect Ratio vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/AR-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('CruiseAlt'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Cruise Altitude [ft]')
+                plt.title('Cruise Altitude vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/CruiseAlt-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('S'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Wing Area [m^2]')
+                plt.title('Wing Area vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/S-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{fuse}'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Fuselage Weight [lbf]')
+                plt.title('Fuselage Weight vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/Wfuse-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{f_{total}}')/solnpaxsweep('W_{total}'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Fuel Mass Fraction')
+                plt.title('Fuel Mass Fraction vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/ffuel-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{payload}')/solnpaxsweep('W_{total}'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Payload Mass Fraction')
+                plt.title('Payload Mass Fraction vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/fpayload-vs-npax.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('W_{wing}')/solnpaxsweep('W_{total}'))
+                plt.xlabel('Number of Passengers')
+                plt.ylabel('Wing Mass Fraction')
+                plt.title('Wing Mass Fraction vs Number of Passengers')
+                plt.savefig('CFP_Sweeps/fwing-vs-npax.pdf')
+                plt.show(),plt.close()
+
+
+
 
