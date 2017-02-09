@@ -975,7 +975,7 @@ substitutions = {
         'x_{CG_{min}}' : 13.0*units('m'),
 
         # Engine substitutions
-        'W_{engine}': 20000, # Engine weight substitution
+        'W_{engine}': 14295.3*0.454/9.81, # Engine weight substitution
         'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
 
         # Cabin air substitutions in AircraftP
@@ -992,9 +992,16 @@ if __name__ == '__main__':
         # m = Model(m.cost,BCS(m))
         if D80:
             print('D80 executing...')
-            for constraint in m.flat(constraintsets=False):
-                    if 'l_{nose}' in constraint.varkeys:
-                        print constraint
+            # for constraint in m.flat(constraintsets=False):
+            #         if 'l_{nose}' in constraint.varkeys:
+            #             print constraint
+            m.substitutions.update({
+                'f_{string}':0.35,
+                'W_{engine}': 14295.3*0.454/9.81, #units('N')
+                'AR':10.8730,
+                'b':116.548*units('ft'),
+                'c_0': 17.4*units('ft'),
+            })
         sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:
