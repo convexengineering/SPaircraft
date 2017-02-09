@@ -40,9 +40,11 @@ S = sol('S')
 xwing = sol('x_{wing}')
 
 # Fuselage descriptors
+hfloor = sol('h_{floor}')
 lnose = sol('l_{nose}')
 lshell = sol('l_{shell}')
 lcone = sol('l_{cone}')
+lfloor = sol('l_{floor}')
 lfuse = sol('l_{fuse}')
 hfuse = sol('h_{fuse}')
 wfuse = sol('w_{fuse}')
@@ -90,12 +92,19 @@ A_2 = sol('A_2_Mission, Aircraft, Engine') # Engine frontal area
 
 
 resultsDict = {
-    # Wing variables
-    'AYJHHOVUHBI':float(b.magnitude*0.5), # Wing half-span
-    'UOBOGEWYYZZ':float((xwing - 0.5*croot).magnitude), # Wing x-location
-    'MOGKYBMVMPD':float(-1*hfuse.magnitude + 0.2), # Wing z-location
-    'NNIHPEXRTCP':float(croot.magnitude), # Wing root chord
-    'HGZBRNOPIRD':float(ctip.magnitude), # Wing tip chord
+    # Engine Variables
+    'REBAHPKXPRR':float(xCGvt.magnitude), # Engine x location
+    'GKMTRGNCEVD':float((wdb + 0.4*Rfuse).magnitude), #Engine y location
+    'XFTWTTHLVRI':float(hfuse.magnitude - (2*(A_2/pi)**0.5/10).magnitude), # Engine z location
+    'JTPPOOJVVPE':float((2*(A_2/pi)**0.5).magnitude),# Engine length
+    'QRBDHPAPDFX':float(2), # Engine fineness ratio (set at 2 for now)
+
+    # Floor Variables
+    'MCVUEHMJBGG':float(hfloor.magnitude),  # Floor height
+    'EVDJZIXRYSR':float(lfloor.magnitude), # Floor length
+    'SKXVOFXEYEZ':float(wfuse.magnitude), # Floor width
+    'KNNNINRHVVJ':float(lnose.magnitude-Rfuse.magnitude), # Floor x location (beginning of cyl section)
+    'AFIOFOUHMWM':float(-0.5 - 0.5*hfloor.magnitude), # Floor z location (offset from thickest section)
 
     # Fuselage variables
     'HOVDTKFGFQC':float(lfuse.magnitude), # Fuselage length
@@ -108,6 +117,13 @@ resultsDict = {
     'JOBWSWPMZIB':float(2.0*hfuse.magnitude), # Fuselage height
     'HPKOTUWYSIY':float(wfuse.magnitude), # Fuselage width
 
+    # HT Variables
+    'USGQFZQKJWC':float(xCGht.magnitude - 0.5*crootht.magnitude - 1.5*tanht*0.5*wfuse.magnitude), # HT x location
+    'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),                                         # HT z location
+    'IFZAMYYJPRP':float(30.),                                                             # HT sweep
+    'CHYQUCYJMPS':float(bht.magnitude*0.5),                                               # HT half-span
+    'LQXJHZEHDRX':float(crootht.magnitude),                                               # HT root chord
+    'AYFSAELIRAY':float(ctipht.magnitude),                                                # HT tip chord
 
     # VT variables
     'LLYTEYDPDID':float(xCGvt.magnitude - 0.5*crootvt.magnitude), # VT x location (LE location)
@@ -117,19 +133,11 @@ resultsDict = {
     'MBZGSEIYFGW':float(crootvt.magnitude),                    # VT root chord
     'CUIMIUZJQMS':float(ctipvt.magnitude),                     # VT tip chord
 
-    # HT Variables
-    'USGQFZQKJWC':float(xCGht.magnitude - 0.5*crootht.magnitude - 1.5*tanht*0.5*wfuse.magnitude), # HT x location
-    'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),                                         # HT z location
-    'IFZAMYYJPRP':float(30.),                                                             # HT sweep
-    'CHYQUCYJMPS':float(bht.magnitude*0.5),                                               # HT half-span
-    'LQXJHZEHDRX':float(crootht.magnitude),                                               # HT root chord
-    'AYFSAELIRAY':float(ctipht.magnitude),                                                # HT tip chord
-
-    # Engine Variables
-    'REBAHPKXPRR':float(xCGvt.magnitude), # Engine x location
-    'GKMTRGNCEVD':float((wdb + 0.4*Rfuse).magnitude), #Engine y location
-    'XFTWTTHLVRI':float(hfuse.magnitude - (2*(A_2/pi)**0.5/10).magnitude), # Engine z location
-    'JTPPOOJVVPE':float((2*(A_2/pi)**0.5).magnitude),# Engine length
-    'QRBDHPAPDFX':float(2) # Engine fineness ratio (set at 2 for now)
+    # Wing variables
+    'AYJHHOVUHBI':float(b.magnitude*0.5), # Wing half-span
+    'UOBOGEWYYZZ':float((xwing - 0.5*croot).magnitude), # Wing x-location
+    'MOGKYBMVMPD':float(-1*hfuse.magnitude + 0.2), # Wing z-location
+    'NNIHPEXRTCP':float(croot.magnitude), # Wing root chord
+    'HGZBRNOPIRD':float(ctip.magnitude), # Wing tip chord
 }
 updateOpenVSP(resultsDict)
