@@ -51,7 +51,7 @@ Other markers:
 """
 
 # Script for doing sweeps
-n = 10
+n = 20
 sweeps = False
 sweepSMmin = False
 sweepdxCG = False
@@ -649,7 +649,7 @@ class Fuselage(Model):
 
                 # Fuselage length relations
                 SignomialEquality(lfuse, lnose + lshell + lcone),  
-                lnose == 0.3 * lshell,  # TODO remove
+                # lnose == 0.3 * lshell,  # TODO remove
                 lcone == Rfuse / lamcone,
                 xshell1 == lnose,
                 TCS([xshell2 >= lnose + lshell]), 
@@ -920,7 +920,7 @@ substitutions = {
         'w_{seat}': 0.5*units('m'),
         'w_{sys}': 0.1*units('m'),
         'r_E': 1,  # [TAS]
-        '\\lambda_{cone}': 0.4,  # [Philippe]
+        '\\lambda_{cone}': 0.3,  # [TAS]
         '\\rho_{cone}': 2700,#*units('kg/m^3'),  # [TAS]
         '\\rho_{bend}': 2700,#*units('kg/m^3'),  # [TAS]
         '\\rho_{floor}': 2700,#*units('kg/m^3'),  # [TAS]
@@ -931,7 +931,10 @@ substitutions = {
         'W\'\'_{floor}': 60,  # [TAS]
         'W\'\'_{insul}': 22,  # [TAS]
         'W\'_{seat}': 150*units('N'),  # [TAS]
-        'W\'_{window}': 145. * 3,  # [TAS]
+        'W\'_{window}': 145.,  # [TAS]
+
+        # TASOPT Fuselage substitutions
+        'l_{nose}': 29*0.3048, #units('m')
 
         # Fractional weights
         'f_{fadd}': 0.2,  # [TAS]

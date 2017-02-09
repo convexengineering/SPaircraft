@@ -1,5 +1,7 @@
 # RUN IN CONSOLE FOR BEST RESULTS
 
+import csv
+
 Wempty = sol('W_{dry}')
 Wpay = sol('W_{payload}')
 Wfuel = sol('W_{f_{total}}')
