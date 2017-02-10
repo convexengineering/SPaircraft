@@ -23,7 +23,7 @@ from D8_HT_simple_profile import HorizontalTail, HorizontalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance
 
-sweep = 30
+sweep = 27.566#30
 
 """
 Models requird to minimize the aircraft total fuel weight. Rate of climb equation taken from John
@@ -711,7 +711,7 @@ class Fuselage(Model):
                 # Calculating xvbend, the location where additional bending
                 # material is required
                 xvbend >= xwing, xvbend <= lfuse,
-                SignomialEquality(B0v, B1v * (xtail - xhbend)), # [SP] #[SPEquality]
+                SignomialEquality(B0v, B1v * (xtail - xvbend)), # [SP] #[SPEquality]
                 #B1v definition in Aircraft()
                 B0v == Ivshell/(rE*wfuse**2),
                 Avbendb >= B1v * (xtail - xb) - B0v,
@@ -889,7 +889,8 @@ class Mission(Model):
 
             # Cruise Mach Number constraint
             cruise['M'] >= aircraft['M_{min}'],
-
+            cruise['M'] <= 0.9,
+            climb['M'] <= 0.9,
         ])
 
         with SignomialsEnabled():
@@ -1003,10 +1004,17 @@ if __name__ == '__main__':
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
                 'W_{engine}': 15100.3*0.454*9.81, #units('N')
-                # 'AR':10.8730,
+                'AR':10.8730,
                 'h_{floor}': 0.13,
                 # 'b':116.548*0.3048,#units('ft'),
                 # 'c_0': 17.4*0.3048,#units('ft'),
+                #HT subs
+                'AR_h': 8.25,
+                '\\lambda_h' : 0.25,
+
+                #VT subs
+                'A_{vt}' : 2.0,
+                '\\lambda_{vt}': 0.3,
             })
         sol = m.localsolve( verbosity = 2, iteration_limit=50)
 

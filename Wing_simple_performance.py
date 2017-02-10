@@ -431,19 +431,19 @@ class WingBox(Model):
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
                        # Assumes lift per unit span proportional to local chord
-                       Mr >= Lmax*AR*p/24,
+                       TCS([Mr >= Lmax*AR*p/24]),
 
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
-                       0.92*wwb*tau*tcap**2 + Icap <= 0.92**2/2*wwb*tau**2*tcap,
+                       TCS([0.92*wwb*tau*tcap**2 + Icap <= 0.92**2/2*wwb*tau**2*tcap]),
 
                        # Stress limit
                        # Assumes bending stress carried by caps (Icap >> Iweb)
-                       8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax),
+                       TCS([8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax)]),
 
                        # Shear web sizing
                        # Assumes all shear loads are carried by web and rh=0.75
-                       12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
+                       TCS([12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear)]),
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam^2)
                        nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56,

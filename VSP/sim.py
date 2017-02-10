@@ -29,47 +29,47 @@ def updateOpenVSP(inputDict):
         f.close()
 
 # Vehicle descriptors
-xCGmin = sol('x_{CG_{min}}')
-xAC = sol('x_{AC}')
+xCGmin = sol('x_{CG_{min}}').to('m')
+# xAC = sol('x_{AC}').to('m')
 
 # Wing descriptors
-b = sol('b')
-croot = sol('c_{root}')
-ctip = sol('c_{tip}')
-S = sol('S')
-xwing = sol('x_{wing}')
+b = sol('b').to('m')
+croot = sol('c_{root}').to('m')
+ctip = sol('c_{tip}').to('m')
+S = sol('S').to('m^2')
+xwing = sol('x_{wing}').to('m')
 
 # Fuselage descriptors
-hfloor = sol('h_{floor}')
-lnose = sol('l_{nose}')
-lshell = sol('l_{shell}')
-lcone = sol('l_{cone}')
-lfloor = sol('l_{floor}')
-lfuse = sol('l_{fuse}')
-hfuse = sol('h_{fuse}')
-wfuse = sol('w_{fuse}')
-wdb = sol('w_{db}')
-Rfuse = sol('R_{fuse}')
+hfloor = sol('h_{floor}').to('m')
+lnose = sol('l_{nose}').to('m')
+lshell = sol('l_{shell}').to('m')
+lcone = sol('l_{cone}').to('m')
+lfloor = sol('l_{floor}').to('m')
+lfuse = sol('l_{fuse}').to('m')
+hfuse = sol('h_{fuse}').to('m')
+wfuse = sol('w_{fuse}').to('m')
+wdb = sol('w_{db}').to('m')
+Rfuse = sol('R_{fuse}').to('m')
 
 # Horizontal Tail descriptors
+xCGht = sol('x_{CG_{ht}}').to('m')
+crootht = sol('c_{root_h}').to('m')
+ctipht = sol('c_{tip_h}').to('m')
+bht = sol('b_{ht}').to('m')
 xCGht = sol('x_{CG_{ht}}')
-crootht = sol('c_{root_h}')
-ctipht = sol('c_{tip_h}')
-bht = sol('b_{ht}')
-xCGht = sol('x_{CG_{ht}}')
-lht = sol('l_{ht}')
+lht = sol('l_{ht}').to('m')
 tanht = sol('\\tan(\\Lambda_{ht})')
 
 # Vertical Tail descriptors
-xCGvt = sol('x_{CG_{vt}}')
-xtail = sol('x_{tail}')
-Svt = sol('S_{vt}')
-bvt = sol('b_{vt}')
-lvt = sol('l_{vt}')
-crootvt = sol('c_{root_{vt}}')
-ctipvt = sol('c_{tip_{vt}}')
-dxleadvt = sol('\\Delta x_{lead_v}')
-dxtrailvt = sol('\\Delta x_{trail_v}')
+xCGvt = sol('x_{CG_{vt}}').to('m')
+xtail = sol('x_{tail}').to('m')
+Svt = sol('S_{vt}').to('m^2')
+bvt = sol('b_{vt}').to('m')
+lvt = sol('l_{vt}').to('m')
+crootvt = sol('c_{root_{vt}}').to('m')
+ctipvt = sol('c_{tip_{vt}}').to('m')
+dxleadvt = sol('\\Delta x_{lead_v}').to('m')
+dxtrailvt = sol('\\Delta x_{trail_v}').to('m')
 tanvt = sol('\\tan(\\Lambda_{vt})')
 
 # Engine descriptors
@@ -139,5 +139,6 @@ resultsDict = {
     'MOGKYBMVMPD':float(-1*hfuse.magnitude + 0.2), # Wing z-location
     'NNIHPEXRTCP':float(croot.magnitude), # Wing root chord
     'HGZBRNOPIRD':float(ctip.magnitude), # Wing tip chord
+    'AGOKGLSLBTO':sweep, # Wing sweep angle
 }
 updateOpenVSP(resultsDict)
