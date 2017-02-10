@@ -573,6 +573,7 @@ class Fuselage(Model):
             'f_{lugg,2}', '-', 'Proportion of passengers with two suitcases')  # [Philippe]
         fpadd = Variable('f_{padd}', 0.4, '-',
                          'Other misc weight as fraction of payload weight')
+        fseat = Variable('f_{seat}','-','Fractional seat weight')
         fstring = Variable('f_{string}', '-',
                            'Fractional stringer weight')  # [Philippe]
 
@@ -709,7 +710,7 @@ class Fuselage(Model):
                 # Vertical bending material model
                 # Calculating xvbend, the location where additional bending
                 # material is required
-                xvbend >= xwing,
+                xvbend >= xwing, xvbend <= lfuse,
                 SignomialEquality(B0v, B1v * (xtail - xhbend)), # [SP] #[SPEquality]
                 #B1v definition in Aircraft()
                 B0v == Ivshell/(rE*wfuse**2),
@@ -742,7 +743,8 @@ class Fuselage(Model):
                 Wlugg >= flugg2 * npax * 2 * Wchecked + flugg1 * npax * Wchecked + Wcarryon,
                 Wwindow >= Wpwindow * lshell,
                 Wpadd == Wpay * fpadd,
-                Wseat == Wpseat * nseat,
+                Wseat >= Wpseat * nseat,
+                Wseat >= fseat * Wpay,
 
                 Wskin >= rhoskin * g * (Vcyl + Vnose + Vbulk),
                 Wshell >= Wskin * (1 + fstring + ffadd + fframe) + Wdb,
@@ -975,7 +977,7 @@ substitutions = {
         'x_{CG_{min}}' : 13.0*units('m'),
 
         # Engine substitutions
-        'W_{engine}': 14295.3*0.454/9.81, # Engine weight substitution
+        'W_{engine}': 20000, # Engine weight substitution
         'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
 
         # Cabin air substitutions in AircraftP
@@ -996,11 +998,15 @@ if __name__ == '__main__':
             #         if 'l_{nose}' in constraint.varkeys:
             #             print constraint
             m.substitutions.update({
+                #Fuselage subs
+                'f_{seat}':0.1,
+                'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
-                'W_{engine}': 14295.3*0.454/9.81, #units('N')
-                'AR':10.8730,
-                'b':116.548*units('ft'),
-                'c_0': 17.4*units('ft'),
+                'W_{engine}': 15100.3*0.454*9.81, #units('N')
+                # 'AR':10.8730,
+                'h_{floor}': 0.13,
+                # 'b':116.548*0.3048,#units('ft'),
+                # 'c_0': 17.4*0.3048,#units('ft'),
             })
         sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
