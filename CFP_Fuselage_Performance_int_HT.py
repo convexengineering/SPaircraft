@@ -272,9 +272,10 @@ class AircraftP(Model):
             xCG >= aircraft['x_{CG_{min}}'],
             xAC >= xCG,
 
-            # TCS([xCG*W_avg >= (0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-            #         + (aircraft['W_{tail}']+aircraft['numeng']*aircraft*['W_{engine}'])*aircraft['x_{tail}'] \
-            #         + (aircraft.wing['W_{struct']*aircraft['x_wing']))]),
+            # CG CONSTRAINT #TODO improve
+            xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engine}'])*aircraft['x_{tail}'] \
+                    + aircraft['W_{wing}']*aircraft.fuse['x_{wing}'],
 
 
             # Wing location constraints
