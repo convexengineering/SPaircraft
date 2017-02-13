@@ -474,8 +474,8 @@ class WingBox(Model):
 
         # Constants
         taper = Variable('taper', 0.2, '-', 'Taper ratio')
-        fwadd  = Variable('f_{w,add}', 0.4, '-',
-                          'Wing added weight fraction') # TASOPT code (737.tas)
+        fwadd  = Variable('f_{w,add}', 0.3, '-',
+                          'Wing added weight fraction') # [TAS]
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         Nlift  = Variable('N_{lift}', 2.0, '-', 'Wing loading multiplier')
         rh     = Variable('r_h', 0.75, '-',

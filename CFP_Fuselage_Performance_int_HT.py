@@ -65,8 +65,8 @@ sweepnpax = True
 
 plot = True
 
-
-D80 = True
+# Only one active at a time
+D80 = False
 D82 = True
 
 g = 9.81 * units('m*s**-2')
@@ -1016,14 +1016,18 @@ if __name__ == '__main__':
                 #HT subs
                 'AR_h': 8.25,
                 '\\lambda_h' : 0.25,
+                '\\tan(\\Lambda_{ht})':np.tan(20*np.pi/180), #tangent of HT sweep
 
                 #VT subs
                 'A_{vt}' : 2.0,
                 '\\lambda_{vt}': 0.3,
+                '\\tan(\\Lambda_{vt})':np.tan(25*np.pi/180),
 
                 # Minimum Cruise Mach Number
                 'M_{min}': 0.8,
             })
+            m.substitutions.__delitem__('\\theta_{db}')
+
         if D82:
             print('D82 executing...')
             sweep = 13.237
@@ -1033,7 +1037,7 @@ if __name__ == '__main__':
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
                 'W_{engine}': 11185.4*0.454*9.81, #units('N')
-                # 'AR':15.749,
+                'AR':12,#15.749,
                 'h_{floor}': 0.13,
                 'R_{fuse}' : 1.715 + 0.43/2,
                 'w_{db}': 0.93,
@@ -1042,10 +1046,13 @@ if __name__ == '__main__':
                 #HT subs
                 'AR_h': 12.,
                 '\\lambda_h' : 0.3,
+                '\\tan(\\Lambda_{ht})': np.tan(8*np.pi/180), #tangent of HT sweep
 
                 #VT subs
                 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
+                '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180),
+
 
                 #Wing subs
                 'C_{L_{wmax}}': 2.15,
@@ -1054,7 +1061,7 @@ if __name__ == '__main__':
                 'M_{min}': 0.72,
             })
             m.substitutions.__delitem__('\\theta_{db}')
-        sol = m.localsolve( verbosity = 2, iteration_limit=50)
+        sol = m.localsolve( verbosity = 4, iteration_limit=50)
 
     if sweeps:
         if sweepSMmin:

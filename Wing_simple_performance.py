@@ -24,6 +24,8 @@ Inputs
 - Cruise altitude [ft]
 """
 
+D80 = True
+
 class Aircraft(Model):
     "Aircraft class"
     def setup(self, **kwargs):
@@ -481,6 +483,35 @@ if __name__ == '__main__':
             '\\rho_{fuel}': 817, # Kerosene [TASOPT]
             '\\tan(\\Lambda)': tan(sweep*pi/180),
             }
+
+    if D80:
+        sweep = 27.566
+        substitutions.update({
+            'ReqRng': 3000,
+            'CruiseAlt':36632,
+            'numeng':2,
+            'W_{pax}': 91*9.81,
+            'n_{pax}':180,
+            'pax_{area}': 1,
+
+            #wing subs
+            'C_{L_{wmax}}': 2.5,
+            'V_{ne}': 144,
+            '\\alpha_{max,w}': 0.1, # (6 deg)
+            '\\cos(\\Lambda)': cos(sweep*pi/180),
+            '\\eta': 0.97,
+            '\\rho_0': 1.225,
+            '\\rho_{fuel}': 817, # Kerosene [TASOPT]
+            '\\tan(\\Lambda)': tan(sweep*pi/180),
+
+            'W_{engine}': 15100.3*0.454*9.81, #units('N')
+            'AR':10.8730,
+            'b':116.548*0.3048,#units('ft'),
+            'c_{root}': 17.4*0.3048,#units('ft'),
+
+                # Minimum Cruise Mach Number
+                # 'M': 0.8,
+        })
     mission = Mission()
     m = Model(mission['W_{f_{total}}'], mission, substitutions)
     sol = m.localsolve(solver='mosek', verbosity = 2)
@@ -508,6 +539,9 @@ if __name__ == '__main__':
          mission = Mission()
          m = Model(mission['W_{f_{total}}'], mission, substitutions)
          solRsweep = m.localsolve(solver='mosek', verbosity = 4)
+
+
+
 
 #          plt.plot(solRsweep('ReqRng'), solRsweep('W_{struct}'), '-r')
 #          plt.xlabel('Mission Range [nm]')
