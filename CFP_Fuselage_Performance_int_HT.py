@@ -65,7 +65,9 @@ sweepnpax = True
 
 plot = True
 
+
 D80 = True
+D82 = True
 
 g = 9.81 * units('m*s**-2')
 
@@ -272,11 +274,11 @@ class AircraftP(Model):
             xCG >= aircraft['x_{CG_{min}}'],
             xAC >= xCG,
 
-            # CG CONSTRAINT #TODO improve
-            xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+            # CG CONSTRAINT #TODO improve; how to account for decreasing fuel volume?
+            TCS([xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engine}'])*aircraft['x_{tail}'] \
-                    + aircraft['W_{wing}']*aircraft.fuse['x_{wing}'],
-
+                    + aircraft['W_{wing}']*aircraft.fuse['x_{wing}']]),
+                    #+ (aircraft['W_avg'] - ,
 
             # Wing location constraints
             aircraft.fuse['x_{wing}'] >= aircraft.fuse['l_{fuse}']*0.5, #TODO remove
@@ -948,7 +950,7 @@ substitutions = {
         'f_{padd}': 0.4,  # [TAS]
 
         # Wing substitutions
-        'C_{L_{wmax}}': 2.5,
+        'C_{L_{wmax}}': 2.25, # [TAS]
         '\\tan(\\Lambda)': tan(sweep * pi / 180),
         '\\alpha_{max,w}': 0.1,  # (6 deg)
         '\\cos(\\Lambda)': cos(sweep * pi / 180),
@@ -958,11 +960,11 @@ substitutions = {
 
         # VT substitutions
        'C_{D_{wm}}': 0.5, # [2]
-       'C_{L_{vmax}}': 2.6, # [2]
+       'C_{L_{vmax}}': 2.6, # [TAS]
        'V_1': 70*units('m/s'),
        '\\rho_{TO}': 1.225*units('kg/m^3'),
         '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
-        'c_{l_{vtEO}}': 0.5,
+        'c_{l_{vtEO}}': 0.5, # [TAS]
         'e_v': 0.8,
         # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72*units('m/s'),
@@ -973,7 +975,7 @@ substitutions = {
         # HT substitutions
         '\\alpha_{max,h}': 2.5,
         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-        'C_{L_{hmax}}': 2.5,
+        'C_{L_{hmax}}': 2.0, # [TAS]
         'SM_{min}': 0.05,
         '\\Delta x_{CG}': 2.0*units('m'),
         'x_{CG_{min}}' : 13.0*units('m'),
@@ -984,8 +986,7 @@ substitutions = {
 
         # Cabin air substitutions in AircraftP
 
-        # Minimum Cruise Mach Number
-        'M_{min}': 0.8,
+
 }
 
 if __name__ == '__main__':
@@ -999,6 +1000,7 @@ if __name__ == '__main__':
             # for constraint in m.flat(constraintsets=False):
             #         if 'l_{nose}' in constraint.varkeys:
             #             print constraint
+            sweep = 27.566
             m.substitutions.update({
                 #Fuselage subs
                 'f_{seat}':0.1,
@@ -1007,6 +1009,8 @@ if __name__ == '__main__':
                 'W_{engine}': 15100.3*0.454*9.81, #units('N')
                 'AR':10.8730,
                 'h_{floor}': 0.13,
+                'R_{fuse}' : 1.715 + 0.43/2,
+                'w_{db}': 0.93,
                 # 'b':116.548*0.3048,#units('ft'),
                 # 'c_0': 17.4*0.3048,#units('ft'),
                 #HT subs
@@ -1016,7 +1020,40 @@ if __name__ == '__main__':
                 #VT subs
                 'A_{vt}' : 2.0,
                 '\\lambda_{vt}': 0.3,
+
+                # Minimum Cruise Mach Number
+                'M_{min}': 0.8,
             })
+        if D82:
+            print('D82 executing...')
+            sweep = 13.237
+            m.substitutions.update({
+                #Fuselage subs
+                'f_{seat}':0.1,
+                'W\'_{seat}':1, # Seat weight determined by weight fraction instead
+                'f_{string}':0.35,
+                'W_{engine}': 11185.4*0.454*9.81, #units('N')
+                # 'AR':15.749,
+                'h_{floor}': 0.13,
+                'R_{fuse}' : 1.715 + 0.43/2,
+                'w_{db}': 0.93,
+                # 'b':116.548*0.3048,#units('ft'),
+                # 'c_0': 17.4*0.3048,#units('ft'),
+                #HT subs
+                'AR_h': 12.,
+                '\\lambda_h' : 0.3,
+
+                #VT subs
+                'A_{vt}' : 2.2,
+                '\\lambda_{vt}': 0.3,
+
+                #Wing subs
+                'C_{L_{wmax}}': 2.15,
+
+                # Minimum Cruise Mach Number
+                'M_{min}': 0.72,
+            })
+            m.substitutions.__delitem__('\\theta_{db}')
         sol = m.localsolve( verbosity = 2, iteration_limit=50)
 
     if sweeps:
