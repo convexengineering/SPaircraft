@@ -1,6 +1,6 @@
 from gpkit import Model, Variable
 import numpy as np
-from numpy import tan, cos, pi
+from numpy import tan, cos, pi, arctan
 import gpkit
 from CFP_Fuselage_Performance_int_HT import Mission
 
@@ -118,12 +118,13 @@ resultsDict = {
     'HPKOTUWYSIY':float(wfuse.magnitude), # Fuselage width
 
     # HT Variables
-    'USGQFZQKJWC':float(xCGht.magnitude - 0.5*crootht.magnitude - 1.5*tanht*0.5*wfuse.magnitude), # HT x location
-    'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),                                         # HT z location
+    'USGQFZQKJWC':float(xCGht.magnitude - 0.5*crootht.magnitude - 1.0*tanvt*bvt.magnitude), # HT x location
+    'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),                                             # HT z location
     'IFZAMYYJPRP':float(30.),                                                             # HT sweep
     'CHYQUCYJMPS':float(bht.magnitude*0.5),                                               # HT half-span
     'LQXJHZEHDRX':float(crootht.magnitude),                                               # HT root chord
     'AYFSAELIRAY':float(ctipht.magnitude),                                                # HT tip chord
+    'IFZAMYYJPRP':float(np.arctan(tanht)*180/np.pi),                            # HT sweep angle
 
     # VT variables
     'LLYTEYDPDID':float(xCGvt.magnitude - 0.5*crootvt.magnitude), # VT x location (LE location)
@@ -132,6 +133,7 @@ resultsDict = {
     'JXFRWSLYWDH':float(bvt.magnitude),                        # VT span
     'MBZGSEIYFGW':float(crootvt.magnitude),                    # VT root chord
     'CUIMIUZJQMS':float(ctipvt.magnitude),                     # VT tip chord
+    'XLPAIOGKILI':float(np.arctan(tanvt)*180/np.pi), # VT sweep angle
 
     # Wing variables
     'AYJHHOVUHBI':float(b.magnitude*0.5), # Wing half-span
