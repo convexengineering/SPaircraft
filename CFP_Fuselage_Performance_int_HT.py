@@ -112,6 +112,7 @@ class Aircraft(Model):
                             # self.engine['A_2'] == np.pi*(.5*1.75)**2*units('m^2'),
                             # self.engine['W_{engine}'] == 10000.*units('N'),
 
+                            # Lifting surface weights
                             Wwing == self.wing['W_{struct}'],
                             WHT == self.HT['W_{struct}'],
                             WVT == self.VT['W_{struct}'],
@@ -839,6 +840,9 @@ class Mission(Model):
         constraints = []
 
         constraints.extend([
+
+            aircraft['L_{max}'] >= aircraft.wing['N_{lift}'] * W_total + aircraft.HT['L_{{max}_h}'],
+
             # Total takeoff weight constraint
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
                  * aircraft.engine['W_{engine}'] + aircraft['W_{tail}'] + aircraft['W_{wing}'] <= W_total]),

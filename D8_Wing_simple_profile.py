@@ -316,7 +316,7 @@ class WingNoStruct(Model):
                 Vfuel <= croot**2 * (b/6) * (1+taper+taper**2)*cosL,
                 WfuelWing <= rhofuel*Afuel*Vfuel*g,
                   
-                Lmax == 0.5*rho0*Vne**2*Sw*CLwmax,
+                # Lmax == 0.5*rho0*Vne**2*Sw*CLwmax,
                 ])
 
         return constraints
@@ -396,19 +396,19 @@ class WingBox(Model):
         # Constants
         taper = Variable('taper', '-', 'Taper ratio')
         fwadd  = Variable('f_{w,add}', 0.4, '-',
-                          'Wing added weight fraction') # TASOPT code (737.tas)
-        Nlift  = Variable('N_{lift}', 2.0, '-', 'Wing loading multiplier')
+                          'Wing added weight fraction') # [TAS]
+        Nlift  = Variable('N_{lift}', 3.0, '-', 'Wing loading multiplier') # [TAS]
         rh     = Variable('r_h', 0.75, '-',
-                          'Fractional wing thickness at spar web')
+                          'Fractional wing thickness at spar web') # [TAS]
         rhocap = Variable('\\rho_{cap}', 2700, 'kg/m^3',
-                          'Density of spar cap material')
+                          'Density of spar cap material') # [TAS]
         rhoweb = Variable('\\rho_{web}', 2700, 'kg/m^3',
-                          'Density of shear web material')
+                          'Density of shear web material') # [TAS]
         sigmax = Variable('\\sigma_{max}', 250e6, 'Pa',
-                          'Allowable tensile stress')
+                          'Allowable tensile stress') # [TAS]
         sigmaxshear = Variable('\\sigma_{max,shear}', 167e6, 'Pa',
                                'Allowable shear stress')
-        wwb      = Variable('wwb', 0.5, '-', 'Wingbox-width-to-chord ratio')
+        wwb      = Variable('wwb', 0.5, '-', 'Wingbox-width-to-chord ratio') # [TAS]
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
         
@@ -441,11 +441,11 @@ class WingBox(Model):
 
                        # Stress limit
                        # Assumes bending stress carried by caps (Icap >> Iweb)
-                       TCS([8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax)]),
+                       TCS([8 >= Mr*AR*q**2*tau/(S*Icap*sigmax)]),
 
                        # Shear web sizing
                        # Assumes all shear loads are carried by web and rh=0.75
-                       TCS([12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear)]),
+                       TCS([12 >= AR*Lmax*q**2/(tau*S*tweb*sigmaxshear)]),
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam^2)
                        nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56,
