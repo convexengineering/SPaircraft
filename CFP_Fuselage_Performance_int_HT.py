@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
 from D8_HT_simple_profile import HorizontalTail, HorizontalTailPerformance
-from Wing_simple_performance import Wing, WingPerformance
+from D8_Wing_simple_profile import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance
 
 sweep = 27.566#30
@@ -67,7 +67,7 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
+D82 = True
 
 g = 9.81 * units('m*s**-2')
 
@@ -208,6 +208,7 @@ class AircraftP(Model):
         # variable definitions
         Vstall = Variable('V_{stall}',120, 'knots', 'Aircraft Stall Speed')
         D = Variable('D', 'N', 'Total Aircraft Drag')
+        LoD = Variable('L/D','-','Lift-to-Drag Ratio')
         W_avg = Variable(
             'W_{avg}', 'lbf', 'Geometric Average of Segment Start and End Weight')
         W_start = Variable('W_{start}', 'lbf', 'Segment Start Weight')
@@ -244,6 +245,7 @@ class AircraftP(Model):
 
             # compute the drag
             D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}'],
+            LoD == W_avg/D,
 
             # Wing looading
             WLoad == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * state.atm['\\rho'] * state['V']**2 / self.aircraft.wing['S'],
@@ -981,7 +983,7 @@ substitutions = {
         'x_{CG_{min}}' : 13.0*units('m'),
 
         # Engine substitutions
-        'W_{engine}': 11000*units('lbf'), # Engine weight substitution
+        'W_{engine}': 11000*0.454*9.81, # Engine weight substitution
         'A_2': np.pi*(.5*1.75)**2, # Engine inlet area substitution
 
         # Cabin air substitutions in AircraftP
