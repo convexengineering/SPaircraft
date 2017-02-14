@@ -266,16 +266,14 @@ class AircraftP(Model):
 
             #VTP constraints
             TCS([aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{trail_v}'] + xCG]),
-            TCS([aircraft.VT['x_{CG_{vt}}'] >= xCG + (aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2]),
+            TCS([aircraft.VT['x_{CG_{vt}}'] <= xCG + (aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2]),
             aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Drag of a windmilling engine (VT sizing)
             TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
 
             # Center of gravity constraints #TODO Refine
-            xCG <= 0.7*aircraft.fuse['l_{fuse}'],
             xCG >= aircraft['x_{CG_{min}}'],
-            xAC >= xCG,
 
             # CG CONSTRAINT #TODO improve; how to account for decreasing fuel volume?
             TCS([xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
@@ -284,12 +282,8 @@ class AircraftP(Model):
                     #+ (aircraft['W_avg'] - ,
 
             # Wing location constraints
-            aircraft.fuse['x_{wing}'] >= aircraft.fuse['l_{fuse}']*0.5, #TODO remove
-            aircraft.fuse['x_{wing}'] <= aircraft.fuse['l_{fuse}']*0.6, #TODO remove
 
             # Aircraft trim conditions
-            # SignomialEquality(xAC/aircraft.wing['mac'],  self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
-            #                   aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])),
             TCS([xAC/aircraft.wing['mac'] <= self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
                               aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
 
@@ -309,7 +303,7 @@ class AircraftP(Model):
             xAC == aircraft['x_{wing}'], #TODO improve, only works because cmw == 0.1
             SignomialEquality(xAC,xCG + self.HTP['\\Delta x_w']),
 
-            TCS([aircraft.HT['x_{CG_{ht}}'] >= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
+            TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
             # Static margin constraint with and without dxCG #TODO validate if this works as intended
             self.wingP['c_{m_{w}}'] == 0.1,
@@ -330,7 +324,6 @@ class AircraftP(Model):
            ])
 
         return self.Pmodels, constraints
-
 
 class ClimbP(Model): # Climb performance constraints
 
@@ -1015,7 +1008,7 @@ if __name__ == '__main__':
                 'W_{engine}': 15100.3*0.454*9.81, #units('N')
                 'AR':10.8730,
                 'h_{floor}': 0.13,
-                'R_{fuse}' : 1.715 + 0.43/2,
+                'R_{fuse}' : 1.715,
                 'w_{db}': 0.93,
                 # 'b':116.548*0.3048,#units('ft'),
                 # 'c_0': 17.4*0.3048,#units('ft'),
@@ -1043,7 +1036,7 @@ if __name__ == '__main__':
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
                 'W_{engine}': 11185.4*0.454*9.81, #units('N')
-                'AR':12,#15.749,
+                'AR':15.749,
                 'h_{floor}': 0.13,
                 'R_{fuse}' : 1.715 + 0.43/2,
                 'w_{db}': 0.93,
@@ -1052,12 +1045,12 @@ if __name__ == '__main__':
                 #HT subs
                 'AR_h': 12.,
                 '\\lambda_h' : 0.3,
-                '\\tan(\\Lambda_{ht})': np.tan(8*np.pi/180), #tangent of HT sweep
+                '\\tan(\\Lambda_{ht})': np.tan(8*np.pi/180), # tangent of HT sweep
 
                 #VT subs
                 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
-                '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180),
+                '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
 
 
                 #Wing subs
