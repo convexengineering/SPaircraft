@@ -163,6 +163,9 @@ class Mission(Model):
         constraints = []
 
         constraints.extend([
+            # Wing max loading constraint
+            aircraft['L_{max}'] >= aircraft['N_{lift}'] * W_total,
+
             #weight constraints
             TCS([aircraft['W_{e}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng'] * aircraft['W_{engine}'] + aircraft.wing.wb['W_{struct}'] <= W_total]),
 
