@@ -1,9 +1,6 @@
 "SP Implementation of the TASOPT engine model"
-import numpy as np
 from gpkit import Model, Variable, SignomialsEnabled, units, Vectorize, SignomialEquality
-##from gpkit.nomials import SignomialEquality
 from gpkit.constraints.tight import Tight as TCS
-from collections import defaultdict
 from gpkit.small_scripts import mag
 
 #Cp and gamma values estimated from https://www.ohio.edu/mechanical/thermo/property_tables/air/air_Cp_Cv.html
@@ -1030,8 +1027,6 @@ class ThrustPerformance(Model):
 
                 u6 >= state['V'],
                 u8 >= state['V'],
-                F6 >= .01*units('N'),
-                F8 >= .01*units('N'),
 
                 #constrain the new BPR
                 alpha == mFan / mCore,
@@ -1047,8 +1042,6 @@ class ThrustPerformance(Model):
                 TCS([F <= F6 + F8]),
 
                 Fsp == F/((alphap1)*mCore*state['a']),   #B.191
-
-                F >= .1*units('N'),
 
                 #TSFC
                 TSFC == 1/Isp,
@@ -1591,7 +1584,7 @@ if __name__ == "__main__":
     """
     eng = 0 is CFM56, set N = 2
     eng = 1 is TASOPT, set N = 3
-    eng = 2 is GE90, set N = 
+    eng = 2 is GE90, set N = 2
     """
     eng = 0
     
