@@ -775,6 +775,10 @@ class FuselagePerformance(Model):
         FF = Variable('FF', '-', 'Fuselage form factor')
         phi = Variable('\\phi', '-', 'Upsweep angle')
 
+
+        # BLI surrogate
+        fBLI = Variable('f_{BLI}','-','1-fBLI surrogate')
+
         constraints = []
         constraints.extend([
             #Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
@@ -787,7 +791,7 @@ class FuselagePerformance(Model):
             1.13226 * phi**1.03759 == fuse['R_{fuse}'] / fuse['l_{cone}'],
             Dupswp >= 3.83 * phi**2.5 * fuse['A_{fuse}'] * 0.5 * state.atm['\\rho'] * state['V']**2,
             Dfuse >= Dfrict + Dupswp,
-            Dfuse == 0.5 * state.atm['\\rho'] * state['V']**2 * Cdfuse * fuse['A_{fuse}'],
+            Dfuse == fBLI * 0.5 * state.atm['\\rho'] * state['V']**2 * Cdfuse * fuse['A_{fuse}'],
         ])
 
         return constraints
@@ -886,6 +890,10 @@ class Mission(Model):
             climb.climbP.engineP['TSFC'] == .7 * units('1/hr'),
             cruise.cruiseP.engineP['TSFC'] == .5 * units('1/hr'),
 
+            # Set the BLI Benefit
+            climb.climbP.fuseP['f_{BLI}'] == 0.91,
+            cruise.cruiseP.fuseP['f_{BLI}'] == 0.91,
+
             # Wing fuel constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
 
@@ -968,7 +976,7 @@ substitutions = {
         # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72*units('m/s'),
         # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
-        '\\dot{r}_{req}': 0.174533, # 10 deg/s yaw rate
+        '\\dot{r}_{req}': 0.001,#0.174533, # 10 deg/s yaw rate #TODO INACTIVE FOR TASOPT VALIDATION
         'N_{spar}': 2,
 
         # HT substitutions
@@ -1036,11 +1044,11 @@ if __name__ == '__main__':
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
                 'W_{engine}': 11185.4*0.454*9.81, #units('N')
-                'AR':15.749,
+                # 'AR':15.749,
                 'h_{floor}': 0.13,
-                'R_{fuse}' : 1.715 + 0.43/2,
+                'R_{fuse}' : 1.715, #+ 0.43/2,
                 'w_{db}': 0.93,
-                # 'b':116.548*0.3048,#units('ft'),
+                # 'b':139.6*0.3048,
                 # 'c_0': 17.4*0.3048,#units('ft'),
                 #HT subs
                 'AR_h': 12.,
