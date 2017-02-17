@@ -359,7 +359,6 @@ class WingNoStruct(Model):
         S = Variable('S', 'm^2', 'Wing Planform Area')
         AR = Variable('AR', '-', 'Aspect Ratio')
         span = Variable('b', 'm', 'Wing Span')
-        span_max = Variable('b_{max}', 'm', 'Max Wing Span')
 
         K = Variable('K', '-', 'K for Parametric Drag Model')
         e = Variable('e', '-', 'Oswald Span Efficiency Factor')

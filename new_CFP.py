@@ -860,6 +860,8 @@ class Mission(Model):
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
+        RngCruise = Variable('RngCruise', 'nautical_miles', 'Total Cruise Range')
+
         h = climb.state['h']
         hftClimb = climb.state['hft']
         dhft = climb.climbP['dhft']
@@ -872,9 +874,12 @@ class Mission(Model):
 
             aircraft['L_{max}'] >= aircraft.wing['N_{lift}'] * W_total + aircraft.HT['L_{{max}_h}'],
 
+            #define dry weight
+            TCS([W_dry >= aircraft['W_{fuse}'] + aircraft['W_{tail}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
+                 aircraft['W_{wing}'] + aircraft['W_{payload}']]),
+
             # Total takeoff weight constraint
-            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + W_ftotal + aircraft['numeng']
-                 * aircraft.engine['W_{engine}'] + aircraft['W_{tail}'] + aircraft['W_{wing}'] <= W_total]),
+            TCS([W_ftotal + W_dry <= W_total]),
 
 
             climb.climbP.aircraftP['W_{start}'][0] == W_total,
@@ -893,8 +898,7 @@ class Mission(Model):
             cruise.cruiseP.aircraftP['W_{start}'][
                 1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] \
-                 + aircraft['W_{tail}'] + aircraft['W_{wing}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
+            TCS([W_dry <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([W_ftotal >= W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(climb.climbP.aircraftP['W_{burn}'])]),
@@ -920,7 +924,7 @@ class Mission(Model):
 
             # Set the range for each cruise segment, doesn't take credit for
             # down range distance covered during climb
-            cruise.cruiseP['Rng'] == ReqRng / (Ncruise),
+            cruise.cruiseP['Rng'] == RngCruise / (Ncruise),
 
 ##            # Set the TSFC
 ##            climb.climbP.engine['TSFC'] == .7 * units('1/hr'),
@@ -930,15 +934,14 @@ class Mission(Model):
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
 
             # Cruise Mach Number constraint
-            cruise['M'] >= aircraft['M_{min}'],
-            cruise['M'] <= 0.9,
-            climb['M'] <= 0.9,
+##            cruise['M'] >= aircraft['M_{min}'],
+##            cruise['M'] <= 0.9,
+##            climb['M'] <= 0.9,
         ])
 
         with SignomialsEnabled():
             constraints.extend([
-                SignomialEquality(W_dry, aircraft['W_{fuse}'] + aircraft['W_{tail}'] + aircraft['numeng'] * aircraft.engine['W_{engine}'] + \
-                 aircraft['W_{wing}']),
+                TCS([sum(climb['RngClimb']) + RngCruise >= ReqRng]),
             ])
 
         M2 = .8
@@ -991,7 +994,8 @@ substitutions = {
         'p_s': 81.*units('cm'),
         'ReqRng': 3000*units('nmi'),
         '\\theta_{db}' : 0.366,
-        'CruiseAlt': 36632*units('ft'),
+##        'CruiseAlt': 36632*units('ft'),
+        'CruiseAlt': 1000*units('ft'),
         'numeng': 2,
         'n_{pax}': 180,
         'W_{avg. pass}': 180*units('lbf'),
@@ -1110,7 +1114,7 @@ if __name__ == '__main__':
                 'f_{seat}':0.1,
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
-                'W_{engine}': 15100.3*0.454*9.81, #units('N')
+##                'W_{engine}': 15100.3*0.454*9.81, #units('N')
                 'AR':10.8730,
                 'h_{floor}': 0.13,
                 'R_{fuse}' : 1.715,
@@ -1140,7 +1144,7 @@ if __name__ == '__main__':
                 'f_{seat}':0.1,
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
-                'W_{engine}': 11185.4*0.454*9.81, #units('N')
+##                'W_{engine}': 11185.4*0.454*9.81, #units('N')
                 'AR':15.749,
                 'h_{floor}': 0.13,
                 'R_{fuse}' : 1.715 + 0.43/2,
