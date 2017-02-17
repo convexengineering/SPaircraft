@@ -48,6 +48,7 @@ lfloor = sol('l_{floor}').to('m')
 lfuse = sol('l_{fuse}').to('m')
 hfuse = sol('h_{fuse}').to('m')
 wfuse = sol('w_{fuse}').to('m')
+wfloor = sol('w_{floor}').to('m')
 wdb = sol('w_{db}').to('m')
 Rfuse = sol('R_{fuse}').to('m')
 
@@ -102,7 +103,7 @@ resultsDict = {
     # Floor Variables
     'MCVUEHMJBGG':float(hfloor.magnitude),  # Floor height
     'EVDJZIXRYSR':float(lfloor.magnitude), # Floor length
-    'SKXVOFXEYEZ':float(wfuse.magnitude), # Floor width
+    'SKXVOFXEYEZ':float(2*wfloor.magnitude), # Floor width
     'KNNNINRHVVJ':float(lnose.magnitude-Rfuse.magnitude), # Floor x location (beginning of cyl section)
     'AFIOFOUHMWM':float(-0.5 - 0.5*hfloor.magnitude), # Floor z location (offset from thickest section)
 
@@ -111,11 +112,11 @@ resultsDict = {
     'KBKZBHMUHEP':float((lnose/lfuse).magnitude), # Nose location as % of fuse length
     'OVEJIBRDSBJ':float(1. - (lcone/lfuse).magnitude), # Tailcone location as % of fuse length
     'JMWPVNGZBYQ':float(2.0*hfuse.magnitude), # Fuselage height
-    'KFWNCSRQOCQ':float(wfuse.magnitude), # Fuselage width
+    'KFWNCSRQOCQ':float(2*wfuse.magnitude), # Fuselage width
     'WKRLDITVGSF':float(2.0*hfuse.magnitude), # Fuselage height
-    'TBCZTWFMJDM':float(wfuse.magnitude), # Fuselage width
+    'TBCZTWFMJDM':float(2*wfuse.magnitude), # Fuselage width
     'JOBWSWPMZIB':float(2.0*hfuse.magnitude), # Fuselage height
-    'HPKOTUWYSIY':float(wfuse.magnitude), # Fuselage width
+    'HPKOTUWYSIY':float(2*wfuse.magnitude), # Fuselage width
 
     # HT Variables
     'USGQFZQKJWC':float(xCGht.magnitude - 0.5*crootht.magnitude - 1.0*tanvt*bvt.magnitude), # HT x location
@@ -128,7 +129,7 @@ resultsDict = {
 
     # VT variables
     'LLYTEYDPDID':float(xCGvt.magnitude - 0.5*crootvt.magnitude), # VT x location (LE location)
-    'BFZDOVCXTAV':float(wfuse.magnitude/2),                    # VT y location (as wide as fuselage)
+    'BFZDOVCXTAV':float(2*wfuse.magnitude/2),                    # VT y location (as wide as fuselage)
     'FQDVQTUBLUX':float(0.5),                                  # VT z location (0.5 m off the widest point of the fuselage)
     'JXFRWSLYWDH':float(bvt.magnitude),                        # VT span
     'MBZGSEIYFGW':float(crootvt.magnitude),                    # VT root chord

@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 # importing from D8_integration
 from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
-from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
+from TASOPT_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
 from D8_HT_simple_profile import HorizontalTail, HorizontalTailPerformance
 from D8_Wing_simple_profile import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance
@@ -150,7 +150,7 @@ class Aircraft(Model):
                             TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
 
                             # HT/VT joint constraint
-                            self.HT['b_{ht}']/self.fuse['w_{fuse}']*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
+                            self.HT['b_{ht}']/(self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
                             # VT height constraint (4*engine radius)
                             self.VT['b_{vt}']**2 >= 16.*self.engine['A_2']/np.pi,
@@ -166,7 +166,7 @@ class Aircraft(Model):
                             # self.wing['c_{root}'] <= 0.25*self.fuse['l_{fuse}'],
 
                             # Engine out moment arm,
-                            self.VT['y_{eng}'] == 0.25*self.fuse['w_{fuse}'],
+                            self.VT['y_{eng}'] == 0.5*self.fuse['w_{fuse}'],
 
                             # Moment of inertia
                             Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
@@ -443,7 +443,7 @@ class Fuselage(Model):
         hdb = Variable('h_{db}', 'm', 'Web half-height')
         hfloor = Variable('h_{floor}', 'm', 'Floor beam height')
         hfuse = Variable('h_{fuse}', 'm', 'Fuselage height')
-        # will assume for now there: no under-fuselage extension deltaR
+        dRfuse = Variable('\\delta R_{fuse}','m','Fuselage extension height')
         Rfuse = Variable('R_{fuse}', 'm', 'Fuselage radius')
         tdb = Variable('t_{db}', 'm', 'Web thickness')
         thetadb = Variable('\\theta_{db}', '-', 'DB fuselage joining angle')
@@ -452,7 +452,7 @@ class Fuselage(Model):
         waisle = Variable('w_{aisle}', 'm', 'Aisle width')
         wdb = Variable('w_{db}', 'm', 'DB added half-width')
         wfloor = Variable('w_{floor}', 'm', 'Floor half-width')
-        wfuse = Variable('w_{fuse}', 'm', 'Fuselage width')
+        wfuse = Variable('w_{fuse}', 'm', 'Fuselage half-width')
         wseat = Variable('w_{seat}', 'm', 'Seat width')
         wsys = Variable('w_{sys}', 'm', 'Width between cabin and skin for systems')
 
@@ -631,16 +631,17 @@ class Fuselage(Model):
                 hdb >= Rfuse * (1.0 - .5 * thetadb**2),  # [SP]
 
                 # Cross-sectional constraints
-                Adb == (2 * hdb) * tdb,
+                Adb >= (2 * hdb + dRfuse) * tdb,
                 Afuse >= (pi + 2 * thetadb + 2 * thetadb * \
-                          (1 - thetadb**2 / 2)) * Rfuse**2,  # [SP]
-                Askin >= (2 * pi + 4 * thetadb) * Rfuse * \
-                tskin + Adb,  # no delta R for now
-                wfloor == .5 * wfuse,
-                TCS([wfuse >= SPR * wseat + 2 * waisle + 2 * wsys + tdb]),
-                wfuse <= 2 * (Rfuse + wdb),
-                hfuse == Rfuse,
+                          (1 - thetadb**2 / 2)) * Rfuse**2 + 2*dRfuse*Rfuse,  # [SP]
+                Askin >= (2 * pi + 4 * thetadb) * Rfuse * tskin + 2*dRfuse*tskin,
+                wfloor == wfuse,
+                TCS([2.*wfuse >= SPR * wseat + 2 * waisle + 2 * wsys + tdb]),
+                wfuse <= (Rfuse + wdb),
+                SignomialEquality(hfuse, Rfuse + 0.5*dRfuse), #[SP] #[SPEquality]
+                # hfuse <= Rfuse + 0.5*dRfuse,
                 TCS([tshell <= tskin * (1. + rE * fstring * rhoskin / rhobend)]), #[SP]
+                dRfuse >= 0.2*units('m'), #TODO REMOVE
 
                 # Fuselage surface area relations
                 Snose >= (2 * pi + 4 * thetadb) * Rfuse**2 * \
@@ -649,7 +650,6 @@ class Fuselage(Model):
 
                 # Fuselage length relations
                 SignomialEquality(lfuse, lnose + lshell + lcone),  
-                # lnose == 0.3 * lshell,  # TODO remove
                 lcone == Rfuse / lamcone,
                 xshell1 == lnose,
                 TCS([xshell2 >= lnose + lshell]), 
@@ -678,10 +678,10 @@ class Fuselage(Model):
                 # BENDING MODEL
                 # Maximum axial stress is the sum of bending and pressurization
                 # stresses
-                Ihshell <= ((pi + 4 * thetadb) * Rfuse**2) * \
-                Rfuse * tshell + 2 / 3 * hdb**3 * tdb,  # [SP]
-                Ivshell <= (pi*Rfuse**2 + 8*wdb*Rfuse +
-                (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell
+                Ihshell <= ((pi + 4 * thetadb) * Rfuse**2 + 8.*(1-thetadb**2/2) * (dRfuse/2.)*Rfuse + \
+                            (2*pi + 4 * thetadb)*(dRfuse/2)**2) * Rfuse * tshell + \
+                    2 / 3 * (hdb + dRfuse/2.)**3 * tdb,  # [SP]
+                Ivshell <= (pi*Rfuse**2 + 8*wdb*Rfuse + (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell
                 # approximation needs to be improved
                 sigbend == rE * sigskin,
 
@@ -976,7 +976,7 @@ substitutions = {
         # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72*units('m/s'),
         # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
-        '\\dot{r}_{req}': 0.001,#0.174533, # 10 deg/s yaw rate #TODO INACTIVE FOR TASOPT VALIDATION
+        '\\dot{r}_{req}': 0.001,#0.174533, # 10 deg/s yaw rate #TODO HEADS-UP: INACTIVE FOR TASOPT VALIDATION
         'N_{spar}': 2,
 
         # HT substitutions
@@ -1046,7 +1046,8 @@ if __name__ == '__main__':
                 'W_{engine}': 11185.4*0.454*9.81, #units('N')
                 # 'AR':15.749,
                 'h_{floor}': 0.13,
-                'R_{fuse}' : 1.715, #+ 0.43/2,
+                'R_{fuse}' : 1.715,
+                '\\delta R_{fuse}': 0.43,
                 'w_{db}': 0.93,
                 # 'b':139.6*0.3048,
                 # 'c_0': 17.4*0.3048,#units('ft'),
@@ -1059,7 +1060,6 @@ if __name__ == '__main__':
                 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
                 '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
-
 
                 #Wing subs
                 'C_{L_{wmax}}': 2.15,
