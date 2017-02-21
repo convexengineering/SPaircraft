@@ -995,7 +995,7 @@ substitutions = {
         'ReqRng': 3000*units('nmi'),
         '\\theta_{db}' : 0.366,
 ##        'CruiseAlt': 36632*units('ft'),
-        'CruiseAlt': 1000*units('ft'),
+##        'CruiseAlt': 1000*units('ft'),
         'numeng': 2,
         'n_{pax}': 180,
         'W_{avg. pass}': 180*units('lbf'),
