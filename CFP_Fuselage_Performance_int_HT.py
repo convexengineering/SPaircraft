@@ -24,7 +24,7 @@ from D8_Wing_simple_profile import Wing, WingPerformance
 from engine_validation import Engine
 
 #import constant relaxtion tool
-from relaxed_constants import relaxed_constants
+from relaxed_constants import relaxed_constants, post_process
 
 sweep = 27.566#30
 
@@ -1180,6 +1180,8 @@ if __name__ == '__main__':
         m = relaxed_constants(m)
         
         sol = m.localsolve( verbosity = 4, iteration_limit=50)
+
+        post_process(sol)
 
     if sweeps:
         if sweepSMmin:
