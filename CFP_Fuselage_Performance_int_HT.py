@@ -23,6 +23,9 @@ from D8_HT_simple_profile import HorizontalTail, HorizontalTailPerformance
 from D8_Wing_simple_profile import Wing, WingPerformance
 from engine_validation import Engine
 
+#import constant relaxtion tool
+from relaxed_constants import relaxed_constants
+
 sweep = 27.566#30
 
 """
@@ -1118,7 +1121,7 @@ if __name__ == '__main__':
                 'f_{seat}':0.1,
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
-                'W_{engine}': 15100.3*0.454*9.81, #units('N')
+##                'W_{engine}': 15100.3*0.454*9.81, #units('N')
                 'AR':10.8730,
                 'h_{floor}': 0.13,
                 'R_{fuse}' : 1.715,
@@ -1148,7 +1151,7 @@ if __name__ == '__main__':
                 'f_{seat}':0.1,
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
-                'W_{engine}': 11185.4*0.454*9.81, #units('N')
+##                'W_{engine}': 11185.4*0.454*9.81, #units('N')
                 # 'AR':15.749,
                 'h_{floor}': 0.13,
                 'R_{fuse}' : 1.715,
@@ -1173,6 +1176,9 @@ if __name__ == '__main__':
                 'M_{min}': 0.72,
             })
             m.substitutions.__delitem__('\\theta_{db}')
+
+        m = relaxed_constants(m)
+        
         sol = m.localsolve( verbosity = 4, iteration_limit=50)
 
     if sweeps:
