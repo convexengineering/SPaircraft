@@ -161,6 +161,9 @@ class Aircraft(Model):
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
 
+                            #vertical tail volume coefficient
+                            self.VT['V_{vt}'] == self.VT['S_{vt}'] * self.VT['x_{CG_{vt}}']/(self.wing['S']*self.wing['b']),
+
                             # Vertical bending material coefficient (VT aero loads)
                             self.fuse['B1v'] == self.fuse['r_{M_v}']*2.*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
 
@@ -179,20 +182,17 @@ class Aircraft(Model):
                                     (xCGmin**3 + self.VT['l_{vt}']**3)/(3.*g), #+ (self.fuse['l_{fuse}'] - xCGmin)**3. #TODO determine the weird units error
 
                             TCS([self.VT['I_{z}'] >= Izwing + Iztail + Izfuse]),
-
-                            #tail volume coefficient
-                            self.VT['V_{vt}'] == self.VT['S_{vt}'] * self.VT['x_{CG_{vt}}']/(self.wing['S']*self.wing['b']),
                             ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
 
         return self.components, constraints
 
-    def climb_dynamic(self, state):  # creates an aircraft climb performance model, given a state
-        return ClimbP(self, state)
+    def climb_dynamic(self, state, Nclimb):  # creates an aircraft climb performance model, given a state
+        return ClimbP(self, state, Nclimb)
 
-    def cruise_dynamic(self, state): # creates an aircraft cruise performance model, given a state
-        return CruiseP(self, state)
+    def cruise_dynamic(self, state, Nclimb): # creates an aircraft cruise performance model, given a state
+        return CruiseP(self, state, Nclimb)
 
 
 class AircraftP(Model):
@@ -327,10 +327,7 @@ class AircraftP(Model):
 
 class ClimbP(Model): # Climb performance constraints
 
-    def setup(self, aircraft, state, **kwargs):
-        #TODO
-        Nclimb = 2
-        
+    def setup(self, aircraft, state, Nclimb, **kwargs):
         # submodels
         self.aircraft = aircraft
         self.aircraftP = AircraftP(aircraft, state)
@@ -376,11 +373,7 @@ class ClimbP(Model): # Climb performance constraints
 
 class CruiseP(Model): # Cruise performance constraints
 
-    def setup(self, aircraft, state, **kwargs):
-        #TODO
-        Nclimb = 2
-
-        
+    def setup(self, aircraft, state, Nclimb, **kwargs):
         self.aircraft = aircraft
         self.aircraftP = AircraftP(aircraft, state)
         self.wingP = self.aircraftP.wingP
@@ -414,16 +407,16 @@ class CruiseP(Model): # Cruise performance constraints
 
 
 class CruiseSegment(Model): # Combines FlightState and Aircraft to form a cruise flight segment
-    def setup(self, aircraft, **kwargs):
+    def setup(self, aircraft, Nclimb, **kwargs):
         self.state = FlightState()
-        self.cruiseP = aircraft.cruise_dynamic(self.state)
+        self.cruiseP = aircraft.cruise_dynamic(self.state, Nclimb)
         return self.state, self.cruiseP
 
 
 class ClimbSegment(Model): # Combines FlightState and Aircraft to form a climb flight segment
-    def setup(self, aircraft, **kwargs):
+    def setup(self, aircraft, Nclimb, **kwargs):
         self.state = FlightState()
-        self.climbP = aircraft.climb_dynamic(self.state)
+        self.climbP = aircraft.climb_dynamic(self.state, Nclimb)
         return self.state, self.climbP
 
 class StateLinking(Model):
@@ -468,10 +461,10 @@ class Mission(Model):
 
         # vectorize
         with Vectorize(Nclimb):
-            climb = ClimbSegment(aircraft)
+            climb = ClimbSegment(aircraft, Nclimb)
 
         with Vectorize(Ncruise):
-            cruise = CruiseSegment(aircraft)
+            cruise = CruiseSegment(aircraft, Nclimb)
 
         statelinking = StateLinking(climb.state, cruise.state, enginestate, Nclimb, Ncruise)
 
@@ -534,7 +527,7 @@ class Mission(Model):
             # Altitude constraints
             hftCruise >= CruiseAlt,
 ##            hftCruise <= 36632*units('ft'),
-            TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise - 1] + dhft]),
+            TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise - 1] + dhft[1:Ncruise]]),
             TCS([hftClimb[0] >= dhft[0]]),
             hftClimb[-1] <= hftCruise,
 
