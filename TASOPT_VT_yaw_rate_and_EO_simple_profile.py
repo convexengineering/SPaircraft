@@ -309,6 +309,7 @@ class VerticalTailNoStruct(Model):
         y_eng  = Variable('y_{eng}', 'm', 'Engine moment arm')
         zmac   = Variable('z_{\\bar{c}_{vt}}', 'm',
                           'Vertical location of mean aerodynamic chord')
+        Vvt = Variable('V_{vt}', '-', 'Vertical Tail Volume Coefficient')
 
         #engine values
         Te     = Variable('T_e', 'N', 'Thrust per engine at takeoff')
