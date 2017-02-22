@@ -556,7 +556,7 @@ class Mission(Model):
             cruise.cruiseP.fuseP['f_{BLI}'] == 0.91,
 
             # Wing fuel constraints
-            aircraft.wing['W_{fuel_{wing}}'] == W_ftotal,
+            aircraft.wing['W_{fuel_{wing}}'] == W_ftotal/aircraft.wing['FuelFrac'],
 
             # Cruise Mach Number constraint
             cruise['M'] >= aircraft['M_{min}'],
@@ -626,7 +626,7 @@ substitutions = {
         'W_{avg. pass}': 180*units('lbf'),
         'W_{carry on}': 15*units('lbf'),
         'W_{cargo}': 10000*units('N'),
-        'W_{checked}':20*units('lbf'),
+        'W_{checked}':40*units('lbf'),
         'W_{fix}': 3000*units('lbf'),
         'w_{aisle}': 0.51*units('m'),
         'w_{seat}': 0.5*units('m'),
@@ -663,6 +663,7 @@ substitutions = {
         '\\eta': 0.97,
         '\\rho_0': 1.225*units('kg/m^3'),
         '\\rho_{fuel}': 817*units('kg/m^3'),  # Kerosene [TASOPT]
+        'FuelFrac': 0.9,
 
         # VT substitutions
        'C_{D_{wm}}': 0.5, # [2]

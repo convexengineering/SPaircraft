@@ -285,6 +285,7 @@ class WingNoStruct(Model):
         mac    = Variable('mac', 'm',
                           'Mean aerodynamic chord (wing)')
         e       = Variable('e', '-', 'Oswald efficiency factor')
+        FuelFrac = Variable('FuelFrac', '-', 'Usability Factor of Max Fuel Volume')
 
         
         #make cosntraints
@@ -311,7 +312,7 @@ class WingNoStruct(Model):
                          + 0.1659*taper**2 - 0.0706*taper + 0.0119],
                     reltol=1E-2),
                 TCS([e*(1 + fl*AR) <= 1]),
-                taper >= 0.2, # TODO
+                taper >= 0.15, # TODO
 
                 # Fuel volume [TASOPT doc]
                 TCS([Afuel <= wwn*0.92*tau]),
