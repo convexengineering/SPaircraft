@@ -29,8 +29,20 @@ def updateOpenVSP(inputDict):
         f.close()
 
 # Vehicle descriptors
-xCGmin = sol('x_{CG_{min}}').to('m')
+# xCGmin = sol('x_{CG_{min}}').to('m')
 # xAC = sol('x_{AC}').to('m')
+
+# varkeys = [k.str_without('models') for k in sol.program.gps[-1].varlocs if "Relax" not in k.models]
+solNR = sol
+# varkeys = [i.str_without]
+# for i in varkeys:
+#     if '(' not in i:
+#         for j in i.iterkeys:
+#             if 'Relax' not in j:
+#                 solNR.update({i:sol(i).magnitude})
+
+# for i in solNR:
+
 
 # Wing descriptors
 b = sol('b').to('m')
@@ -40,8 +52,8 @@ S = sol('S').to('m^2')
 xwing = sol('x_{wing}').to('m')
 
 # Fuselage descriptors
-hfloor = sol('h_{floor}').to('m')
-lnose = sol('l_{nose}').to('m')
+hfloor = sol('h_{floor}_Mission, Aircraft, Fuselage').to('m')
+lnose = sol('l_{nose}_Mission, Aircraft, Fuselage').to('m')
 lshell = sol('l_{shell}').to('m')
 lcone = sol('l_{cone}').to('m')
 lfloor = sol('l_{floor}').to('m')
@@ -49,8 +61,8 @@ lfuse = sol('l_{fuse}').to('m')
 hfuse = sol('h_{fuse}').to('m')
 wfuse = sol('w_{fuse}').to('m')
 wfloor = sol('w_{floor}').to('m')
-wdb = sol('w_{db}').to('m')
-Rfuse = sol('R_{fuse}').to('m')
+wdb = sol('w_{db}_Mission, Aircraft, Fuselage').to('m')
+Rfuse = sol('R_{fuse}_Mission, Aircraft, Fuselage').to('m')
 
 # Horizontal Tail descriptors
 xCGht = sol('x_{CG_{ht}}').to('m')
@@ -59,7 +71,7 @@ ctipht = sol('c_{tip_h}').to('m')
 bht = sol('b_{ht}').to('m')
 xCGht = sol('x_{CG_{ht}}')
 lht = sol('l_{ht}').to('m')
-tanht = sol('\\tan(\\Lambda_{ht})')
+tanht = sol('\\tan(\Lambda_{ht})_Mission, Aircraft, HorizontalTail, HorizontalTailNoStruct')
 
 # Vertical Tail descriptors
 xCGvt = sol('x_{CG_{vt}}').to('m')
@@ -71,10 +83,10 @@ crootvt = sol('c_{root_{vt}}').to('m')
 ctipvt = sol('c_{tip_{vt}}').to('m')
 dxleadvt = sol('\\Delta x_{lead_v}').to('m')
 dxtrailvt = sol('\\Delta x_{trail_v}').to('m')
-tanvt = sol('\\tan(\\Lambda_{vt})')
+tanvt = sol('\\tan(\Lambda_{vt})_Mission, Aircraft, VerticalTail, VerticalTailNoStruct')
 
 # Engine descriptors
-A_2 = sol('A_2_Mission, Aircraft, Engine') # Engine frontal area
+A_2 = sol('A_2') # Engine frontal area
 
 
 # List of variables still to integrate
@@ -119,7 +131,7 @@ resultsDict = {
     'HPKOTUWYSIY':float(2*wfuse.magnitude), # Fuselage width
 
     # HT Variables
-    'USGQFZQKJWC':float(xCGht.magnitude - 0.5*crootht.magnitude - 1.0*tanvt*bvt.magnitude), # HT x location
+    'USGQFZQKJWC':float(float(xCGht.magnitude) - 0.5*crootht.magnitude - 1.0*tanvt*bvt.magnitude), # HT x location
     'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),                                             # HT z location
     'IFZAMYYJPRP':float(30.),                                                             # HT sweep
     'CHYQUCYJMPS':float(bht.magnitude*0.5),                                               # HT half-span
