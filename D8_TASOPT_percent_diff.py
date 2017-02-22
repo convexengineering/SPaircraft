@@ -48,20 +48,24 @@ def percent_diff(sol, version):
         print "\n\n\n"
         print "HORIZONTAL TAIL DIFFERENCES"
         print "\n"
-        print "HT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR_h')), 12.0000)
+##        print "HT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR_h')), 12.0000)
         print "\n"
         print "HT Area Percent Diff: %s" % compute_diff(mag(sol('S_h').to('ft^2')), 243.76  )
+        print "\n"
+        print "HT Volume Coefficient Percent Diff: %s" % compute_diff(mag(sol('V_{h}')), .913) 
         
 
         #VT values to compare
         print "\n\n\n"
         print "VERTICAL TAIL DIFFERENCES"
         print "\n"
-        print "VT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('A_{vt}')), 2.2000)
+##        print "VT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('A_{vt}')), 2.2000)
         print "\n"
         print "VT Span Percent Diff: %s" % compute_diff(mag(sol('b_{vt}').to('ft')), 11.59)
         print "\n"
-        print "VT Area Percent Diff: %s" % compute_diff(mag(sol('S_{vt}').to('ft^2')), 122.03) 
+        print "VT Area Percent Diff: %s" % compute_diff(mag(sol('S_{vt}').to('ft^2')), 122.03)
+        print "\n"
+        print "VT Volume Coefficient Percent Diff: %s" % compute_diff(mag(sol('V_{vt}')), .03) 
 
 def compute_diff(sp, tasopt):
     """
