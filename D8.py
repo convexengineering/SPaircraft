@@ -22,6 +22,9 @@ from D8_Fuselage import Fuselage, FuselagePerformance
 #import constant relaxtion tool
 from relaxed_constants import relaxed_constants, post_process
 
+#import tool to check solution relative to TAOSPT
+from D8_TASOPT_percent_diff import percent_diff
+
 sweep = 27.566#30
 
 """
@@ -51,7 +54,7 @@ Other markers:
 
 # Script for doing sweeps
 n = 5
-sweeps = True
+sweeps = False
 sweepSMmin = False
 sweepdxCG = True
 sweepReqRng = True
@@ -775,12 +778,12 @@ if __name__ == '__main__':
                 # 'b':139.6*0.3048,
                 # 'c_0': 17.4*0.3048,#units('ft'),
                 #HT subs
-                'AR_h': 12.,
+##                'AR_h': 12.,
                 '\\lambda_h' : 0.3,
                 '\\tan(\\Lambda_{ht})': np.tan(8*np.pi/180), # tangent of HT sweep
 
                 #VT subs
-                'A_{vt}' : 2.2,
+##                'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
                 '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
 
@@ -797,6 +800,8 @@ if __name__ == '__main__':
         sol = m.localsolve( verbosity = 4, iteration_limit=50)
 
         post_process(sol)
+
+        percent_diff(sol, 2)
 
     if sweeps:
         if sweepSMmin:
