@@ -1,5 +1,6 @@
-"""Simple commercial aircraft flight profile and aircraft model"""
+"""Simple commercial aircraft flight profile and D8 aircraft model"""
 """ Combines Wing, VerticalTail, and Fuselage models for D8"""
+
 from numpy import pi, cos, tan
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
@@ -49,9 +50,9 @@ Other markers:
 """
 
 # Script for doing sweeps
-n = 20
-sweeps = False
-sweepSMmin = True
+n = 5
+sweeps = True
+sweepSMmin = False
 sweepdxCG = True
 sweepReqRng = True
 sweepthetadb = True
@@ -59,6 +60,7 @@ sweepxCG = True
 sweepCruiseAlt = True
 sweepMmin = True
 sweepnpax = True
+sweepResFuel = True
 
 plot = True
 
@@ -803,7 +805,7 @@ if __name__ == '__main__':
             SMminArray = np.linspace(0.05,0.5,n)
             m.substitutions.update({'SM_{min}': ('sweep',SMminArray)})
             m = relaxed_constants(m)
-            solSMsweep = m.localsolve(verbosity = 2, skipsweepfailures=True)
+            solSMsweep = m.localsolve(verbosity = 4, skipsweepfailures=True)
 
             if plot:
                 plt.plot(solSMsweep('SM_{min}'), solSMsweep('S_h'), '-r')
@@ -820,12 +822,12 @@ if __name__ == '__main__':
                 plt.savefig('CFP_Sweeps/V_{h}-vs-SM_{min}.pdf')
                 plt.show(), plt.close()
 
-                plt.plot(solSMsweep('SM_{min}'), np.mean(solSMsweep('x_{CG}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
-                plt.xlabel('Minimum Allowed Static Margin')
-                plt.ylabel('CG Location [m]')
-                plt.title('CG Location vs Min Static Margin')
-                plt.savefig('CFP_Sweeps/x_{CG}-vs-SM_{min}.pdf')
-                plt.show(), plt.close()
+##                plt.plot(solSMsweep('SM_{min}'), np.mean(solSMsweep('x_{CG}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
+##                plt.xlabel('Minimum Allowed Static Margin')
+##                plt.ylabel('CG Location [m]')
+##                plt.title('CG Location vs Min Static Margin')
+##                plt.savefig('CFP_Sweeps/x_{CG}-vs-SM_{min}.pdf')
+##                plt.show(), plt.close()
 
         if sweepReqRng:
             m = Mission()
@@ -894,8 +896,6 @@ if __name__ == '__main__':
                 plt.title('Fuselage Weight vs Fuselage Joint Angle')
                 plt.savefig('CFP_Sweeps/W_fuse-vs-thetadb.pdf')
                 plt.show(), plt.close()
-
-
 
         if sweepdxCG:
             m = Mission()
@@ -992,7 +992,6 @@ if __name__ == '__main__':
                 plt.savefig('CFP_Sweeps/M-vs-CruiseAlt.pdf')
                 plt.show(), plt.close()
 
-
         if sweepMmin:
             m = Mission()
             m.substitutions.update(substitutions)
@@ -1044,12 +1043,12 @@ if __name__ == '__main__':
                 plt.savefig('CFP_Sweeps/S-vs-Mmin.pdf')
                 plt.show(),plt.close()
 
-                plt.plot(solMminsweep('M_{min}'),solMminsweep('CruiseAlt'))
-                plt.xlabel('Minimum Cruise Mach Number')
-                plt.ylabel('Cruise Altitude')
-                plt.title('Cruise Altitude vs. Minimum Cruise Mach Number')
-                plt.savefig('CFP_Sweeps/CruiseAlt-vs-Mmin.pdf')
-                plt.show(),plt.close()
+##                plt.plot(solMminsweep('M_{min}'),solMminsweep('CruiseAlt'))
+##                plt.xlabel('Minimum Cruise Mach Number')
+##                plt.ylabel('Cruise Altitude')
+##                plt.title('Cruise Altitude vs. Minimum Cruise Mach Number')
+##                plt.savefig('CFP_Sweeps/CruiseAlt-vs-Mmin.pdf')
+##                plt.show(),plt.close()
 
         if sweepnpax:
             m = Mission()
@@ -1123,6 +1122,74 @@ if __name__ == '__main__':
                 plt.savefig('CFP_Sweeps/fwing-vs-npax.pdf')
                 plt.show(),plt.close()
 
+        if sweepResFuel:
+            m = Mission()
+            m.substitutions.update(substitutions)
+            ResFuelArray = np.linspace(.05,.25,n)
+            m.substitutions.update({'ReserveFraction':('sweep',ResFuelArray)})
+            m = relaxed_constants(m)
+            solResFuelsweep = m.localsolve(verbosity=2,skipsweepfailures=True,iteration_limit=30)
+            
+            if plot:
+                plt.plot(solResFuelSweep('n_{pax}'),solResFuelSweep('W_{total}')),
+                plt.xlabel('Reserve Fuel Fraction')
+                plt.ylabel('Takeoff Weight [lbf]')
+                plt.title('Takeoff Weight vs Reserve Fuel Fraction')
+                plt.savefig('CFP_Sweeps/Wtotal-vs-resfuel.pdf')
+                plt.show(),plt.close()
 
+                plt.plot(solResFuelSweep('n_{pax}'),solResFuelSweep('W_{f_{total}}'))
+                plt.xlabel('Reserve Fuel Fraction')
+                plt.ylabel('Total Fuel Weight [lbf]')
+                plt.title('Total Fuel Weight vs Reserve Fuel Fraction')
+                plt.savefig('CFP_Sweeps/Wftotal-vs-resfuel.pdf')
+                plt.show(),plt.close()
 
+                plt.plot(solResFuelSweep('n_{pax}'),solResFuelSweep('AR'))
+                plt.xlabel('Reserve Fuel Fraction')
+                plt.ylabel('Aspect Ratio')
+                plt.title('Aspect Ratio vs Reserve Fuel Fraction')
+                plt.savefig('CFP_Sweeps/AR-vs-resfuel.pdf')
+                plt.show(),plt.close()
 
+                plt.plot(solResFuelSweep('n_{pax}'),solResFuelSweep('CruiseAlt'))
+                plt.xlabel('Reserve Fuel Fraction')
+                plt.ylabel('Cruise Altitude [ft]')
+                plt.title('Cruise Altitude vs Reserve Fuel Fraction')
+                plt.savefig('CFP_Sweeps/CruiseAlt-vs-resfuel.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solResFuelSweep('n_{pax}'),solResFuelSweep('S'))
+                plt.xlabel('Reserve Fuel Fraction')
+                plt.ylabel('Wing Area [m^2]')
+                plt.title('Wing Area vs Reserve Fuel Fraction')
+                plt.savefig('CFP_Sweeps/S-vs-resfuel.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solResFuelSweep('n_{pax}'),solResFuelSweep('W_{fuse}'))
+                plt.xlabel('Reserve Fuel Fraction')
+                plt.ylabel('Fuselage Weight [lbf]')
+                plt.title('Fuselage Weight vs Reserve Fuel Fraction')
+                plt.savefig('CFP_Sweeps/Wfuse-vs-resfuel.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solResFuelSweep('n_{pax}'),solResFuelSweep('W_{f_{total}}')/solResFuelSweep('W_{total}'))
+                plt.xlabel('Reserve Fuel Fraction')
+                plt.ylabel('Fuel Mass Fraction')
+                plt.title('Fuel Mass Fraction vs Reserve Fuel Fraction')
+                plt.savefig('CFP_Sweeps/ffuel-vs-resfuel.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solResFuelSweep('n_{pax}'),solResFuelSweep('W_{payload}')/solResFuelSweep('W_{total}'))
+                plt.xlabel('Reserve Fuel Fraction')
+                plt.ylabel('Payload Mass Fraction')
+                plt.title('Payload Mass Fraction vs Reserve Fuel Fraction')
+                plt.savefig('CFP_Sweeps/fpayload-vs-resfuel.pdf')
+                plt.show(),plt.close()
+
+                plt.plot(solResFuelSweep('n_{pax}'),solResFuelSweep('W_{wing}')/solResFuelSweep('W_{total}'))
+                plt.xlabel('Reserve Fuel Fraction')
+                plt.ylabel('Wing Mass Fraction')
+                plt.title('Wing Mass Fraction vs Reserve Fuel Fraction')
+                plt.savefig('CFP_Sweeps/fwing-vs-resfuel.pdf')
+                plt.show(),plt.close()
