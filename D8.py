@@ -156,9 +156,10 @@ class Aircraft(Model):
 
                             # HT Max Loading
                             TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
-                            # TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
 
-                            TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]), #TODO improve
+                            self.HT['M_r']*self.HT['c_{root_h}'] >= self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4) \
+                                  + self.HT['L_{h_{tri}}']*(self.HT['b_{ht}']/6) - self.fuse['w_{fuse}']*self.HT['L_{{max}_h}']/2., #[SP]
+                            # TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]), #TODO improve
 
 
                             # HT/VT joint constraint
@@ -798,7 +799,7 @@ if __name__ == '__main__':
                 'AR_h': 12.,
                 '\\lambda_h' : 0.3,
                 '\\tan(\\Lambda_{ht})': np.tan(8*np.pi/180), # tangent of HT sweep
-                'V_{h}': 0.895,
+                # 'V_{h}': 0.895,
 
                 #VT subs
                 'A_{vt}' : 2.2,

@@ -444,7 +444,14 @@ class HorizontalTail(Model):
         self.HTns = HorizontalTailNoStruct()
         self.wb = WingBox(self.HTns)
 
-        return self.HTns, self.wb
+        constraints = []
+        with SignomialsEnabled():
+            constraints.append([
+                self.wb['L_{h_{rect}}'] >= self.wb['L_{{max}_h}']/2.*self.HTns['c_{tip_h}']*self.HTns['b_{ht}']/self.HTns['S_h'],
+                self.wb['L_{h_{tri}}'] >= self.wb['L_{{max}_h}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_h}']*self.HTns['b_{ht}']/self.HTns['S_h'], #[SP]
+            ])
+
+        return self.HTns, self.wb, constraints
 
 
     def dynamic(self, fuse, wing, state):
@@ -491,6 +498,11 @@ class WingBox(Model):
         w      = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
+
+
+        # Pi tail sizing variables
+        Lhtri = Variable('L_{h_{tri}}','N','Triangular HT load')
+        Lhrect = Variable('L_{h_{rect}}','N','Rectangular HT load')
         
         objective = Wstruct
 
