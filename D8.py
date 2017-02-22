@@ -560,6 +560,7 @@ class Mission(Model):
 
             # Cruise Mach Number constraint
             cruise['M'] >= aircraft['M_{min}'],
+
         ])
 
         with SignomialsEnabled():
@@ -568,17 +569,17 @@ class Mission(Model):
                 TCS([sum(climb['RngClimb']) + RngCruise >= ReqRng]),
                 ])
         
-        M2 = .8
+        M2 = .6
         M25 = .6
         M4a = .1025
-        M0 = .8
+        M0 = .5
 
         engineclimb = [
             aircraft.engine.engineP['M_2'][:Nclimb] == climb['M'],
             aircraft.engine.engineP['M_{2.5}'][:Nclimb] == M25,
-            aircraft.engine.engineP['hold_{2}'] == 1+.5*(1.398-1)*M2**2,
-            aircraft.engine.engineP['hold_{2.5}'] == 1+.5*(1.354-1)*M25**2,
-            aircraft.engine.engineP['c1'] == 1+.5*(.401)*M0**2,
+            aircraft.engine.engineP['hold_{2}'][:Nclimb] == 1+.5*(1.398-1)*M2**2,
+            aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1+.5*(1.354-1)*M25**2,
+            aircraft.engine.engineP['c1'][:Nclimb] == 1+.5*(.401)*M0**2,
 
             #constraint on drag and thrust
             aircraft['numeng']*aircraft.engine['F_{spec}'][:Nclimb] >= climb['D'] + climb['W_{avg}'] * climb['\\theta'],
@@ -587,11 +588,17 @@ class Mission(Model):
             TCS([climb['excessP'] + climb.state['V'] * climb['D'] <=  climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
 
+        M2 = .6
         M25 = .6
+        M4a = .1025
+        M0 = .72
 
         enginecruise = [
             aircraft.engine.engineP['M_2'][Nclimb:] == cruise['M'],
             aircraft.engine.engineP['M_{2.5}'][Nclimb:] == M25,
+            aircraft.engine.engineP['hold_{2}'][Nclimb:] == 1+.5*(1.398-1)*M2**2,
+            aircraft.engine.engineP['hold_{2.5}'][Nclimb:] == 1+.5*(1.354-1)*M25**2,
+            aircraft.engine.engineP['c1'][Nclimb:] == 1+.5*(.401)*M0**2,
             
             #steady level flight constraint on D 
             cruise['D'] == aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
@@ -682,7 +689,7 @@ substitutions = {
         # HT substitutions
         '\\alpha_{max,h}': 2.5,
         '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-        'C_{L_{hmax}}': 2.0, # [TAS]
+        'C_{L_{hmax}}': 1.225,#2.0, # [TAS]
         'SM_{min}': 0.05,
         '\\Delta x_{CG}': 2.0*units('m'),
         'x_{CG_{min}}' : 13.0*units('m'),
@@ -694,16 +701,16 @@ substitutions = {
         '\pi_{fn}': .98,
         'T_{ref}': 288.15,
         'P_{ref}': 101.325,
-        '\eta_{HPshaft}': .978,
-        '\eta_{LPshaft}': .99,
+        '\eta_{HPshaft}': .97,
+        '\eta_{LPshaft}': .97,
         'eta_{B}': .9827,
 
         '\pi_{f_D}': fan,
         '\pi_{hc_D}': hpc,
         '\pi_{lc_D}': lpc,
 
-        '\\alpha_{OD}': 5.105,
-        '\\alpha_{max}': 5.105,
+        '\\alpha_{OD}': 6.97,
+        '\\alpha_{max}': 6.97,
 
         'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
         'r_{uc}': .01,
