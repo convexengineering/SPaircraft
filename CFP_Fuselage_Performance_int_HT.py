@@ -71,6 +71,7 @@ plot = True
 # Only one active at a time
 D80 = False
 D82 = True
+B737 = False
 
 g = 9.81 * units('m*s**-2')
 
