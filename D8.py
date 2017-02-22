@@ -688,7 +688,7 @@ substitutions = {
         # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72*units('m/s'),
         # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
-        '\\dot{r}_{req}': .01,#0.174533, # 10 deg/s yaw rate #TODO HEADS-UP: INACTIVE FOR TASOPT VALIDATION
+        '\\dot{r}_{req}': 0.174533, # 10 deg/s/s yaw rate acceleration
         'N_{spar}': 2,
 
         # HT substitutions
@@ -803,7 +803,7 @@ if __name__ == '__main__':
                 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
                 '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
-                'V_{vt}': .03,
+##                'V_{vt}': .03,
 
                 #Wing subs
                 'C_{L_{wmax}}': 2.15,
