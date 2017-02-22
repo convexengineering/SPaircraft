@@ -2,6 +2,7 @@
 from gpkit import Model, Variable, SignomialsEnabled, units, Vectorize, SignomialEquality
 from gpkit.constraints.tight import Tight as TCS
 from gpkit.small_scripts import mag
+import numpy as np
 
 #Cp and gamma values estimated from https://www.ohio.edu/mechanical/thermo/property_tables/air/air_Cp_Cv.html
 
@@ -61,6 +62,10 @@ class Engine(Model):
         #engine weight
         W_engine = Variable('W_{engine}', 'N', 'Weight of a Single Turbofan Engine')
 
+        #engine fan diameter
+        df = Variable('d_{f}', 'm', 'Fan Diameter')
+        HTRfSub = Variable('HTR_{f_SUB}', '-', '1 - HTRf^2')
+
         #make the constraints
         constraints = []
 
@@ -69,6 +74,10 @@ class Engine(Model):
             weight = [
                   W_engine >= ((self.engineP['m_{total}']/(self.engineP['alphap1']*self.engineP['m_{core}'])*self.engineP['m_{core}'])*.220462)*(1684.5+17.7*(self.engineP['\pi_f']*self.engineP['\pi_{lc}']*self.engineP['\pi_{hc}'])/30+1662.2*(self.engineP['\\alpha']/5)**1.2)*self.engineP['dum2'],
                   ]
+
+            diameter = [
+                df == (4 * self.sizing['A_2']/(np.pi * HTRfSub))**.5,
+                ]
 
             fmix = [
                 #compute f with mixing
@@ -282,10 +291,10 @@ class Engine(Model):
                     ]
 
         if cooling == True:
-            constraints = [weight, fmix, shaftpower, hptexit, fanmap, lpcmap, hpcmap, thrust, res1, res2, res3, res4, res5, massflux, fanarea, HPCarea, onDest, res7list]
+            constraints = [weight, diameter, fmix, shaftpower, hptexit, fanmap, lpcmap, hpcmap, thrust, res1, res2, res3, res4, res5, massflux, fanarea, HPCarea, onDest, res7list]
 
         if cooling == False:
-            constraints = [weight, fnomix, shaftpower, hptexit, fanmap, lpcmap, hpcmap, thrust, res1, res2, res3, res4, res5, massflux, fanarea, HPCarea, onDest, res7list]
+            constraints = [weight, diameter, fnomix, shaftpower, hptexit, fanmap, lpcmap, hpcmap, thrust, res1, res2, res3, res4, res5, massflux, fanarea, HPCarea, onDest, res7list]
         
         return models, constraints
 
@@ -1476,6 +1485,8 @@ def test():
             'Cp_t1': 1280,
             'Cp_t2': 1184,
             'Cp_c': 1216,
+
+            'HTR_{f_SUB}': 1-.3**2,
            }
     m = Model((10*engine.engineP.thrustP['TSFC'][0]+engine.engineP.thrustP['TSFC'][1]) * (engine['W_{engine}'] * units('1/hr/N'))**.00001, [engine, mission], substitutions, x0=x0)
     m.substitutions.update(substitutions)
@@ -1525,6 +1536,8 @@ def test():
             'Cp_t1': 1280,
             'Cp_t2': 1184,
             'Cp_c': 1216,
+
+            'HTR_{f_SUB}': 1-.3**2,
            }
     m = Model((10*engine.engineP.thrustP['TSFC'][2]+engine.engineP.thrustP['TSFC'][1]+engine.engineP.thrustP['TSFC'][0]) * (engine['W_{engine}'] * units('1/hr/N'))**.00001, [engine, mission], substitutions, x0=x0)
     m.substitutions.update(substitutions)
@@ -1575,6 +1588,8 @@ def test():
         'Cp_t1': 1280,
         'Cp_t2': 1184,
         'Cp_c': 1216,
+
+        'HTR_{f_SUB}': 1-.3**2,
         }
     m = Model((10*engine.engineP.thrustP['TSFC'][0]+engine.engineP.thrustP['TSFC'][1]) * (engine['W_{engine}'] * units('1/hr/N'))**.00001, [engine, mission], substitutions, x0=x0)
     m.substitutions.update(substitutions)
@@ -1645,6 +1660,8 @@ if __name__ == "__main__":
                 'Cp_t1': 1280,
                 'Cp_t2': 1184,
                 'Cp_c': 1216,
+
+                'HTR_{f_SUB}': 1-.3**2,
                }
 
     if eng == 1:
@@ -1684,6 +1701,8 @@ if __name__ == "__main__":
                 'Cp_t1': 1280,
                 'Cp_t2': 1184,
                 'Cp_c': 1216,
+
+                'HTR_{f_SUB}': 1-.3**2,
                }
 
     if eng == 2:
@@ -1724,6 +1743,8 @@ if __name__ == "__main__":
             'Cp_t1': 1280,
             'Cp_t2': 1184,
             'Cp_c': 1216,
+
+            'HTR_{f_SUB}': 1-.3**2,
             }
 
     #dict of initial guesses

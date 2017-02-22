@@ -165,7 +165,7 @@ class Aircraft(Model):
                             self.HT['b_{ht}']/(self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
                             # VT height constraint (4*engine radius)
-                            self.VT['b_{vt}']**2 >= 16.*self.engine['A_2']/np.pi,
+                            self.VT['b_{vt}'] >= 2 * self.engine['d_{f}'],
 
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
@@ -730,6 +730,8 @@ substitutions = {
         'Cp_t1': 1280,
         'Cp_t2': 1184,
         'Cp_c': 1216,
+
+        'HTR_{f_SUB}': 1-.3**2,
 
         # Cabin air substitutions in AircraftP
 
