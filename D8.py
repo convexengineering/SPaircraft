@@ -479,6 +479,8 @@ class Mission(Model):
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
         RngCruise = Variable('RngCruise', 'nautical_miles', 'Total Cruise Range')
+        ReserveFraction = Variable('ReserveFraction', '-', 'Fuel Reserve Fraction')
+        W_fprimary = Variable('W_{f_{primary}}', 'N', 'Total Fuel Weight Less Fuel Reserves')
 
         h = climb.state['h']
         hftClimb = climb.state['hft']
@@ -517,7 +519,8 @@ class Mission(Model):
 
             TCS([W_dry <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
-            TCS([W_ftotal >= W_fclimb + W_fcruise]),
+            TCS([W_ftotal >= W_fprimary + ReserveFraction * W_fprimary]),
+            TCS([W_fprimary >= W_fclimb + W_fcruise]),
             TCS([W_fclimb >= sum(climb.climbP.aircraftP['W_{burn}'])]),
             TCS([W_fcruise >= sum(cruise.cruiseP.aircraftP['W_{burn}'])]),
 
@@ -712,6 +715,8 @@ substitutions = {
 
         # Cabin air substitutions in AircraftP
 
+        #set the fuel reserve fraction
+        'ReserveFraction': .05,
 }
 
 if __name__ == '__main__':
