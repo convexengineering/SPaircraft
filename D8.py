@@ -25,7 +25,7 @@ from relaxed_constants import relaxed_constants, post_process
 #import tool to check solution relative to TAOSPT
 from D8_TASOPT_percent_diff import percent_diff
 
-sweep = 27.566#30
+
 
 """
 Models requird to minimize the aircraft total fuel weight. Rate of climb equation taken from John
@@ -70,6 +70,11 @@ plot = True
 # Only one active at a time
 D80 = False
 D82 = True
+
+sweep = 27.566#30 [deg]
+
+if D82:
+     sweep = 13.237  # [deg]
 
 g = 9.81 * units('m*s**-2')
 
@@ -213,6 +218,7 @@ class AircraftP(Model):
         # variable definitions
         Vstall = Variable('V_{stall}',120, 'knots', 'Aircraft Stall Speed')
         D = Variable('D', 'N', 'Total Aircraft Drag')
+        C_D = Variable('C_D', '-', 'Total Aircraft Drag Coefficient')
         LoD = Variable('L/D','-','Lift-to-Drag Ratio')
         W_avg = Variable(
             'W_{avg}', 'lbf', 'Geometric Average of Segment Start and End Weight')
@@ -250,6 +256,7 @@ class AircraftP(Model):
 
             # compute the drag
             D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}'],
+            C_D == D/(.5*state['\\rho']*state['V']**2 * self.aircraft.wing['S']),
             LoD == W_avg/D,
 
             # Wing looading
@@ -526,7 +533,6 @@ class Mission(Model):
 
             # Altitude constraints
             hftCruise >= CruiseAlt,
-##            hftCruise <= 36632*units('ft'),
             TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise - 1] + dhft[1:Ncruise]]),
             TCS([hftClimb[0] >= dhft[0]]),
             hftClimb[-1] <= hftCruise,
@@ -620,7 +626,7 @@ substitutions = {
         'W_{avg. pass}': 180*units('lbf'),
         'W_{carry on}': 15*units('lbf'),
         'W_{cargo}': 10000*units('N'),
-        'W_{checked}': 40*units('lbf'),
+        'W_{checked}':20*units('lbf'),
         'W_{fix}': 3000*units('lbf'),
         'w_{aisle}': 0.51*units('m'),
         'w_{seat}': 0.5*units('m'),
@@ -687,8 +693,8 @@ substitutions = {
         '\pi_{fn}': .98,
         'T_{ref}': 288.15,
         'P_{ref}': 101.325,
-        '\eta_{HPshaft}': .97,
-        '\eta_{LPshaft}': .97,
+        '\eta_{HPshaft}': .978,
+        '\eta_{LPshaft}': .99,
         'eta_{B}': .9827,
 
         '\pi_{f_D}': fan,
@@ -716,7 +722,7 @@ substitutions = {
         # Cabin air substitutions in AircraftP
 
         #set the fuel reserve fraction
-        'ReserveFraction': .05,
+        'ReserveFraction': .20,
 }
 
 if __name__ == '__main__':
@@ -765,22 +771,24 @@ if __name__ == '__main__':
                 'f_{seat}':0.1,
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
-                # 'AR':15.749,
+                'AR':15.749,
                 'h_{floor}': 0.13,
                 'R_{fuse}' : 1.715,
                 '\\delta R_{fuse}': 0.43,
                 'w_{db}': 0.93,
-                # 'b':139.6*0.3048,
+                'b_{max}':140.0*0.3048,
                 # 'c_0': 17.4*0.3048,#units('ft'),
                 #HT subs
                 'AR_h': 12.,
                 '\\lambda_h' : 0.3,
                 '\\tan(\\Lambda_{ht})': np.tan(8*np.pi/180), # tangent of HT sweep
+                'V_{h}': 1.2,
 
                 #VT subs
                 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
                 '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
+                'V_{vt}': .03,
 
                 #Wing subs
                 'C_{L_{wmax}}': 2.15,

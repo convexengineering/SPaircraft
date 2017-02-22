@@ -271,6 +271,7 @@ class WingNoStruct(Model):
         xw     = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{mac}', 'm',
                            'Spanwise location of mean aerodynamic chord')
+        bmax = Variable('b_{max}', 'm', 'Max Wing Span')
 
         #Linked Variables
         AR      = Variable('AR', '-', 'Wing aspect ratio')
@@ -318,8 +319,8 @@ class WingNoStruct(Model):
                 # Afuel <= (w - 2*tweb)*(0.92*tau - 2*tcap),
                 Vfuel <= croot**2 * (b/6) * (1+taper+taper**2)*cosL,
                 WfuelWing <= rhofuel*Afuel*Vfuel*g,
-                  
-                # Lmax == 0.5*rho0*Vne**2*Sw*CLwmax,
+
+                b <= bmax,
                 ])
 
         return constraints

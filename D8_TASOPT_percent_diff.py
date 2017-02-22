@@ -39,9 +39,13 @@ def percent_diff(sol, version):
         print "\n"
         print "Wing Span Percent Diff: %s" % compute_diff(mag(sol('b').to('ft')), 140.042)
         print "\n"
-        print "Wing Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR')), 15.7490)
+##        print "Wing Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR')), 15.7490)
         print "\n"
         print "Wing Area Percent Diff: %s" % compute_diff(mag(sol('S').to('ft^2')), 1245.27)
+        print "\n"
+        print "Wing Web Weight Percent Diff: %s" % compute_diff(mag(sol('W_{web}_Mission, Aircraft, Wing, WingBox').to('lbf')), 514.2)
+        print "\n"
+        print "Wing Cap Weight Percent Diff: %s" % compute_diff(mag(sol('W_{cap}_Mission, Aircraft, Wing, WingBox').to('lbf')), 12302.4)
         
 
         #HT valuees to compare
@@ -52,7 +56,7 @@ def percent_diff(sol, version):
         print "\n"
         print "HT Area Percent Diff: %s" % compute_diff(mag(sol('S_h').to('ft^2')), 243.76  )
         print "\n"
-        print "HT Volume Coefficient Percent Diff: %s" % compute_diff(mag(sol('V_{h}')), .913) 
+##        print "HT Volume Coefficient Percent Diff: %s" % compute_diff(mag(sol('V_{h}')), .913) 
         
 
         #VT values to compare
@@ -65,7 +69,7 @@ def percent_diff(sol, version):
         print "\n"
         print "VT Area Percent Diff: %s" % compute_diff(mag(sol('S_{vt}').to('ft^2')), 122.03)
         print "\n"
-        print "VT Volume Coefficient Percent Diff: %s" % compute_diff(mag(sol('V_{vt}')), .03) 
+##        print "VT Volume Coefficient Percent Diff: %s" % compute_diff(mag(sol('V_{vt}')), .03) 
 
 def compute_diff(sp, tasopt):
     """

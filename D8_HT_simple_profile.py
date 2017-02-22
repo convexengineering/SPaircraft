@@ -473,7 +473,7 @@ class WingBox(Model):
         Wstruct = Variable('W_{struct}', 'N', 'Structural weight')
 
         # Constants
-        taper = Variable('taper', 0.2, '-', 'Taper ratio')
+        taper = Variable('taper', 0.3, '-', 'Taper ratio')
         fwadd  = Variable('f_{w,add}', 0.3, '-',
                           'Wing added weight fraction') # [TAS]
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
@@ -505,7 +505,7 @@ class WingBox(Model):
 
         constraints = [
                        # Upper bound on maximum thickness
-                       tau <= 0.15,
+                       tau <= 0.14,
 
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
