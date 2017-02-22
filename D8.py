@@ -180,6 +180,8 @@ class Aircraft(Model):
 
                             TCS([self.VT['I_{z}'] >= Izwing + Iztail + Izfuse]),
 
+                            #tail volume coefficient
+                            self.VT['V_{vt}'] == self.VT['S_{vt}'] * self.VT['x_{CG_{vt}}']/(self.wing['S']*self.wing['b']),
                             ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
@@ -531,7 +533,7 @@ class Mission(Model):
 
             # Altitude constraints
             hftCruise >= CruiseAlt,
-##            hftCruise <= 40000*units('ft'),
+##            hftCruise <= 36632*units('ft'),
             TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise - 1] + dhft]),
             TCS([hftClimb[0] >= dhft[0]]),
             hftClimb[-1] <= hftCruise,
@@ -619,7 +621,7 @@ substitutions = {
         'p_s': 81.*units('cm'),
         'ReqRng': 3000*units('nmi'),
         '\\theta_{db}' : 0.366,
-        'CruiseAlt': 36632*units('ft'),
+##        'CruiseAlt': 36632*units('ft'),
         'numeng': 2,
         'n_{pax}': 180,
         'W_{avg. pass}': 180*units('lbf'),
@@ -674,7 +676,7 @@ substitutions = {
         # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72*units('m/s'),
         # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
-        '\\dot{r}_{req}': 0.001,#0.174533, # 10 deg/s yaw rate #TODO HEADS-UP: INACTIVE FOR TASOPT VALIDATION
+        '\\dot{r}_{req}': .01,#0.174533, # 10 deg/s yaw rate #TODO HEADS-UP: INACTIVE FOR TASOPT VALIDATION
         'N_{spar}': 2,
 
         # HT substitutions
@@ -778,12 +780,12 @@ if __name__ == '__main__':
                 # 'b':139.6*0.3048,
                 # 'c_0': 17.4*0.3048,#units('ft'),
                 #HT subs
-##                'AR_h': 12.,
+                'AR_h': 12.,
                 '\\lambda_h' : 0.3,
                 '\\tan(\\Lambda_{ht})': np.tan(8*np.pi/180), # tangent of HT sweep
 
                 #VT subs
-##                'A_{vt}' : 2.2,
+                'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
                 '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
 
