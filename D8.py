@@ -70,14 +70,14 @@ plot = True
 # Only one active at a time
 D80 = False
 D82 = True
-737800 = False
+b737800 = False
 
 sweep = 27.566#30 [deg]
 
 if D82:
      sweep = 13.237  # [deg]
 
-if 737800:
+if b737800:
      sweep = 26.0 # [deg]
 
 g = 9.81 * units('m*s**-2')
@@ -232,7 +232,7 @@ class Aircraft(Model):
                   ])
 
           #737 only constraints
-          if 737800:
+          if b737800:
                constraints.extend([
                    # Engine out moment arm,
 ##                    self.VT['y_{eng}'] == ?,
@@ -672,7 +672,7 @@ class Mission(Model):
              M25 = .6
              M4a = .1025
              M0 = .72
-        if 737800:
+        if b737800:
              M2 = .6
              M25 = .6
              M4a = .1025
@@ -706,7 +706,7 @@ if D80 or D82:
      lpc  = 4.98
      hpc = 35/8
 
-if 737800:
+if b737800:
      M4a = .1025
      fan = 1.685
      lpc  = 8/1.685
@@ -841,7 +841,7 @@ if D80 or D82:
         'HTR_{lpc_SUB}': 1 - 0.6**2,
      })
      
-if 737800:
+if b737800:
      substitutions.update(
      {  # Engine substitutions
         '\\pi_{tn}': .989,
