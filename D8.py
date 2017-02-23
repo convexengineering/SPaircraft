@@ -111,6 +111,20 @@ class Aircraft(Model):
         WHT = Variable('W_{HT}','lbf','Horizontal Tail Weight')
         WVT = Variable('W_{VT}','lbf','Vertical Tail Weight')
 
+        #engine system weight variables
+        rSnace = Variable('rSnace', '-', 'Nacelle and Pylon Wetted Area')
+        Snace = Variable('S_{nace}', 'm^2', 'Nacelle Surface Area')
+        Ainlet = Variable('A_{inlet}','m^2', 'Inlet Area')
+        Afancowl = Variable('A_{fancowl}', 'm^2', 'Fan Cowling Area')
+        Aexh = Variable('A_{exh}', 'm^2', 'Exhaust Area')
+        Acorecowl = Variable('A_{corecowl}', 'm^2', 'Core Cowling Area')
+        Wnace = Variable('W_{nace}', 'N', 'Nacelle Weight')
+        Wpylon = Variable('W_{pylon}', 'N','Engine Pylon Weight')
+        fpylon = Variable('f_{pylon}', '-', 'Pylong Weight Fraction')
+        feadd = Variable('f_{eadd}', '-', 'Additional Engine Weight Fractinon')
+        Weadd = Variable('W_{eadd}', 'N', 'Addittional Engine System Weight')
+        Wengsys = Variable('W_{engsys}', 'N', 'Total Engine System Weight')
+     
         constraints = []
         with SignomialsEnabled():
             constraints.extend([
@@ -192,6 +206,18 @@ class Aircraft(Model):
                                     (xCGmin**3 + self.VT['l_{vt}']**3)/(3.*g), #+ (self.fuse['l_{fuse}'] - xCGmin)**3. #TODO determine the weird units error
 
                             TCS([self.VT['I_{z}'] >= Izwing + Iztail + Izfuse]),
+
+                            #engine system weight constraints
+                            Snace == rSnace * np.pi * 0.25 * self.engine['d_{f}']**2,
+                            Ainlet == 0.4 * Snace,
+                            Afancowl == 0.2 * Snace,
+                            Aexh == 0.4 * Snace,
+                            Acorecowl == 3 * np.pi * self.engine['d_{LPC}']**2,
+                            Wnace >= ((2.5 * units('in') + 0.238 * self.engine['d_{f}'] * units('in/m')) * Ainlet*units('ft^2/m^2') + 1.9*units('ft')*Afancowl*units('ft^2/m^2') \
+                                + (2.5 * units('in') + 0.0363 * self.engine['d_{f}'] * units('in/m')) * Aexh*units('ft^2/m^2') + 1.9*units('ft')*Acorecowl*units('ft^2/m^2'))*units('lbf/ft^3'),
+                            Weadd == feadd * self.engine['W_{engine}'],
+                            Wpylon >= (Wnace + Weadd + self.engine['W_{engine}']) * fpylon,
+                            Wengsys >= Wpylon + Wnace + Weadd + self.engine['W_{engine}'],
                             ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
@@ -508,7 +534,7 @@ class Mission(Model):
 
             #compute the aircraft's zero fuel weight
             TCS([aircraft['W_{fuse}'] + aircraft['W_{payload}'] + aircraft['numeng']
-                 * aircraft.engine['W_{engine}'] + aircraft['W_{tail}'] + aircraft['W_{wing}'] <= W_dry]),
+                 * aircraft['W_{engsys}'] + aircraft['W_{tail}'] + aircraft['W_{wing}'] <= W_dry]),
 
             # Total takeoff weight constraint
             TCS([W_ftotal + W_dry <= W_total]),
@@ -733,6 +759,12 @@ substitutions = {
         'Cp_c': 1216,
 
         'HTR_{f_SUB}': 1-.3**2,
+        'HTR_{lpc_SUB}': 1 - 0.6**2,
+
+        #engine system subs
+        'rSnace': 6,
+        'f_{pylon}': 0.05,
+        'f_{eadd}': 0.1,
 
         # Cabin air substitutions in AircraftP
 
