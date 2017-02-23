@@ -141,6 +141,9 @@ class Aircraft(Model):
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
 
+                            # Load factor matching
+                            self.fuse['N_{lift}'] == self.wing['N_{lift}'],
+
                             # Lifting surface weights
                             Wwing == self.wing['W_{struct}'],
                             WHT == self.HT['W_{struct}'],
@@ -156,8 +159,16 @@ class Aircraft(Model):
                                  (pi + 2 * self.fuse['\\theta_{db}']) * \
                                   (self.fuse['l_{cone}'] / self.fuse['R_{fuse}'])]), #[SP]
 
-                            # Horizontal tail aero+landing loads constant A1h
-                            self.fuse['A1h'] >= (self.fuse['N_{land}'] * \
+                            # Tail weight
+                            self.fuse['W_{tail}'] >= 2*WVT + \
+                                WHT + self.fuse['W_{cone}'],
+
+                            # Horizontal tail aero+landing loads constants A1h
+                            self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
+                                                 (self.fuse['W_{tail}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{apu}'])) / \
+                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+
+                            self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
                                                  (self.fuse['W_{tail}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{apu}']) \
                                 + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
@@ -171,11 +182,11 @@ class Aircraft(Model):
                             TCS([self.HT['V_{h}'] == self.HT['S_h']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
                             # self.HT['V_{h}'] >= 0.4,
 
-                            # HT Max Loading
-                            TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
-                            self.HT['M_r']*self.HT['c_{root_h}'] >= self.HT['N_{lift}']*self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4) \
-                                  + self.HT['N_{lift}']*self.HT['L_{h_{tri}}']*(self.HT['b_{ht}']/6) - self.HT['N_{lift}']*self.fuse['w_{fuse}']*self.HT['L_{{max}_h}']/2., #[SP]
-                            # TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
+                            # HT/VT joint constraint
+                            self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
+
+                            # VT height constraint (4*engine radius)
+                            self.VT['b_{vt}'] >= 2 * self.engine['d_{f}'],
 
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
@@ -186,12 +197,15 @@ class Aircraft(Model):
                             # Vertical bending material coefficient (VT aero loads)
                             self.fuse['B1v'] == self.fuse['r_{M_v}']*2.*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
 
+
+
                             # Moment of inertia
                             Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
                                     self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1-self.wing['\\lambda'])/16), #[SP]
                             Iztail >= (self.fuse['W_{apu}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
+                            #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                             Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
-                                    (xCGmin**3 + self.VT['l_{vt}']**3)/(3.*g), #+ (self.fuse['l_{fuse}'] - xCGmin)**3. #TODO determine the weird units error
+                                    (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3)/(3.*g),
 
                             TCS([self.VT['I_{z}'] >= Izwing + Iztail + Izfuse]),
 
@@ -212,7 +226,8 @@ class Aircraft(Model):
 
         #d8 only constraints
         if D80 or D82:
-             cosntraints.extend([
+            with SignomialsEnabled():
+                constraints.extend([
                     # HT/VT joint constraint
                     self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
@@ -223,16 +238,23 @@ class Aircraft(Model):
                     self.VT['y_{eng}'] == 0.5*self.fuse['w_{fuse}'],
 
                     # Tail weight
-                    self.fuse['W_{tail}'] >= 2*WVT + \
-                      WHT + self.fuse['W_{cone}'],
+                    self.fuse['W_{tail}'] >= 2*WVT + WHT + self.fuse['W_{cone}'],
 
-                 # Pin VT joint moment constraint #TODO may be problematic, should check
-                  SignomialEquality(self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4 - self.fuse['w_{fuse}']),
+                    # HT Max Loading
+                    TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
+
+                    # HT root moment
+                    self.HT['M_r']*self.HT['c_{root_h}'] >= self.HT['N_{lift}']*self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4) \
+                        + self.HT['N_{lift}']*self.HT['L_{h_{tri}}']*(self.HT['b_{ht}']/6) - self.HT['N_{lift}']*self.fuse['w_{fuse}']*self.HT['L_{{max}_h}']/2., #[SP]
+
+
+                    # Pin VT joint moment constraint #TODO may be problematic, should check
+                    SignomialEquality(self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4 - self.fuse['w_{fuse}']),
                                     self.HT['L_{h_{tri}}']*(self.fuse['w_{fuse}'] - self.HT['b_{ht}']/6)), #[SP] #[SPEquality]
                   ])
 
           #737 only constraints
-          if b737800:
+        if b737800:
                constraints.extend([
                    # Engine out moment arm,
 ##                    self.VT['y_{eng}'] == ?,
@@ -240,6 +262,10 @@ class Aircraft(Model):
                   # Tail weight
                   self.fuse['W_{tail}'] >= WVT + \
                       WHT + self.fuse['W_{cone}'],
+
+                    # HT root moment
+                    TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
+
                     ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
@@ -781,7 +807,7 @@ substitutions = {
         # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72*units('m/s'),
         # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
-        '\\dot{r}_{req}': 0.174533, # 10 deg/s/s yaw rate acceleration
+        '\\dot{r}_{req}': 0.001,#0.174533, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
         'N_{spar}': 2,
 
         # HT substitutions
@@ -844,7 +870,7 @@ if D80 or D82:
         'HTR_{f_SUB}': 1-.3**2,
         'HTR_{lpc_SUB}': 1 - 0.6**2,
      })
-     
+
 if b737800:
      substitutions.update(
      {  # Engine substitutions
