@@ -13,7 +13,7 @@ Wlgnose = 0. * sol('W_{dry}')
 Wlgmain = 0. * sol('W_{dry}')
 Wtotadd = 0. * sol('W_{dry}')
 
-Wfix = sol('W_{fix}')
+Wfix = sol('W_{fix}_Mission, Aircraft, Fuselage')
 Wapu = sol('W_{apu}')
 Wpadd = sol('W_{padd}')
 Wshell = sol('W_{shell}')

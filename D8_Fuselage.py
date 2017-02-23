@@ -278,7 +278,7 @@ class Fuselage(Model):
                 # material is required
                 xhbend >= xwing,
                 SignomialEquality(A0h, A2h * (xshell2 - xhbend) ** 2 + A1h * (xtail - xhbend)), # [SP] #[SPEquality]
-                A2h >= Nland * (Wpay + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
+                A2h >= Nland * (Wpay + Wpadd + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
                 (2 * lshell * hfuse * sigMh),  # Landing loads constant A2h
                 # Shell inertia constant A0h
                 A0h == (Ihshell / (rE * hfuse**2)), # [SP]  # Bending area forward of wingbox

@@ -501,6 +501,8 @@ class WingBox(Model):
 
 
         # Pi tail sizing variables
+        # Splits the max lift into triangular and rectangular components
+        # for root bending sizing.
         Lhtri = Variable('L_{h_{tri}}','N','Triangular HT load')
         Lhrect = Variable('L_{h_{rect}}','N','Rectangular HT load')
         
