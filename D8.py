@@ -70,11 +70,15 @@ plot = True
 # Only one active at a time
 D80 = False
 D82 = True
+737800 = False
 
 sweep = 27.566#30 [deg]
 
 if D82:
      sweep = 13.237  # [deg]
+
+if 737800:
+     sweep = 26.0 # [deg]
 
 g = 9.81 * units('m*s**-2')
 
@@ -196,8 +200,7 @@ class Aircraft(Model):
                             # Vertical bending material coefficient (VT aero loads)
                             self.fuse['B1v'] == self.fuse['r_{M_v}']*2.*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
 
-                            # Engine out moment arm,
-                            self.VT['y_{eng}'] == 0.5*self.fuse['w_{fuse}'],
+
 
                             # Moment of inertia
                             Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
@@ -223,6 +226,38 @@ class Aircraft(Model):
                             TCS([Wpylon >= (Wnace + Weadd + self.engine['W_{engine}']) * fpylon]),
                             TCS([Wengsys >= Wpylon + Wnace + Weadd + self.engine['W_{engine}']]),
                             ])
+
+        #d8 only constraints
+        if D80 or D82:
+             cosntraints.extend([
+                    # HT/VT joint constraint
+                    self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
+
+                    # VT height constraint (4*engine radius)
+                    self.VT['b_{vt}'] >= 2 * self.engine['d_{f}'],
+
+                    # Engine out moment arm,
+                    self.VT['y_{eng}'] == 0.5*self.fuse['w_{fuse}'],
+
+                    # Tail weight
+                    self.fuse['W_{tail}'] >= 2*WVT + \
+                      WHT + self.fuse['W_{cone}'],
+
+                 # Pin VT joint moment constraint #TODO may be problematic, should check
+                  SignomialEquality(self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4 - self.fuse['w_{fuse}']),
+                                    self.HT['L_{h_{tri}}']*(self.fuse['w_{fuse}'] - self.HT['b_{ht}']/6)), #[SP] #[SPEquality]
+                  ])
+
+          #737 only constraints
+          if 737800:
+               constraints.extend([
+                   # Engine out moment arm,
+##                    self.VT['y_{eng}'] == ?,
+
+                  # Tail weight
+                  self.fuse['W_{tail}'] >= WVT + \
+                      WHT + self.fuse['W_{cone}'],
+                    ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
 
@@ -848,7 +883,7 @@ if __name__ == '__main__':
                 'f_{seat}':0.1,
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
-                # 'AR':15.749,
+                'AR':15.749,
                 'h_{floor}': 0.13,
                 'R_{fuse}' : 1.715,
                 '\\delta R_{fuse}': 0.43,
