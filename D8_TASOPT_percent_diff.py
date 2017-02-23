@@ -88,7 +88,7 @@ def percent_diff(sol, version):
         print "\n\n\n"
         print "CRUISE SEGMENT 1 TSFC DIFFERENCES"
         print "\n"
-        print "Initial Cruise TSFC Percent Diff: %s" % compute_diff(mag(sol('TSFC'][Nclimb]]), 0.64009)
+        print "Initial Cruise TSFC Percent Diff: %s" % compute_diff(mag(sol('TSFC')[Nclimb]), 0.64009)
         
 
         #Fuselage values to compare
@@ -170,7 +170,7 @@ def percent_diff(sol, version):
         print "\n\n\n"
         print "CRUISE SEGMENT 1 TSFC DIFFERENCES"
         print "\n"
-        print "Initial Cruise TSFC Percent Diff: %s" % compute_diff(mag(sol('TSFC'][Nclimb]]), 0.49971)
+        print "Initial Cruise TSFC Percent Diff: %s" % compute_diff(mag(sol('TSFC')[Nclimb]), 0.49971)
         
 
         #Fuselage values to compare
