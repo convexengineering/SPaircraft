@@ -181,7 +181,6 @@ class Aircraft(Model):
                             SignomialEquality(self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4 - self.fuse['w_{fuse}']),
                                               self.HT['L_{h_{tri}}']*(self.fuse['w_{fuse}'] - self.HT['b_{ht}']/6)), #[SP] #[SPEquality]
 
-
                             # HT/VT joint constraint
                             self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
@@ -204,8 +203,9 @@ class Aircraft(Model):
                             Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
                                     self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1-self.wing['\\lambda'])/16), #[SP]
                             Iztail >= (self.fuse['W_{apu}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
+                            #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                             Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
-                                    (xCGmin**3 + self.VT['l_{vt}']**3)/(3.*g), #+ (self.fuse['l_{fuse}'] - xCGmin)**3. #TODO determine the weird units error
+                                    (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3)/(3.*g),
 
                             TCS([self.VT['I_{z}'] >= Izwing + Iztail + Izfuse]),
 
@@ -848,7 +848,7 @@ if __name__ == '__main__':
                 'f_{seat}':0.1,
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
-                'AR':15.749,
+                # 'AR':15.749,
                 'h_{floor}': 0.13,
                 'R_{fuse}' : 1.715,
                 '\\delta R_{fuse}': 0.43,
