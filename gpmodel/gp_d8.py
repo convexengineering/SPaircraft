@@ -167,15 +167,14 @@ class WingBox(Model):
         Icap = Variable('I_{cap}', '-',
                         'Non-dim spar cap area moment of inertia')
         Mr = Variable('M_r', 'N', 'Root moment per root chord')
-        nu = Variable('\\nu', '-',
-                      'Dummy variable = $(t^2 + t + 1)/(t+1)$')
+        nu = Variable('\\nu', '-', '$(\\lambda^2 + \\lambda + 1)/(\\lambda+1)$')
         Wcap = Variable('W_{cap}', 'N', 'Weight of spar caps')
         Wweb = Variable('W_{web}', 'N', 'Weight of shear web')
         Wstruct = Variable('W', 'N', 'Structural weight')
-        taper = Variable('taper', 0.5, '-', 'Taper ratio')
-        fwadd = Variable('f_{w,add}', 0.4, '-', 'Wing added weight fraction')
+        lam = Variable('\\lambda', '-', 'Taper ratio')
+        fwadd = Variable('f_{w,add}', '-', 'Wing added weight fraction')
         g = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
-        Nlift = Variable('N_{lift}', 2.0, '-', 'Wing loading multiplier')
+        Nlift = Variable('N_{lift}', '-', 'Wing loading multiplier')
         rh = Variable('r_h', 0.75, '-',
                       'Fractional wing thickness at spar web')
         rhocap = Variable('\\rho_{cap}', 2700, 'kg/m^3',
@@ -189,8 +188,8 @@ class WingBox(Model):
         wwb = Variable('wwb', 0.5, '-', 'Wingbox-width-to-chord ratio')
         tcap = Variable('t_{cap}', '-', 'Non-dim. spar cap thickness')
         tweb = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
-        p = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
-        q = Variable('q', '-', 'Substituted variable = 1 + taper')
+        p = Variable('p', '-', 'Substituted variable = 1 + 2*lam')
+        q = Variable('q', '-', 'Substituted variable = 1 + lam')
         ymac = Variable('y_{mac}', 'm',
                         'Spanwise location of mean aerodynamic chord')
         rho0 = Variable('\\rho_0', 1.225, 'kg/m^3', 'Air density (0 ft)')
@@ -199,15 +198,15 @@ class WingBox(Model):
         Sw = Variable('S', 'm^2', 'Wing area')
         Vne = Variable('V_{ne}', 60, 'm/s', 'Never exceed velocity')
         b = Variable('b', 'm', 'Wing span')
-        CLwmax = Variable('C_{L_{wmax}}', 1.2, '-', 'Max lift coefficient, wing')
-        tau = Variable('\\tau', 0.15, '-', 'Wing thickness/chord ratio')
+        CLwmax = Variable('C_{L_{wmax}}', 1.2, '-', 'Max lift coefficient wing')
+        tau = Variable('\\tau', '-', 'Wing thickness/chord ratio')
         mac = Variable('mac', 'm', 'Mean aerodynamic chord (wing)')
-        e = Variable('e', 0.9, '-', 'Oswald efficiency factor')
+        e = Variable('e', '-', 'Oswald efficiency factor')
 
         constraints = [
             AR == b**2/Sw,
             mac == Sw/b,
-            p >= 1 + 2*taper,
+            p >= 1 + 2*lam,
             2*q >= 1 + p,
             ymac == (b/3)*q/p,
             Lmax == 0.5*rho0*Vne**2*Sw*CLwmax,
@@ -320,7 +319,8 @@ def init_subs(model):
     " initialize substitutions "
     subs = {"W_{payload}": 1000, "f_{struct}": 0.5, "V_{stall}": 120,
             "TSFC": 0.7, "R": 1000, "AR": 15, "e": 0.9, "CDA": 0.1,
-            "\\rho": 0.4}
+            "\\rho": 0.4, "\\lambda": 0.5, "f_{w,add}": 0.4, "N_{lift}": 2.0,
+            "\\tau": 0.15, "e": 0.9}
     subbing(model, subs)
 
 if __name__ == "__main__":
