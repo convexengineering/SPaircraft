@@ -213,11 +213,11 @@ class Aircraft(Model):
                             Afancowl == 0.2 * Snace,
                             Aexh == 0.4 * Snace,
                             Acorecowl == 3 * np.pi * self.engine['d_{LPC}']**2,
-                            Wnace >= ((2.5 * units('in') + 0.238 * self.engine['d_{f}'] * units('in/m')) * Ainlet*units('ft^2/m^2') + 1.9*units('ft')*Afancowl*units('ft^2/m^2') \
-                                + (2.5 * units('in') + 0.0363 * self.engine['d_{f}'] * units('in/m')) * Aexh*units('ft^2/m^2') + 1.9*units('ft')*Acorecowl*units('ft^2/m^2'))*units('lbf/ft^3'),
-                            Weadd == feadd * self.engine['W_{engine}'],
-                            Wpylon >= (Wnace + Weadd + self.engine['W_{engine}']) * fpylon,
-                            Wengsys >= Wpylon + Wnace + Weadd + self.engine['W_{engine}'],
+                            TCS([Wnace >= ((2.5*Ainlet*units('ft^2/m^2'))*units('1/ft^2') + (0.238*self.engine['d_{f}'] * units('in/m')*Ainlet*units('ft^2/m^2'))*units('1/(in*ft^2)') + 1.9*Afancowl*units('ft^2/m^2')*units('1/ft^2') \
+                                + (2.5*Aexh*units('ft^2/m^2'))*units('1/ft^2') + (0.0363*self.engine['d_{f}']*units('in/m')*Aexh*units('ft^2/m^2'))*units('1/(in*ft^2)') + 1.9*Acorecowl*units('ft^2/m^2')*units('1/ft^2'))*units('lbf'),
+                            Weadd == feadd * self.engine['W_{engine}']]),
+                            TCS([Wpylon >= (Wnace + Weadd + self.engine['W_{engine}']) * fpylon]),
+                            TCS([Wengsys >= Wpylon + Wnace + Weadd + self.engine['W_{engine}']]),
                             ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
