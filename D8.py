@@ -141,6 +141,9 @@ class Aircraft(Model):
                             self.wing['V_{ne}'] == 144*units('m/s'),
                             self.VT['V_{ne}'] == 144*units('m/s'),
 
+                            # Load factor matching
+                            self.fuse['N_{lift}'] == self.wing['N_{lift}'],
+
                             # Lifting surface weights
                             Wwing == self.wing['W_{struct}'],
                             WHT == self.HT['W_{struct}'],
@@ -160,8 +163,12 @@ class Aircraft(Model):
                             self.fuse['W_{tail}'] >= 2*WVT + \
                                 WHT + self.fuse['W_{cone}'],
 
-                            # Horizontal tail aero+landing loads constant A1h
-                            self.fuse['A1h'] >= (self.fuse['N_{land}'] * \
+                            # Horizontal tail aero+landing loads constants A1h
+                            self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
+                                                 (self.fuse['W_{tail}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{apu}'])) / \
+                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+
+                            self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
                                                  (self.fuse['W_{tail}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{apu}']) \
                                 + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
@@ -247,7 +254,7 @@ class Aircraft(Model):
                   ])
 
           #737 only constraints
-          if b737800:
+        if b737800:
                constraints.extend([
                    # Engine out moment arm,
 ##                    self.VT['y_{eng}'] == ?,
@@ -796,7 +803,7 @@ substitutions = {
         # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72*units('m/s'),
         # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
-        '\\dot{r}_{req}': 0.174533, # 10 deg/s/s yaw rate acceleration
+        '\\dot{r}_{req}': 0.001,#0.174533, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
         'N_{spar}': 2,
 
         # HT substitutions
