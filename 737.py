@@ -173,17 +173,14 @@ class Aircraft(Model):
 
                             # HT Max Loading
                             TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
-                            self.HT['M_r']*self.HT['c_{root_h}'] >= self.HT['N_{lift}']*self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4) \
-                                  + self.HT['N_{lift}']*self.HT['L_{h_{tri}}']*(self.HT['b_{ht}']/6) - self.HT['N_{lift}']*self.fuse['w_{fuse}']*self.HT['L_{{max}_h}']/2., #[SP]
-                            # TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
 
-                            # Pin VT joint moment constraint #TODO may be problematic, should check
-                            SignomialEquality(self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4 - self.fuse['w_{fuse}']),
-                                              self.HT['L_{h_{tri}}']*(self.fuse['w_{fuse}'] - self.HT['b_{ht}']/6)), #[SP] #[SPEquality]
+                            self.HT['M_r']*self.HT['c_{root_h}'] >= self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4) \
+                                  + self.HT['L_{h_{tri}}']*(self.HT['b_{ht}']/6) - self.fuse['w_{fuse}']*self.HT['L_{{max}_h}']/2., #[SP]
+                            # TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]), #TODO improve
 
 
                             # HT/VT joint constraint
-                            self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
+                            self.HT['b_{ht}']/(self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
                             # VT height constraint (4*engine radius)
                             self.VT['b_{vt}'] >= 2 * self.engine['d_{f}'],
@@ -196,6 +193,10 @@ class Aircraft(Model):
 
                             # Vertical bending material coefficient (VT aero loads)
                             self.fuse['B1v'] == self.fuse['r_{M_v}']*2.*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
+
+
+                            # Wing root chord constraint #TODO find better constraint
+                            # self.wing['c_{root}'] <= 0.25*self.fuse['l_{fuse}'],
 
                             # Engine out moment arm,
                             self.VT['y_{eng}'] == 0.5*self.fuse['w_{fuse}'],
