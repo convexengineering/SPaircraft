@@ -70,14 +70,14 @@ plot = True
 # Only one active at a time
 D80 = False
 D82 = True
-737800 = False
+B737800 = False
 
 sweep = 27.566#30 [deg]
 
 if D82:
      sweep = 13.237  # [deg]
 
-if 737800:
+if B737800:
      sweep = 26.0 # [deg]
 
 g = 9.81 * units('m*s**-2')
@@ -175,16 +175,6 @@ class Aircraft(Model):
                             TCS([self.HT['V_{h}'] == self.HT['S_h']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
                             # self.HT['V_{h}'] >= 0.4,
 
-                            # HT Max Loading
-                            TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
-                            self.HT['M_r']*self.HT['c_{root_h}'] >= self.HT['N_{lift}']*self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4) \
-                                  + self.HT['N_{lift}']*self.HT['L_{h_{tri}}']*(self.HT['b_{ht}']/6) - self.HT['N_{lift}']*self.fuse['w_{fuse}']*self.HT['L_{{max}_h}']/2., #[SP]
-                            # TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
-
-                            # Pin VT joint moment constraint #TODO may be problematic, should check
-                            SignomialEquality(self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4 - self.fuse['w_{fuse}']),
-                                              self.HT['L_{h_{tri}}']*(self.fuse['w_{fuse}'] - self.HT['b_{ht}']/6)), #[SP] #[SPEquality]
-
                             # HT/VT joint constraint
                             self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
@@ -229,7 +219,8 @@ class Aircraft(Model):
 
         #d8 only constraints
         if D80 or D82:
-             cosntraints.extend([
+            with SignomialsEnabled():
+                constraints.extend([
                     # HT/VT joint constraint
                     self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
@@ -240,23 +231,34 @@ class Aircraft(Model):
                     self.VT['y_{eng}'] == 0.5*self.fuse['w_{fuse}'],
 
                     # Tail weight
-                    self.fuse['W_{tail}'] >= 2*WVT + \
-                      WHT + self.fuse['W_{cone}'],
+                    self.fuse['W_{tail}'] >= 2*WVT + WHT + self.fuse['W_{cone}'],
 
-                 # Pin VT joint moment constraint #TODO may be problematic, should check
-                  SignomialEquality(self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4 - self.fuse['w_{fuse}']),
+                    # HT Max Loading
+                    TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
+
+                    # HT root moment
+                    self.HT['M_r']*self.HT['c_{root_h}'] >= self.HT['N_{lift}']*self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4) \
+                        + self.HT['N_{lift}']*self.HT['L_{h_{tri}}']*(self.HT['b_{ht}']/6) - self.HT['N_{lift}']*self.fuse['w_{fuse}']*self.HT['L_{{max}_h}']/2., #[SP]
+
+
+                    # Pin VT joint moment constraint #TODO may be problematic, should check
+                    SignomialEquality(self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4 - self.fuse['w_{fuse}']),
                                     self.HT['L_{h_{tri}}']*(self.fuse['w_{fuse}'] - self.HT['b_{ht}']/6)), #[SP] #[SPEquality]
                   ])
 
           #737 only constraints
-          if 737800:
+        if B737800:
                constraints.extend([
-                   # Engine out moment arm,
+                    # Engine out moment arm,
 ##                    self.VT['y_{eng}'] == ?,
 
-                  # Tail weight
-                  self.fuse['W_{tail}'] >= WVT + \
+                    # Tail weight
+                    self.fuse['W_{tail}'] >= WVT + \
                       WHT + self.fuse['W_{cone}'],
+
+                    # HT root moment
+                    TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
+
                     ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
