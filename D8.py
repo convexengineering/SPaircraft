@@ -529,7 +529,11 @@ class Mission(Model):
         Nclimb = 2
         Ncruise = 2
 
-        eng = 0
+        if D80 or D82:
+             eng = 3
+
+        if b737800:
+             eng = 1
         
         # vectorize
         with Vectorize(Nclimb + Ncruise):
