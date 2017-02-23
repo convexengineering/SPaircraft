@@ -64,7 +64,9 @@ class Engine(Model):
 
         #engine fan diameter
         df = Variable('d_{f}', 'm', 'Fan Diameter')
+        dlpc = Variable('d_{LPC}', 'm', 'LPC Diameter')
         HTRfSub = Variable('HTR_{f_SUB}', '-', '1 - HTRf^2')
+        HTRlpcSub = Variable('HTR_{lpc_SUB}', '-', '1 - HTRlpc^2')
 
         #make the constraints
         constraints = []
@@ -77,6 +79,7 @@ class Engine(Model):
 
             diameter = [
                 df == (4 * self.sizing['A_2']/(np.pi * HTRfSub))**.5,
+                dlpc == (4 * self.sizing['A_{2.5}']/(np.pi * HTRlpcSub))**.5,
                 ]
 
             fmix = [
@@ -1662,6 +1665,7 @@ if __name__ == "__main__":
                 'Cp_c': 1216,
 
                 'HTR_{f_SUB}': 1-.3**2,
+                'HTR_{lpc_SUB}': 1 - 0.6**2,
                }
 
     if eng == 1:
@@ -1703,6 +1707,7 @@ if __name__ == "__main__":
                 'Cp_c': 1216,
 
                 'HTR_{f_SUB}': 1-.3**2,
+                'HTR_{lpc_SUB}': 1 - 0.6**2,
                }
 
     if eng == 2:
@@ -1745,6 +1750,7 @@ if __name__ == "__main__":
             'Cp_c': 1216,
 
             'HTR_{f_SUB}': 1-.3**2,
+            'HTR_{lpc_SUB}': 1 - 0.6**2,
             }
 
     #dict of initial guesses
