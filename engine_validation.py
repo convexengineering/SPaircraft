@@ -15,7 +15,7 @@ class Engine(Model):
     cooling = True = cooling model, False = no cooling model
     N = number of discrete flight segments
     state = state model discretized into N segments
-    eng = 0, 1, or 2. 0 = CFM56 vals, 1 = TASOPT vals, 2 = GE90 vals
+    eng = 0, 1, or 2. 0 = CFM56 vals, 1 = TASOPT 737-800 vals, 2 = GE90 vals, 3 = TASOPT D8.2 vals
     Nfleet - number of discrete missions in a fleet mission optimization problem, default is 0
     """
     def setup(self, res7, cooling, N, state, eng, Nfleet=0):
@@ -243,7 +243,7 @@ class Engine(Model):
                     self.fanmap['\\bar{m}_{fan_{D}}'] <= 1.3 * self.sizing['\\alpha_{OD}'] * self.sizing['m_{coreD}']* ((250.0/288)**.5)/(50/101.325),
                     ]
             if eng == 1:
-                """TASOPT vals"""
+                """TASOPT 737-800 vals"""
                 onDest = [
                     self.sizing['m_{htD}'] <= 1.3*self.engineP['fp1']*self.constants['M_{takeoff}']*self.sizing['m_{coreD}'] *((1400.0/288)**.5)/(1498/101.325),
                     self.sizing['m_{htD}'] >= .7*self.engineP['fp1']*self.constants['M_{takeoff}']*self.sizing['m_{coreD}']*((1400.0/288)**.5)/(1498/101.325),
@@ -271,6 +271,21 @@ class Engine(Model):
                     self.fanmap['\\bar{m}_{fan_{D}}'] >= .3 * self.sizing['\\alpha_{OD}'] * self.sizing['m_{coreD}'] *((250.0/288)**.5)/(50/101.325),
                     self.fanmap['\\bar{m}_{fan_{D}}'] <= 1.7 * self.sizing['\\alpha_{OD}'] * self.sizing['m_{coreD}']* ((250.0/288)**.5)/(50/101.325),
                 ]
+
+            if eng == 3:
+                """TASOPT D8.2 vals"""
+                onDest = [
+                    self.sizing['m_{htD}'] <= 1.3*self.engineP['fp1']*self.constants['M_{takeoff}']*self.sizing['m_{coreD}'] *((1400.0/288)**.5)/(1598.32/101.325),
+                    self.sizing['m_{htD}'] >= .7*self.engineP['fp1']*self.constants['M_{takeoff}']*self.sizing['m_{coreD}']*((1400.0/288)**.5)/(1598.32/101.325),
+                    self.sizing['m_{ltD}'] <= 1.3*self.engineP['fp1']*self.constants['M_{takeoff}']*self.sizing['m_{coreD}'] *((1142.6/288)**.5)/(835.585/101.325),
+                    self.sizing['m_{ltD}'] >= .7*self.engineP['fp1']*self.constants['M_{takeoff}']*self.sizing['m_{coreD}']*((1142.6/288)**.5)/(835.585/101.325),
+                    self.lpcmap['m_{lc_D}'] >= .7*self.sizing['m_{coreD}']*((289.77/288)**.5)/(80.237/101.325),
+                    self.lpcmap['m_{lc_D}'] <= 1.3*self.sizing['m_{coreD}'] *((289.77/288)**.5)/( 80.237/101.325),
+                    self.hpcmap['m_{hc_D}'] >= .7*self.sizing['m_{coreD}'] *((481.386/288)**.5)/(399.58/101.325),
+                    self.hpcmap['m_{hc_D}'] <= 1.3*self.sizing['m_{coreD}'] *((481.386/288)**.5)/(399.58/101.325),
+                    self.fanmap['\\bar{m}_{fan_{D}}'] >= .7 * self.sizing['\\alpha_{OD}'] * self.sizing['m_{coreD}'] *((250.0/288)**.5)/(50/101.325),
+                    self.fanmap['\\bar{m}_{fan_{D}}'] <= 1.3 * self.sizing['\\alpha_{OD}'] * self.sizing['m_{coreD}']* ((250.0/288)**.5)/(50/101.325),
+                    ]
 
         if res7 == 0:
             res7list = [
@@ -413,6 +428,67 @@ class Engine(Model):
             sta6gamma = 1.387
             turbexexp = (sta6gamma - 1) / sta6gamma
 
+        if eng == 3:
+            #option used for a D8 engine
+            if goption == 1:
+                fgamma = 1.401
+                lpcgamma = 1.398
+                hpcgamma = 1.354
+                ccgamma = 1.313    #gamma value of air @ 1400 K
+                lptgamma = 1.354
+                hptgamma = 1.318
+            if goption == 0:
+                fgamma = 1.401
+                lpcgamma = 1.398
+                hpcgamma = 1.354
+                ccgamma = 1.313    #gamma value of air @ 1400 K
+                lptgamma = 1.3060
+                hptgamma = 1.2987
+
+            #Fan
+            faneta = .93
+            fgamma = 1.4
+
+            fexp1 = (fgamma - 1)/(faneta * fgamma)
+
+            #LPC
+            lpcgamma = 1.398
+            LPCeta = .92
+
+            lpcexp1 = (lpcgamma - 1)/(LPCeta * lpcgamma)
+
+            #HPC
+            HPCeta = .89
+            hpcgamma = 1.354
+
+            hpcexp1 = (hpcgamma - 1)/(HPCeta * hpcgamma)
+
+            #combustor cooling exponents
+            ccgamma = 1.313    #gamma value of air @ 1400 K
+
+            ccexp1 = ccgamma/(1 - ccgamma)
+            ccexp2 = -ccgamma/(1 - ccgamma)
+
+            #Turbines
+            #LPT
+            lptgamma = 1.354
+            LPTeta = .92
+            lptexp1 = lptgamma * LPTeta / (lptgamma - 1)
+
+            #HPT
+            hptgamma = 1.318
+            HPTeta = .91
+            hptexp1 = hptgamma * HPTeta / (hptgamma - 1)
+
+            #Exhaust and Thrust
+            #station 8, fan exit
+            sta8gamma = 1.4
+            fanexexp = (sta8gamma - 1)/ sta8gamma
+
+            #station 6, turbine exit
+            sta6gamma = 1.387
+            turbexexp = (sta6gamma - 1) / sta6gamma
+
         if eng == 2:
             if goption == 1:
                 fgamma = 1.401
@@ -472,6 +548,7 @@ class Engine(Model):
             #station 6, turbine exit
             sta6gamma = 1.387
             turbexexp = (sta6gamma - 1) / sta6gamma
+
 
 class EnginePerformance(Model):
     """
@@ -1350,6 +1427,48 @@ class TestMissionGE90(Model):
 
         return climb, cruise
 
+class TestMissionD82(Model):
+    """
+    place holder of a mission calss
+    """
+    def setup(self, engine):
+        M2 = .6
+        M25 = .6
+        M4a = .1025
+        M0 = .5
+
+        engineclimb = [
+            engine['F_{spec}'][1] == 13.798*units('kN'),
+            engine['F_{spec}'][0] == 11.949 * units('kN'),
+                        
+            engine.state['P_{atm}'][1] == 23.84*units('kPa'),    #36K feet
+            engine.state["T_{atm}"][1] == 218*units('K'),
+            engine.state['M'][1] == M0,
+            engine.engineP['M_{2.5}'][1] == M25,
+            engine.engineP['hold_{2}'][1] == 1+.5*(1.398-1)*M2**2,
+            engine.engineP['hold_{2.5}'][1] == 1+.5*(1.354-1)*M25**2,
+            engine.engineP['c1'][1] == 1+.5*(.401)*M0**2,
+            ]
+
+        M2 = .6
+        M25 = .6
+        M4a = .1025
+        M0 = .72
+
+        enginecruise = [
+            engine.state['P_{atm}'][0] == 23.84*units('kPa'),    #36K feet
+            engine.state["T_{atm}"][0] == 218*units('K'),
+            engine.state['M'][0] == M0,
+            engine.engineP['M_2'][0] == M2,
+            engine.engineP['M_{2.5}'][0] == M25,
+            engine.engineP['hold_{2}'][0] == 1+.5*(1.398-1)*M2**2,
+            engine.engineP['hold_{2.5}'][0] == 1+.5*(1.354-1)*M25**2,
+            engine.engineP['c1'][0] == 1+.5*(.401)*M0**2,
+            ]
+
+
+        return engineclimb, enginecruise
+
 def test():
     """
     Test each different engine
@@ -1598,15 +1717,72 @@ def test():
     m.substitutions.update(substitutions)
     sol = m.localsolve(verbosity = 0)
 
+    #test the D8.2 engine
+    with Vectorize(2):
+        state = TestState()
+
+    engine = Engine(0, True, 2, state, 3)
+
+    mission = TestMissionD82(engine)
+
+    M4a = .1025
+    fan = 1.60474
+    lpc  = 4.98
+    hpc = 35/8
+
+    substitutions = {
+        # Engine substitutions
+        '\\pi_{tn}': .995,
+        '\pi_{b}': .94,
+        '\pi_{d}': .995,
+        '\pi_{fn}': .985,
+        'T_{ref}': 288.15,
+        'P_{ref}': 101.325,
+        '\eta_{HPshaft}': .97,
+        '\eta_{LPshaft}': .97,
+        'eta_{B}': .9827,
+
+        '\pi_{f_D}': fan,
+        '\pi_{hc_D}': hpc,
+        '\pi_{lc_D}': lpc,
+
+        '\\alpha_{OD}': 6.97,
+        '\\alpha_{max}': 6.97,
+
+        'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
+        'r_{uc}': .01,
+        '\\alpha_c': .19036,
+        'T_{t_f}': 435,
+
+        'M_{takeoff}': .9556,
+
+        'G_f': 1,
+
+        'h_f': 43.003,
+
+        'Cp_t1': 1280,
+        'Cp_t2': 1184,
+        'Cp_c': 1216,
+
+        'HTR_{f_SUB}': 1-.3**2,
+        'HTR_{lpc_SUB}': 1 - 0.6**2,
+     }
+
+    m = Model((10*engine.engineP.thrustP['TSFC'][0]+engine.engineP.thrustP['TSFC'][1]) * (engine['W_{engine}'] * units('1/hr/N'))**.00001, [engine, mission], substitutions, x0=x0)
+    m.substitutions.update(substitutions)
+    sol = m.localsolve(verbosity = 0)
+
+
 if __name__ == "__main__":
     """
     eng = 0 is CFM56, set N = 2
-    eng = 1 is TASOPT, set N = 3
+    eng = 1 is TASOPT 737-800, set N = 3
     eng = 2 is GE90, set N = 2
+    eng = 3 is TASOPT D8.2, set N=2
     """
-    eng = 0
+    eng = 3
     
-    if eng == 0 or eng == 2:
+    if eng == 0 or eng == 2 or eng == 3:
         N = 2
     if eng == 1:
         N = 3
@@ -1624,6 +1800,9 @@ if __name__ == "__main__":
 
     if eng == 2:
         mission = TestMissionGE90(engine)
+    
+    if eng == 3:
+        mission = TestMissionD82(engine)
 
     if eng == 0:
         M4a = .1025
@@ -1753,6 +1932,50 @@ if __name__ == "__main__":
             'HTR_{lpc_SUB}': 1 - 0.6**2,
             }
 
+    if eng == 3:
+        M4a = .1025
+        fan = 1.60474
+        lpc  = 4.98
+        hpc = 35/8
+
+        substitutions = {
+        # Engine substitutions
+        '\\pi_{tn}': .995,
+        '\pi_{b}': .94,
+        '\pi_{d}': .995,
+        '\pi_{fn}': .985,
+        'T_{ref}': 288.15,
+        'P_{ref}': 101.325,
+        '\eta_{HPshaft}': .97,
+        '\eta_{LPshaft}': .97,
+        'eta_{B}': .9827,
+
+        '\pi_{f_D}': fan,
+        '\pi_{hc_D}': hpc,
+        '\pi_{lc_D}': lpc,
+
+        '\\alpha_{OD}': 6.97,
+        '\\alpha_{max}': 6.97,
+
+        'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
+        'r_{uc}': .01,
+        '\\alpha_c': .19036,
+        'T_{t_f}': 435,
+
+        'M_{takeoff}': .9556,
+
+        'G_f': 1,
+
+        'h_f': 43.003,
+
+        'Cp_t1': 1280,
+        'Cp_t2': 1184,
+        'Cp_c': 1216,
+
+        'HTR_{f_SUB}': 1-.3**2,
+        'HTR_{lpc_SUB}': 1 - 0.6**2,
+     }
+
     #dict of initial guesses
     x0 = {
         'W_{engine}': 1e4*units('N'),
@@ -1842,7 +2065,7 @@ if __name__ == "__main__":
     }
 
     #select the proper objective based off of the number of flight segments
-    if eng == 0 or eng == 2:
+    if eng == 0 or eng == 2 or eng == 3:
         m = Model((10*engine.engineP.thrustP['TSFC'][0]+engine.engineP.thrustP['TSFC'][1]) * (engine['W_{engine}'] * units('1/hr/N'))**.00001, [engine, mission], substitutions, x0=x0)
     if eng == 1:
         m = Model((10*engine.engineP.thrustP['TSFC'][2]+engine.engineP.thrustP['TSFC'][1]+engine.engineP.thrustP['TSFC'][0]) * (engine['W_{engine}'] * units('1/hr/N'))**.00001, [engine, mission], substitutions, x0=x0)
@@ -1877,3 +2100,27 @@ if __name__ == "__main__":
         weighterror =  100*(mag(sol('W_{engine}').to('lbf'))-17400)/17400
 
         print tocerror, cruiseerror, weighterror
+
+
+#code for estimating on design parameters
+##Pt0 = 50
+##Tt0 = 250
+##Pt3 = Pt0*lpc*fan*hpc
+##Pt21 = fan * Pt0
+##Pt25 = Pt0 * fan * lpc
+##
+##Tt21 = Tt0 * (fan)**(.4/(1.4*.9153))
+##Tt25 = Tt21 * (lpc)**(.4/(1.4*.9037))
+##Tt3 = Tt25 * (hpc)**(.4/(1.4*.9247))
+##
+##Tt41 = 1400
+##
+##Tt45 = Tt41 - (Tt3 - Tt25)
+##
+##Tt49 = Tt45 - (Tt25 - Tt21)
+##
+##piHPT = (Tt45/Tt41)**(.9121*1.4/.4)
+##
+##piLPT = (Tt49/Tt45)**(.9228*1.4/.4)
+##
+##Pt45 = piHPT * Pt3
