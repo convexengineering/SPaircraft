@@ -71,7 +71,6 @@ plot = True
 D80 = False
 D82 = True
 b737800 = False
-B737800 = False
 
 sweep = 27.566#30 [deg]
 
@@ -79,7 +78,6 @@ if D82:
      sweep = 13.237  # [deg]
 
 if b737800:
-if B737800:
      sweep = 26.0 # [deg]
 
 g = 9.81 * units('m*s**-2')
@@ -250,7 +248,6 @@ class Aircraft(Model):
 
           #737 only constraints
           if b737800:
-        if B737800:
                constraints.extend([
                    # Engine out moment arm,
 ##                    self.VT['y_{eng}'] == ?,
