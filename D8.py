@@ -114,7 +114,7 @@ class Aircraft(Model):
         #engine system weight variables
         rSnace = Variable('rSnace', '-', 'Nacelle and Pylon Wetted Area')
         lnace = Variable('l_{nacelle}', 'm', 'Nacelle Length')
-        fSnace = Variable('f_{S_nacelle}', '-', 'Non-dimensional Nacelle Area'),
+        fSnace = Variable('f_{S_nacelle}', '-', 'Non-dimensional Nacelle Area')
         Snace = Variable('S_{nace}', 'm^2', 'Nacelle Surface Area')
         Ainlet = Variable('A_{inlet}','m^2', 'Inlet Area')
         Afancowl = Variable('A_{fancowl}', 'm^2', 'Fan Cowling Area')
@@ -126,9 +126,7 @@ class Aircraft(Model):
         feadd = Variable('f_{eadd}', '-', 'Additional Engine Weight Fractinon')
         Weadd = Variable('W_{eadd}', 'N', 'Addittional Engine System Weight')
         Wengsys = Variable('W_{engsys}', 'N', 'Total Engine System Weight')
-
-        print fSnace[0]
-        print Snace * self.wing['S']**-1,
+        rvnace = Variable('r_{vnace}', '-', 'Incoming Nacelle Velocity Ratio')
      
         constraints = []
         with SignomialsEnabled():
@@ -215,7 +213,7 @@ class Aircraft(Model):
                             #engine system weight constraints
                             Snace == rSnace * np.pi * 0.25 * self.engine['d_{f}']**2,
                             lnace == 0.15 * self.engine['d_{f}'] * rSnace,
-                            fSnace[0] == Snace * self.wing['S']**-1,
+                            fSnace == Snace * self.wing['S']**-1,
                             Ainlet == 0.4 * Snace,
                             Afancowl == 0.2 * Snace,
                             Aexh == 0.4 * Snace,
@@ -277,12 +275,11 @@ class AircraftP(Model):
         rhocabin = Variable('\\rho_{cabin}','kg/m^3','Cabin Air Density')
 
         #variables for nacelle drag calcualation
-        Vnace = Variable('V_{nacelle}', 'm/s', 'Incoming Nacelle Flow Velocity'),
-        rvnace = Variable('r_{vnace}', '-', 'Incoming Nacelle Velocity Ratio'),
-        V2 = Variable('V_2', 'm/s', 'Interior Nacelle Flow Velcoity'),
-        Vnacrat = Variable('V_{nacelle_ratio}', '-', 'Vnle/Vinf'),
-        rvnsurf = Variable('rvnsurf', '-', 'Intermediate Nacelle Drag Parameter'),
-        Cfnace = Variable('C_{f_nacelle}', '-', 'Nacelle Drag Coefficient'),
+        Vnace = Variable('V_{nacelle}', 'm/s', 'Incoming Nacelle Flow Velocity')
+        V2 = Variable('V_2', 'm/s', 'Interior Nacelle Flow Velcoity')
+        Vnacrat = Variable('V_{nacelle_ratio}', '-', 'Vnle/Vinf')
+        rvnsurf = Variable('rvnsurf', '-', 'Intermediate Nacelle Drag Parameter')
+        Cfnace = Variable('C_{f_nacelle}', '-', 'Nacelle Drag Coefficient')
         Renace = Variable('R_{e_nacelle}', '-', 'Nacelle Reynolds Number')
         Cfturb = Variable('C_{f_nacelle}', '-', 'Turbulent Nacelle Skin Friction Coefficient')
         Cdnace = Variable('C_{d_nacelle}', '-', 'Nacelle Drag Coeffecient')
@@ -381,12 +378,11 @@ class AircraftP(Model):
           #nacelle drag
           Renace == state['\\rho']*state['V'] * aircraft['l_{nacelle}']/state['\\mu'],
           Cfnace == 0.0743/(Renace**(0.2)), #from http://www.calpoly.edu/~kshollen/ME347/Handouts/Friction_Drag_Coef.pdf
-          Vnace == rvnace * state['V'],
+          Vnace == aircraft['r_{vnace}'] * state['V'],
           Vnacrat >= 2*Vnace/state['V'] - V2/state['V'],
-##          rvnsurf**3 >= 0.25*(Vnacrat + rvncae)*(Vnacrat**2 + rvnace**2),
-##          Cdnace == aircraft['f_{S_nacelle}'] * Cfnace * rvnsurf **3,
+          rvnsurf**3 >= 0.25*(Vnacrat + aircraft['r_{vnace}'])*(Vnacrat**2 + aircraft['r_{vnace}']**2),
+          Cdnace == aircraft['f_{S_nacelle}'] * Cfnace[0] * rvnsurf **3,
           Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2 * aircraft['S'],
-
            ])
 
         return self.Pmodels, constraints
@@ -797,6 +793,9 @@ substitutions = {
         'rSnace': 6,
         'f_{pylon}': 0.05,
         'f_{eadd}': 0.1,
+
+        #nacelle drag calc parameter
+       'r_{vnace}': 0.925,
 
         # Cabin air substitutions in AircraftP
 
