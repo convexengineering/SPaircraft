@@ -70,6 +70,7 @@ plot = True
 # Only one active at a time
 D80 = False
 D82 = True
+b737800 = False
 B737800 = False
 
 sweep = 27.566#30 [deg]
@@ -77,6 +78,7 @@ sweep = 27.566#30 [deg]
 if D82:
      sweep = 13.237  # [deg]
 
+if b737800:
 if B737800:
      sweep = 26.0 # [deg]
 
@@ -247,13 +249,14 @@ class Aircraft(Model):
                   ])
 
           #737 only constraints
+          if b737800:
         if B737800:
                constraints.extend([
-                    # Engine out moment arm,
+                   # Engine out moment arm,
 ##                    self.VT['y_{eng}'] == ?,
-
-                    # Tail weight
-                    self.fuse['W_{tail}'] >= WVT + \
+                    
+                  # Tail weight
+                  self.fuse['W_{tail}'] >= WVT + \
                       WHT + self.fuse['W_{cone}'],
 
                     # HT root moment
@@ -642,10 +645,6 @@ class Mission(Model):
             # down range distance covered during climb
             cruise.cruiseP['Rng'] == RngCruise / (Ncruise),
 
-            # Set the BLI Benefit
-            climb.climbP.fuseP['f_{BLI}'] == 0.91,
-            cruise.cruiseP.fuseP['f_{BLI}'] == 0.91,
-
             # Wing fuel constraints
             aircraft.wing['W_{fuel_{wing}}'] == W_ftotal/aircraft.wing['FuelFrac'],
 
@@ -657,6 +656,13 @@ class Mission(Model):
           cruise.cruiseP['V_2'] == aircraft.engine['M_2'][Nclimb:]*cruise.state['a'],
           climb.climbP['V_2'] == aircraft.engine['M_2'][:Nclimb]*climb.state['a'],
         ])
+
+        if D80 or D82:
+             constraints.extend([
+                    # Set the BLI Benefit
+                    climb.climbP.fuseP['f_{BLI}'] == 0.91,
+                    cruise.cruiseP.fuseP['f_{BLI}'] == 0.91,
+                  ])
 
         with SignomialsEnabled():
             constraints.extend([
@@ -683,10 +689,17 @@ class Mission(Model):
             TCS([climb['excessP'] + climb.state['V'] * climb['D'] <=  climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
 
-        M2 = .6
-        M25 = .6
-        M4a = .1025
-        M0 = .72
+        if D80 or D82:
+             M2 = .6
+             M25 = .6
+             M4a = .1025
+             M0 = .72
+        if b737800:
+             M2 = .6
+             M25 = .6
+             M4a = .1025
+             M0 = .8
+
 
         enginecruise = [
             aircraft.engine.engineP['M_2'][Nclimb:] == cruise['M'],
@@ -709,10 +722,18 @@ class Mission(Model):
         return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
 
-M4a = .1025
-fan = 1.685
-lpc  = 1.935
-hpc = 9.369
+if D80 or D82:
+     M4a = .1025
+     fan = 1.60474
+     lpc  = 4.98
+     hpc = 35/8
+
+if b737800:
+     M4a = .1025
+     fan = 1.685
+     lpc  = 8/1.685
+     hpc = 30/8
+
 
 substitutions = {
         # 'V_{stall}'   : 120,
@@ -789,11 +810,27 @@ substitutions = {
         '\\Delta x_{CG}': 2.0*units('m'),
         'x_{CG_{min}}' : 13.0*units('m'),
 
-        # Engine substitutions
-        '\\pi_{tn}': .98,
+        #engine system subs
+        'rSnace': 6,
+        'f_{pylon}': 0.05,
+        'f_{eadd}': 0.1,
+
+        #nacelle drag calc parameter
+       'r_{vnace}': 0.925,
+
+        # Cabin air substitutions in AircraftP
+
+        #set the fuel reserve fraction
+        'ReserveFraction': .20,
+}
+
+if D80 or D82:
+     substitutions.update(
+     {   # Engine substitutions
+        '\\pi_{tn}': .995,
         '\pi_{b}': .94,
-        '\pi_{d}': .98,
-        '\pi_{fn}': .98,
+        '\pi_{d}': .995,
+        '\pi_{fn}': .985,
         'T_{ref}': 288.15,
         'P_{ref}': 101.325,
         '\eta_{HPshaft}': .97,
@@ -824,20 +861,46 @@ substitutions = {
 
         'HTR_{f_SUB}': 1-.3**2,
         'HTR_{lpc_SUB}': 1 - 0.6**2,
+     })
 
-        #engine system subs
-        'rSnace': 6,
-        'f_{pylon}': 0.05,
-        'f_{eadd}': 0.1,
+if b737800:
+     substitutions.update(
+     {  # Engine substitutions
+        '\\pi_{tn}': .989,
+        '\pi_{b}': .94,
+        '\pi_{d}': .998,
+        '\pi_{fn}': .98,
+        'T_{ref}': 288.15,
+        'P_{ref}': 101.325,
+        '\eta_{HPshaft}': .97,
+        '\eta_{LPshaft}': .97,
+        'eta_{B}': .9827,
 
-        #nacelle drag calc parameter
-       'r_{vnace}': 0.925,
+        '\pi_{f_D}': fan,
+        '\pi_{hc_D}': hpc,
+        '\pi_{lc_D}': lpc,
 
-        # Cabin air substitutions in AircraftP
+        '\\alpha_{OD}': 5.1,
+        '\\alpha_{max}': 5.1,
 
-        #set the fuel reserve fraction
-        'ReserveFraction': .20,
-}
+        'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
+        'r_{uc}': .01,
+        '\\alpha_c': .19036,
+        'T_{t_f}': 435,
+
+        'M_{takeoff}': .9556,
+
+        'G_f': 1,
+
+        'h_f': 43.003,
+
+        'Cp_t1': 1280,
+        'Cp_t2': 1184,
+        'Cp_c': 1216,
+
+        'HTR_{f_SUB}': 1-.3**2,
+        'HTR_{lpc_SUB}': 1 - 0.6**2,
+     })
 
 if __name__ == '__main__':
 
