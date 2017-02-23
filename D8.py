@@ -113,6 +113,8 @@ class Aircraft(Model):
 
         #engine system weight variables
         rSnace = Variable('rSnace', '-', 'Nacelle and Pylon Wetted Area')
+        lnace = Variable('l_{nacelle}', 'm', 'Nacelle Length')
+        fSnace = Variable('f_{S_nacelle}', '-', 'Non-dimensional Nacelle Area'),
         Snace = Variable('S_{nace}', 'm^2', 'Nacelle Surface Area')
         Ainlet = Variable('A_{inlet}','m^2', 'Inlet Area')
         Afancowl = Variable('A_{fancowl}', 'm^2', 'Fan Cowling Area')
@@ -124,6 +126,9 @@ class Aircraft(Model):
         feadd = Variable('f_{eadd}', '-', 'Additional Engine Weight Fractinon')
         Weadd = Variable('W_{eadd}', 'N', 'Addittional Engine System Weight')
         Wengsys = Variable('W_{engsys}', 'N', 'Total Engine System Weight')
+
+        print fSnace[0]
+        print Snace * self.wing['S']**-1,
      
         constraints = []
         with SignomialsEnabled():
@@ -209,6 +214,8 @@ class Aircraft(Model):
 
                             #engine system weight constraints
                             Snace == rSnace * np.pi * 0.25 * self.engine['d_{f}']**2,
+                            lnace == 0.15 * self.engine['d_{f}'] * rSnace,
+                            fSnace[0] == Snace * self.wing['S']**-1,
                             Ainlet == 0.4 * Snace,
                             Afancowl == 0.2 * Snace,
                             Aexh == 0.4 * Snace,
@@ -269,6 +276,18 @@ class AircraftP(Model):
         Tcabin = Variable('T_{cabin}','K','Cabin Air Temperature')
         rhocabin = Variable('\\rho_{cabin}','kg/m^3','Cabin Air Density')
 
+        #variables for nacelle drag calcualation
+        Vnace = Variable('V_{nacelle}', 'm/s', 'Incoming Nacelle Flow Velocity'),
+        rvnace = Variable('r_{vnace}', '-', 'Incoming Nacelle Velocity Ratio'),
+        V2 = Variable('V_2', 'm/s', 'Interior Nacelle Flow Velcoity'),
+        Vnacrat = Variable('V_{nacelle_ratio}', '-', 'Vnle/Vinf'),
+        rvnsurf = Variable('rvnsurf', '-', 'Intermediate Nacelle Drag Parameter'),
+        Cfnace = Variable('C_{f_nacelle}', '-', 'Nacelle Drag Coefficient'),
+        Renace = Variable('R_{e_nacelle}', '-', 'Nacelle Reynolds Number')
+        Cfturb = Variable('C_{f_nacelle}', '-', 'Turbulent Nacelle Skin Friction Coefficient')
+        Cdnace = Variable('C_{d_nacelle}', '-', 'Nacelle Drag Coeffecient')
+        Dnace = Variable('D_{nacelle}', 'N', 'Drag On One Nacelle')
+
         constraints = []
 
         with SignomialsEnabled():
@@ -286,7 +305,7 @@ class AircraftP(Model):
             state['V'] >= Vstall,
 
             # compute the drag
-            D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}'],
+            D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}'] + aircraft['numeng'] * Dnace,
             C_D == D/(.5*state['\\rho']*state['V']**2 * self.aircraft.wing['S']),
             LoD == W_avg/D,
 
@@ -358,6 +377,15 @@ class AircraftP(Model):
             #                                 aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
             #                               + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
             #                                 aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']),
+
+          #nacelle drag
+          Renace == state['\\rho']*state['V'] * aircraft['l_{nacelle}']/state['\\mu'],
+          Cfnace == 0.0743/(Renace**(0.2)), #from http://www.calpoly.edu/~kshollen/ME347/Handouts/Friction_Drag_Coef.pdf
+          Vnace == rvnace * state['V'],
+          Vnacrat >= 2*Vnace/state['V'] - V2/state['V'],
+##          rvnsurf**3 >= 0.25*(Vnacrat + rvncae)*(Vnacrat**2 + rvnace**2),
+##          Cdnace == aircraft['f_{S_nacelle}'] * Cfnace * rvnsurf **3,
+          Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2 * aircraft['S'],
 
            ])
 
@@ -592,6 +620,10 @@ class Mission(Model):
             # Cruise Mach Number constraint
             cruise['M'] >= aircraft['M_{min}'],
 
+          #nacelle drag constraint
+          #elevated this constarint to mission for dimensionality
+          cruise.cruiseP['V_2'] == aircraft.engine['M_2'][Nclimb:]*cruise.state['a'],
+          climb.climbP['V_2'] == aircraft.engine['M_2'][:Nclimb]*climb.state['a'],
         ])
 
         with SignomialsEnabled():
