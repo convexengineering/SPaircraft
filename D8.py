@@ -69,8 +69,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
-b737800 = False
+D82 = False
+b737800 = True
 
 sweep = 27.566#30 [deg]
 
@@ -159,10 +159,6 @@ class Aircraft(Model):
                                  (pi + 2 * self.fuse['\\theta_{db}']) * \
                                   (self.fuse['l_{cone}'] / self.fuse['R_{fuse}'])]), #[SP]
 
-                            # Tail weight
-                            self.fuse['W_{tail}'] >= 2*WVT + \
-                                WHT + self.fuse['W_{cone}'],
-
                             # Horizontal tail aero+landing loads constants A1h
                             self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
                                                  (self.fuse['W_{tail}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{apu}'])) / \
@@ -182,12 +178,6 @@ class Aircraft(Model):
                             TCS([self.HT['V_{h}'] == self.HT['S_h']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
                             # self.HT['V_{h}'] >= 0.4,
 
-                            # HT/VT joint constraint
-                            self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
-
-                            # VT height constraint (4*engine radius)
-                            self.VT['b_{vt}'] >= 2 * self.engine['d_{f}'],
-
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
 
@@ -196,8 +186,6 @@ class Aircraft(Model):
 
                             # Vertical bending material coefficient (VT aero loads)
                             self.fuse['B1v'] == self.fuse['r_{M_v}']*2.*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
-
-
 
                             # Moment of inertia
                             Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
@@ -251,13 +239,19 @@ class Aircraft(Model):
                     # Pin VT joint moment constraint #TODO may be problematic, should check
                     SignomialEquality(self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4 - self.fuse['w_{fuse}']),
                                     self.HT['L_{h_{tri}}']*(self.fuse['w_{fuse}'] - self.HT['b_{ht}']/6)), #[SP] #[SPEquality]
+
+                  # HT/VT joint constraint
+                  self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
+
+                  # VT height constraint (4*engine radius)
+                  self.VT['b_{vt}'] >= 2 * self.engine['d_{f}'],
                   ])
 
           #737 only constraints
         if b737800:
                constraints.extend([
                    # Engine out moment arm,
-##                    self.VT['y_{eng}'] == ?,
+                    self.VT['y_{eng}'] == 4.83*units('m'),
                     
                   # Tail weight
                   self.fuse['W_{tail}'] >= WVT + \
@@ -729,19 +723,10 @@ class Mission(Model):
 
         return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
-
-if D80 or D82:
-     M4a = .1025
-     fan = 1.60474
-     lpc  = 4.98
-     hpc = 35/8
-
-if b737800:
-     M4a = .1025
-     fan = 1.685
-     lpc  = 8/1.685
-     hpc = 30/8
-
+M4a = .1025
+fan = 1.60474
+lpc  = 4.98
+hpc = 35/8
 
 substitutions = {
         # 'V_{stall}'   : 120,
@@ -830,11 +815,8 @@ substitutions = {
 
         #set the fuel reserve fraction
         'ReserveFraction': .20,
-}
 
-if D80 or D82:
-     substitutions.update(
-     {   # Engine substitutions
+         # Engine substitutions
         '\\pi_{tn}': .995,
         '\pi_{b}': .94,
         '\pi_{d}': .995,
@@ -869,46 +851,7 @@ if D80 or D82:
 
         'HTR_{f_SUB}': 1-.3**2,
         'HTR_{lpc_SUB}': 1 - 0.6**2,
-     })
-
-if b737800:
-     substitutions.update(
-     {  # Engine substitutions
-        '\\pi_{tn}': .989,
-        '\pi_{b}': .94,
-        '\pi_{d}': .998,
-        '\pi_{fn}': .98,
-        'T_{ref}': 288.15,
-        'P_{ref}': 101.325,
-        '\eta_{HPshaft}': .97,
-        '\eta_{LPshaft}': .97,
-        'eta_{B}': .9827,
-
-        '\pi_{f_D}': fan,
-        '\pi_{hc_D}': hpc,
-        '\pi_{lc_D}': lpc,
-
-        '\\alpha_{OD}': 5.1,
-        '\\alpha_{max}': 5.1,
-
-        'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
-        'r_{uc}': .01,
-        '\\alpha_c': .19036,
-        'T_{t_f}': 435,
-
-        'M_{takeoff}': .9556,
-
-        'G_f': 1,
-
-        'h_f': 43.003,
-
-        'Cp_t1': 1280,
-        'Cp_t2': 1184,
-        'Cp_c': 1216,
-
-        'HTR_{f_SUB}': 1-.3**2,
-        'HTR_{lpc_SUB}': 1 - 0.6**2,
-     })
+}
 
 if __name__ == '__main__':
 
@@ -985,13 +928,102 @@ if __name__ == '__main__':
             })
             m.substitutions.__delitem__('\\theta_{db}')
 
+        if b737800:
+               M4a = .1025
+               fan = 1.685
+               lpc  = 8/1.685
+               hpc = 30/8
+               
+               m.substitutions.update(
+               {  # Engine substitutions
+                  '\\pi_{tn}': .989,
+                  '\pi_{b}': .94,
+                  '\pi_{d}': .998,
+                  '\pi_{fn}': .98,
+                  'T_{ref}': 288.15,
+                  'P_{ref}': 101.325,
+                  '\eta_{HPshaft}': .99,
+                  '\eta_{LPshaft}': .978,
+                  'eta_{B}': .985,
+
+                  '\pi_{f_D}': fan,
+                  '\pi_{hc_D}': hpc,
+                  '\pi_{lc_D}': lpc,
+
+                  '\\alpha_{OD}': 5.1,
+                  '\\alpha_{max}': 5.1,
+
+                  'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
+                  'r_{uc}': .01,
+                  '\\alpha_c': .19036,
+                  'T_{t_f}': 435,
+
+                  'M_{takeoff}': .9556,
+
+                  'G_f': 1,
+
+                  'h_f': 43.003,
+
+                  'Cp_t1': 1280,
+                  'Cp_t2': 1184,
+                  'Cp_c': 1216,
+
+                  'HTR_{f_SUB}': 1-.3**2,
+                  'HTR_{lpc_SUB}': 1 - 0.6**2,
+
+                  #fuselage subs that make fuse circular
+                  '\\delta R_{fuse}': 0.0001,
+                  '\\theta_{db}': 0.0001,
+
+                    #Fuselage subs
+                    'f_{seat}':0.1,
+                    'W\'_{seat}':1, # Seat weight determined by weight fraction instead
+                    'f_{string}':0.35,
+                    'AR':10.1,
+                    'h_{floor}': 0.13,
+                    'R_{fuse}' : 1.715,
+                    '\\delta R_{fuse}': 0.43,
+                    'w_{db}': 0.93,
+                    'b_{max}':117.5*0.3048,
+                    # 'c_0': 17.4*0.3048,#units('ft'),
+                    '\\delta_P_{over}': 8.382*units('psi'),
+
+                    #HT subs
+                    'AR_h': 6.,
+                    '\\lambda_h' : 0.25,
+                    '\\tan(\\Lambda_{ht})': np.tan(25*np.pi/180), # tangent of HT sweep
+                    # 'V_{h}': 1.45,
+
+                    #VT subs
+                    'A_{vt}' : 2,
+                    '\\lambda_{vt}': 0.3,
+                    '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
+##                    'V_{vt}': .1,
+
+                    #Wing subs
+                    'C_{L_{wmax}}': 2.15,
+
+                    # Minimum Cruise Mach Number
+                    'M_{min}': 0.8,
+
+                  #engine system subs
+                  'rSnace': 16,
+
+                    #nacelle drag calc parameter
+                    'r_{vnace}': 1.02,
+               })
+
         m = relaxed_constants(m)
         
         sol = m.localsolve( verbosity = 4, iteration_limit=50)
 
         post_process(sol)
 
-        percent_diff(sol, 2)
+        if D82:
+             percent_diff(sol, 2)
+
+        if b737800:
+             percent_diff(sol, 800)
 
     if sweeps:
         if sweepSMmin:
