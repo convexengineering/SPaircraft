@@ -931,6 +931,8 @@ if __name__ == '__main__':
             m.substitutions.__delitem__('\\theta_{db}')
 
         if b737800:
+               print('737-800 executing...')
+               
                M4a = .1025
                fan = 1.685
                lpc  = 8/1.685
@@ -991,16 +993,17 @@ if __name__ == '__main__':
                     '\\delta_P_{over}': 8.382*units('psi'),
 
                     #HT subs
-                    'AR_h': 6.,
+                    'AR_h': 6,
                     '\\lambda_h' : 0.25,
                     '\\tan(\\Lambda_{ht})': np.tan(25*np.pi/180), # tangent of HT sweep
-                    # 'V_{h}': 1.45,
+##                    'V_{h}': 1.45,
 
                     #VT subs
                     'A_{vt}' : 2,
                     '\\lambda_{vt}': 0.3,
                     '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
-##                    'V_{vt}': .1,
+                    'V_{vt}': .1,
+                    '\\dot{r}_{req}': 0.08, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
                     #Wing subs
                     'C_{L_{wmax}}': 2.15,
@@ -1008,8 +1011,8 @@ if __name__ == '__main__':
                     # Minimum Cruise Mach Number
                     'M_{min}': 0.8,
 
-                  #engine system subs
-                  'rSnace': 16,
+                    #engine system subs
+                    'rSnace': 16,
 
                     #nacelle drag calc parameter
                     'r_{vnace}': 1.02,
