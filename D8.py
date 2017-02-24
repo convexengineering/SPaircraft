@@ -723,7 +723,7 @@ class Mission(Model):
 
         self.cost = W_ftotal
 
-        return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
+        return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise     
 
 M4a = .1025
 fan = 1.60474
@@ -864,6 +864,160 @@ substitutions = {
         'HTR_{f_SUB}': 1-.3**2,
         'HTR_{lpc_SUB}': 1 - 0.6**2,
 }
+
+def test():
+     """
+     solves a D82 and b737-800
+     """
+     global D82, b737800, sweep
+
+     #run the D82 case
+     D82 = True
+
+     sweep = 13.237  # [deg]
+
+     m = Mission()
+     m.substitutions.update(substitutions)
+
+     sweep = 13.237
+     m.substitutions.update({
+          #Fuselage subs
+          'f_{seat}':0.1,
+          'W\'_{seat}':1, # Seat weight determined by weight fraction instead
+          'f_{string}':0.35,
+          'AR':15.749,
+          'h_{floor}': 0.13,
+          'R_{fuse}' : 1.715,
+          '\\delta R_{fuse}': 0.43,
+          'w_{db}': 0.93,
+          'b_{max}':140.0*0.3048,
+          # 'c_0': 17.4*0.3048,#units('ft'),
+          '\\delta_P_{over}': 8.382*units('psi'),
+
+          #HT subs
+          'AR_h': 12.,
+          '\\lambda_h' : 0.3,
+          '\\tan(\\Lambda_{ht})': np.tan(8*np.pi/180), # tangent of HT sweep
+          # 'V_{h}': 0.895,
+
+          #VT subs
+          'A_{vt}' : 2.2,
+          '\\lambda_{vt}': 0.3,
+          '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
+          ##                'V_{vt}': .03,
+
+          #Wing subs
+          'C_{L_{wmax}}': 2.15,
+
+          # Minimum Cruise Mach Number
+          'M_{min}': 0.72,
+     })
+     m.substitutions.__delitem__('\\theta_{db}')
+
+     m = relaxed_constants(m)
+
+     sol = m.localsolve( verbosity = 4, iteration_limit=50)
+
+     #run the b737800 case
+     b737800 = True
+     
+     sweep = 26.0 # [deg]
+
+     m = Mission()
+     m.substitutions.update(substitutions)
+
+     M4a = .1025
+     fan = 1.685
+     lpc  = 8/1.685
+     hpc = 30/8
+
+     m.substitutions.update(
+     {  # Engine substitutions
+          '\\pi_{tn}': .989,
+          '\pi_{b}': .94,
+          '\pi_{d}': .998,
+          '\pi_{fn}': .98,
+          'T_{ref}': 288.15,
+          'P_{ref}': 101.325,
+          '\eta_{HPshaft}': .99,
+          '\eta_{LPshaft}': .978,
+          'eta_{B}': .985,
+
+          '\pi_{f_D}': fan,
+          '\pi_{hc_D}': hpc,
+          '\pi_{lc_D}': lpc,
+
+          '\\alpha_{OD}': 5.1,
+          '\\alpha_{max}': 5.1,
+
+          'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
+          'r_{uc}': .01,
+          '\\alpha_c': .19036,
+          'T_{t_f}': 435,
+
+          'M_{takeoff}': .9556,
+
+          'G_f': 1,
+
+          'h_f': 43.003,
+
+          'Cp_t1': 1280,
+          'Cp_t2': 1184,
+          'Cp_c': 1216,
+
+          'HTR_{f_SUB}': 1-.3**2,
+          'HTR_{lpc_SUB}': 1 - 0.6**2,
+
+          #fuselage subs that make fuse circular
+          '\\delta R_{fuse}': 0.0001,
+          '\\theta_{db}': 0.0001,
+
+          #Fuselage subs
+          'f_{seat}':0.1,
+          'W\'_{seat}':1, # Seat weight determined by weight fraction instead
+          'f_{string}':0.35,
+          'AR':10.1,
+          'h_{floor}': 0.13,
+          'R_{fuse}' : 1.715,
+          '\\delta R_{fuse}': 0.43,
+          'w_{db}': 0.93,
+          'b_{max}':117.5*0.3048,
+          # 'c_0': 17.4*0.3048,#units('ft'),
+          '\\delta_P_{over}': 8.382*units('psi'),
+
+          #HT subs
+          ##                    'AR_h': 6,
+          '\\lambda_h' : 0.25,
+          '\\tan(\\Lambda_{ht})': np.tan(25*np.pi/180), # tangent of HT sweep
+          'V_{h}': 1.3,#1.45,
+          'C_{L_{hmax}}': 2.0, # [TAS]
+          'C_{L_{hfcG}}': 0.7,
+
+          #VT subs
+          'A_{vt}' : 2,
+          '\\lambda_{vt}': 0.3,
+          '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
+          'V_{vt}': .1,
+          '\\dot{r}_{req}': 0.07, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
+
+          #Wing subs
+          'C_{L_{wmax}}': 2.15,
+          'f_{slat}': 0.1,
+
+          # Minimum Cruise Mach Number
+          'M_{min}': 0.8,
+
+          #engine system subs
+          'rSnace': 16,
+
+          #nacelle drag calc parameter
+          'r_{vnace}': 1.02,
+     })
+
+     m = relaxed_constants(m)
+
+     sol = m.localsolve( verbosity = 4, iteration_limit=50)
+
 
 if __name__ == '__main__':
 
