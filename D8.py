@@ -147,7 +147,7 @@ class Aircraft(Model):
                             # Lifting surface weights
                             Wwing == self.wing['W_{wing_system}'],
                             WHT == self.HT['W_{HT}'],
-                            WVT == self.VT['W_{struct}'],
+                            WVT == self.VT['W_{VT}'],
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -804,6 +804,7 @@ substitutions = {
         # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
         '\\dot{r}_{req}': 0.001,#0.174533, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
         'N_{spar}': 2,
+        'f_{VT}': 0.4,
 
         # HT substitutions
         '\\alpha_{max,h}': 2.5,
