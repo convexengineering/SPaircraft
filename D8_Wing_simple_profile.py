@@ -224,7 +224,15 @@ class Wing(Model):
         self.wns = WingNoStruct()
         self.wb = WingBox(self.wns)
 
-        constraints = [self.wns['\\lambda'] == self.wb['taper']]
+        Wwing = Variable('W_{wing_system}', 'N', 'Total Wing Weight')
+
+        constraints = [
+            self.wns['\\lambda'] == self.wb['taper'],
+
+            TCS([Wwing >= self.wb['W_{struct}'] + self.wb['W_{struct}']*(self.wns['f_{flap}'] + \
+                    self.wns['f_{slat}'] + self.wns['f_{aileron}'] + self.wns['f_{lete}'] + self.wns['f_{ribs}'] + \
+                    self.wns['f_{spoiler}'] + self.wns['f_{watt}'])]),
+            ]
 
         return self.wns, self.wb, constraints
         
@@ -286,6 +294,15 @@ class WingNoStruct(Model):
                           'Mean aerodynamic chord (wing)')
         e       = Variable('e', '-', 'Oswald efficiency factor')
         FuelFrac = Variable('FuelFrac', '-', 'Usability Factor of Max Fuel Volume')
+
+        #fractional componenet weights
+        fflap = Variable('f_{flap}', '-', 'Flap Fractional Weight')
+        fslat = Variable('f_{slat}', '-', 'Slat Fractional Weight')
+        faile = Variable('f_{aileron}', '-', 'Aileron Fractional Weight')
+        flete = Variable('f_{lete}', '-', 'Lete Fractional Weight')
+        fribs = Variable('f_{ribs}', '-', 'Rib Fractional Weight')
+        fspoi = Variable('f_{spoiler}', '-', 'Spoiler Fractional Weight')
+        fwatt = Variable('f_{watt}', '-', 'Watt Fractional Weight')
 
         
         #make cosntraints

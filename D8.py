@@ -145,7 +145,7 @@ class Aircraft(Model):
                             self.fuse['N_{lift}'] == self.wing['N_{lift}'],
 
                             # Lifting surface weights
-                            Wwing == self.wing['W_{struct}'],
+                            Wwing == self.wing['W_{wing_system}'],
                             WHT == self.HT['W_{struct}'],
                             WVT == self.VT['W_{struct}'],
 
@@ -782,6 +782,14 @@ substitutions = {
         '\\rho_0': 1.225*units('kg/m^3'),
         '\\rho_{fuel}': 817*units('kg/m^3'),  # Kerosene [TASOPT]
         'FuelFrac': 0.9,
+        'f_{flap}': 0.2,
+        'f_{slat}': 0.0001,
+        'f_{aileron}': 0.04,
+        'f_{lete}': 0.1,
+        'f_{ribs}': 0.15,
+        'f_{spoiler}': 0.02,
+        'f_{watt}': 0.03,
+
 
         # VT substitutions
        'C_{D_{wm}}': 0.5, # [2]
@@ -997,7 +1005,7 @@ if __name__ == '__main__':
                     'AR_h': 6,
                     '\\lambda_h' : 0.25,
                     '\\tan(\\Lambda_{ht})': np.tan(25*np.pi/180), # tangent of HT sweep
-##                    'V_{h}': 1.3,#1.45,
+                    'V_{h}': 1.3,#1.45,
                     'C_{L_{hmax}}': 2.0, # [TAS]
                     'C_{L_{hfcG}}': 0.7,
 
@@ -1010,6 +1018,7 @@ if __name__ == '__main__':
 
                     #Wing subs
                     'C_{L_{wmax}}': 2.15,
+                   'f_{slat}': 0.1,
 
                     # Minimum Cruise Mach Number
                     'M_{min}': 0.8,
