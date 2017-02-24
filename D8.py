@@ -146,7 +146,7 @@ class Aircraft(Model):
 
                             # Lifting surface weights
                             Wwing == self.wing['W_{wing_system}'],
-                            WHT == self.HT['W_{struct}'],
+                            WHT == self.HT['W_{HT}'],
                             WVT == self.VT['W_{struct}'],
 
                             # Tail cone sizing
@@ -813,6 +813,7 @@ substitutions = {
         '\\Delta x_{CG}': 2.0*units('m'),
         'x_{CG_{min}}' : 13.0*units('m'),
         'C_{L_{hfcG}}': 0.85,
+        'f_{HT}': 0.3,
 
         #engine system subs
         'rSnace': 6,
@@ -1002,7 +1003,7 @@ if __name__ == '__main__':
                     '\\delta_P_{over}': 8.382*units('psi'),
 
                     #HT subs
-                    'AR_h': 6,
+##                    'AR_h': 6,
                     '\\lambda_h' : 0.25,
                     '\\tan(\\Lambda_{ht})': np.tan(25*np.pi/180), # tangent of HT sweep
                     'V_{h}': 1.3,#1.45,
@@ -1014,7 +1015,7 @@ if __name__ == '__main__':
                     '\\lambda_{vt}': 0.3,
                     '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
                     'V_{vt}': .1,
-                    '\\dot{r}_{req}': 0.08, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
+                    '\\dot{r}_{req}': 0.07, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
                     #Wing subs
                     'C_{L_{wmax}}': 2.15,

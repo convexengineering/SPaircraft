@@ -445,11 +445,17 @@ class HorizontalTail(Model):
         self.HTns = HorizontalTailNoStruct()
         self.wb = WingBox(self.HTns)
 
+        #HT system weight variable
+        WHT = Variable('W_{HT}', 'N', 'HT System Weight')
+        fHT = Variable('f_{HT}' ,'-', 'Rudder etc. fractional weight')
+
         constraints = []
         with SignomialsEnabled():
             constraints.append([
                 self.wb['L_{h_{rect}}'] >= self.wb['L_{{max}_h}']/2.*self.HTns['c_{tip_h}']*self.HTns['b_{ht}']/self.HTns['S_h'],
                 self.wb['L_{h_{tri}}'] >= self.wb['L_{{max}_h}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_h}']*self.HTns['b_{ht}']/self.HTns['S_h'], #[SP]
+
+                WHT >= self.wb['W_{struct}'] + self.wb['W_{struct}']  * fHT,
             ])
 
         return self.HTns, self.wb, constraints
