@@ -69,8 +69,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
-b737800 = True
+D82 = True
+b737800 = False
 
 sweep = 27.566#30 [deg]
 
@@ -98,6 +98,7 @@ class Aircraft(Model):
 
         # variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
+        numVT = Variable('numVT','-','Number of Vertical Tails')
         Vne = Variable('V_{ne}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
         
@@ -138,8 +139,8 @@ class Aircraft(Model):
                             self.wing['c_{root}'] == self.fuse['c_0'],
                             self.wing.wb['wwb'] == self.fuse['wtc'],
                             self.wing['x_w'] == self.fuse['x_{wing}'],
-                            self.wing['V_{ne}'] == 144*units('m/s'),
-                            self.VT['V_{ne}'] == 144*units('m/s'),
+                            self.wing['V_{ne}'] == Vne,
+                            self.VT['V_{ne}'] == Vne,
 
                             # Load factor matching
                             self.fuse['N_{lift}'] == self.wing['N_{lift}'],
@@ -192,14 +193,6 @@ class Aircraft(Model):
                             # Vertical bending material coefficient (VT aero loads)
                             self.fuse['B1v'] == self.fuse['r_{M_v}']*2.*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
 
-                            # Moment of inertia
-                            Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
-                                    self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1-self.wing['\\lambda'])/16), #[SP]
-                            Iztail >= (self.fuse['W_{apu}'] + numeng*self.engine['W_{engine}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
-                            #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
-                            Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
-                                    (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3)/(3.*g),
-
                             TCS([self.VT['I_{z}'] >= Izwing + Iztail + Izfuse]),
 
                             #engine system weight constraints
@@ -221,8 +214,6 @@ class Aircraft(Model):
         if D80 or D82:
             with SignomialsEnabled():
                 constraints.extend([
-                    # HT/VT joint constraint
-                    self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
                     # VT height constraint (4*engine radius)
                     self.VT['b_{vt}'] >= 2 * self.engine['d_{f}'],
@@ -247,6 +238,14 @@ class Aircraft(Model):
 
                   # VT height constraint (4*engine radius)
                   self.VT['b_{vt}'] >= 2 * self.engine['d_{f}'],
+
+                # Moment of inertia
+                Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
+                                    self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1-self.wing['\\lambda'])/16), #[SP]
+                Iztail >= (self.fuse['W_{apu}'] + numeng*Wengsys + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
+                            #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
+                Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
+                                    (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3)/(3.*g),
                   ])
 
           #737 only constraints
@@ -256,12 +255,24 @@ class Aircraft(Model):
                     self.VT['y_{eng}'] == 4.83*units('m'),
                     
                   # Tail weight
-                  self.fuse['W_{tail}'] >= WVT + \
-                      WHT + self.fuse['W_{cone}'],
+                    self.fuse['W_{tail}'] >= WVT + WHT + self.fuse['W_{cone}'],
 
                     # HT root moment
-                    TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
+                    # TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
+                    TCS([self.HT['M_r']*self.HT['c_{root_h}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
+                         1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']]),
 
+                    # HT joint constraint
+                   self.HT['c_{attach}'] == self.HT['c_{root_h}'],
+
+                   # Moment of inertia
+                    Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2/g, #+ \ #TODO FIIIIIIIXXX
+                                    # (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
+                                    # self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
+                    Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
+                            #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
+                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
+                                    (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3)/(3.*g),
                     ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
@@ -370,7 +381,7 @@ class AircraftP(Model):
 
             # CG CONSTRAINT #TODO improve; how to account for decreasing fuel volume?
             TCS([xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engine}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
                     + aircraft['W_{wing}']*aircraft.fuse['x_{wing}']]),
                     #+ (aircraft['W_avg'] - ,
 
@@ -667,6 +678,11 @@ class Mission(Model):
                     climb.climbP.fuseP['f_{BLI}'] == 0.91,
                     cruise.cruiseP.fuseP['f_{BLI}'] == 0.91,
                   ])
+        if b737800:
+            constraints.extend([
+                climb.climbP.fuseP['f_{BLI}'] == 1.0,
+                cruise.cruiseP.fuseP['f_{BLI}'] == 1.0,
+            ])
 
         with SignomialsEnabled():
             constraints.extend([
@@ -740,6 +756,7 @@ substitutions = {
         '\\theta_{db}' : 0.366,
 ##        'CruiseAlt': 36632*units('ft'),
         'numeng': 2,
+        'numVT': 2,
         'n_{pax}': 180,
         'W_{avg. pass}': 180*units('lbf'),
         'W_{carry on}': 15*units('lbf'),
@@ -885,6 +902,7 @@ if __name__ == '__main__':
                 '\\tan(\\Lambda_{ht})':np.tan(20*np.pi/180), #tangent of HT sweep
 
                 #VT subs
+                'numVT': 2,
                 'A_{vt}' : 2.0,
                 '\\lambda_{vt}': 0.3,
                 '\\tan(\\Lambda_{vt})':np.tan(25*np.pi/180),
@@ -902,7 +920,7 @@ if __name__ == '__main__':
                 'f_{seat}':0.1,
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
-                'AR':15.749,
+                # 'AR':15.749,
                 'h_{floor}': 0.13,
                 'R_{fuse}' : 1.715,
                 '\\delta R_{fuse}': 0.43,
@@ -918,6 +936,7 @@ if __name__ == '__main__':
                 # 'V_{h}': 0.895,
 
                 #VT subs
+                'numVT': 2,
                 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
                 '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
@@ -977,19 +996,17 @@ if __name__ == '__main__':
                   'HTR_{lpc_SUB}': 1 - 0.6**2,
 
                   #fuselage subs that make fuse circular
-                  '\\delta R_{fuse}': 0.0001,
+                  '\\delta R_{fuse}': 0.0001*units('m'),
                   '\\theta_{db}': 0.0001,
 
                     #Fuselage subs
                     'f_{seat}':0.1,
-                    'W\'_{seat}':1, # Seat weight determined by weight fraction instead
+                    'W\'_{seat}':1*units('N'), # Seat weight determined by weight fraction instead
                     'f_{string}':0.35,
-                    'AR':10.1,
-                    'h_{floor}': 0.13,
-                    'R_{fuse}' : 1.715,
-                    '\\delta R_{fuse}': 0.43,
-                    'w_{db}': 0.93,
-                    'b_{max}':117.5*0.3048,
+                    # 'AR':10.1,
+                    'h_{floor}': 0.13*units('m'),
+                    # 'R_{fuse}' : 1.715,
+                    'b_{max}':140*0.3048*units('m'),#117.5*0.3048*units('m'),
                     # 'c_0': 17.4*0.3048,#units('ft'),
                     '\\delta_P_{over}': 8.382*units('psi'),
 
@@ -1000,12 +1017,14 @@ if __name__ == '__main__':
 ##                    'V_{h}': 1.3,#1.45,
                     'C_{L_{hmax}}': 2.0, # [TAS]
                     'C_{L_{hfcG}}': 0.7,
+                    # 'c_{attach}':1*units('m'),
 
                     #VT subs
+                    'numVT': 1,
                     'A_{vt}' : 2,
                     '\\lambda_{vt}': 0.3,
                     '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
-                    'V_{vt}': .1,
+                    # 'V_{vt}': .1,
                     '\\dot{r}_{req}': 0.08, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
                     #Wing subs
@@ -1013,6 +1032,7 @@ if __name__ == '__main__':
 
                     # Minimum Cruise Mach Number
                     'M_{min}': 0.8,
+                   # 'CruiseAlt':35000*units('ft'),
 
                     #engine system subs
                     'rSnace': 16,
