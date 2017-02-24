@@ -446,7 +446,7 @@ class HorizontalTail(Model):
         self.wb = WingBox(self.HTns)
 
         #HT system weight variable
-        WHT = Variable('W_{HT}', 'N', 'HT System Weight')
+        WHT = Variable('W_{HT_system}', 'N', 'HT System Weight')
         fHT = Variable('f_{HT}' ,'-', 'Rudder etc. fractional weight')
 
         constraints = []

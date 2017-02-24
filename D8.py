@@ -146,8 +146,8 @@ class Aircraft(Model):
 
                             # Lifting surface weights
                             Wwing == self.wing['W_{wing_system}'],
-                            WHT == self.HT['W_{HT}'],
-                            WVT == self.VT['W_{VT}'],
+                            WHT == self.HT['W_{HT_system}'],
+                            WVT == self.VT['W_{VT_system}'],
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
