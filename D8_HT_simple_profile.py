@@ -313,6 +313,7 @@ class HorizontalTailNoStruct(Model):
         fl      = Variable(r"f(\lambda_h)", '-',
                            'Empirical efficiency function of taper')
         CLhmax  = Variable('C_{L_{hmax}}', '-', 'Max lift coefficient')
+        CLfCG = Variable('C_{L_{hfcG}}', '-', 'HT CL During Max Forward CG')
 
         #new variables
         Vh = Variable('V_{h}', '-', 'Horizontal Tail Volume Coefficient')
