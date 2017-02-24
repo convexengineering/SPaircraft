@@ -87,6 +87,8 @@ tanvt = sol('\\tan(\Lambda_{vt})_Mission, Aircraft, VerticalTail, VerticalTailNo
 
 # Engine descriptors
 df = sol('d_{f}') # Engine frontal area
+lnace = sol('l_{nacelle}')
+yeng = sol('y_{eng}')
 
 
 # List of variables still to integrate
@@ -107,9 +109,9 @@ df = sol('d_{f}') # Engine frontal area
 resultsDict = {
     # Engine Variables
     'REBAHPKXPRR':float(xCGvt.magnitude), # Engine x location
-    'GKMTRGNCEVD':float(0.5*wfuse.magnitude), #Engine y location
+    'GKMTRGNCEVD':float(yeng.magnitude), #Engine y location
     'XFTWTTHLVRI':float(hfuse.magnitude - (df/5).magnitude), # Engine z location
-    'JTPPOOJVVPE':float((2*(A_2/pi)**0.5).magnitude),# Engine length
+    'JTPPOOJVVPE':float(lnace.magnitude),# Engine length
     'QRBDHPAPDFX':float(2), # Engine fineness ratio (set at 2 for now)
 
     # Floor Variables
