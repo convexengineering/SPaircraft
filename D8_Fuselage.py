@@ -240,9 +240,7 @@ class Fuselage(Model):
                 TCS([2.*wfuse >= SPR * wseat + 2 * waisle + 2 * wsys + tdb]),
                 wfuse <= (Rfuse + wdb),
                 SignomialEquality(hfuse, Rfuse + 0.5*dRfuse), #[SP] #[SPEquality]
-                # hfuse <= Rfuse + 0.5*dRfuse,
                 TCS([tshell <= tskin * (1. + rE * fstring * rhoskin / rhobend)]), #[SP]
-                dRfuse >= 0.2*units('m'), #TODO REMOVE
 
                 # Fuselage surface area relations
                 Snose >= (2 * pi + 4 * thetadb) * Rfuse**2 * \
@@ -269,7 +267,7 @@ class Fuselage(Model):
                 Vfloor == 2 * wfloor * Afloor,
                 Wfloor >= rhofloor * g * Vfloor + 2 * wfloor * lfloor * Wppfloor,
                 Sfloor == (5. / 16.) * Pfloor,
-                hfloor <= 0.1 * Rfuse,
+                # hfloor <= 0.1 * Rfuse,
 
                 # Tail cone sizing
                 taucone == sigskin,
