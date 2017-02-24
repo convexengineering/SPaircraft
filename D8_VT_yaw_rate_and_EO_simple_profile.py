@@ -247,7 +247,14 @@ class VerticalTail(Model):
         self.vtns = VerticalTailNoStruct()
         self.wb = WingBox(self.vtns)
 
-        constraints = [self.vtns['\\lambda_{vt}'] == self.wb['taper']]
+        #total weight variables
+        WVT = Variable('W_{VT_system}', 'N', 'Total VT System Weight')
+        fVT = Variable('f_{VT}', '-', 'VT Fractional Weight')
+
+        constraints = [
+            self.vtns['\\lambda_{vt}'] == self.wb['taper'],
+            WVT >= self.wb['W_{struct}'] + self.wb['W_{struct}'] * fVT,
+                       ]
 
         return self.vtns, self.wb, constraints
 

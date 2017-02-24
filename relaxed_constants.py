@@ -44,7 +44,6 @@ def post_process(sol):
         if varkeys:
             print "GP iteration %s has relaxed constants" % i
             print sol.program.gps[i].result.table(varkeys)
-            if i == len(sol.program.gps):
-                raise RuntimeWarning(
-                    "The final GP iteration had relaxation values greater than 1")
+            if i == len(sol.program.gps) - 1:
+                print  "WARNING: The final GP iteration had relaxation values greater than 1"
 
