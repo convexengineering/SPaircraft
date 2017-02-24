@@ -178,6 +178,11 @@ class Aircraft(Model):
                             TCS([self.HT['V_{h}'] == self.HT['S_h']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
                             # self.HT['V_{h}'] >= 0.4,
 
+                            # HT Max Loading
+                            TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
+
+
+
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
 
@@ -227,9 +232,6 @@ class Aircraft(Model):
 
                     # Tail weight
                     self.fuse['W_{tail}'] >= 2*WVT + WHT + self.fuse['W_{cone}'],
-
-                    # HT Max Loading
-                    TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
 
                     # HT root moment
                     self.HT['M_r']*self.HT['c_{root_h}'] >= self.HT['N_{lift}']*self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4) \
