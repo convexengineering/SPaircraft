@@ -407,7 +407,7 @@ class AircraftP(Model):
             TCS([aircraft['SM_{min}'] <=
                                             aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                                           + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
-                                            aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
+                                            aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hfcG}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
 
             # SignomialEquality(SM + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'],
             #                                 aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
@@ -804,6 +804,7 @@ substitutions = {
         'SM_{min}': 0.05,
         '\\Delta x_{CG}': 2.0*units('m'),
         'x_{CG_{min}}' : 13.0*units('m'),
+        'C_{L_{hfcG}}': 0.85,
 
         #engine system subs
         'rSnace': 6,
@@ -996,7 +997,9 @@ if __name__ == '__main__':
                     'AR_h': 6,
                     '\\lambda_h' : 0.25,
                     '\\tan(\\Lambda_{ht})': np.tan(25*np.pi/180), # tangent of HT sweep
-##                    'V_{h}': 1.45,
+##                    'V_{h}': 1.3,#1.45,
+                    'C_{L_{hmax}}': 2.0, # [TAS]
+                    'C_{L_{hfcG}}': 0.7,
 
                     #VT subs
                     'A_{vt}' : 2,
