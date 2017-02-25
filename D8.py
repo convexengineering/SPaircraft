@@ -1066,7 +1066,7 @@ if __name__ == '__main__':
                 'f_{seat}':0.1,
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
-                'AR':15.749,
+##                'AR':15.749,
                 'h_{floor}': 0.13,
                 'R_{fuse}' : 1.715,
                 '\\delta R_{fuse}': 0.43,
@@ -1161,7 +1161,7 @@ if __name__ == '__main__':
 ##                    'AR_h': 6,
                     '\\lambda_h' : 0.25,
                     '\\tan(\\Lambda_{ht})': np.tan(25*np.pi/180), # tangent of HT sweep
-                    'V_{h}': 1.3,#1.45,
+                    'V_{h}': 1.1,#1.45,
                     'C_{L_{hmax}}': 2.0, # [TAS]
                     'C_{L_{hfcG}}': 0.7,
 
@@ -1186,11 +1186,18 @@ if __name__ == '__main__':
                     'r_{vnace}': 1.02,
                })
 
-        m = relaxed_constants(m)
+        if D82:
+             m_relax = relaxed_constants(m)
+        if b737800:
+             m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\theta_{db}', 'w_{db}'])
         
-        sol = m.localsolve( verbosity = 4, iteration_limit=50)
+        sol = m_relax.localsolve( verbosity = 4, iteration_limit=200)
 
         post_process(sol)
+
+##        m.cost = m_relax.cost
+##
+##        sol = m.localsolve( verbosity = 4, iteration_limit=50, x0=sol)
 
         if D82:
              percent_diff(sol, 2)

@@ -6,7 +6,7 @@ Methods to precondition an SP so that it solves with a relaxed constants algorit
 and postcondition an SP to ensure all relax values are 1
 """
 
-def relaxed_constants(model):
+def relaxed_constants(model, include_only=None, exclude=None):
     """
     Method to precondition an SP so it solves with a relaxed constants algorithim
 
@@ -20,7 +20,7 @@ def relaxed_constants(model):
     """
 
     if model.substitutions:
-        constsrelaxed = ConstantsRelaxed(model)
+        constsrelaxed = ConstantsRelaxed(model, include_only, exclude)
         feas = Model(constsrelaxed.relaxvars.prod()**20 * model.cost,
                      constsrelaxed)
         # NOTE: It hasn't yet been seen but might be possible that
