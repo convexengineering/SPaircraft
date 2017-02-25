@@ -289,10 +289,10 @@ class VerticalTailNoStruct(Model):
         clvtEO   = Variable('c_{l_{vtEO}}', '-',
                             'Sectional lift force coefficient (engine out)')
         LvtEO    = Variable('L_{vtEO}', 'N', 'Vertical tail lift in engine out')
-        Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area (half)')
+        Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area')
         V1     = Variable('V_1', 'm/s', 'Minimum takeoff velocity')
         Vne    = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
-        bvt    = Variable('b_{vt}', 'm', 'Vertical tail half span')
+        bvt    = Variable('b_{vt}', 'm', 'Vertical tail span')
         cma    = Variable('\\bar{c}_{vt}', 'm', 'Vertical tail mean aero chord')
         croot  = Variable('c_{root_{vt}}', 'm', 'Vertical tail root chord')
         ctip   = Variable('c_{tip_{vt}}', 'm', 'Vertical tail tip chord')
@@ -335,13 +335,6 @@ class VerticalTailNoStruct(Model):
             constraints.extend([
                #constraint tail Cl at flare
                 CLvyaw == .85*CLvmax,
-
-                #meet yaw rate constraint at flare
-                2*.5*rho0*Vland**2*Svt*lvt*CLvyaw >= rreq*Iz,
-                
-                2*LvtEO*lvt >= Te*y_eng + Dwm*y_eng,
-                # Force moment balance for one engine out condition
-                # TASOPT 2.0 p45
 
                 TCS([dxlead + zmac*tanL + 0.25*cma >= lvt]), # [SP]
                 # Tail moment arm
@@ -411,7 +404,7 @@ class VerticalTailPerformance(Model):
             # Valid because tail is untwisted and uncambered
             # (lift curve slope passes through origin)
 
-            .5*Dvt >= 0.5*state['\\rho']*state['V']**2*self.vt['S_{vt}']*CDvis,
+            Dvt >= 0.5*state['\\rho']*state['V']**2*self.vt['S_{vt}']*CDvis,
             CDvis**0.125 >= 0.19*(self.vt['\\tau_{vt}'])**0.0075 *(Rec)**0.0017
                         + 1.83e+04*(self.vt['\\tau_{vt}'])**3.54*(Rec)**-0.494
                         + 0.118*(self.vt['\\tau_{vt}'])**0.0082 *(Rec)**0.00165

@@ -69,8 +69,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
-b737800 = False
+D82 = False
+b737800 = True
 
 sweep = 27.566#30 [deg]
 
@@ -188,12 +188,23 @@ class Aircraft(Model):
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
 
-                            #vertical tail volume coefficient
+                            # VT volume coefficient
                             self.VT['V_{vt}'] == numVT*self.VT['S_{vt}'] * self.VT['x_{CG_{vt}}']/(self.wing['S']*self.wing['b']),
+
+                            # VT sizing constraints
+                            # Yaw rate constraint at flare
+                            numVT*.5*self.VT['\\rho_{TO}']*self.VT['V_{land}']**2*self.VT['S_{vt}']*self.VT['l_{vt}']* \
+                                            self.VT['C_{L_{vyaw}}'] >= self.VT['\\dot{r}_{req}']*self.VT['I_{z}'],
+
+                            # Force moment balance for one engine out condition
+                            numVT*self.VT['L_{vtEO}']*self.VT['l_{vt}'] >= self.VT['T_e']*self.VT['y_{eng}'] + \
+                                        self.VT['D_{wm}']*self.VT['y_{eng}'],
+                            # TASOPT 2.0 p45
 
                             # Vertical bending material coefficient (VT aero loads)
                             self.fuse['B1v'] == self.fuse['r_{M_v}']*numVT*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
 
+                            # Moment of inertia around z-axis
                             TCS([self.VT['I_{z}'] >= Izwing + Iztail + Izfuse]),
 
                             #engine system weight constraints
