@@ -69,8 +69,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
-b737800 = True
+D82 = True
+b737800 = False
 
 sweep = 27.566#30 [deg]
 
@@ -155,7 +155,7 @@ class Aircraft(Model):
                                 (self.fuse['p_{\\lambda_v}'] - 1) >= self.VT[
                                     'L_{v_{max}}'] * self.VT['b_{vt}'] * (self.fuse['p_{\\lambda_v}']),
                             TCS([self.fuse['V_{cone}'] * (1 + self.fuse['\\lambda_{cone}']) * \
-                             (pi + 4 * self.fuse['\\theta_{db}']) >= 2*self.VT[
+                             (pi + 4 * self.fuse['\\theta_{db}']) >= numVT*self.VT[
                                 'M_r'] * self.VT['c_{root_{vt}}'] / self.fuse['\\tau_{cone}'] * \
                                  (pi + 2 * self.fuse['\\theta_{db}']) * \
                                   (self.fuse['l_{cone}'] / self.fuse['R_{fuse}'])]), #[SP]
@@ -182,16 +182,17 @@ class Aircraft(Model):
                             # HT Max Loading
                             TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
 
-
+                            # Tail weight
+                            self.fuse['W_{tail}'] >= numVT*WVT + WHT + self.fuse['W_{cone}'],
 
                             # VT root chord constraint #TODO find better constraint
                             self.VT['c_{root_{vt}}'] <= self.fuse['l_{cone}'],
 
                             #vertical tail volume coefficient
-                            self.VT['V_{vt}'] == self.VT['S_{vt}'] * self.VT['x_{CG_{vt}}']/(self.wing['S']*self.wing['b']),
+                            self.VT['V_{vt}'] == numVT*self.VT['S_{vt}'] * self.VT['x_{CG_{vt}}']/(self.wing['S']*self.wing['b']),
 
                             # Vertical bending material coefficient (VT aero loads)
-                            self.fuse['B1v'] == self.fuse['r_{M_v}']*2.*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
+                            self.fuse['B1v'] == self.fuse['r_{M_v}']*numVT*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
 
                             TCS([self.VT['I_{z}'] >= Izwing + Iztail + Izfuse]),
 
@@ -220,9 +221,6 @@ class Aircraft(Model):
 
                     # Engine out moment arm,
                     self.VT['y_{eng}'] == 0.5*self.fuse['w_{fuse}'],
-
-                    # Tail weight
-                    self.fuse['W_{tail}'] >= 2*WVT + WHT + self.fuse['W_{cone}'],
 
                     # HT root moment
                     self.HT['M_r']*self.HT['c_{root_h}'] >= self.HT['N_{lift}']*self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4) \
@@ -254,10 +252,6 @@ class Aircraft(Model):
                    # Engine out moment arm,
                     self.VT['y_{eng}'] == 4.83*units('m'),
                     
-                  # Tail weight
-                  self.fuse['W_{tail}'] >= WVT + \
-                      WHT + self.fuse['W_{cone}'],
-
                     # HT root moment
                     # TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
                     TCS([self.HT['M_r']*self.HT['c_{root_h}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
@@ -353,7 +347,7 @@ class AircraftP(Model):
             state['V'] >= Vstall,
 
             # compute the drag
-            D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}'] + self.HTP['D_{ht}'] + aircraft['numeng'] * Dnace,
+            D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.aircraft['numVT']*self.VTP['D_{vt}'] + self.HTP['D_{ht}'] + aircraft['numeng'] * Dnace,
             C_D == D/(.5*state['\\rho']*state['V']**2 * self.aircraft.wing['S']),
             LoD == W_avg/D,
 
