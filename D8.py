@@ -1171,7 +1171,7 @@ if __name__ == '__main__':
                     # 'AR':10.1,
                     'h_{floor}': 0.13*units('m'),
                     # 'R_{fuse}' : 1.715,
-                    'b_{max}':140*0.3048*units('m'),#117.5*0.3048*units('m'),
+                    'b_{max}':117.5*units('ft'),
                     # 'c_0': 17.4*0.3048,#units('ft'),
                     '\\delta_P_{over}': 8.382*units('psi'),
 
