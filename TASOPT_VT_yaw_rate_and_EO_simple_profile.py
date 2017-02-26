@@ -510,7 +510,7 @@ class WingBox(Model):
                        Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
 
                        # Total wing weight using an additional weight fraction
-                       Wstruct >= (1 + fwadd)*(Wweb + Wcap),
+                       Wstruct >= 0.5*(1 + fwadd)*(Wweb + Wcap),
                        ]
         
         return constraints
