@@ -383,14 +383,6 @@ class AircraftP(Model):
             # Center of gravity constraints #TODO Refine
             xCG >= aircraft['x_{CG_{min}}'],
 
-            # CG CONSTRAINT #TODO improve; how to account for decreasing fuel volume?
-            TCS([xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-                    + aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}']]),
-                    #+ (aircraft['W_avg'] - ,
-
-            # Wing location constraints
-
             # Aircraft trim conditions
             TCS([xAC/aircraft.wing['mac'] <= self.wingP['c_{m_{w}}']/self.wingP['C_{L}'] + xCG/aircraft.wing['mac'] + \
                               aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
@@ -439,6 +431,24 @@ class AircraftP(Model):
           Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2 * aircraft['S'],
            ])
 
+                        # CG CONSTRAINT #TODO improve; how to account for decreasing fuel volume?
+            if D80 or D82:
+                constraints.extend([
+                    TCS([xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
+                    + aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}']]),
+                    #+ (aircraft['W_avg'] - ,
+                ])
+
+            if b737800:
+                constraints.extend([
+                    TCS([xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
+                    + aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}'] \
+                    + aircraft['numeng']*aircraft['W_{engsys}'] \
+                       *(aircraft.fuse['x_{wing}'] + 0.3*aircraft['y_{eng}']/aircraft['\\tan(\\Lambda)'])]),
+                    #+ (aircraft['W_avg'] - ,
+                ])
         return self.Pmodels, constraints
 
 class ClimbP(Model): # Climb performance constraints
@@ -1166,6 +1176,7 @@ if __name__ == '__main__':
                   '\\theta_{db}': 0.0001,
 
                     #Fuselage subs
+                   'SPR':6,
                     'f_{seat}':0.1,
                     'W\'_{seat}':1*units('N'), # Seat weight determined by weight fraction instead
                     'f_{string}':0.35,
@@ -1186,7 +1197,7 @@ if __name__ == '__main__':
 
                     #VT subs
                     'numVT': 1,
-                    # 'A_{vt}' : 2,
+                    'A_{vt}' : 2,
                     '\\lambda_{vt}': 0.3,
                     '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180), # tangent of VT sweep
                     # 'V_{vt}': .1,
