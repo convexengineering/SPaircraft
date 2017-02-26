@@ -449,6 +449,9 @@ class AircraftP(Model):
                     + aircraft['numeng']*aircraft['W_{engsys}'] \
                        *(aircraft.fuse['x_{wing}'] + 0.3*aircraft['y_{eng}']/aircraft['\\tan(\\Lambda)'])]),
                     #+ (aircraft['W_avg'] - ,
+
+                 #cap max rear wing position
+                 aircraft.fuse['x_{wing}'] <= 18.94*units('m'),
                 ])
         return self.Pmodels, constraints
 
@@ -1195,6 +1198,8 @@ if __name__ == '__main__':
 ##                    'V_{h}': 1.3,#1.45,
                     'C_{L_{hmax}}': 2.0, # [TAS]
                     'C_{L_{hfcG}}': 0.7,
+                    '\\Delta x_{CG}': 7.68*units('ft'),
+                    'x_{CG_{min}}' : 56.75*units('ft'),
 
                     #VT subs
                     'numVT': 1,
