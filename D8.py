@@ -203,7 +203,7 @@ class Aircraft(Model):
                             self.fuse['B1v'] == self.fuse['r_{M_v}']*numVT*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
 
                             # Moment of inertia around z-axis
-                            TCS([self.VT['I_{z}'] >= Izwing + Iztail + Izfuse]),
+                            SignomialEquality(self.VT['I_{z}'], Izwing + Iztail + Izfuse),
 
                             #engine system weight constraints
                             Snace == rSnace * np.pi * 0.25 * self.engine['d_{f}']**2,
@@ -255,12 +255,13 @@ class Aircraft(Model):
 
           #737 only constraints
         if b737800:
+            with SignomialsEnabled():
                constraints.extend([
                    # Engine out moment arm,
                     self.VT['y_{eng}'] == 4.83*units('m'),
 
                     self.VT['V_{vt}'] >= 0.05, # TODO Remove
-                    
+
                     # HT root moment
                     # TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
                     TCS([self.HT['M_r']*self.HT['c_{root_h}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
@@ -270,9 +271,9 @@ class Aircraft(Model):
                    self.HT['c_{attach}'] == self.HT['c_{root_h}'],
 
                    # Moment of inertia
-                    Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2/g, #+ \ #TODO FIIIIIIIXXX
-                                    # (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
-                                    # self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
+                    Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2/g + \
+                                    (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
+                                    self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1-self.wing['\\lambda'])/16), #[SP]
                     Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
                             #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
@@ -436,13 +437,13 @@ class AircraftP(Model):
                 constraints.extend([
                     TCS([xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-                    + aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}']]),
+                    + (aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}'])]),
                     #+ (aircraft['W_avg'] - ,
                 ])
 
             if b737800:
                 constraints.extend([
-                    TCS([xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    TCS([xCG*W_avg <= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
                     + aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}'] \
                     + aircraft['numeng']*aircraft['W_{engsys}'] \
@@ -832,7 +833,7 @@ substitutions = {
         # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72*units('m/s'),
         # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
-        '\\dot{r}_{req}': 0.001,#0.174533, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
+        '\\dot{r}_{req}': 0.174533, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
         'N_{spar}': 2,
         'f_{VT}': 0.4,
 
@@ -1113,7 +1114,7 @@ if __name__ == '__main__':
 
                 #VT subs
                 'numVT': 2,
-                'A_{vt}' : 2.2,
+                # 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
                 '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
 ##                'V_{vt}': .03,
@@ -1197,11 +1198,10 @@ if __name__ == '__main__':
 
                     #VT subs
                     'numVT': 1,
-                    'A_{vt}' : 2,
+                    # 'A_{vt}' : 2,
                     '\\lambda_{vt}': 0.3,
                     '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180), # tangent of VT sweep
                     # 'V_{vt}': .1,
-                    '\\dot{r}_{req}': 0.0001,#0.07, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
                     #Wing subs
                     'C_{L_{wmax}}': 2.15,
