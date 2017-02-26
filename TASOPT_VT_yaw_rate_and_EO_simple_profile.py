@@ -336,9 +336,6 @@ class VerticalTailNoStruct(Model):
                #constraint tail Cl at flare
                 CLvyaw == .85*CLvmax,
 
-                TCS([dxlead + zmac*tanL + 0.25*cma >= lvt]), # [SP]
-                # Tail moment arm
-
                 LvtEO == 0.5*rho0*V1**2*Svt*CLvtEO,
                 # Vertical tail force (y-direction) for engine out
 

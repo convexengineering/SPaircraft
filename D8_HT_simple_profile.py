@@ -412,9 +412,7 @@ class HorizontalTailPerformance(Model):
 
                 # Moment arm and geometry -- same as for vtail
 ##                dxlead >= self.wing['x_w'] + 1.5*units('m'),
-                TCS([dxlead + self.HT['c_{root_h}'] <= dxtrail]),
-                TCS([dxlead + self.HT['y_{\\bar{c}_{ht}}']*self.HT['\\tan(\\Lambda_{ht})'] + 0.25*self.HT['\\bar{c}_{ht}'] >= self.HT['l_{ht}']],
-                    reltol=1e-2), # [SP]               
+                TCS([dxlead + self.HT['c_{root_h}'] <= dxtrail]),           
                 dxtrail <= self.fuse['l_{fuse}'],
 
                 # Currently using TAT to approximate
