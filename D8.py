@@ -1241,7 +1241,7 @@ if __name__ == '__main__':
         if D82:
              m_relax = relaxed_constants(m)
         if b737800:
-             m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}', 'w_{db}'])
+             m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
         sol = m_relax.localsolve( verbosity = 4, iteration_limit=200)
 
