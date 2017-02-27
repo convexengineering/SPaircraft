@@ -44,12 +44,14 @@ solNR = sol
 # for i in solNR:
 
 
+
 # Wing descriptors
 b = sol('b').to('m')
 croot = sol('c_{root}').to('m')
 ctip = sol('c_{tip}').to('m')
 S = sol('S').to('m^2')
 xwing = sol('x_{wing}').to('m')
+dihedral = 7.
 
 # Fuselage descriptors
 hfloor = sol('h_{floor}_Mission, Aircraft, Fuselage').to('m')
@@ -110,7 +112,7 @@ resultsDict = {
     # Engine Variables
     'REBAHPKXPRR':float(xCGvt.magnitude), # Engine x location
     'GKMTRGNCEVD':float(yeng.magnitude), #Engine y location
-    'XFTWTTHLVRI':float(hfuse.magnitude - (df/5).magnitude), # Engine z location
+    'XFTWTTHLVRI':float(hfuse.magnitude - (df/5.).magnitude), # Engine z location
     'JTPPOOJVVPE':float(lnace.magnitude),# Engine length
     'QRBDHPAPDFX':float(2), # Engine fineness ratio (set at 2 for now)
 
@@ -135,7 +137,7 @@ resultsDict = {
     # HT Variables
     'USGQFZQKJWC':float(float(xCGht.magnitude) - 0.5*crootht.magnitude - 1.0*tanvt*bvt.magnitude), # HT x location
     'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),                                             # HT z location
-    'IFZAMYYJPRP':float(30.),                                                             # HT sweep
+    'IFZAMYYJPRP':float(arctan(tanht)*180/pi),                                                             # HT sweep
     'CHYQUCYJMPS':float(bht.magnitude*0.5),                                               # HT half-span
     'LQXJHZEHDRX':float(crootht.magnitude),                                               # HT root chord
     'AYFSAELIRAY':float(ctipht.magnitude),                                                # HT tip chord
@@ -148,14 +150,38 @@ resultsDict = {
     'JXFRWSLYWDH':float(bvt.magnitude),                        # VT span
     'MBZGSEIYFGW':float(crootvt.magnitude),                    # VT root chord
     'CUIMIUZJQMS':float(ctipvt.magnitude),                     # VT tip chord
-    'XLPAIOGKILI':float(np.arctan(tanvt)*180/np.pi), # VT sweep angle
+    'XLPAIOGKILI':float(arctan(tanvt)*180/pi),                 # VT sweep angle
+    'GWTZZGTPXQU':-10,                                          # VT dihedral
 
     # Wing variables
     'AYJHHOVUHBI':float(b.magnitude*0.5), # Wing half-span
-    'UOBOGEWYYZZ':float((xwing - 0.5*croot - 0.3*0.5*tan(sweep/180*pi)*b).magnitude), # Wing x-location
+    'UOBOGEWYYZZ':float((xwing - 0.5*croot - 0.1*0.5*tan(sweep/180*pi)*b).magnitude), # Wing x-location
     'MOGKYBMVMPD':float(-1*hfuse.magnitude + 0.2), # Wing z-location
     'NNIHPEXRTCP':float(croot.magnitude), # Wing root chord
     'HGZBRNOPIRD':float(ctip.magnitude), # Wing tip chord
-    'AGOKGLSLBTO':sweep, # Wing sweep angle
+    'AGOKGLSLBTO':float(sweep), # Wing sweep angle
+    'SMCAVCZXJSG':float(+dihedral), # Wing dihedral
 }
+
+#Differentiating between b737800 and D8
+if b737800:
+    resultsDict.update({
+     # Engine Variables
+    'REBAHPKXPRR':float((xwing - 0.5*croot - 0.2*0.5*tan(sweep/180*pi)*b).magnitude), # Engine x location
+    'GKMTRGNCEVD':float(yeng.magnitude), #Engine y location
+    'XFTWTTHLVRI':float(-hfuse.magnitude - 0.6*df.magnitude), # Engine z location
+    # Floor Variables
+    # Fuselage variables
+    # HT Variables
+    'USGQFZQKJWC':float(float(xCGht.magnitude) - 0.5*crootht.magnitude), # HT x location
+    'BLMHVDOLAQJ':float(0.),                                             # HT z location
+    # VT variables
+    'LLYTEYDPDID':float(xCGvt.magnitude - 0.5*crootvt.magnitude),        # VT x location (LE location)
+    'BFZDOVCXTAV':float(0.),                                             # VT y location (as wide as fuselage)
+    'FQDVQTUBLUX':float(hfuse.magnitude),                                # VT z location (0.5 m off the widest point of the fuselage)
+    'GWTZZGTPXQU':float(0.),                                             # VT dihedral
+    # Wing variables
+    })
+# if D80 or D82:
+
 updateOpenVSP(resultsDict)
