@@ -4,7 +4,7 @@ Method to compute and print percent differences between SP D8 model and TASOPT
 
 from gpkit.small_scripts import mag
 
-def percent_diff(sol, version):
+def percent_diff(sol, version, Nclimb):
     """
     Method to compute and print percent differences between SP D8 model and TASOPT
 
@@ -13,7 +13,6 @@ def percent_diff(sol, version):
     sol: solution from D8 SP model
     version: either 0, 1, or 2....corresponds to comparing to the D8.0, D8.1, or D8.2
     """
-    Nclimb = 2
 
     if version == 800:
        #weights to compare for TASOPT 737-800 run

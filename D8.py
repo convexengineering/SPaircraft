@@ -605,10 +605,8 @@ class Mission(Model):
     Mission superclass, links together all subclasses into an optimization problem
     """
 
-    def setup(self, **kwargs):
+    def setup(self, Nclimb, Ncruise, **kwargs):
         # define the number of each flight segment
-        Nclimb = 5
-        Ncruise = 2
 
         if D80 or D82:
              eng = 3
@@ -852,7 +850,7 @@ substitutions = {
         # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72*units('m/s'),
         # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
-        '\\dot{r}_{req}': 0.174533, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
+        '\\dot{r}_{req}': 0.1475, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
         'N_{spar}': 2,
         'f_{VT}': 0.4,
 
@@ -927,7 +925,10 @@ def test():
 
      sweep = 13.237  # [deg]
 
-     m = Mission()
+     Nclimb = 5
+     Ncruise = 2
+
+     m = Mission(Nclimb, Ncruise)
      m.substitutions.update(substitutions)
 
      sweep = 13.237
@@ -974,7 +975,7 @@ def test():
 ##
 ##     sweep = 26.0 # [deg]
 ##
-##     m = Mission()
+##     m = Mission(Nclimb, Ncruise)
 ##     m.substitutions.update(substitutions)
 ##
 ##     M4a = .1025
@@ -1070,9 +1071,11 @@ def test():
 
 
 if __name__ == '__main__':
-
-    if sweeps == False:
-        m = Mission()
+    Nclimb = 5  
+    Ncruise = 2
+    
+    if sweeps == False: 
+        m = Mission(Nclimb, Ncruise)
         m.substitutions.update(substitutions)
         # m = Model(m.cost,BCS(m))
         if D80:
@@ -1254,14 +1257,14 @@ if __name__ == '__main__':
 ##        sol = m.localsolve( verbosity = 4, iteration_limit=50, x0=sol)
 
         if D82:
-             percent_diff(sol, 2)
+             percent_diff(sol, 2, Nclimb)
 
         if b737800:
-             percent_diff(sol, 800)
+             percent_diff(sol, 800, Nclimb)
 
     if sweeps:
         if sweepSMmin:
-            m = Mission()
+            m = Mission(Nclimb, Ncruise)
             m.substitutions.update(substitutions)
             SMminArray = np.linspace(0.05,0.5,n)
             m.substitutions.update({'SM_{min}': ('sweep',SMminArray)})
@@ -1291,7 +1294,7 @@ if __name__ == '__main__':
 ##                plt.show(), plt.close()
 
         if sweepReqRng:
-            m = Mission()
+            m = Mission(Nclimb, Ncruise)
             m.substitutions.update(substitutions)
             ReqRngArray = np.linspace(500,3000,n)
             m.substitutions.update({'ReqRng': ('sweep',ReqRngArray)})
@@ -1328,7 +1331,7 @@ if __name__ == '__main__':
                 plt.show(), plt.close()
 
         if sweepthetadb:
-            m = Mission()
+            m = Mission(Nclimb, Ncruise)
             m.substitutions.update(substitutions)
             thetadbArray = np.linspace(0,0.5,n)
             m.substitutions.update({'\\theta_{db}': ('sweep', thetadbArray)})
@@ -1359,7 +1362,7 @@ if __name__ == '__main__':
                 plt.show(), plt.close()
 
         if sweepdxCG:
-            m = Mission()
+            m = Mission(Nclimb, Ncruise)
             m.substitutions.update(substitutions)
             dxCGArray = np.linspace(0.5,3.5,n)
             m.substitutions.update({'\\Delta x_{CG}': ('sweep',dxCGArray)})
@@ -1387,7 +1390,7 @@ if __name__ == '__main__':
                 plt.savefig('CFP_Sweeps/xAC-vs-dxCG.pdf')
 
         if sweepxCG:
-            m = Mission()
+            m = Mission(Nclimb, Ncruise)
             m.substitutions.update(substitutions)
             xCGArray = np.linspace(8,14,n)
             m.substitutions.update({'x_{CG_{min}}': ('sweep',xCGArray)})
@@ -1417,7 +1420,7 @@ if __name__ == '__main__':
                 plt.show(), plt.close()
 
         if sweepCruiseAlt:
-            m = Mission()
+            m = Mission(Nclimb, Ncruise)
             m.substitutions.update(substitutions)
             CruiseAltArray = np.linspace(25000,40000,n)
             m.substitutions.update({'CruiseAlt': ('sweep',CruiseAltArray)})
@@ -1454,7 +1457,7 @@ if __name__ == '__main__':
                 plt.show(), plt.close()
 
         if sweepMmin:
-            m = Mission()
+            m = Mission(Nclimb, Ncruise)
             m.substitutions.update(substitutions)
             MminArray = np.linspace(0.4,0.9,n) # No lower limit to high Mach
             m.substitutions.update({'M_{min}':('sweep',MminArray)})
@@ -1512,7 +1515,7 @@ if __name__ == '__main__':
 ##                plt.show(),plt.close()
 
         if sweepnpax:
-            m = Mission()
+            m = Mission(Nclimb, Ncruise)
             m.substitutions.update(substitutions)
             npaxArray = np.linspace(150,400,n)
             m.substitutions.update({'n_{pax}':('sweep',npaxArray)})
@@ -1584,7 +1587,7 @@ if __name__ == '__main__':
                 plt.show(),plt.close()
 
         if sweepResFuel:
-            m = Mission()
+            m = Mission(Nclimb, Ncruise)
             m.substitutions.update(substitutions)
             ResFuelArray = np.linspace(.05,.25,n)
             m.substitutions.update({'ReserveFraction':('sweep',ResFuelArray)})
