@@ -152,7 +152,7 @@ resultsDict = {
 
     # Wing variables
     'AYJHHOVUHBI':float(b.magnitude*0.5), # Wing half-span
-    'UOBOGEWYYZZ':float((xwing - 0.5*croot).magnitude), # Wing x-location
+    'UOBOGEWYYZZ':float((xwing - 0.5*croot - 0.3*0.5*tan(sweep/180*pi)*b).magnitude), # Wing x-location
     'MOGKYBMVMPD':float(-1*hfuse.magnitude + 0.2), # Wing z-location
     'NNIHPEXRTCP':float(croot.magnitude), # Wing root chord
     'HGZBRNOPIRD':float(ctip.magnitude), # Wing tip chord
