@@ -607,7 +607,7 @@ class Mission(Model):
 
     def setup(self, **kwargs):
         # define the number of each flight segment
-        Nclimb = 2
+        Nclimb = 5
         Ncruise = 2
 
         if D80 or D82:
@@ -637,10 +637,14 @@ class Mission(Model):
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
         RngCruise = Variable('RngCruise', 'nautical_miles', 'Total Cruise Range')
 
+        #hold variables
+        hftCruiseHold = Variable('hftCruiseHold', 'ft', 'Temp Vairable to Avoid Dimension Mismactch')
+
         h = climb.state['h']
         hftClimb = climb.state['hft']
         dhft = climb.climbP['dhft']
         hftCruise = cruise.state['hft']
+        
 
         # make overall constraints
         constraints = []
@@ -676,8 +680,10 @@ class Mission(Model):
 
             hftCruise <= 39692*units('ft'),
 
+            hftCruise[0] == hftCruiseHold,
+
             # Compute dh
-            dhft == hftCruise / Nclimb,
+            dhft == hftCruiseHold / Nclimb,
 
             #compute fuel burn from TSFC
             cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['numeng']*aircraft.engine['TSFC'][Nclimb:] * cruise['thr'] * aircraft.engine['F'][Nclimb:],              
