@@ -230,6 +230,8 @@ class Aircraft(Model):
                             # Moment of inertia around z-axis
                             SignomialEquality(self.VT['I_{z}'], Izwing + Iztail + Izfuse),
 
+
+
                             #engine system weight constraints
                             Snace == rSnace * np.pi * 0.25 * self.engine['d_{f}']**2,
                             lnace == 0.15 * self.engine['d_{f}'] * rSnace,
@@ -265,8 +267,8 @@ class Aircraft(Model):
                     SignomialEquality(self.HT['L_{h_{rect}}']*(self.HT['b_{ht}']/4 - self.fuse['w_{fuse}']),
                                     self.HT['L_{h_{tri}}']*(self.fuse['w_{fuse}'] - self.HT['b_{ht}']/6)), #[SP] #[SPEquality]
 
-                  # HT/VT joint constraint
-                  self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
+                    # HT/VT joint constraint
+                    self.HT['b_{ht}']/(2.*self.fuse['w_{fuse}'])*self.HT['\lambda_h']*self.HT['c_{root_h}'] == self.HT['c_{attach}'],
 
 
                 # Moment of inertia
@@ -276,7 +278,11 @@ class Aircraft(Model):
                             #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                 Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
                                     (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3)/(3.*g),
-                  ])
+
+                # Floor loading
+                self.fuse['S_{floor}'] == (5. / 16.) * self.fuse['P_{floor}'],
+                self.fuse['M_{floor}'] == 9. / 256. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
+                ])
 
           #737 only constraints
         if b737800:
@@ -303,6 +309,10 @@ class Aircraft(Model):
                             #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
                                     (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3)/(3.*g),
+
+                   # Floor loading
+                    self.fuse['S_{floor}'] == 1./2. * self.fuse['P_{floor}'],
+                    self.fuse['M_{floor}'] == 1./4. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
                     ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
