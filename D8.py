@@ -16,7 +16,7 @@ from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 from TASOPT_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
 from D8_HT_simple_profile import HorizontalTail, HorizontalTailPerformance
 from D8_Wing_simple_profile import Wing, WingPerformance
-from engine_validation import Engine
+from turbofan.engine_validation import Engine
 from D8_Fuselage import Fuselage, FuselagePerformance
 
 #import constant relaxtion tool

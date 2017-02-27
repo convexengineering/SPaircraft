@@ -7,7 +7,7 @@ from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import Tight as TCS
 from numpy import pi
 import numpy as np
-from engine_validation import Engine
+from turbofan.engine_validation import Engine
 from Wing_simple_performance import Wing
 
 class Aircraft(Model):
