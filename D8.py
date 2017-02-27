@@ -95,6 +95,7 @@ class Aircraft(Model):
         self.HT = HorizontalTail()
 
         # variable definitions
+        numaisle = Variable('numaisle','-','Number of Aisles')
         numeng = Variable('numeng', '-', 'Number of Engines')
         numVT = Variable('numVT','-','Number of Vertical Tails')
         Vne = Variable('V_{ne}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
@@ -230,7 +231,9 @@ class Aircraft(Model):
                             # Moment of inertia around z-axis
                             SignomialEquality(self.VT['I_{z}'], Izwing + Iztail + Izfuse),
 
-
+                            # Fuselage width (numaisle comes in)
+                            TCS([2.*self.fuse['w_{fuse}'] >= self.fuse['SPR'] * self.fuse['w_{seat}'] + \
+                                 numaisle*self.fuse['w_{aisle}'] + 2 * self.fuse['w_{sys}'] + self.fuse['t_{db}']]),
 
                             #engine system weight constraints
                             Snace == rSnace * np.pi * 0.25 * self.engine['d_{f}']**2,
@@ -790,6 +793,7 @@ substitutions = {
 ##        'CruiseAlt': 36632*units('ft'),
         'numeng': 2,
         'numVT': 2,
+        'numaisle':2,
         'n_{pax}': 180,
         'W_{avg. pass}': 180*units('lbf'),
         'W_{carry on}': 15*units('lbf'),
@@ -1153,8 +1157,8 @@ if __name__ == '__main__':
                lpc  = 8/1.685
                hpc = 30/8
                
-               m.substitutions.update(
-               {  # Engine substitutions
+               m.substitutions.update({
+                   # Engine substitutions
                   '\\pi_{tn}': .989,
                   '\pi_{b}': .94,
                   '\pi_{d}': .998,
@@ -1195,6 +1199,7 @@ if __name__ == '__main__':
                   '\\theta_{db}': 0.0001,
 
                     #Fuselage subs
+                   'numaisle':1.,
                    'SPR':6,
                     'f_{seat}':0.1,
                     'W\'_{seat}':1*units('N'), # Seat weight determined by weight fraction instead
