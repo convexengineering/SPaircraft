@@ -291,8 +291,6 @@ class Aircraft(Model):
                    # Engine out moment arm,
                     self.VT['y_{eng}'] == 4.83*units('m'),
 
-                    self.VT['V_{vt}'] >= 0.05, # TODO Remove
-
                     # HT root moment
                     # TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
                     TCS([self.HT['M_r']*self.HT['c_{root_h}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
