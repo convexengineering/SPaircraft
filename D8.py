@@ -446,15 +446,6 @@ class AircraftP(Model):
                                             aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                                           + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
                                             aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
-            TCS([aircraft['SM_{min}'] <=
-                                            aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
-                                          + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
-                                            aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hfcG}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
-
-            # SignomialEquality(SM + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'],
-            #                                 aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
-            #                               + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
-            #                                 aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']),
 
           #nacelle drag
           Renace == state['\\rho']*state['V'] * aircraft['l_{nacelle}']/state['\\mu'],
