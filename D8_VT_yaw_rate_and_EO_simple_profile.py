@@ -343,9 +343,6 @@ class VerticalTailNoStruct(Model):
                 # Force moment balance for one engine out condition
                 # TASOPT 2.0 p45
 
-                TCS([dxlead + zmac*tanL + 0.25*cma >= lvt]), # [SP]
-                # Tail moment arm
-
                 LvtEO == 0.5*rho0*V1**2*Svt*CLvtEO,
                 # Vertical tail force (y-direction) for engine out
 
@@ -366,7 +363,8 @@ class VerticalTailNoStruct(Model):
                 TCS([p >= 1 + 2*taper]),
                 TCS([2*q >= 1 + p]),
                 zmac == (bvt/3)*q/p,
-                TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cma]), # [SP]
+##                TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cma]), # [SP]
+                SignomialEquality((2./3)*(1 + taper + taper**2)*croot/q, cma),
                 taper == ctip/croot,
                 # Define vertical tail geometry
 
