@@ -386,11 +386,11 @@ class WingPerformance(Model):
                 D == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CDw,
                 TCS([CDw >= CDp + CLw**2/(pi*self.wing['e']*self.wing['AR'])]),
                 Re == state['\\rho']*state['V']*self.wing['mac']/state['\\mu'],
-                1 >= (2.56*CLw**5.88/(Re**1.54*self.wing['\\tau']**3.32*CDp**2.62)
-                   + 3.8e-9*self.wing['\\tau']**6.23/(CLw**0.92*Re**1.38*CDp**9.57)
-                   + 2.2e-3*Re**0.14*self.wing['\\tau']**0.033/(CLw**0.01*CDp**0.73)
-                   + 6.14e-6*CLw**6.53/(Re**0.99*self.wing['\\tau']**0.52*CDp**5.19)
-                   + 1.19e4*CLw**9.78*self.wing['\\tau']**1.76/(Re*CDp**0.91)),
+
+                TCS([CDp**6.5 >= (1.02458748e10 * CLw**15.587947404823325 * state['M']**156.86410659495155 +
+                                 2.85612227e-13 * CLw**1.2774976672501526 * state['M']**6.2534328002723703 +
+                                 2.08095341e-14 * CLw**0.8825277088649582 * state['M']**0.0273667615730107 +
+                                 1.94411925e+06 * CLw**5.6547413360261691 * state['M']**146.51920742858428)]),
                 ])
 
         return constraints
