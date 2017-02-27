@@ -672,6 +672,8 @@ class Mission(Model):
             TCS([hftClimb[0] >= dhft[0]]),
             hftClimb[-1] <= hftCruise,
 
+            hftCruise <= 39692*units('ft'),
+
             # Compute dh
             dhft == hftCruise / Nclimb,
 
