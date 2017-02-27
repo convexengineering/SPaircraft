@@ -237,7 +237,6 @@ class Fuselage(Model):
                           (1 - thetadb**2 / 2)) * Rfuse**2 + 2*dRfuse*Rfuse,  # [SP]
                 Askin >= (2 * pi + 4 * thetadb) * Rfuse * tskin + 2*dRfuse*tskin,
                 wfloor == wfuse,
-                TCS([2.*wfuse >= SPR * wseat + 2 * waisle + 2 * wsys + tdb]),
                 wfuse <= (Rfuse + wdb),
                 SignomialEquality(hfuse, Rfuse + 0.5*dRfuse), #[SP] #[SPEquality]
                 TCS([tshell <= tskin * (1. + rE * fstring * rhoskin / rhobend)]), #[SP]
