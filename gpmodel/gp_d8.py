@@ -156,22 +156,54 @@ class WingRaymer(Model):
         " wing aero "
         return WingPerfMach(self, state)
 
+class WingTasopt(Model):
+    def setup(self):
+
+        AR = Variable('AR', '-', 'Wing aspect ratio')
+        S = Variable('S', 'm^2', 'Wing area')
+        b = Variable('b', 'm', 'Wing span')
+        p = Variable('p', '-', '$(1 + 2\\lambda)$')
+        q = Variable('q', '-', '$(1 + \\lambda)$')
+        lam = Variable('\\lambda', '-', 'Taper ratio')
+        nu = Variable('\\nu', '-', '$(\\lambda^2 + \\lambda + 1)/(\\lambda+1)$')
+        ymac = Variable('y_{mac}', 'm',
+                        'Spanwise location of mean aerodynamic chord')
+        mac = Variable('mac', 'm', 'Mean aerodynamic chord (wing)')
+        c0 = Variable('c_0', "m", "root chord")
+        e = Variable('e', '-', 'Oswald efficiency factor')
+
+        comps = WingBox(AR, p, q, S, nu)
+
+        constraints = [
+            AR == b**2/S,
+            S == c0*b*0.5*q,
+            mac == c0*3./2*nu,
+            p >= 1 + 2*lam,
+            2*q >= 1 + p,
+            ymac == (b/3)*q/p,
+            nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56,
+            ]
+
+        return constraints, comps
+
+    def dynamic(self, state):
+        " wing aero "
+        return WingPerfRe(self, state)
+
 class WingBox(Model):
     """
     Structural model for a wing
     source: Hoburg, "Geometric Programming for Aircraft Design Optimization"
     Note - does not have a performance model
     """
-    def setup(self):
+    def setup(self, AR, p, q, Sw, nu):
 
         Icap = Variable('I_{cap}', '-',
                         'Non-dim spar cap area moment of inertia')
         Mr = Variable('M_r', 'N', 'Root moment per root chord')
-        nu = Variable('\\nu', '-', '$(\\lambda^2 + \\lambda + 1)/(\\lambda+1)$')
         Wcap = Variable('W_{cap}', 'N', 'Weight of spar caps')
         Wweb = Variable('W_{web}', 'N', 'Weight of shear web')
         Wstruct = Variable('W', 'N', 'Structural weight')
-        lam = Variable('\\lambda', '-', 'Taper ratio')
         fwadd = Variable('f_{w,add}', '-', 'Wing added weight fraction')
         g = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         Nlift = Variable('N_{lift}', '-', 'Wing loading multiplier')
@@ -188,43 +220,24 @@ class WingBox(Model):
         wwb = Variable('wwb', 0.5, '-', 'Wingbox-width-to-chord ratio')
         tcap = Variable('t_{cap}', '-', 'Non-dim. spar cap thickness')
         tweb = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
-        p = Variable('p', '-', 'Substituted variable = 1 + 2*lam')
-        q = Variable('q', '-', 'Substituted variable = 1 + lam')
-        ymac = Variable('y_{mac}', 'm',
-                        'Spanwise location of mean aerodynamic chord')
         rho0 = Variable('\\rho_0', 1.225, 'kg/m^3', 'Air density (0 ft)')
-        AR = Variable('AR', '-', 'Wing aspect ratio')
         Lmax = Variable('L_{max}', 'N', 'Maximum load')
-        Sw = Variable('S', 'm^2', 'Wing area')
         Vne = Variable('V_{ne}', 60, 'm/s', 'Never exceed velocity')
-        b = Variable('b', 'm', 'Wing span')
         CLwmax = Variable('C_{L_{wmax}}', 1.2, '-', 'Max lift coefficient wing')
         tau = Variable('\\tau', '-', 'Wing thickness/chord ratio')
-        mac = Variable('mac', 'm', 'Mean aerodynamic chord (wing)')
-        e = Variable('e', '-', 'Oswald efficiency factor')
 
         constraints = [
-            AR == b**2/Sw,
-            mac == Sw/b,
-            p >= 1 + 2*lam,
-            2*q >= 1 + p,
-            ymac == (b/3)*q/p,
             Lmax == 0.5*rho0*Vne**2*Sw*CLwmax,
             Mr >= Lmax*AR*p/24,
             0.92*wwb*tau*tcap**2 + Icap <= 0.92**2/2*wwb*tau**2*tcap,
             8 >= Nlift*Mr*AR*q**2*tau/(Sw*Icap*sigmax),
             12 >= AR*Lmax*Nlift*q**2/(tau*Sw*tweb*sigmaxshear),
-            nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56,
             Wcap >= 8*rhocap*g*wwb*tcap*Sw**1.5*nu/(3*AR**0.5),
             TCS([Wweb >= 8*rhoweb*g*rh*tau*tweb*Sw**1.5*nu/(3*AR**0.5)]),
             Wstruct >= (1 + fwadd)*(Wweb + Wcap),
             ]
 
         return constraints
-
-    def dynamic(self, state):
-        " wing aero "
-        return WingPerfRe(self, state)
 
 
 class WingPerfMach(Model):
@@ -325,7 +338,7 @@ def init_subs(model):
 
 if __name__ == "__main__":
     # wing = Wing()
-    wing = WingBox()
+    wing = WingTasopt()
     aircraft = Aircraft(wing)
     M = Mission(aircraft)
     init_subs(M)
