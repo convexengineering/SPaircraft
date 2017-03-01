@@ -455,7 +455,7 @@ class AircraftP(Model):
 
           #nacelle drag
           Renace == state['\\rho']*state['V'] * aircraft['l_{nacelle}']/state['\\mu'],
-          Cfnace == 0.0743/(Renace**(0.2)), #from http://www.calpoly.edu/~kshollen/ME347/Handouts/Friction_Drag_Coef.pdf
+          Cfnace == 4*0.0743/(Renace**(0.2)), #from http://www.calpoly.edu/~kshollen/ME347/Handouts/Friction_Drag_Coef.pdf
           Vnace == aircraft['r_{vnace}'] * state['V'],
           Vnacrat >= 2*Vnace/state['V'] - V2/state['V'],
           rvnsurf**3 >= 0.25*(Vnacrat + aircraft['r_{vnace}'])*(Vnacrat**2 + aircraft['r_{vnace}']**2),
