@@ -244,8 +244,8 @@ class Aircraft(Model):
                             Afancowl == 0.2 * Snace,
                             Aexh == 0.4 * Snace,
                             Acorecowl == 3 * np.pi * self.engine['d_{LPC}']**2,
-                            TCS([Wnace >= ((2.5*Ainlet*units('ft^2/m^2'))*units('1/ft^2') + (0.238*self.engine['d_{f}'] * units('in/m')*Ainlet*units('ft^2/m^2'))*units('1/(in*ft^2)') + 1.9*Afancowl*units('ft^2/m^2')*units('1/ft^2') \
-                                + (2.5*Aexh*units('ft^2/m^2'))*units('1/ft^2') + (0.0363*self.engine['d_{f}']*units('in/m')*Aexh*units('ft^2/m^2'))*units('1/(in*ft^2)') + 1.9*Acorecowl*units('ft^2/m^2')*units('1/ft^2'))*units('lbf'),
+                            TCS([Wnace >= ((2.5+ 0.238*self.engine['d_{f}']/units('in')) * Ainlet + 1.9*Afancowl \
+                                + (2.5+ 0.0363*self.engine['d_{f}']/units('in'))*Aexh + 1.9*Acorecowl)*units('lbf/ft^2'),
                             Weadd == feadd * self.engine['W_{engine}']]),
                             TCS([Wpylon >= (Wnace + Weadd + self.engine['W_{engine}']) * fpylon]),
                             TCS([Wengsys >= Wpylon + Wnace + Weadd + self.engine['W_{engine}']]),
@@ -385,6 +385,7 @@ class AircraftP(Model):
             constraints.extend([
             W_burn == W_burn,
             PCFuel == PCFuel,
+
             # Cabin Air properties
             rhocabin == Pcabin/(state['R']*Tcabin),
             Pcabin == 75000*units('Pa'),
@@ -455,7 +456,7 @@ class AircraftP(Model):
 
           #nacelle drag
           Renace == state['\\rho']*state['V'] * aircraft['l_{nacelle}']/state['\\mu'],
-          Cfnace == 0.0743/(Renace**(0.2)), #from http://www.calpoly.edu/~kshollen/ME347/Handouts/Friction_Drag_Coef.pdf
+          Cfnace == 4*0.0743/(Renace**(0.2)), #from http://www.calpoly.edu/~kshollen/ME347/Handouts/Friction_Drag_Coef.pdf
           Vnace == aircraft['r_{vnace}'] * state['V'],
           Vnacrat >= 2*Vnace/state['V'] - V2/state['V'],
           rvnsurf**3 >= 0.25*(Vnacrat + aircraft['r_{vnace}'])*(Vnacrat**2 + aircraft['r_{vnace}']**2),
@@ -646,7 +647,6 @@ class Mission(Model):
         hftClimb = climb.state['hft']
         dhft = climb.climbP['dhft']
         hftCruise = cruise.state['hft']
-        
 
         # make overall constraints
         constraints = []
@@ -695,11 +695,11 @@ class Mission(Model):
 
             # Altitude constraints
             hftCruise >= CruiseAlt,
-            TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise - 1] + dhft[1:Ncruise]]),
-            TCS([hftClimb[0] >= dhft[0]]),
+            TCS([hftClimb[1:Nclimb] >= hftClimb[:Nclimb-1] + dhft[1:Nclimb]]),
+            TCS([hftClimb[0] == dhft[0]]),
             hftClimb[-1] <= hftCruise,
 
-            hftCruise <= 39692*units('ft'),
+##            hftCruise <= 39692*units('ft'),
 
             hftCruise[0] == hftCruiseHold,
 
@@ -724,6 +724,14 @@ class Mission(Model):
           #elevated this constarint to mission for dimensionality
           cruise.cruiseP['V_2'] == aircraft.engine['M_2'][Nclimb:]*cruise.state['a'],
           climb.climbP['V_2'] == aircraft.engine['M_2'][:Nclimb]*climb.state['a'],
+
+          climb['\\alpha_{max,w}'] == .18,
+          cruise['\\alpha_{max,w}'] == .1,
+
+
+##          climb['\\alpha_{max,w}'] == .1,
+##          cruise['\\alpha_{max,w}'] == .1,
+            aircraft['e'] <= 0.91,
         ])
 
         # Calculating percent fuel remaining
@@ -823,7 +831,7 @@ substitutions = {
         'p_s': 81.*units('cm'),
         'ReqRng': 3000*units('nmi'),
         '\\theta_{db}' : 0.366,
-       'CruiseAlt': 30000*units('ft'), #Lower bound on cruise altitude for sol. checking
+##        'CruiseAlt': 36632*units('ft'),
         'numeng': 2,
         'numVT': 2,
         'numaisle':2,
@@ -863,14 +871,14 @@ substitutions = {
         # Wing substitutions
         'C_{L_{wmax}}': 2.25, # [TAS]
         '\\tan(\\Lambda)': tan(sweep * pi / 180),
-        '\\alpha_{max,w}': 0.1,  # (6 deg)
+##        '\\alpha_{max,w}': 0.1,  # (6 deg)
         '\\cos(\\Lambda)': cos(sweep * pi / 180),
         '\\eta': 0.97,
         '\\rho_0': 1.225*units('kg/m^3'),
         '\\rho_{fuel}': 817*units('kg/m^3'),  # Kerosene [TASOPT]
         'FuelFrac': 0.9,
         'f_{flap}': 0.2,
-        'f_{slat}': 0.000001,
+        'f_{slat}': 0.0001,
         'f_{aileron}': 0.04,
         'f_{lete}': 0.1,
         'f_{ribs}': 0.15,
@@ -1109,7 +1117,7 @@ def test():
 
 
 if __name__ == '__main__':
-    Nclimb = 5  
+    Nclimb = 3
     Ncruise = 2
     
     if sweeps == False: 
@@ -1270,6 +1278,7 @@ if __name__ == '__main__':
                     #Wing subs
                     'C_{L_{wmax}}': 2.15,
                    'f_{slat}': 0.1,
+##                   'e': .91,
 
                     # Minimum Cruise Mach Number
                     'M_{min}': 0.8,

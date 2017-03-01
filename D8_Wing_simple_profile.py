@@ -256,8 +256,6 @@ class WingNoStruct(Model):
         
         Vfuel   = Variable('V_{fuel, max}', 'm^3', 'Available fuel volume')
         
-        amax    = Variable('\\alpha_{max,w}', '-', 'Max angle of attack')
-        
         cosL    = Variable('\\cos(\\Lambda)', '-',
                            'Cosine of quarter-chord sweep angle')
         croot   = Variable('c_{root}', 'm', 'Wing root chord')
@@ -366,6 +364,8 @@ class WingPerformance(Model):
 
         #wing moment variables -- need a good way to model this, currently using TAT
         cmw = Variable('c_{m_{w}}', '-', 'Wing Pitching Moment Coefficient')
+
+        amax    = Variable('\\alpha_{max,w}', '-', 'Max angle of attack')
         
         #make constraints
         constraints = []
@@ -380,7 +380,7 @@ class WingPerformance(Model):
                       , (2*pi*self.wing['AR']/CLaw)**2),
                 
                 CLw == CLaw*alpha,
-                alpha <= self.wing['\\alpha_{max,w}'],
+                alpha <= amax,
 
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CDw,
@@ -406,7 +406,7 @@ class WingBox(Model):
     def setup(self, surface, **kwargs):
         # Variables
         g = 9.81*units('m*s^-2')
-        Icap    = Variable('I_{cap}', '-',
+        Icap    = Variable('I_{capprint s}', '-',
                            'Non-dim spar cap area moment of inertia')
         Mr      = Variable('M_r', 'N', 'Root moment per root chord')
         nu      = Variable('\\nu', '-',
