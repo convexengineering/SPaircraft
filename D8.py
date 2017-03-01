@@ -244,8 +244,8 @@ class Aircraft(Model):
                             Afancowl == 0.2 * Snace,
                             Aexh == 0.4 * Snace,
                             Acorecowl == 3 * np.pi * self.engine['d_{LPC}']**2,
-                            TCS([Wnace >= ((2.5*Ainlet*units('ft^2/m^2'))*units('1/ft^2') + (0.238*self.engine['d_{f}'] * units('in/m')*Ainlet*units('ft^2/m^2'))*units('1/(in*ft^2)') + 1.9*Afancowl*units('ft^2/m^2')*units('1/ft^2') \
-                                + (2.5*Aexh*units('ft^2/m^2'))*units('1/ft^2') + (0.0363*self.engine['d_{f}']*units('in/m')*Aexh*units('ft^2/m^2'))*units('1/(in*ft^2)') + 1.9*Acorecowl*units('ft^2/m^2')*units('1/ft^2'))*units('lbf'),
+                            TCS([Wnace >= ((2.5+ 0.238*self.engine['d_{f}']/units('in')) * Ainlet + 1.9*Afancowl \
+                                + (2.5+ 0.0363*self.engine['d_{f}']/units('in'))*Aexh + 1.9*Acorecowl)*units('lbf/ft^2'),
                             Weadd == feadd * self.engine['W_{engine}']]),
                             TCS([Wpylon >= (Wnace + Weadd + self.engine['W_{engine}']) * fpylon]),
                             TCS([Wengsys >= Wpylon + Wnace + Weadd + self.engine['W_{engine}']]),
@@ -713,7 +713,7 @@ class Mission(Model):
             
 ##          climb['\\alpha_{max,w}'] == .1,
 ##          cruise['\\alpha_{max,w}'] == .1,
-##            aircraft['e'] <= 1,
+            aircraft['e'] <= 0.91,
         ])
 
         # Calculating percent fuel remaining
