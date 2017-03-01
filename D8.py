@@ -649,7 +649,6 @@ class Mission(Model):
         dhft = climb.climbP['dhft']
         hftCruise = cruise.state['hft']
         
-
         # make overall constraints
         constraints = []
 
@@ -678,11 +677,11 @@ class Mission(Model):
 
             # Altitude constraints
             hftCruise >= CruiseAlt,
-            TCS([hftClimb[1:Ncruise] >= hftClimb[:Ncruise - 1] + dhft[1:Ncruise]]),
-            TCS([hftClimb[0] >= dhft[0]]),
+            TCS([hftClimb[1:Nclimb] >= hftClimb[:Nclimb-1] + dhft[1:Nclimb]]),
+            TCS([hftClimb[0] == dhft[0]]),
             hftClimb[-1] <= hftCruise,
 
-            hftCruise <= 39692*units('ft'),
+##            hftCruise <= 39692*units('ft'),
 
             hftCruise[0] == hftCruiseHold,
 
@@ -707,6 +706,14 @@ class Mission(Model):
           #elevated this constarint to mission for dimensionality
           cruise.cruiseP['V_2'] == aircraft.engine['M_2'][Nclimb:]*cruise.state['a'],
           climb.climbP['V_2'] == aircraft.engine['M_2'][:Nclimb]*climb.state['a'],
+
+##          climb['\\alpha_{max,w}'] == .16,
+##          cruise['\\alpha_{max,w}'] == .07,
+
+            
+          climb['\\alpha_{max,w}'] == .1,
+          cruise['\\alpha_{max,w}'] == .1,
+##            aircraft['e'] <= 1,
         ])
 
         # Calculating percent fuel remaining
@@ -843,7 +850,7 @@ substitutions = {
         # Wing substitutions
         'C_{L_{wmax}}': 2.25, # [TAS]
         '\\tan(\\Lambda)': tan(sweep * pi / 180),
-        '\\alpha_{max,w}': 0.1,  # (6 deg)
+##        '\\alpha_{max,w}': 0.1,  # (6 deg)
         '\\cos(\\Lambda)': cos(sweep * pi / 180),
         '\\eta': 0.97,
         '\\rho_0': 1.225*units('kg/m^3'),
@@ -1089,7 +1096,7 @@ def test():
 
 
 if __name__ == '__main__':
-    Nclimb = 5  
+    Nclimb = 3
     Ncruise = 2
     
     if sweeps == False: 
@@ -1250,7 +1257,8 @@ if __name__ == '__main__':
                     #Wing subs
                     'C_{L_{wmax}}': 2.15,
                    'f_{slat}': 0.1,
-
+##                   'e': .91,
+  
                     # Minimum Cruise Mach Number
                     'M_{min}': 0.8,
                    # 'CruiseAlt':38000*units('ft'),
