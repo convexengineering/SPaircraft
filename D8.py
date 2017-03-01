@@ -432,8 +432,8 @@ class AircraftP(Model):
             self.HTP['C_{L_h}'] >= 0.01, #TODO remove
 
             # HT/VT moment arm constraints
-            aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG,
-            aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG,
+            TCS([aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG]),
+            TCS([aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG]),
 
            # Tail downforce penalty to wing lift
             self.wingP['L_w'] >= W_avg + self.HTP['L_h'],
@@ -463,15 +463,12 @@ class AircraftP(Model):
           Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2 * aircraft['S'],
            ])
 
-            # CG CONSTRAINT #TODO improve; how to account for decreasing fuel volume?
+                        # CG CONSTRAINT #TODO improve; how to account for decreasing fuel volume?
             if D80 or D82:
                 constraints.extend([
-                    # SignomialEquality(xCG*W_avg, 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    # + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-                    # + ((aircraft['W_{wing_system}']+PCFuel*aircraft['W_{f_{total}}'])*aircraft.fuse['x_{wing}'])), #[SP] #
-                    xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    TCS([xCG*W_avg >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-                    + ((aircraft['W_{wing_system}'])*aircraft.fuse['x_{wing}']), #+PCFuel*aircraft['W_{f_{total}}']
+                    + (aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}'])]),
                     #+ (aircraft['W_avg'] - ,
                     # Center of gravity constraints #TODO Refine
                     xCG >= aircraft['x_{CG_{min}}'],
@@ -710,12 +707,12 @@ class Mission(Model):
           cruise.cruiseP['V_2'] == aircraft.engine['M_2'][Nclimb:]*cruise.state['a'],
           climb.climbP['V_2'] == aircraft.engine['M_2'][:Nclimb]*climb.state['a'],
 
-##          climb['\\alpha_{max,w}'] == .16,
-##          cruise['\\alpha_{max,w}'] == .07,
+          climb['\\alpha_{max,w}'] == .18,
+          cruise['\\alpha_{max,w}'] == .1,
 
             
-          climb['\\alpha_{max,w}'] == .1,
-          cruise['\\alpha_{max,w}'] == .1,
+##          climb['\\alpha_{max,w}'] == .1,
+##          cruise['\\alpha_{max,w}'] == .1,
 ##            aircraft['e'] <= 1,
         ])
 
@@ -723,17 +720,14 @@ class Mission(Model):
         with SignomialsEnabled():
             for i in range(0,Nclimb):
                 constraints.extend([
-                    SignomialEquality(climb['PCFuel'][i] , (sum(climb['W_{burn}'][i:])+ aircraft['W_{f_{cruise}}'])/aircraft['W_{f_{primary}}']) ,
-                    # climb['PCFuel'][i] <= 1.-sum(climb['W_{burn}'][0:i+1])/aircraft['W_{f_{total}}'] #[SP]
-                    # climb['PCFuel'][i] <= 1.0,
+                    SignomialEquality(climb['PCFuel'][i],
+                                                      1.-sum(climb['W_{burn}'][0:i+1])/aircraft['W_{f_{total}}']) #[SP] #[SPEquality]
                 ])
             for i in range(0,Ncruise):
                 constraints.extend([
-                    # cruise['PCFuel'][i] >= climb['PCFuel'][-1] \
-                    #               - sum(cruise['W_{burn}'][0:i+1])/aircraft['W_{f_{total}}'], #[SP]
-                     SignomialEquality(cruise['PCFuel'][i] , (sum(cruise['W_{burn}'][i:]) + 0.0000001*aircraft['W_{f_{primary}}'])/aircraft['W_{f_{primary}}']),
-                    # cruise['PCFuel'][i] <= 1.0
-                    ])
+                    SignomialEquality(cruise['PCFuel'][i], climb['PCFuel'][-1] \
+                                  - sum(cruise['W_{burn}'][0:i+1])/aircraft['W_{f_{total}}']) #[SP] #[SPEquality]
+                                    ])
 
         if D80 or D82:
              constraints.extend([
@@ -816,7 +810,7 @@ substitutions = {
         'p_s': 81.*units('cm'),
         'ReqRng': 3000*units('nmi'),
         '\\theta_{db}' : 0.366,
-       'CruiseAlt': 30000*units('ft'), #Lower bound on cruise altitude for sol. checking
+##        'CruiseAlt': 36632*units('ft'),
         'numeng': 2,
         'numVT': 2,
         'numaisle':2,
@@ -863,7 +857,7 @@ substitutions = {
         '\\rho_{fuel}': 817*units('kg/m^3'),  # Kerosene [TASOPT]
         'FuelFrac': 0.9,
         'f_{flap}': 0.2,
-        'f_{slat}': 0.000001,
+        'f_{slat}': 0.0001,
         'f_{aileron}': 0.04,
         'f_{lete}': 0.1,
         'f_{ribs}': 0.15,
