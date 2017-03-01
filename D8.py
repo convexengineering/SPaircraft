@@ -68,8 +68,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
-b737800 = False
+D82 = False
+b737800 = True
 
 sweep = 27.566#30 [deg]
 
