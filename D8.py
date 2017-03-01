@@ -1,23 +1,24 @@
 """Simple commercial aircraft flight profile and D8 aircraft model"""
 """ Combines Wing, VerticalTail, and Fuselage models for D8"""
 
-from numpy import pi, cos, tan
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
-from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import Tight as TCS
+from gpkit.tools import te_exp_minus1
+from numpy import pi, cos, tan
+
 TCS.reltol = 1e-3
 
 # only needed for plotting
 import matplotlib.pyplot as plt
 
 # importing from D8_integration
-from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
-from TASOPT_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
-from D8_HT_simple_profile import HorizontalTail, HorizontalTailPerformance
-from D8_Wing_simple_profile import Wing, WingPerformance
+from stand_alone_simple_profile import FlightState
+from TASOPT_VT_yaw_rate_and_EO_simple_profile import VerticalTail
+from D8_HT_simple_profile import HorizontalTail
+from D8_Wing_simple_profile import Wing
 from turbofan.engine_validation import Engine
-from D8_Fuselage import Fuselage, FuselagePerformance
+from D8_Fuselage import Fuselage
 
 #import constant relaxtion tool
 from relaxed_constants import relaxed_constants, post_process
@@ -67,8 +68,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
-b737800 = True
+D82 = True
+b737800 = False
 
 sweep = 27.566#30 [deg]
 
@@ -359,6 +360,8 @@ class AircraftP(Model):
 
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
+        # SM = Variable('SM','-','Stability Margin of Aircraft')
+        PCFuel = Variable('PCFuel','-','Percent Fuel Remaining (end of segment)')
 
         Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
         W_buoy = Variable('W_{buoy}','lbf','Buoyancy Weight')
@@ -380,6 +383,8 @@ class AircraftP(Model):
 
         with SignomialsEnabled():
             constraints.extend([
+            PCFuel == PCFuel,
+            W_burn == W_burn,
             # Cabin Air properties
             rhocabin == Pcabin/(state['R']*Tcabin),
             Pcabin == 75000*units('Pa'),
@@ -440,8 +445,9 @@ class AircraftP(Model):
 
             TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
-            # Static margin constraint with and without dxCG #TODO validate if this works as intended
+            # Static margin constraint with and without dxCG
             self.wingP['c_{m_{w}}'] == 0.1,
+            # SM >= aircraft['SM_{min}'],
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] <=
                                             aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] \
                                           + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] + \
@@ -703,10 +709,23 @@ class Mission(Model):
           climb.climbP['V_2'] == aircraft.engine['M_2'][:Nclimb]*climb.state['a'],
         ])
 
+        # Calculating percent fuel remaining
+        with SignomialsEnabled():
+            for i in range(0,Nclimb):
+                constraints.extend([
+                    SignomialEquality(climb['PCFuel'][i],
+                                                      1.-sum(climb['W_{burn}'][0:i+1])/aircraft['W_{f_{total}}']) #[SP] #[SPEquality]
+                ])
+            for i in range(0,Ncruise):
+                constraints.extend([
+                    SignomialEquality(cruise['PCFuel'][i], climb['PCFuel'][-1] \
+                                  - sum(cruise['W_{burn}'][0:i+1])/aircraft['W_{f_{total}}']) #[SP] #[SPEquality]
+                                    ])
+
         if D80 or D82:
              constraints.extend([
                     # Set the BLI Benefit
-                    climb.climbP.fuseP['f_{BLI}'] == 0.91,
+                    climb.climbP.fuseP['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise.cruiseP.fuseP['f_{BLI}'] == 0.91,
                   ])
         if b737800:
@@ -766,7 +785,6 @@ class Mission(Model):
             TCS([cruise['z_{bre}'] >= (aircraft.engine['TSFC'][Nclimb:] * cruise['thr']*
             cruise['D']) / cruise['W_{avg}']]),
             ]
-
 
         self.cost = aircraft['W_{f_{total}}']
 
@@ -1220,7 +1238,7 @@ if __name__ == '__main__':
                     'C_{L_{hfcG}}': 0.7,
                     '\\Delta x_{CG}': 7.68*units('ft'),
                     'x_{CG_{min}}' : 20*units('ft'),#56.75*units('ft'),
-                  'SM_{min}': .38,
+                    'SM_{min}': .38,
 
                     #VT subs
                     'numVT': 1,
