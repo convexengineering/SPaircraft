@@ -467,11 +467,11 @@ class AircraftP(Model):
             # CG CONSTRAINT #TODO improve; how to account for decreasing fuel volume?
             if D80 or D82:
                 constraints.extend([
-                    TCS([xCG*W_start >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-                    + (aircraft['W_{wing_system}']+(PCFuel + aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}']]),
-                    # Center of gravity constraints #TODO Refine
-                    xCG >= aircraft['x_{CG_{min}}'],
+                    # TCS([xCG*W_start >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    # + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
+                    # + (aircraft['W_{wing_system}']+(PCFuel + aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}']]),
+                    # # Center of gravity constraints #TODO Refine
+                    # xCG >= aircraft['x_{CG_{min}}'],
 
                 ])
 
@@ -651,24 +651,24 @@ class Mission(Model):
         # make overall constraints
         constraints = []
 
-        # with SignomialsEnabled():
-            # CG constraints
-            # constraints.extend([
-            #     SignomialEquality(climb.climbP.aircraftP['x_{CG}'][0]*aircraft['W_{total}'] ,
-            #         0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-            #         + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-            #         + (aircraft['W_{wing_system}']+aircraft['W_{f_{total}}'])*aircraft.fuse['x_{wing}']),
-            #
-            #     TCS([cruise.cruiseP.aircraftP['x_{CG}'][-1]*cruise.cruiseP.aircraftP['W_{end}'][-1] >= \
-            #         0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-            #         + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-            #         + (aircraft['W_{wing_system}']+aircraft['ReserveFraction']*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}']]),
-            #
-            #     climb.climbP.aircraftP['x_{CG}'][1:] <= climb.climbP.aircraftP['x_{CG}'][0],
-            #     cruise.cruiseP.aircraftP['x_{CG}'][:-1] <= climb.climbP.aircraftP['x_{CG}'][0],
-            #     climb.climbP.aircraftP['x_{CG}'][1:] >= cruise.cruiseP.aircraftP['x_{CG}'][-1],
-            #     cruise.cruiseP.aircraftP['x_{CG}'][0:-1] >= cruise.cruiseP.aircraftP['x_{CG}'][-1],
-            #   ])
+        with SignomialsEnabled():
+            #CG constraints
+            constraints.extend([
+                SignomialEquality(climb.climbP.aircraftP['x_{CG}'][0]*aircraft['W_{total}'] ,
+                    0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{wing_system}']+aircraft['W_{f_{total}}'])*aircraft.fuse['x_{wing}']),
+
+                TCS([cruise.cruiseP.aircraftP['x_{CG}'][-1]*cruise.cruiseP.aircraftP['W_{end}'][-1] >= \
+                    0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{wing_system}']+aircraft['ReserveFraction']*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}']]),
+
+                climb.climbP.aircraftP['x_{CG}'][1:] <= climb.climbP.aircraftP['x_{CG}'][0],
+                cruise.cruiseP.aircraftP['x_{CG}'][:-1] <= climb.climbP.aircraftP['x_{CG}'][0],
+                climb.climbP.aircraftP['x_{CG}'][1:] >= cruise.cruiseP.aircraftP['x_{CG}'][-1],
+                cruise.cruiseP.aircraftP['x_{CG}'][0:-1] >= cruise.cruiseP.aircraftP['x_{CG}'][-1],
+              ])
 
 
         constraints.extend([
@@ -738,16 +738,16 @@ class Mission(Model):
         with SignomialsEnabled():
             for i in range(0,Nclimb):
                 constraints.extend([
-                    climb['PCFuel'][i] >= (sum(climb['W_{burn}'][i:])+ aircraft['W_{f_{cruise}}'])/aircraft['W_{f_{primary}}'] ,
+                    SignomialEquality(climb['PCFuel'][i] , (sum(climb['W_{burn}'][i+1:]) + \
+                                                             aircraft['W_{f_{cruise}}'])/aircraft['W_{f_{primary}}']) , #[SP] #[SPEquality]
                     # climb['PCFuel'][i] <= 1.-sum(climb['W_{burn}'][0:i+1])/aircraft['W_{f_{total}}'] #[SP]
-                    # climb['PCFuel'][i] <= 1.00001,
                 ])
             for i in range(0,Ncruise):
                 constraints.extend([
                     # cruise['PCFuel'][i] >= climb['PCFuel'][-1] \
                     #               - sum(cruise['W_{burn}'][0:i+1])/aircraft['W_{f_{total}}'], #[SP]
-                     cruise['PCFuel'][i] >= (sum(cruise['W_{burn}'][i:]) + 0.0000001*aircraft['W_{f_{primary}}'])/aircraft['W_{f_{primary}}'],
-                    # cruise['PCFuel'][i] <= 1.00001,
+                    SignomialEquality(cruise['PCFuel'][i] , (sum(cruise['W_{burn}'][i+1:]) + \
+                                                              0.0000001*aircraft['W_{f_{primary}}'])/aircraft['W_{f_{primary}}']), #[SP] #[SPEquality]
                     ])
 
         if D80 or D82:
