@@ -154,11 +154,11 @@ class Aircraft(Model):
                             self.VT['V_{ne}'] == 144*units('m/s'),
 
                             #compute the aircraft's zero fuel weight
-                            TCS([self.fuse['W_{fuse}'] + self.fuse['W_{payload}'] + numeng \
+                            TCS([self.fuse['W_{fuse}'] + numeng \
                                 * Wengsys + self.fuse['W_{tail}'] + Wwing <= W_dry]),
 
                             # Total takeoff weight constraint
-                            TCS([W_ftotal + W_dry <= W_total]),
+                            TCS([W_ftotal + W_dry + self.fuse['W_{payload}'] <= W_total]),
                             TCS([W_ftotal >= W_fprimary + ReserveFraction * W_fprimary]),
                             TCS([W_fprimary >= W_fclimb + W_fcruise]),
 
@@ -478,13 +478,13 @@ class AircraftP(Model):
             if b737800:
                 with SignomialsEnabled():
                     constraints.extend([
-                         SignomialEquality(xCG*aircraft['W_{dry}'], 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                            + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
-                            + aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}'] \
-                            + aircraft['numeng']*aircraft['W_{engsys}'] \
-                            *(aircraft.fuse['x_{wing}'] + 0.3*aircraft.VT['y_{eng}']*aircraft.wing['\\tan(\\Lambda)'])),
-                            # Center of gravity constraints #TODO Refine
-                            xCG >= aircraft['x_{CG_{min}}'],
+                         # SignomialEquality(xCG*aircraft['W_{dry}'], 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                         #    + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
+                         #    + aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}'] \
+                         #    + aircraft['numeng']*aircraft['W_{engsys}'] \
+                         #    *(aircraft.fuse['x_{wing}'] + 0.3*aircraft.VT['y_{eng}']*aircraft.wing['\\tan(\\Lambda)'])),
+                         #    # Center of gravity constraints #TODO Refine
+                         #    xCG >= aircraft['x_{CG_{min}}'],
                 #cap max rear wing position
                 # aircraft.fuse['x_{wing}'] <= 18.94*units('m'),
                     ])
@@ -688,7 +688,8 @@ class Mission(Model):
             cruise.cruiseP.aircraftP['W_{start}'][
                 1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
-            TCS([aircraft['W_{dry}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
+            TCS([aircraft['W_{dry}'] + aircraft['W_{payload}'] + \
+                 aircraft['ReserveFraction']*aircraft['W_{f_{primary}}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
             TCS([aircraft['W_{f_{climb}}'] >= sum(climb.climbP.aircraftP['W_{burn}'])]),
             TCS([aircraft['W_{f_{cruise}}'] >= sum(cruise.cruiseP.aircraftP['W_{burn}'])]),
@@ -1250,7 +1251,6 @@ if __name__ == '__main__':
                     'f_{seat}':0.1,
                     'W\'_{seat}':1*units('N'), # Seat weight determined by weight fraction instead
                     'f_{string}':0.35,
-                    'AR':10.1,
                     'h_{floor}': 0.13*units('m'),
                     # 'R_{fuse}' : 1.715,
                     'b_{max}':117.5*units('ft'),
@@ -1278,6 +1278,8 @@ if __name__ == '__main__':
                     #Wing subs
                     'C_{L_{wmax}}': 2.15,
                    'f_{slat}': 0.1,
+                'AR':10.1,
+
 ##                   'e': .91,
 
                     # Minimum Cruise Mach Number
