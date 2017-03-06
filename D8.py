@@ -371,6 +371,7 @@ class AircraftP(Model):
 
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
+        xNP = Variable('x_{NP}','m','Neutral Point of Aircraft')
         # SM = Variable('SM','-','Stability Margin of Aircraft')
         PCFuel = Variable('PCFuel','-','Percent Fuel Remaining (end of segment)')
 
@@ -455,6 +456,11 @@ class AircraftP(Model):
             xAC == aircraft['x_{wing}'], #TODO improve, only works because cmw == 0.1
             SignomialEquality(xAC,xCG + self.HTP['\\Delta x_w']),
 
+            # Neutral point approximation (taken from Basic Aircraft Design Rules, Unified)
+            # TODO improve
+            SignomialEquality(xNP/aircraft['mac']/aircraft['V_{h}']*(aircraft['AR']+2.)*(1.+2./aircraft['AR_h']),
+                              (1.+2./aircraft['AR'])*(aircraft['AR']-2)),
+
             TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
             # Static margin constraint with and without dxCG
@@ -474,6 +480,7 @@ class AircraftP(Model):
           Cdnace == aircraft['f_{S_nacelle}'] * Cfnace[0] * rvnsurf **3,
           Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2 * aircraft['S'],
            ])
+
 
             # CG CONSTRAINT #TODO improve; how to account for decreasing fuel volume?
             if D80 or D82:
