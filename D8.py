@@ -68,8 +68,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
-b737800 = False
+D82 = False
+b737800 = True
 
 sweep = 27.566#30 [deg]
 
@@ -664,7 +664,8 @@ class Mission(Model):
 
         with SignomialsEnabled():
             #CG constraints
-            constraints.extend([
+            if D80 or D82:
+                constraints.extend([
                 SignomialEquality(climb.climbP.aircraftP['x_{CG}'][0]*aircraft['W_{total}'] ,
                     0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
@@ -674,6 +675,25 @@ class Mission(Model):
                     0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']+aircraft['ReserveFraction']*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}']),
+
+                climb.climbP.aircraftP['x_{CG}'][1:] <= climb.climbP.aircraftP['x_{CG}'][0],
+                cruise.cruiseP.aircraftP['x_{CG}'][:-1] <= climb.climbP.aircraftP['x_{CG}'][0],
+                climb.climbP.aircraftP['x_{CG}'][1:] >= cruise.cruiseP.aircraftP['x_{CG}'][-1],
+                cruise.cruiseP.aircraftP['x_{CG}'][0:-1] >= cruise.cruiseP.aircraftP['x_{CG}'][-1],
+              ])
+            if b737800:
+                constraints.extend([
+                SignomialEquality(climb.climbP.aircraftP['x_{CG}'][0]*aircraft['W_{total}'] ,
+                    0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{wing_system}']+aircraft['W_{f_{total}}'])*aircraft.fuse['x_{wing}'] \
+                    + aircraft['numeng']*aircraft['W_{engsys}']*aircraft['x_b']), # TODO improve; using x_b as a surrogate for xeng
+
+                SignomialEquality(cruise.cruiseP.aircraftP['x_{CG}'][-1]*cruise.cruiseP.aircraftP['W_{end}'][-1],
+                    0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{wing_system}']+aircraft['ReserveFraction']*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}'] \
+                    + aircraft['numeng']*aircraft['W_{engsys}']*aircraft['x_b']), # TODO improve; using x_b as a surrogate for xeng
 
                 climb.climbP.aircraftP['x_{CG}'][1:] <= climb.climbP.aircraftP['x_{CG}'][0],
                 cruise.cruiseP.aircraftP['x_{CG}'][:-1] <= climb.climbP.aircraftP['x_{CG}'][0],
