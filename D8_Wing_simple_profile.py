@@ -226,13 +226,14 @@ class Wing(Model):
 
         Wwing = Variable('W_{wing_system}', 'N', 'Total Wing Weight')
 
-        constraints = [
+        constraints = []
+        constraints.extend([
             self.wns['\\lambda'] == self.wb['taper'],
 
             TCS([Wwing >= self.wb['W_{struct}'] + self.wb['W_{struct}']*(self.wns['f_{flap}'] + \
                     self.wns['f_{slat}'] + self.wns['f_{aileron}'] + self.wns['f_{lete}'] + self.wns['f_{ribs}'] + \
                     self.wns['f_{spoiler}'] + self.wns['f_{watt}'])]),
-            ]
+            ])
 
         return self.wns, self.wb, constraints
         
@@ -302,13 +303,18 @@ class WingNoStruct(Model):
         fspoi = Variable('f_{spoiler}', '-', 'Spoiler Fractional Weight')
         fwatt = Variable('f_{watt}', '-', 'Watt Fractional Weight')
 
+        # Area fractions
+        Atri = Variable('A_{tri}','m^2','Triangular Wing Area')
+        Arect = Variable('A_{rect}','m^2','Rectangular Wing Area')
         
-        #make cosntraints
+        #make constraints
         constraints = []
 
         with SignomialsEnabled():
 
             constraints.extend([
+                 SignomialEquality(Arect, ctip*b),
+                 SignomialEquality(Atri, 1./2.*(1-taper)*croot*b), #[SP]
                  p >= 1 + 2*taper,
                  2*q >= 1 + p,
                  ymac == (b/3)*q/p,
