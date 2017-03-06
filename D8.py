@@ -1300,9 +1300,9 @@ if __name__ == '__main__':
 
         post_process(sol)
 
-##        m.cost = m_relax.cost
-##
-##        sol = m.localsolve( verbosity = 4, iteration_limit=50, x0=sol)
+        m.cost = m_relax.cost
+
+        sol = m.localsolve( verbosity = 4, iteration_limit=50, x0=sol['variables'])
 
         if D82:
              percent_diff(sol, 2, Nclimb)
