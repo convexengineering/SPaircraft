@@ -185,16 +185,6 @@ class Aircraft(Model):
                                  (pi + 2 * self.fuse['\\theta_{db}']) * \
                                   (self.fuse['l_{cone}'] / self.fuse['R_{fuse}'])]), #[SP]
 
-                            # Horizontal tail aero+landing loads constants A1h
-                            self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
-                                                 (self.fuse['W_{tail}'] + numeng*Wengsys + self.fuse['W_{apu}'])) / \
-                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
-
-                            self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
-                                                 (self.fuse['W_{tail}'] + numeng*Wengsys + self.fuse['W_{apu}']) \
-                                + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
-                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
-
                             # Lift curve slope ratio for HT and Wing
                             SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_h']),
 
@@ -286,6 +276,17 @@ class Aircraft(Model):
                 # Floor loading
                 self.fuse['S_{floor}'] == (5. / 16.) * self.fuse['P_{floor}'],
                 self.fuse['M_{floor}'] == 9. / 256. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
+
+
+                # Horizontal tail aero+landing loads constants A1h
+                self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
+                                (self.fuse['W_{tail}'] + numeng*Wengsys + self.fuse['W_{apu}'])) / \
+                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+
+                self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
+                                (self.fuse['W_{tail}'] + numeng*Wengsys + self.fuse['W_{apu}']) \
+                                + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
+                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
                 ])
 
           #737 only constraints
@@ -315,6 +316,16 @@ class Aircraft(Model):
                    # Floor loading
                     self.fuse['S_{floor}'] == 1./2. * self.fuse['P_{floor}'],
                     self.fuse['M_{floor}'] == 1./4. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
+
+                    # Horizontal tail aero+landing loads constants A1h
+                    self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
+                                (self.fuse['W_{tail}'] + self.fuse['W_{apu}'])) / \
+                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+
+                    self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
+                                (self.fuse['W_{tail}'] + self.fuse['W_{apu}']) \
+                                + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
+                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
                     ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
@@ -641,7 +652,7 @@ class Mission(Model):
         RngCruise = Variable('RngCruise', 'nautical_miles', 'Total Cruise Range')
 
         #hold variables
-        hftCruiseHold = Variable('hftCruiseHold', 'ft', 'Temp Vairable to Avoid Dimension Mismactch')
+        hftCruiseHold = Variable('hftCruiseHold', 'ft', 'Temp Variable to Avoid Dimension Mismatch')
 
         h = climb.state['h']
         hftClimb = climb.state['hft']
@@ -659,10 +670,10 @@ class Mission(Model):
                     + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']+aircraft['W_{f_{total}}'])*aircraft.fuse['x_{wing}']),
 
-                TCS([cruise.cruiseP.aircraftP['x_{CG}'][-1]*cruise.cruiseP.aircraftP['W_{end}'][-1] >= \
+                SignomialEquality(cruise.cruiseP.aircraftP['x_{CG}'][-1]*cruise.cruiseP.aircraftP['W_{end}'][-1],
                     0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-                    + (aircraft['W_{wing_system}']+aircraft['ReserveFraction']*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}']]),
+                    + (aircraft['W_{wing_system}']+aircraft['ReserveFraction']*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}']),
 
                 climb.climbP.aircraftP['x_{CG}'][1:] <= climb.climbP.aircraftP['x_{CG}'][0],
                 cruise.cruiseP.aircraftP['x_{CG}'][:-1] <= climb.climbP.aircraftP['x_{CG}'][0],
@@ -690,7 +701,6 @@ class Mission(Model):
 
             TCS([aircraft['W_{dry}'] + aircraft['W_{payload}'] + \
                  aircraft['ReserveFraction']*aircraft['W_{f_{primary}}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
-
             TCS([aircraft['W_{f_{climb}}'] >= sum(climb.climbP.aircraftP['W_{burn}'])]),
             TCS([aircraft['W_{f_{cruise}}'] >= sum(cruise.cruiseP.aircraftP['W_{burn}'])]),
 
@@ -857,7 +867,7 @@ substitutions = {
         'W\'\'_{floor}': 60,  # [TAS]
         'W\'\'_{insul}': 22,  # [TAS]
         'W\'_{seat}': 150*units('N'),  # [TAS]
-        'W\'_{window}': 145.,  # [TAS]
+        'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
 
         # TASOPT Fuselage substitutions
         'l_{nose}': 29*0.3048*units('m'),
