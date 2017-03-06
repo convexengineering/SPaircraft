@@ -249,6 +249,7 @@ class Mission(Model):
                 TCS([climb['x_{CG}'] + climb['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
 
                 #compute the aerodynamic center location
+                #TODO: this sets xAC to xW in a stupid and long winded way
                 TCS([climb['x_{AC}'] <= climb['x_{CG}'] + climb['\\Delta x_w'] ]),
                 TCS([cruise['x_{AC}'] <= cruise['x_{CG}'] + cruise['\\Delta x_w'] ]),
 
