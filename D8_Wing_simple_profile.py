@@ -226,13 +226,19 @@ class Wing(Model):
 
         Wwing = Variable('W_{wing_system}', 'N', 'Total Wing Weight')
 
+        dxACwing = Variable('\\Delta x_{AC_{wing}}','m','Wing Aerodynamic Center Shift')
+            # w.r.t. the quarter chord of the root of the wing.
+
         constraints = []
-        constraints.extend([
+        with SignomialsEnabled():
+            constraints.extend([
             self.wns['\\lambda'] == self.wb['taper'],
 
             TCS([Wwing >= self.wb['W_{struct}'] + self.wb['W_{struct}']*(self.wns['f_{flap}'] + \
                     self.wns['f_{slat}'] + self.wns['f_{aileron}'] + self.wns['f_{lete}'] + self.wns['f_{ribs}'] + \
                     self.wns['f_{spoiler}'] + self.wns['f_{watt}'])]),
+            SignomialEquality(dxACwing,(1/12.*self.wns['A_{tri}'] + 1/4.*self.wns['A_{rect}'])/self.wns['S'] \
+                 *self.wns['b']*self.wns['\\tan(\\Lambda)']),
             ])
 
         return self.wns, self.wb, constraints
