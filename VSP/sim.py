@@ -114,7 +114,7 @@ resultsDict = {
     'GKMTRGNCEVD':float(yeng.magnitude), #Engine y location
     'XFTWTTHLVRI':float(hfuse.magnitude - (df/5.).magnitude), # Engine z location
     'JTPPOOJVVPE':float(lnace.magnitude),# Engine length
-    'QRBDHPAPDFX':float(2), # Engine fineness ratio (set at 2 for now)
+    'QRBDHPAPDFX':float(lnace.magnitude/df.magnitude), # Engine fineness ratio (set at 2 for now)
 
     # Floor Variables
     'MCVUEHMJBGG':float(hfloor.magnitude),  # Floor height
