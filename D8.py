@@ -1134,7 +1134,7 @@ def test():
 ##          ##                    'AR_h': 6,
 ##          '\\lambda_h' : 0.25,
 ##          '\\tan(\\Lambda_{ht})': np.tan(25*np.pi/180), # tangent of HT sweep
-##          'V_{h}': 1.3,#1.45,
+#          'V_{h}': 1.3,#1.45,
 ##          'C_{L_{hmax}}': 2.0, # [TAS]
 ##          'C_{L_{hfcG}}': 0.7,
 ##
@@ -1308,12 +1308,12 @@ if __name__ == '__main__':
                     'AR_h': 6,
                     '\\lambda_h' : 0.25,
                     '\\tan(\\Lambda_{ht})': np.tan(30*np.pi/180), # tangent of HT sweep
-                    'V_{h}': 1.45,
+                    # 'V_{h}': 1.45,
                     'C_{L_{hmax}}': 2.0, # [TAS]
                     'C_{L_{hfcG}}': 0.7,
                     '\\Delta x_{CG}': 7.68*units('ft'),
                     'x_{CG_{min}}' : 20*units('ft'),#56.75*units('ft'),
-                    'SM_{min}': .06,
+                    'SM_{min}': .38,
 
                     #VT subs
                     'numVT': 1,
