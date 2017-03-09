@@ -1307,25 +1307,25 @@ if __name__ == '__main__':
                     #HT subs
                     'AR_h': 6,
                     '\\lambda_h' : 0.25,
-                    '\\tan(\\Lambda_{ht})': np.tan(30*np.pi/180), # tangent of HT sweep
-                    # 'V_{h}': 1.45,
+                    '\\tan(\\Lambda_{ht})': np.tan(25*np.pi/180), # tangent of HT sweep
+##                    'V_{h}': .6,
                     'C_{L_{hmax}}': 2.0, # [TAS]
                     'C_{L_{hfcG}}': 0.7,
                     '\\Delta x_{CG}': 7.68*units('ft'),
-                    'x_{CG_{min}}' : 20*units('ft'),#56.75*units('ft'),
-                    'SM_{min}': .38,
+                    'x_{CG_{min}}' : 56.75*units('ft'),
+                    'SM_{min}': .05,
 
                     #VT subs
                     'numVT': 1,
                     'A_{vt}' : 2,
                     '\\lambda_{vt}': 0.3,
-                    '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180), # tangent of VT sweep
-                    # 'V_{vt}': .1,
+                    '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
+##                    'V_{vt}': .07,
 
                     #Wing subs
                     'C_{L_{wmax}}': 2.15,
                    'f_{slat}': 0.1,
-                'AR':10.1,
+                   'AR':10.1,
 
 ##                   'e': .91,
 
@@ -1357,7 +1357,7 @@ if __name__ == '__main__':
              percent_diff(sol, 2, Nclimb)
 
         if b737800:
-             percent_diff(sol, 800, Nclimb)
+             percent_diff(sol, 801, Nclimb)
 
     if sweeps:
         if sweepSMmin:
