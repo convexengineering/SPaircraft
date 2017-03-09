@@ -438,8 +438,6 @@ class WingBox(Model):
 
         # Constants
         taper = Variable('taper', '-', 'Taper ratio')
-        fwadd  = Variable('f_{w,add}', 0.4, '-',
-                          'Wing added weight fraction') # TASOPT code (737.tas)
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         Nlift  = Variable('N_{lift}', 2.0, '-', 'Wing loading multiplier')
         rh     = Variable('r_h', 0.75, '-',
@@ -473,15 +471,8 @@ class WingBox(Model):
             taper = surface['\\lambda_{vt}']
 
         constraints = [
-                       # Aspect ratio definition
-                       AR == b**2/S,
-
-                       # Defining taper dummy variables
-                       TCS([p >= 1 + 2*taper]),
-                       TCS([2*q >= 1 + p]),
-
                        # Upper bound on maximum thickness
-                       tau <= 0.15,
+                       tau <= 0.14,
 
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
@@ -508,7 +499,7 @@ class WingBox(Model):
                        Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
 
                        # Total wing weight using an additional weight fraction
-                       Wstruct >= 0.5*(1 + fwadd)*(Wweb + Wcap),
+                       Wstruct >= 0.5*(Wweb + Wcap),
                        ]
         
         return constraints
