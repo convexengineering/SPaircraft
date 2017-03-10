@@ -121,13 +121,9 @@ class Fuselage(Model):
         Vhbend = Variable('V_{hbend}', 'm^3',
                           'Horizontal bending material volume')
 
-        VhbendbLand = Variable('V_{hbendb_{Land}}', 'm^3', 'Horizontal bending material volume b (landing case)')  # back fuselage
-        VhbendcLand = Variable('V_{hbendc_{Land}}', 'm^3', 'Horizontal bending material volume c (landing case)') # center fuselage
-        VhbendfLand = Variable('V_{hbendf_{Land}}', 'm^3','Horizontal bending material volume f (landing case)') # front fuselage
-
-        VhbendbMLF = Variable('V_{hbendb_{MLF}}', 'm^3', 'Horizontal bending material volume b (maximum aero load case)')  # back fuselage
-        VhbendcMLF = Variable('V_{hbendc_{MLF}}', 'm^3', 'Horizontal bending material volume c (maximum aero load case)') # center fuselage
-        VhbendfMLF = Variable('V_{hbendf_{MLF}}', 'm^3','Horizontal bending material volume f (maximum aero load case)') # front fuselage
+        Vhbendb = Variable('V_{hbendb}', 'm^3', 'Horizontal bending material volume b')  # back fuselage
+        Vhbendc = Variable('V_{hbendc}', 'm^3', 'Horizontal bending material volume c') # center fuselage
+        Vhbendf = Variable('V_{hbendf}', 'm^3','Horizontal bending material volume f') # front fuselage
 
         Vvbend       = Variable('V_{vbend}','m^3','Vertical bending material volume')
         Vvbendb      = Variable('V_{vbendb}','m^3','Vertical bending material volume b') #back fuselage
@@ -307,28 +303,27 @@ class Fuselage(Model):
                 AhbendbMLF >= A2hMLF * (xshell2 - xb)**2 + A1hMLF * (xtail - xb) - A0h, # [SP]
 
                 # Bending volume forward of wingbox
-                VhbendfLand >= A2hLand / 3 * ((xshell2 - xf)**3 - (xshell2 - xhbendLand)**3) \
+                Vhbendf >= A2hLand / 3 * ((xshell2 - xf)**3 - (xshell2 - xhbendLand)**3) \
                 + A1hLand / 2 * ((xtail - xf)**2 - (xtail - xhbendLand)**2) \
                 - A0h * (xhbendLand - xf),  # [SP]
-                VhbendfMLF >= A2hMLF / 3 * ((xshell2 - xf)**3 - (xshell2 - xhbendMLF)**3) \
+                Vhbendf >= A2hMLF / 3 * ((xshell2 - xf)**3 - (xshell2 - xhbendMLF)**3) \
                 + A1hMLF / 2 * ((xtail - xf)**2 - (xtail - xhbendMLF)**2) \
                 - A0h * (xhbendMLF - xf),  # [SP]
 
                 # Bending volume behind wingbox
-                VhbendbLand >= A2hLand / 3 * ((xshell2 - xb)**3 - (xshell2 - xhbendLand)**3) \
+                Vhbendb >= A2hLand / 3 * ((xshell2 - xb)**3 - (xshell2 - xhbendLand)**3) \
                 + A1hLand / 2 * ((xtail - xb)**2 - (xtail - xhbendLand)**2) \
                 - A0h * (xhbendLand - xb),  # [SP]
-                VhbendbMLF >= A2hMLF / 3 * ((xshell2 - xb)**3 - (xshell2 - xhbendMLF)**3) \
+                Vhbendb >= A2hMLF / 3 * ((xshell2 - xb)**3 - (xshell2 - xhbendMLF)**3) \
                 + A1hMLF / 2 * ((xtail - xb)**2 - (xtail - xhbendMLF)**2) \
                 - A0h * (xhbendMLF - xb),  # [SP]
 
                 # Bending volume over wingbox
-                VhbendcLand >= .5 * (AhbendfLand + AhbendbLand) * c0 * w,
-                VhbendcMLF >= .5 * (AhbendfMLF + AhbendbMLF) * c0 * w,
+                Vhbendc >= .5 * (AhbendfLand + AhbendbLand) * c0 * w,
+                Vhbendc >= .5 * (AhbendfMLF + AhbendbMLF) * c0 * w,
 
                 # Determining more constraining load case (landing vs. max aero horizontal bending)
-                Vhbend >= VhbendcLand + VhbendfLand + VhbendbLand,
-                Vhbend >= VhbendcMLF + VhbendfMLF + VhbendbMLF,
+                Vhbend >= Vhbendc + Vhbendf + Vhbendb,
                 Whbend >= g * rhobend * Vhbend,
 
                 # Vertical bending material model
