@@ -675,35 +675,21 @@ class Mission(Model):
             #CG constraints
             if D80 or D82:
                 constraints.extend([
-                SignomialEquality(climb.climbP.aircraftP['x_{CG}'][0]*aircraft['W_{total}'] ,
+                TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-                    + (aircraft['W_{wing_system}']+aircraft['W_{f_{total}}'])*aircraft.fuse['x_{wing}']),
-
-                SignomialEquality(cruise.cruiseP.aircraftP['x_{CG}'][-1]*cruise.cruiseP.aircraftP['W_{end}'][-1],
+                    + (aircraft['W_{wing_system}']+(climb['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}'] \
+                    ]), # TODO improve; using x_b as a surrogate for xeng
+##               cruise['x_{CG}'][0] <= climb['x_{CG}'],
+                TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
                     0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-                    + (aircraft['W_{wing_system}']+aircraft['ReserveFraction']*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}']),
-
-                climb.climbP.aircraftP['x_{CG}'][1:] <= climb.climbP.aircraftP['x_{CG}'][0],
-                cruise.cruiseP.aircraftP['x_{CG}'][:-1] <= climb.climbP.aircraftP['x_{CG}'][0],
-                climb.climbP.aircraftP['x_{CG}'][1:] >= cruise.cruiseP.aircraftP['x_{CG}'][-1],
-                cruise.cruiseP.aircraftP['x_{CG}'][0:-1] >= cruise.cruiseP.aircraftP['x_{CG}'][-1],
+                    + (aircraft['W_{wing_system}']+(cruise['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}']
+                     ]), # TODO improve; using x_b as a surrogate for xeng
               ])
             if b737800:
                 constraints.extend([
-                # TCS([climb.climbP.aircraftP['x_{CG}'][0]*aircraft['W_{total}'] >=
-                #     0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                #     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
-                #     + (aircraft['W_{wing_system}']+aircraft['W_{f_{total}}'])*aircraft.fuse['x_{wing}'] \
-                #     + aircraft['numeng']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
-                #
-                # TCS([cruise.cruiseP.aircraftP['x_{CG}'][-1]*cruise.cruiseP.aircraftP['W_{end}'][-1] >=
-                #     0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                #     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
-                #     + (aircraft['W_{wing_system}']+aircraft['ReserveFraction']*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}'] \
-                #     + aircraft['numeng']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
-                TCS([climb['x_{CG}']*climb['W_{start}'] >=
+                TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']+(climb['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}'] \
@@ -714,11 +700,6 @@ class Mission(Model):
                     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']+(cruise['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}'] \
                     + aircraft['numeng']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
-
-                # climb.climbP.aircraftP['x_{CG}'][1:] <= climb.climbP.aircraftP['x_{CG}'][0],
-                # cruise.cruiseP.aircraftP['x_{CG}'][:-1] <= climb.climbP.aircraftP['x_{CG}'][0],
-                # climb.climbP.aircraftP['x_{CG}'][1:] >= cruise.cruiseP.aircraftP['x_{CG}'][-1],
-                # cruise.cruiseP.aircraftP['x_{CG}'][0:-1] >= cruise.cruiseP.aircraftP['x_{CG}'][-1],
               ])
 
         constraints.extend([
