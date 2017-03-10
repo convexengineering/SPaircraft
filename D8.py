@@ -466,7 +466,7 @@ class AircraftP(Model):
             TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
             # Static margin constraint with and without dxCG
-            self.wingP['c_{m_{w}}'] == .65,
+            self.wingP['c_{m_{w}}'] == .55,
             # SM >= aircraft['SM_{min}'],
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
                  + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] <= \
@@ -742,7 +742,7 @@ class Mission(Model):
             climb.climbP.aircraftP['W_{burn}'] == aircraft['numeng']*aircraft.engine['TSFC'][:Nclimb] * climb['thr'] * aircraft.engine['F'][:Nclimb],
 
             # Thrust constraint
-            aircraft.VT['T_e'] == climb.climbP.engine['F'][0],
+            aircraft.VT['T_e'] == 1.2*climb.climbP.engine['F'][0],
 
             # Set the range for each cruise segment, doesn't take credit for
             # down range distance covered during climb
@@ -763,6 +763,10 @@ class Mission(Model):
 ##          climb['\\alpha_{max,w}'] == .1,
 ##          cruise['\\alpha_{max,w}'] == .1,
 ##            aircraft['e'] <= 0.91,
+
+            
+            climb['RC'][0]>= 3000*units('ft/min'),
+##            climb['RC'][1]>= 0.75*climb['RC'][0],
         ])
 
         # Calculating percent fuel remaining
@@ -1204,6 +1208,7 @@ if __name__ == '__main__':
                     '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
 ##                    'V_{vt}': .07,
                   'N_{spar}': 1,
+                  '\\dot{r}_{req}': 0.15, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
                     #Wing subs
                     'C_{L_{wmax}}': 2.15,

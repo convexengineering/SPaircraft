@@ -429,8 +429,6 @@ class WingBox(Model):
 
         # Constants
         taper = Variable('taper', '-', 'Taper ratio')
-        fwadd  = Variable('f_{w,add}', 0.4, '-',
-                          'Wing added weight fraction') # [TAS]
         Nlift  = Variable('N_{lift}', 3.0, '-', 'Wing loading multiplier') # [TAS]
         rh     = Variable('r_h', 0.75, '-',
                           'Fractional wing thickness at spar web') # [TAS]
@@ -489,7 +487,7 @@ class WingBox(Model):
                        TCS([Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5)]),
 
                        # Total wing weight using an additional weight fraction
-                       Wstruct >= (1 + fwadd)*(Wweb + Wcap),
+                       Wstruct >= (Wweb + Wcap),
                        ]
         
         return constraints

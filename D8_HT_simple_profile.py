@@ -239,7 +239,7 @@ class Mission(Model):
                 aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - climb['x_{CG}'],
 
                 #Stability constraint, is a signomial
-                TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] <= aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] + aircraft.wing['c_{m_{w}}']/aircraft.wing['C_{L_{max}}'] + aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{max}}']]),
+                TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] + aircraft.wing['c_{m_{w}}']/aircraft.wing['C_{L_{max}}'] <= aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] + aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{max}}']]),
 
                 TCS([aircraft.wing['x_w'] >= cruise['x_{CG}'] + cruise['\\Delta x_w']]),
                 TCS([aircraft.wing['x_w'] >= climb['x_{CG}'] + climb['\\Delta x_w']]),
@@ -489,8 +489,6 @@ class WingBox(Model):
 
         # Constants
         taper = Variable('taper', 0.3, '-', 'Taper ratio')
-        fwadd  = Variable('f_{w,add}', 0.3, '-',
-                          'Wing added weight fraction') # [TAS]
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         Nlift  = Variable('N_{lift}', 2.0, '-', 'Wing loading multiplier')
         rh     = Variable('r_h', 0.75, '-',
@@ -532,7 +530,7 @@ class WingBox(Model):
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
                        # Assumes lift per unit span proportional to local chord
-                       # Mr >= Lmax*AR*p/24,
+                       Mr >= Lmax*AR*p/24,
 
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
@@ -554,7 +552,7 @@ class WingBox(Model):
                        Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
 
                        # Total wing weight using an additional weight fraction
-                       Wstruct >= (1 + fwadd)*(Wweb + Wcap),
+                       Wstruct >= (Wweb + Wcap),
                        ]
         
         return constraints
