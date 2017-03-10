@@ -281,7 +281,7 @@ class Aircraft(Model):
                 # Horizontal tail aero+landing loads constants A1h
                 self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
                                 (self.fuse['W_{tail}'] + numeng*Wengsys + self.fuse['W_{apu}'])) / \
-                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{bend}']),
 
                 self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
                                 (self.fuse['W_{tail}'] + numeng*Wengsys + self.fuse['W_{apu}']) \
@@ -320,7 +320,7 @@ class Aircraft(Model):
                     # Horizontal tail aero+landing loads constants A1h
                     self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
                                 (self.fuse['W_{tail}'] + self.fuse['W_{apu}'])) / \
-                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{bend}']),
 
                     self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
                                 (self.fuse['W_{tail}'] + self.fuse['W_{apu}']) \

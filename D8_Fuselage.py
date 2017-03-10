@@ -287,7 +287,7 @@ class Fuselage(Model):
                 SignomialEquality(A0h, A2hMLF * (xshell2 - xhbendMLF) ** 2 + A1hMLF * (xtail - xhbendMLF)), # [SP] #[SPEquality]
 
                 A2hLand >= Nland * (Wpay + Wpadd + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
-                (2 * lshell * hfuse * sigMh),  # Landing loads constant A2hLand
+                (2 * lshell * hfuse * sigbend),  # Landing loads constant A2hLand
                 A2hMLF >= Nlift * (Wpay + Wpadd + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
                 (2 * lshell * hfuse * sigMh),  # Max wing aero loads constant A2hMLF
 
