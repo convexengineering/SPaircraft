@@ -492,7 +492,8 @@ class WingBox(Model):
                        12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear*numspar),
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam^2)
-                       nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56,
+                       # nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # PHILIPPE'S FIT
+                    (nu/1.09074074)**.166 >= 0.205*(p/1.7)**0.772 + 0.795*(p/1.7)**-0.125, # BERK'S FIT
 
                        # Weight of spar caps and shear webs
                        Wcap >= 8*rhocap*g*w*tcap*S**1.5*nu/(3*AR**0.5),

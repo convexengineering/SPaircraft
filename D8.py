@@ -1219,7 +1219,8 @@ if __name__ == '__main__':
 
                     # Minimum Cruise Mach Number
                     'M_{min}': 0.8,
-                   # 'CruiseAlt':38000*units('ft'),
+                   #Minimum Cruise Altitude
+                   # 'CruiseAlt':35000*units('ft'),
 
                     #engine system subs
                     'rSnace': 16,
