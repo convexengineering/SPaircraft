@@ -64,6 +64,8 @@ sweepMmin = True
 sweepnpax = True
 sweepResFuel = True
 
+autoupdateVSP = False
+
 plot = True
 
 # Only one active at a time
@@ -100,6 +102,7 @@ class Aircraft(Model):
         numeng = Variable('numeng', '-', 'Number of Engines')
         numVT = Variable('numVT','-','Number of Vertical Tails')
         Vne = Variable('V_{ne}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
+        Vmn = Variable('V_{mn}',133.76,'m/s','Maneuvering speed')
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
         ReserveFraction = Variable('ReserveFraction', '-', 'Fuel Reserve Fraction')
         
@@ -150,8 +153,8 @@ class Aircraft(Model):
                             self.wing['c_{root}'] == self.fuse['c_0'],
                             self.wing.wb['wwb'] == self.fuse['wtc'],
                             self.wing['x_w'] == self.fuse['x_{wing}'],
-                            self.wing['V_{ne}'] == 144*units('m/s'),
-                            self.VT['V_{ne}'] == 144*units('m/s'),
+                            self.wing['V_{ne}'] == Vmn,
+                            self.VT['V_{ne}'] == Vmn,
 
                             #compute the aircraft's zero fuel weight
                             TCS([self.fuse['W_{fuse}'] + numeng \
@@ -195,7 +198,7 @@ class Aircraft(Model):
                             # self.HT['V_{h}'] >= 0.4,
 
                             # HT Max Loading
-                            TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vne**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
+                            TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vmn**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
 
                             # Tail weight
                             self.fuse['W_{tail}'] >= numVT*WVT + WHT + self.fuse['W_{cone}'],

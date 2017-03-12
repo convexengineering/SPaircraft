@@ -291,7 +291,7 @@ class VerticalTailNoStruct(Model):
         LvtEO    = Variable('L_{vtEO}', 'N', 'Vertical tail lift in engine out')
         Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area')
         V1     = Variable('V_1', 'm/s', 'Minimum takeoff velocity')
-        Vne    = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
+        Vne    = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         bvt    = Variable('b_{vt}', 'm', 'Vertical tail span')
         cma    = Variable('\\bar{c}_{vt}', 'm', 'Vertical tail mean aero chord')
         croot  = Variable('c_{root_{vt}}', 'm', 'Vertical tail root chord')
