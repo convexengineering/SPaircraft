@@ -893,6 +893,7 @@ substitutions = {
         '\\rho_{skin}': 2700,#*units('kg/m^3'),  # [TAS]
         '\\sigma_{floor}': 30000 / 0.000145, # [TAS] [Al]
         '\\sigma_{skin}': 15000 / 0.000145,  # [TAS] [Al]
+        '\\sigma_{bend}': 30000 / 0.000145, # [TAS] [Al]
         '\\tau_{floor}': 30000 / 0.000145, # [TAS] [Al]
         'W\'\'_{floor}': 60,  # [TAS]
         'W\'\'_{insul}': 22,  # [TAS]

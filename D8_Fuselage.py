@@ -275,7 +275,6 @@ class Fuselage(Model):
                     2 / 3 * (hdb + dRfuse/2.)**3 * tdb,  # [SP]
                 Ivshell <= (pi*Rfuse**2 + 8*wdb*Rfuse + (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell
                 # approximation needs to be improved
-                sigbend == rE * sigskin,
 
                 # Horizontal bending material model
                 # Calculating xhbend, the location where additional bending
