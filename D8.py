@@ -469,7 +469,7 @@ class AircraftP(Model):
             TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
             # Static margin constraint with and without dxCG
-            self.wingP['c_{m_{w}}'] == .55,
+            self.wingP['c_{m_{w}}'] == 1,
             # SM >= aircraft['SM_{min}'],
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
                  + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] <= \
