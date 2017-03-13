@@ -385,12 +385,12 @@ class FuselagePerformance(Model):
     def setup(self, fuse, state, **kwargs):
         # new variables
         Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
-        Dfuse = Variable('D_{fuse}', 'N', 'Total drag in cruise')
-        Dfrict = Variable('D_{friction}', 'N', 'Friction drag')
-        Dupswp = Variable('D_{upsweep}', 'N', 'Drag due to fuse upsweep')
-        f = Variable('f', '-', 'Fineness ratio')
-        FF = Variable('FF', '-', 'Fuselage form factor')
-        phi = Variable('\\phi', '-', 'Upsweep angle')
+        Dfuse = Variable('D_{fuse}', 'N', 'Total drag')
+        # Dfrict = Variable('D_{friction}', 'N', 'Friction drag')
+        # Dupswp = Variable('D_{upsweep}', 'N', 'Drag due to fuse upsweep')
+        # f = Variable('f', '-', 'Fineness ratio')
+        # FF = Variable('FF', '-', 'Fuselage form factor')
+        # phi = Variable('\\phi', '-', 'Upsweep angle')
 
 
         # BLI surrogate
@@ -398,16 +398,17 @@ class FuselagePerformance(Model):
 
         constraints = []
         constraints.extend([
+            Cdfuse == Cdfuse,
             #Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
             # fineness ratio
-            f == fuse['l_{fuse}'] / ((4 / np.pi * fuse['A_{fuse}'])**0.5),
-            FF >= 1 + 60 / f**3 + f / 400,  # form factor
-            Dfrict >= FF * np.pi * fuse['R_{fuse}'] * state.atm['\\mu'] * state['V'] * 0.074 * (state.atm['\\rho'] * state['V']
-                                                                                                * fuse['l_{fuse}'] / state.atm['\\mu'])**0.8,
+            # f == fuse['l_{fuse}'] / ((4 / np.pi * fuse['A_{fuse}'])**0.5),
+            # FF >= 1 + 60 / f**3 + f / 400,  # form factor
+            # Dfrict >= FF * np.pi * fuse['R_{fuse}'] * state.atm['\\mu'] * state['V'] * 0.074 * (state.atm['\\rho'] * state['V']
+            #                                                                                     * fuse['l_{fuse}'] / state.atm['\\mu'])**0.8,
             # Monomial fit of tan(phi)
-            1.13226 * phi**1.03759 == fuse['R_{fuse}'] / fuse['l_{cone}'],
-            Dupswp >= 3.83 * phi**2.5 * fuse['A_{fuse}'] * 0.5 * state.atm['\\rho'] * state['V']**2,
-            Dfuse >= Dfrict + Dupswp,
+            # 1.13226 * phi**1.03759 == fuse['R_{fuse}'] / fuse['l_{cone}'],
+            # Dupswp >= 3.83 * phi**2.5 * fuse['A_{fuse}'] * 0.5 * state.atm['\\rho'] * state['V']**2,
+            # Dfuse >= Dfrict + Dupswp,
             Dfuse == fBLI * 0.5 * state.atm['\\rho'] * state['V']**2 * Cdfuse * fuse['A_{fuse}'],
         ])
 

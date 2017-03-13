@@ -418,7 +418,7 @@ class AircraftP(Model):
             C_D == D/(.5*state['\\rho']*state['V']**2 * self.aircraft.wing['S']),
             LoD == W_avg/D,
 
-            # Wing looading
+            # Wing loading
             WLoad == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * state.atm['\\rho'] * state['V']**2 / self.aircraft.wing['S'],
 
             # Geometric average of start and end weights of flight segment
@@ -486,31 +486,6 @@ class AircraftP(Model):
           Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2 * aircraft['S'],
            ])
 
-
-            # CG CONSTRAINT #TODO improve; how to account for decreasing fuel volume?
-            if D80 or D82:
-                constraints.extend([
-                    # TCS([xCG*W_start >= 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    # + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-                    # + (aircraft['W_{wing_system}']+(PCFuel + aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}']]),
-                    # # Center of gravity constraints #TODO Refine
-                    # xCG >= aircraft['x_{CG_{min}}'],
-
-                ])
-
-            if b737800:
-                with SignomialsEnabled():
-                    constraints.extend([
-                         # SignomialEquality(xCG*aircraft['W_{dry}'], 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                         #    + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
-                         #    + aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}'] \
-                         #    + aircraft['numeng']*aircraft['W_{engsys}'] \
-                         #    *(aircraft.fuse['x_{wing}'] + 0.3*aircraft.VT['y_{eng}']*aircraft.wing['\\tan(\\Lambda)'])),
-                         #    # Center of gravity constraints #TODO Refine
-                         #    xCG >= aircraft['x_{CG_{min}}'],
-                #cap max rear wing position
-                # aircraft.fuse['x_{wing}'] <= 18.94*units('m'),
-                    ])
         return self.Pmodels, constraints
 
 class ClimbP(Model): # Climb performance constraints
@@ -709,6 +684,22 @@ class Mission(Model):
                     + aircraft['numeng']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
               ])
 
+            #Setting fuselage drag
+            if D80 or D82:
+                constraints.extend([
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866,
+                    climb['f_{BLI}'] == 0.91, #TODO area for improvement
+                    cruise['f_{BLI}'] == 0.91, #TODO area for improvement
+                  ])
+            if b737800:
+               constraints.extend([
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00762,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00762,
+                    climb['f_{BLI}'] == 1.0, #TODO area for improvement
+                    cruise['f_{BLI}'] == 1.0, #TODO area for improvement
+                   ])
+
         constraints.extend([
             climb.climbP.aircraftP['W_{start}'][0] == aircraft['W_{total}'],
             climb.climbP.aircraftP[
@@ -790,18 +781,6 @@ class Mission(Model):
                                 0.0000001*aircraft['W_{f_{primary}}'])/aircraft['W_{f_{primary}}']]),
                     cruise['PCFuel'] <= 1.0,
                     ])
-
-        if D80 or D82:
-             constraints.extend([
-                    # Set the BLI Benefit
-                    climb.climbP.fuseP['f_{BLI}'] == 0.91, #TODO area for improvement
-                    cruise.cruiseP.fuseP['f_{BLI}'] == 0.91,
-                  ])
-        if b737800:
-            constraints.extend([
-                climb.climbP.fuseP['f_{BLI}'] == 1.0,
-                cruise.cruiseP.fuseP['f_{BLI}'] == 1.0,
-            ])
 
         with SignomialsEnabled():
             constraints.extend([
