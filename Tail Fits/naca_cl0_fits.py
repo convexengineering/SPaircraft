@@ -64,7 +64,7 @@ def make_fit(naca_range, re_range):
     print np.size(x)
     print np.size(x)
     print np.size(y)
-    fit(x, y, 3)
+    fit(x, y, 3, 'SMA')
 
 def plot_fits(naca_range, re_range):
     "plot fit compared to data"
