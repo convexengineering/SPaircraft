@@ -413,6 +413,7 @@ class AircraftP(Model):
             state['V'] >= Vstall,
 
             # compute the drag
+            self.fuseP['D_{fuse}'] == self.fuseP['f_{BLI}'] * 0.5 * state['\\rho'] * state['V']**2 * self.fuseP['C_{D_{fuse}}'] * aircraft['S'],
             D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.aircraft['numVT']*self.VTP['D_{vt}'] + self.HTP['D_{ht}'] + aircraft['numeng'] * Dnace,
             C_D == D/(.5*state['\\rho']*state['V']**2 * self.aircraft.wing['S']),
             LoD == W_avg/D,
@@ -837,7 +838,7 @@ class Mission(Model):
             cruise['D']) / cruise['W_{avg}']]),
             ]
 
-        self.cost = aircraft['W_{f_{total}}'] + aircraft['V_{cabin}']*units('N/m**3')
+        self.cost = aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
 
         return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 

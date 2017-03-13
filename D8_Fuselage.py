@@ -409,7 +409,6 @@ class FuselagePerformance(Model):
             # 1.13226 * phi**1.03759 == fuse['R_{fuse}'] / fuse['l_{cone}'],
             # Dupswp >= 3.83 * phi**2.5 * fuse['A_{fuse}'] * 0.5 * state.atm['\\rho'] * state['V']**2,
             # Dfuse >= Dfrict + Dupswp,
-            Dfuse == fBLI * 0.5 * state.atm['\\rho'] * state['V']**2 * Cdfuse * fuse['A_{fuse}'],
         ])
 
         return constraints
