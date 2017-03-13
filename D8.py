@@ -834,7 +834,7 @@ class Mission(Model):
             cruise['D']) / cruise['W_{avg}']]),
             ]
 
-        self.cost = aircraft['W_{f_{total}}']
+        self.cost = aircraft['W_{f_{total}}'] + aircraft['V_{cabin}']*units('N/m**3')
 
         return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
@@ -1207,7 +1207,7 @@ if __name__ == '__main__':
                     # Minimum Cruise Mach Number
                     'M_{min}': 0.8,
                    #Minimum Cruise Altitude
-                   # 'CruiseAlt':8000*units('ft'),
+                   'CruiseAlt':8000*units('ft'),
 
                     #engine system subs
                     'rSnace': 16,
