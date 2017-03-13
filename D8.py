@@ -378,10 +378,10 @@ class AircraftP(Model):
         # SM = Variable('SM','-','Stability Margin of Aircraft')
         PCFuel = Variable('PCFuel','-','Percent Fuel Remaining (end of segment)')
 
-        Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
-        W_buoy = Variable('W_{buoy}','lbf','Buoyancy Weight')
-        Tcabin = Variable('T_{cabin}','K','Cabin Air Temperature')
-        rhocabin = Variable('\\rho_{cabin}','kg/m^3','Cabin Air Density')
+        # Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
+        # W_buoy = Variable('W_{buoy}','lbf','Buoyancy Weight')
+        # Tcabin = Variable('T_{cabin}','K','Cabin Air Temperature')
+        # rhocabin = Variable('\\rho_{cabin}','kg/m^3','Cabin Air Density')
 
         #variables for nacelle drag calcualation
         Vnace = Variable('V_{nacelle}', 'm/s', 'Incoming Nacelle Flow Velocity')
@@ -401,14 +401,10 @@ class AircraftP(Model):
             W_burn == W_burn,
             PCFuel == PCFuel,
 
-            # Cabin Air properties
-            rhocabin == Pcabin/(state['R']*Tcabin),
-            Pcabin == 75000*units('Pa'),
-            Tcabin == 297*units('K'),
-
-            # Buoyancy weight #TODO relax the equality
-            SignomialEquality(W_buoy,(rhocabin - state['\\rho'])*g*aircraft['V_{cabin}']),  #[SP] #[SPEquality]
-            # W_buoy >= (rhocabin - state['\\rho'])*g*aircraft['V_{cabin}'], # [SP]
+            #Cabin Air properties
+            # rhocabin == Pcabin/(state['R']*Tcabin),
+            # Pcabin == 75000*units('Pa'),
+            # Tcabin == 297*units('K'),
 
             # speed must be greater than stall speed
             state['V'] >= Vstall,
@@ -422,7 +418,7 @@ class AircraftP(Model):
             WLoad == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * state.atm['\\rho'] * state['V']**2 / self.aircraft.wing['S'],
 
             # Geometric average of start and end weights of flight segment
-            W_avg >= (W_start * W_end)**.5 + W_buoy, # Buoyancy weight included in Breguet Range
+            W_avg >= (W_start * W_end)**.5, #+ W_buoy, # Buoyancy weight included in Breguet Range
 
             # Maximum wing loading constraint
             WLoad <= WLoadmax,
@@ -650,6 +646,12 @@ class Mission(Model):
         constraints = []
 
         with SignomialsEnabled():
+            # Buoyancy weight #TODO relax the equality
+            # SignomialEquality(W_buoy,(rhocabin - state['\\rho'])*g*aircraft['V_{cabin}']),  #[SP] #[SPEquality]
+            # constraints.extend([
+            #     cruise['W_{buoy}'] >= (cruise['\\rho_{cabin}'] - cruise['\\rho'])*g*aircraft['V_{cabin}'], # [SP]
+            #     climb['W_{buoy}'] >= 0.1*units('lbf'),
+            # ])
             #CG constraints
             if D80 or D82:
                 constraints.extend([
@@ -727,16 +729,14 @@ class Mission(Model):
             TCS([hftClimb[1:Nclimb] >= hftClimb[:Nclimb-1] + dhft[1:Nclimb]]),
             TCS([hftClimb[0] == dhft[0]]),
             hftClimb[-1] <= hftCruise,
-
 ##            hftCruise <= 39692*units('ft'),
-
             hftCruise[0] == hftCruiseHold,
 
             # Compute dh
             dhft == hftCruiseHold / Nclimb,
 
             #compute fuel burn from TSFC
-            cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['numeng']*aircraft.engine['TSFC'][Nclimb:] * cruise['thr'] * aircraft.engine['F'][Nclimb:],              
+            cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['numeng']*aircraft.engine['TSFC'][Nclimb:] * cruise['thr'] * aircraft.engine['F'][Nclimb:],
             climb.climbP.aircraftP['W_{burn}'] == aircraft['numeng']*aircraft.engine['TSFC'][:Nclimb] * climb['thr'] * aircraft.engine['F'][:Nclimb],
 
             # Thrust constraint
@@ -1143,23 +1143,23 @@ if __name__ == '__main__':
                   '\\alpha_{OD}': 5.1,
                   '\\alpha_{max}': 5.1,
 
-                  'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
+                  'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                   'r_{uc}': .01,
                   '\\alpha_c': .19036,
-                  'T_{t_f}': 435,
+                  'T_{t_f}': 435.,
 
                   'M_{takeoff}': .9556,
 
-                  'G_f': 1,
+                  'G_f': 1.,
 
                   'h_f': 43.003,
 
-                  'Cp_t1': 1280,
-                  'Cp_t2': 1184,
-                  'Cp_c': 1216,
+                  'Cp_t1': 1280.,
+                  'Cp_t2': 1184.,
+                  'Cp_c': 1216.,
 
-                  'HTR_{f_SUB}': 1-.3**2,
-                  'HTR_{lpc_SUB}': 1 - 0.6**2,
+                  'HTR_{f_SUB}': 1.-.3**2.,
+                  'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
                   #fuselage subs that make fuse circular
                   '\\delta R_{fuse}': 0.0001*units('m'),
@@ -1193,21 +1193,21 @@ if __name__ == '__main__':
                     'A_{vt}' : 2,
                     '\\lambda_{vt}': 0.3,
                     '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
-##                    'V_{vt}': .07,
-                  'N_{spar}': 1,
-                  '\\dot{r}_{req}': 0.15, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
+#                    'V_{vt}': .07,
+                    'N_{spar}': 1,
+                    '\\dot{r}_{req}': 0.15, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
                     #Wing subs
                     'C_{L_{wmax}}': 2.15,
-                   'f_{slat}': 0.1,
-                   'AR':10.1,
+                    'f_{slat}': 0.1,
+                    'AR':10.1,
 
 ##                   'e': .91,
 
                     # Minimum Cruise Mach Number
                     'M_{min}': 0.8,
                    #Minimum Cruise Altitude
-                   # 'CruiseAlt':35000*units('ft'),
+                   # 'CruiseAlt':8000*units('ft'),
 
                     #engine system subs
                     'rSnace': 16,
