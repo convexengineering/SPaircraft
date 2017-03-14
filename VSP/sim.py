@@ -155,7 +155,7 @@ resultsDict = {
 
     # Wing variables
     'AYJHHOVUHBI':float(b.magnitude*0.5), # Wing half-span
-    'UOBOGEWYYZZ':float((xwing - 0.5*croot - 0.1*0.5*tan(sweep/180*pi)*b).magnitude), # Wing x-location
+    'UOBOGEWYYZZ':float((xwing - 0.25*croot).magnitude), # Wing x-location
     'MOGKYBMVMPD':float(-1*hfuse.magnitude + 0.2), # Wing z-location
     'NNIHPEXRTCP':float(croot.magnitude), # Wing root chord
     'HGZBRNOPIRD':float(ctip.magnitude), # Wing tip chord
@@ -167,7 +167,7 @@ resultsDict = {
 if b737800:
     resultsDict.update({
      # Engine Variables
-    'REBAHPKXPRR':float((xwing - 0.5*croot - 0.2*0.5*tan(sweep/180*pi)*b).magnitude), # Engine x location
+    'REBAHPKXPRR':float((xwing-0.6*lnace).magnitude), # Engine x location
     'GKMTRGNCEVD':float(yeng.magnitude), #Engine y location
     'XFTWTTHLVRI':float(-hfuse.magnitude - 0.6*df.magnitude), # Engine z location
     # Floor Variables
