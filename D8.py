@@ -561,12 +561,12 @@ class CruiseP(Model): # Cruise performance constraints
             RC >= 0.01 * units('ft/min'),
 
             # Taylor series expansion to get the weight term
-            TCS([self.aircraftP['W_{burn}'] / self.aircraftP['W_{end}'] >=
-                 te_exp_minus1(z_bre, nterm=3)]),
+##            TCS([self.aircraftP['W_{burn}'] / self.aircraftP['W_{end}'] >=
+##                 te_exp_minus1(z_bre, nterm=3)]),
 
             # Breguet range eqn
-            TCS([z_bre >= (self.engine['TSFC'][Nclimb:] * self.aircraftP['thr'] *
-                           aircraft['numeng'] * self.engine['F'][Nclimb:]) / self.aircraftP['W_{avg}']]),
+##            TCS([z_bre >= (self.engine['TSFC'][Nclimb:] * self.aircraftP['thr'] *
+##                           aircraft['numeng'] * self.engine['F'][Nclimb:]) / self.aircraftP['W_{avg}']]),
 
             # Time
             self.aircraftP['thr'] * state['V'] == Rng,
@@ -739,7 +739,7 @@ class Mission(Model):
             TCS([hftClimb[1:Nclimb] >= hftClimb[:Nclimb - 1] + dhft[1:Nclimb]]),
             TCS([hftClimb[0] == dhft[0]]),
             hftClimb[-1] <= hftCruise,
-            hftCruise[1:Ncruise] >= hftCruise[:Ncruise-1] + dhft[1:Ncruise],
+            
             ##            hftCruise <= 39692*units('ft'),
             hftCruise[0] == hftCruiseHold,
 
@@ -801,6 +801,8 @@ class Mission(Model):
             constraints.extend([
                 #set the range constraints
                 TCS([sum(climb['RngClimb']) + RngCruise >= ReqRng]),
+##                TCS([hftCruise[1:Ncruise] <= hftCruise[:Ncruise-1] + dhft[1:Ncruise]]),
+                SignomialEquality(hftCruise[1:Ncruise], hftCruise[:Ncruise-1] + dhft[1:Ncruise])
                 ])
         
         M2 = .6
