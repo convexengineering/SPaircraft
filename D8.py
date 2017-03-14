@@ -166,7 +166,7 @@ class Aircraft(Model):
                             # Load factor matching
                             self.fuse['N_{lift}'] == self.wing['N_{lift}'],
                             #set the wing lift
-                            self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{{max}_h}'],
+                            self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
 
                             # Wing fuel constraints
                             self.wing['W_{fuel_{wing}}'] >= W_ftotal/self.wing['FuelFrac'],
@@ -192,11 +192,11 @@ class Aircraft(Model):
                             # HT Location and Volume Coefficient
                             self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
                             self.fuse['x_{tail}'] == self.VT['x_{CG_{vt}}'],
-                            TCS([self.HT['V_{h}'] == self.HT['S_h']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
-                            # self.HT['V_{h}'] >= 0.4,
+                            TCS([self.HT['V_{ht}'] == self.HT['S_{ht}']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
+                            # self.HT['V_{ht}'] >= 0.4,
 
                             # HT Max Loading
-                            TCS([self.HT['L_{{max}_h}'] >= 0.5*rhoTO*Vmn**2*self.HT['S_h']*self.HT['C_{L_{hmax}}']]),
+                            TCS([self.HT['L_{h_{max}}'] >= 0.5*rhoTO*Vmn**2*self.HT['S_{ht}']*self.HT['C_{L_{hmax}}']]),
 
                             # Tail weight
                             self.fuse['W_{tail}'] >= numVT*WVT + WHT + self.fuse['W_{cone}'],
@@ -257,7 +257,7 @@ class Aircraft(Model):
                     self.HT['M_r'] * self.HT['c_{root_h}'] >= self.HT['N_{lift}'] * self.HT['L_{h_{rect}}'] * (
                     self.HT['b_{ht}'] / 4) \
                     + self.HT['N_{lift}'] * self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6) - self.HT['N_{lift}'] *
-                    self.fuse['w_{fuse}'] * self.HT['L_{{max}_h}'] / 2.,
+                    self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
                     # [SP]
 
 
@@ -291,7 +291,7 @@ class Aircraft(Model):
 
                     self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
                                                (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}']) \
-                                               + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
+                                               + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
                 ])
 
@@ -303,7 +303,7 @@ class Aircraft(Model):
                     self.VT['y_{eng}'] == 4.83*units('m'),
 
                     # HT root moment
-                    # TCS([self.HT['M_r'] >= self.HT['L_{{max}_h}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
+                    # TCS([self.HT['M_r'] >= self.HT['L_{h_{max}}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
                     TCS([self.HT['M_r']*self.HT['c_{root_h}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
                          1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']]),
 
@@ -330,7 +330,7 @@ class Aircraft(Model):
 
                     self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
                                 (self.fuse['W_{tail}'] + self.fuse['W_{apu}']) \
-                                + self.fuse['r_{M_h}'] * self.HT['L_{{max}_h}']) / \
+                                + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
                     ])
 
@@ -442,7 +442,7 @@ class AircraftP(Model):
             # Aircraft trim conditions
             TCS([xAC/aircraft.wing['mac'] <= xCG/aircraft.wing['mac'] + \
                  self.wingP['c_{m_{w}}']/self.wingP['C_{L}']  +\
-                              aircraft.HT['V_{h}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
+                              aircraft.HT['V_{ht}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
 
             # Tail aspect ratio and lift constraints
             aircraft.HT['AR_h'] >= 6, #TODO change to tip Re constraint
@@ -463,7 +463,7 @@ class AircraftP(Model):
 
             # Neutral point approximation (taken from Basic Aircraft Design Rules, Unified)
             # TODO improve
-            SignomialEquality(xNP/aircraft['mac']/aircraft['V_{h}']*(aircraft['AR']+2.)*(1.+2./aircraft['AR_h']),
+            SignomialEquality(xNP/aircraft['mac']/aircraft['V_{ht}']*(aircraft['AR']+2.)*(1.+2./aircraft['AR_h']),
                               (1.+2./aircraft['AR'])*(aircraft['AR']-2)),
 
             TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
@@ -473,8 +473,8 @@ class AircraftP(Model):
             # SM >= aircraft['SM_{min}'],
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
                  + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] <= \
-                                            aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] +\
-                                            aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
+                                            aircraft.HT['V_{ht}']*aircraft.HT['m_{ratio}'] +\
+                                            aircraft.HT['V_{ht}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
 
           #nacelle drag
           Renace == state['\\rho']*state['V'] * aircraft['l_{nacelle}']/state['\\mu'],
@@ -1022,7 +1022,7 @@ def test():
           'AR_h': 12.,
           '\\lambda_h' : 0.3,
           '\\tan(\\Lambda_{ht})': np.tan(8*np.pi/180), # tangent of HT sweep
-          # 'V_{h}': 0.895,
+          # 'V_{ht}': 0.895,
 
           #VT subs
           'A_{vt}' : 2.2,
@@ -1104,7 +1104,7 @@ if __name__ == '__main__':
                 'AR_h': 12.,
                 '\\lambda_h': 0.3,
                 '\\tan(\\Lambda_{ht})': np.tan(8 * np.pi / 180),  # tangent of HT sweep
-                # 'V_{h}': 0.895,
+                # 'V_{ht}': 0.895,
 
                 # VT subs
                 'numVT': 2,
@@ -1186,7 +1186,7 @@ if __name__ == '__main__':
                    'AR_h': 6,
                    '\\lambda_h': 0.25,
                    '\\tan(\\Lambda_{ht})': np.tan(25 * np.pi / 180),  # tangent of HT sweep
-                   ##                    'V_{h}': .6,
+                   ##                    'V_{ht}': .6,
                    'C_{L_{hmax}}': 2.0,  # [TAS]
                    'C_{L_{hfcG}}': 0.7,
                    '\\Delta x_{CG}': 7.68 * units('ft'),
@@ -1247,18 +1247,18 @@ if __name__ == '__main__':
             solSMsweep = m.localsolve(verbosity = 4, skipsweepfailures=True)
 
             if plot:
-                plt.plot(solSMsweep('SM_{min}'), solSMsweep('S_h'), '-r')
+                plt.plot(solSMsweep('SM_{min}'), solSMsweep('S_{ht}'), '-r')
                 plt.xlabel('Minimum Allowed Static Margin')
                 plt.ylabel('Horizontal Tail Area [m$^2$]')
                 plt.title('Horizontal Tail Area vs Min Static Margin')
                 plt.savefig('CFP_Sweeps/S_{h}-vs-SM_{min}.pdf')
                 plt.show(), plt.close()
 
-                plt.plot(solSMsweep('SM_{min}'), solSMsweep('V_{h}'), '-r')
+                plt.plot(solSMsweep('SM_{min}'), solSMsweep('V_{ht}'), '-r')
                 plt.xlabel('Minimum Allowed Static Margin')
                 plt.ylabel('Horizontal Tail Volume Coefficient')
                 plt.title('Horizontal Tail Volume Coefficient vs Min Static Margin')
-                plt.savefig('CFP_Sweeps/V_{h}-vs-SM_{min}.pdf')
+                plt.savefig('CFP_Sweeps/V_{ht}-vs-SM_{min}.pdf')
                 plt.show(), plt.close()
 
 ##                plt.plot(solSMsweep('SM_{min}'), np.mean(solSMsweep('x_{CG}_Mission, CruiseSegment, CruiseP, AircraftP'),axis = 1), '-r')
@@ -1345,7 +1345,7 @@ if __name__ == '__main__':
             soldxCGsweep = m.localsolve(verbosity=2,skipsweepfailures=True)
 
             if plot:
-                plt.plot(soldxCGsweep('\\Delta x_{CG}'),soldxCGsweep('V_{h}'),'-r')
+                plt.plot(soldxCGsweep('\\Delta x_{CG}'),soldxCGsweep('V_{ht}'),'-r')
                 plt.xlabel('Allowed CG shift [m]')
                 plt.ylabel('Horizontal Tail Volume Coefficient')
                 plt.title('Horizontal Tail Volume Coefficient vs Allowed CG Shift')
@@ -1373,7 +1373,7 @@ if __name__ == '__main__':
             solxCGsweep = m.localsolve(verbosity=2,skipsweepfailures=True,iteration_limit=30)
 
             if plot:
-                plt.plot(solxCGsweep('x_{CG_{min}}'),solxCGsweep('V_{h}'),'-r')
+                plt.plot(solxCGsweep('x_{CG_{min}}'),solxCGsweep('V_{ht}'),'-r')
                 plt.xlabel('Max Forward CG [m]')
                 plt.ylabel('Horizontal Tail Volume Coefficient')
                 plt.title('Horizontal Tail Volume Coefficient vs Max Forward CG')

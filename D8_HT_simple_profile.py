@@ -221,17 +221,17 @@ class Mission(Model):
 
                 # Trim condition for each flight segment
                 TCS([cruise['x_{AC}']/aircraft.wing['mac'] <= aircraft.wing['c_{m_{w}}']/cruise['C_{L}'] + \
-                     cruise['x_{CG}']/aircraft.wing['mac'] + aircraft.HT['V_{h}']*(cruise['C_{L_h}']/cruise['C_{L}'])]),
+                     cruise['x_{CG}']/aircraft.wing['mac'] + aircraft.HT['V_{ht}']*(cruise['C_{L_h}']/cruise['C_{L}'])]),
                 TCS([climb['x_{AC}']/aircraft.wing['mac'] <= aircraft.wing['c_{m_{w}}']/climb['C_{L}'] + \
-                     climb['x_{CG}']/aircraft.wing['mac'] + aircraft.HT['V_{h}']*(climb['C_{L_h}']/climb['C_{L}'])]),
+                     climb['x_{CG}']/aircraft.wing['mac'] + aircraft.HT['V_{ht}']*(climb['C_{L_h}']/climb['C_{L}'])]),
 
 
-                aircraft.HT['L_{{max}_h}'] == 0.5*aircraft['\\rho_0']*aircraft['V_{ne}']**2*aircraft.HT['S_h']*aircraft.HT['C_{L_{hmax}}'],
+                aircraft.HT['L_{h_{max}}'] == 0.5*aircraft['\\rho_0']*aircraft['V_{ne}']**2*aircraft.HT['S_{ht}']*aircraft.HT['C_{L_{hmax}}'],
                 #compute mrat, is a signomial equality
                 SignomialEquality(aircraft.HT['m_{ratio}']*(1+2/aircraft.wing['AR']), 1 + 2/aircraft.HT['AR_h']),
 
                 #tail volume coefficient
-                aircraft.HT['V_{h}'] == aircraft.HT['S_h']*aircraft.HT['x_{CG_{ht}}']/(aircraft.wing['S']*aircraft.wing['mac']),
+                aircraft.HT['V_{ht}'] == aircraft.HT['S_{ht}']*aircraft.HT['x_{CG_{ht}}']/(aircraft.wing['S']*aircraft.wing['mac']),
 
                 #enforce max tail location is the end of the fuselage
                 aircraft.HT['x_{CG_{ht}}'] <= aircraft.fuse['l_{fuse}'],
@@ -239,7 +239,7 @@ class Mission(Model):
                 aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - climb['x_{CG}'],
 
                 #Stability constraint, is a signomial
-                TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] + aircraft.wing['c_{m_{w}}']/aircraft.wing['C_{L_{max}}'] <= aircraft.HT['V_{h}']*aircraft.HT['m_{ratio}'] + aircraft.HT['V_{h}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{max}}']]),
+                TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] + aircraft.wing['c_{m_{w}}']/aircraft.wing['C_{L_{max}}'] <= aircraft.HT['V_{ht}']*aircraft.HT['m_{ratio}'] + aircraft.HT['V_{ht}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{max}}']]),
 
                 TCS([aircraft.wing['x_w'] >= cruise['x_{CG}'] + cruise['\\Delta x_w']]),
                 TCS([aircraft.wing['x_w'] >= climb['x_{CG}'] + climb['\\Delta x_w']]),
@@ -303,12 +303,12 @@ class HorizontalTailNoStruct(Model):
         ARh     = Variable('AR_h', '-', 'Horizontal tail aspect ratio')
         amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack, htail')
         e       = Variable('e_h', '-', 'Oswald efficiency factor')
-        Sh      = Variable('S_h', 'm^2', 'Horizontal tail area')
+        Sh      = Variable('S_{ht}', 'm^2', 'Horizontal tail area')
         bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
         chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
         croot   = Variable('c_{root_h}', 'm', 'Horizontal tail root chord')
         ctip    = Variable('c_{tip_h}', 'm', 'Horizontal tail tip chord')
-        Lmax    = Variable('L_{{max}_h}', 'N', 'Maximum load')
+        Lmax    = Variable('L_{h_{max}}', 'N', 'Maximum load')
         # Kf      = Variable('K_f', '-',
         #                    'Empirical factor for fuselage-wing interference')
         fl      = Variable(r"f(\lambda_h)", '-',
@@ -317,7 +317,7 @@ class HorizontalTailNoStruct(Model):
         CLfCG = Variable('C_{L_{hfcG}}', '-', 'HT CL During Max Forward CG')
 
         #new variables
-        Vh = Variable('V_{h}', '-', 'Horizontal Tail Volume Coefficient')
+        Vh = Variable('V_{ht}', '-', 'Horizontal Tail Volume Coefficient')
         mrat = Variable('m_{ratio}', '-', 'Wing to Tail Lift Slope Ratio')
         #variable just for the D8
         cattach = Variable('c_{attach}', 'm', 'HT Chord Where it is Mountded to the VT')
@@ -404,7 +404,7 @@ class HorizontalTailPerformance(Model):
         with SignomialsEnabled():
            
             constraints.extend([
-                Lh == 0.5*state['\\rho']*state['V']**2*self.HT['S_h']*CLh,
+                Lh == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CLh,
 
                 # Angle of attack and lift slope constraints
                 CLh <= 1.1*CLah*alphah,
@@ -420,7 +420,7 @@ class HorizontalTailPerformance(Model):
                 CLah == 2*3.14,
 
                 # Drag
-                D == 0.5*state['\\rho']*state['V']**2*self.HT['S_h']*CDh,
+                D == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CDh,
                 CDh >= CD0h + CLh**2/(pi*self.HT['e_h']*self.HT['AR_h']),
 
                 # Same drag model as VerticalTail
@@ -453,8 +453,8 @@ class HorizontalTail(Model):
         constraints = []
         with SignomialsEnabled():
             constraints.append([
-                self.wb['L_{h_{rect}}'] >= self.wb['L_{{max}_h}']/2.*self.HTns['c_{tip_h}']*self.HTns['b_{ht}']/self.HTns['S_h'],
-                self.wb['L_{h_{tri}}'] >= self.wb['L_{{max}_h}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_h}']*self.HTns['b_{ht}']/self.HTns['S_h'], #[SP]
+                self.wb['L_{h_{rect}}'] >= self.wb['L_{h_{max}}']/2.*self.HTns['c_{tip_h}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'],
+                self.wb['L_{h_{tri}}'] >= self.wb['L_{h_{max}}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_h}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'], #[SP]
 
                 WHT >= self.wb['W_{struct}'] + self.wb['W_{struct}']  * fHT,
             ])
@@ -517,11 +517,11 @@ class WingBox(Model):
         if isinstance(surface, HorizontalTailNoStruct):
             AR = surface['AR_h']
             b = surface['b_{ht}']
-            S = surface['S_h']
+            S = surface['S_{ht}']
             p = surface['p_{ht}']
             q = surface['q_{ht}']
             tau = surface['\\tau_h']
-            Lmax = surface['L_{{max}_h}']
+            Lmax = surface['L_{h_{max}}']
 
         constraints = [
                        # Upper bound on maximum thickness
@@ -645,7 +645,7 @@ if __name__ == '__main__':
     # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
     #     plt.show()
 
-    #     plt.plot(solRsweep('ReqRng'), solRsweep('S_h'), '-r')
+    #     plt.plot(solRsweep('ReqRng'), solRsweep('S_{ht}'), '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Horizontal Tail Area [m$^2$]')
     #     plt.title('Horizontal Tail Area vs Range')
@@ -702,7 +702,7 @@ if __name__ == '__main__':
     # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
     #     plt.show()
 
-    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('S_h'), '-r')
+    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('S_{ht}'), '-r')
     #     plt.xlabel('Cruise Altitude [ft]')
     #     plt.ylabel('Horizontal Tail Area [m$^2$]')
     #     plt.title('Horizontal Tail Area vs Cruise Altitude')
