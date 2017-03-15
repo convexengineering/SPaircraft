@@ -530,10 +530,6 @@ class ClimbP(Model): # Climb performance constraints
         constraints = []
 
         constraints.extend([
-            # Thrust >= Drag + Vertical Potential Energy
-            self.aircraft['numeng'] * self.engine['F'][:Nclimb] >= self.aircraftP[
-                'D'] + self.aircraftP['W_{avg}'] * theta,
-
             # Excess power for climb
            TCS([excessP + state['V'] * self.aircraftP['D'] <= state['V']
                  * aircraft['numeng'] * self.engine['F'][:Nclimb]]),
@@ -572,24 +568,12 @@ class CruiseP(Model): # Cruise performance constraints
         constraints = []
 
         constraints.extend([
-            # Thrust >= Drag + Vertical Potential Energy
-            self.aircraft['numeng'] * self.engine['F'][:Ncruise] >= self.aircraftP[
-                'D'] + self.aircraftP['W_{avg}'] * theta,
-
             RC == theta*state['V'],
             RC >= 0.01 * units('ft/min'),
 
-            # Taylor series expansion to get the weight term
-##            TCS([self.aircraftP['W_{burn}'] / self.aircraftP['W_{end}'] >=
-##                 te_exp_minus1(z_bre, nterm=3)]),
-
-            # Breguet range eqn
-##            TCS([z_bre >= (self.engine['TSFC'][Nclimb:] * self.aircraftP['thr'] *
-##                           aircraft['numeng'] * self.engine['F'][Nclimb:]) / self.aircraftP['W_{avg}']]),
-
             # Time
             self.aircraftP['thr'] * state['V'] == Rng,
-            dhft == self.aircraftP['tmin'] * state['V'] * theta,
+            dhft == self.aircraftP['tmin'] * RC,
             ])
 
         return constraints + self.aircraftP
@@ -755,13 +739,10 @@ class Mission(Model):
                 cruise['hft'] >= CruiseAlt,
                 TCS([climb['hft'][1:Nclimb] >= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]),
                 TCS([climb['hft'][0] == climb['dhft'][0]]),
-                climb['hft'][-1] <= cruise['hft'],
+                # climb['hft'][-1] <= cruise['hft'],
 
                 ##            cruise['hft'] <= 39692*units('ft'),
                  cruise['hft'][0] == hftCruiseHold,
-
-                # Chopping up cruise range
-                cruise['Rng'] == RngCruise / Ncruise,
 
                 # Compute dh
                 climb['dhft'] == hftCruiseHold / Nclimb,
@@ -771,6 +752,10 @@ class Mission(Model):
                     cruise['thr'] * aircraft.engine['F'][Nclimb:],
                 climb.climbP.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][:Nclimb] * \
                     climb['thr'] * aircraft.engine['F'][:Nclimb],
+
+                # Thrust >= Drag + Vertical Potential Energy
+                aircraft['numeng'] * aircraft.engine['F'][:Nclimb] >= climb['D'] + climb['W_{avg}'] * climb['\\theta'],
+                # aircraft['numeng'] * aircraft.engine['F'][Nclimb:] >= cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'],
 
                 # Thrust constraint
                 aircraft.VT['T_e'] == 1.2 * climb.climbP.engine['F'][0],
@@ -805,13 +790,13 @@ class Mission(Model):
                 constraints.extend([
                     TCS([climb['PCFuel'][i] >= (sum(climb['W_{burn}'][i+1:]) + \
                                                              aircraft['W_{f_{cruise}}'])/aircraft['W_{f_{primary}}']]) ,
-                    climb['PCFuel'] <= 1.0,
+                    climb['PCFuel'] <= 1.0, #just in case, TODO remove later
                 ])
             for i in range(0,Ncruise):
                 constraints.extend([
                     TCS([cruise['PCFuel'][i] >= (sum(cruise['W_{burn}'][i+1:]) + \
                                 0.0000001*aircraft['W_{f_{primary}}'])/aircraft['W_{f_{primary}}']]),
-                    cruise['PCFuel'] <= 1.0,
+                    cruise['PCFuel'] <= 1.0, #just in case, TODO remove later
                     ])
 
         with SignomialsEnabled():
@@ -820,6 +805,7 @@ class Mission(Model):
                 TCS([sum(climb['RngClimb']) + RngCruise >= ReqRng]), #[SP]
 
                 # Cruise climb constraint
+                cruise['hft'][0] <= climb['hft'][-1] + cruise['dhft'][0], #[SP]
                 cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
                 ])
         
@@ -862,7 +848,7 @@ class Mission(Model):
             aircraft.engine.engineP['c1'][Nclimb:] == 1+.5*(.401)*M0**2,
             
             #steady level flight constraint on D 
-            cruise['D'] == aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
+            cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
 
             #breguet range eqn
             TCS([cruise['z_{bre}'] >= (aircraft.engine['TSFC'][Nclimb:] * cruise['thr'] * \
