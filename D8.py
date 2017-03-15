@@ -475,9 +475,8 @@ class AircraftP(Model):
             self.wingP['L_w'] >= W_avg + self.HTP['L_h'],
 
             # Wing location and AC constraints
-            TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]), #TODO tighten
-            # xAC == aircraft['x_{wing}'], #TODO improve, only works because cmw == 0.1
-            TCS([xAC >= aircraft['x_{wing}'] + xNP]),
+            TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]),
+            TCS([xAC >= aircraft['x_{wing}'] + xNP]), #TODO relax and improve
             SignomialEquality(xAC,xCG + self.HTP['\\Delta x_w']),
 
             # Neutral point approximation (taken from Basic Aircraft Design Rules, Unified)
@@ -559,7 +558,7 @@ class CruiseP(Model): # Cruise performance constraints
         self.engine = aircraft.engine
         
         # variable definitions
-        z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
+        # z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
         Rng = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
         RC = Variable('RC', 'feet/min', 'Rate of Climb/Descent')
         theta = Variable('\\theta','-','Climb Angle')
@@ -841,8 +840,8 @@ class Mission(Model):
             cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
 
             #breguet range eqn
-            TCS([cruise['z_{bre}'] >= (aircraft.engine['TSFC'][Nclimb:] * cruise['thr'] * \
-            aircraft['numeng']*aircraft.engine['F'][Nclimb:]) / cruise['W_{avg}']]),
+            # TCS([cruise['z_{bre}'] >= (aircraft.engine['TSFC'][Nclimb:] * cruise['thr'] * \
+            # aircraft['numeng']*aircraft.engine['F'][Nclimb:]) / cruise['W_{avg}']]),
             ]
 
         self.cost = aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
