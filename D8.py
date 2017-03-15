@@ -667,9 +667,6 @@ class Mission(Model):
         #hold variables
         hftCruiseHold = Variable('hftCruiseHold', 'ft', 'Temp Variable to Avoid Dimension Mismatch')
 
-        h = climb.state['h']
-        hftClimb = climb.state['hft']
-
         # make overall constraints
         constraints = []
 
@@ -756,9 +753,9 @@ class Mission(Model):
             constraints.extend([
                 # Altitude constraints
                 cruise['hft'] >= CruiseAlt,
-                TCS([hftClimb[1:Nclimb] >= hftClimb[:Nclimb - 1] + climb['dhft'][1:Nclimb]]),
-                TCS([hftClimb[0] == climb['dhft'][0]]),
-                hftClimb[-1] <= cruise['hft'],
+                TCS([climb['hft'][1:Nclimb] >= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]),
+                TCS([climb['hft'][0] == climb['dhft'][0]]),
+                climb['hft'][-1] <= cruise['hft'],
 
                 ##            cruise['hft'] <= 39692*units('ft'),
                  cruise['hft'][0] == hftCruiseHold,
