@@ -739,9 +739,6 @@ class Mission(Model):
                 cruise['hft'] >= CruiseAlt,
                 TCS([climb['hft'][1:Nclimb] >= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]),
                 TCS([climb['hft'][0] == climb['dhft'][0]]),
-                # climb['hft'][-1] <= cruise['hft'],
-
-                ##            cruise['hft'] <= 39692*units('ft'),
                  cruise['hft'][0] == hftCruiseHold,
 
                 # Compute dh
@@ -755,7 +752,7 @@ class Mission(Model):
 
                 # Thrust >= Drag + Vertical Potential Energy
                 aircraft['numeng'] * aircraft.engine['F'][:Nclimb] >= climb['D'] + climb['W_{avg}'] * climb['\\theta'],
-                # aircraft['numeng'] * aircraft.engine['F'][Nclimb:] >= cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'],
+                aircraft['numeng'] * aircraft.engine['F'][Nclimb:] >= cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'],
 
                 # Thrust constraint
                 aircraft.VT['T_e'] == 1.2 * climb.climbP.engine['F'][0],
@@ -775,13 +772,9 @@ class Mission(Model):
                 climb['\\alpha_{max,w}'] == .18,
                 cruise['\\alpha_{max,w}'] == .1,
 
-                ##          climb['\\alpha_{max,w}'] == .1,
-                ##          cruise['\\alpha_{max,w}'] == .1,
                 ##            aircraft['e'] <= 0.91,
 
-
                 climb['RC'][0] >= 3000 * units('ft/min'),
-                ##            climb['RC'][1]>= 0.75*climb['RC'][0],
             ])
 
         # Calculating percent fuel remaining
@@ -820,9 +813,6 @@ class Mission(Model):
             aircraft.engine.engineP['hold_{2}'][:Nclimb] == 1+.5*(1.398-1)*M2**2,
             aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1+.5*(1.354-1)*M25**2,
             aircraft.engine.engineP['c1'][:Nclimb] == 1+.5*(.401)*M0**2,
-
-            #constraint on drag and thrust
-            aircraft['numeng']*aircraft.engine['F_{spec}'][:Nclimb] >= climb['D'] + climb['W_{avg}'] * climb['\\theta'],
 
             #climb rate constraints
             TCS([climb['excessP'] + climb.state['V'] * climb['D'] <=  climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
