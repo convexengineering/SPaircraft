@@ -129,18 +129,19 @@ class Aircraft(Model):
         WVT = Variable('W_{VT}','lbf','Vertical Tail Weight')
 
         # Misc system variables
-        # Waux = Variable('W_{aux}','lbf','Auxiliary Systems Weight')
-        # Wlgnose = Variable('W_{lgnose}','lbf','Nose Landing Gear Weight')
-        # Wlgmain = Variable('W_{lgmain}','lbf','Main Landing Gear Weight')
-        # Whpesys = Variable('W_{hpesys}','lbf','Power Systems Weight')
+        Wmisc   = Variable('W_{misc}','lbf','Sum of Miscellaneous Weights')
+        Wlgnose = Variable('W_{lgnose}','lbf','Nose Landing Gear Weight')
+        Wlgmain = Variable('W_{lgmain}','lbf','Main Landing Gear Weight')
+        Whpesys = Variable('W_{hpesys}','lbf','Power Systems Weight')
         #
-        # flgnose = Variable('f_{lgnose}','-','Nose Landing Gear Weight Fraction')
-        # flgmain = Variable('f_{lgmain}','-','Main Landing Gear Weight Fraction')
-        # fhpesys = Variable('f_{hpesys}','-','Power Systems Weight Fraction')
+        flgnose = Variable('f_{lgnose}','-','Nose Landing Gear Weight Fraction')
+        flgmain = Variable('f_{lgmain}','-','Main Landing Gear Weight Fraction')
+        fhpesys = Variable('f_{hpesys}','-','Power Systems Weight Fraction')
         #
-        # xlgnose = Variable('x_{lgnose}','-','Nose Landing Gear Weight x-Location')
-        # xlgmain = Variable('x_{lgmain}','-','Main Landing Gear Weight x-Location')
-        # xhpesys = Variable('x_{hpesys}','-','Power Systems Weight x-Location')
+        xmisc   = Variable('x_{misc}','m','Misc Weight Centroid')
+        xlgnose = Variable('x_{lgnose}','m','Nose Landing Gear Weight x-Location')
+        xlgmain = Variable('x_{lgmain}','m','Main Landing Gear Weight x-Location')
+        xhpesys = Variable('x_{hpesys}','m','Power Systems Weight x-Location')
 
         #engine system weight variables
         rSnace = Variable('rSnace', '-', 'Nacelle and Pylon Wetted Area')
@@ -170,7 +171,7 @@ class Aircraft(Model):
 
                             #compute the aircraft's zero fuel weight
                             TCS([self.fuse['W_{fuse}'] + numeng \
-                                * Wengsys + self.fuse['W_{tail}'] + Wwing <= W_dry]),
+                                * Wengsys + self.fuse['W_{tail}'] + Wwing + Wmisc <= W_dry]),
 
                             # Total takeoff weight constraint
                             TCS([W_ftotal + W_dry + self.fuse['W_{payload}'] <= W_total]),
@@ -191,9 +192,18 @@ class Aircraft(Model):
                             WVT == self.VT['W_{VT_system}'],
 
                             # LG and Power Systems weights
-                            # Wlgnose == flgnose*W_total,
-                            # Wlgmain == flgmain*W_total,
-                            # Whpesys == fhpesys*W_total,
+                            Wmisc >= Wlgnose + Wlgmain + Whpesys,
+                            Wlgnose == flgnose*W_total,
+                            Wlgmain == flgmain*W_total,
+                            Whpesys == fhpesys*W_total,
+
+                            # LG and Power System locations
+                            # xlgnose <= self.fuse['l_{nose}'],
+                            xlgnose >= 0.6*self.fuse['l_{nose}'],
+                            xlgmain >= self.fuse['x_{wing}'],
+                            # xlgmain <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
+                            xhpesys == 1.1*self.fuse['l_{nose}'],
+                            xmisc*Wmisc >= xlgnose*Wlgnose + xlgmain*Wlgmain + xhpesys*Whpesys,
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -664,13 +674,15 @@ class Mission(Model):
             if D80 or D82:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
-                    0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']+(climb['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}'] \
                     ]), # TODO improve; using x_b as a surrogate for xeng
 ##               cruise['x_{CG}'][0] <= climb['x_{CG}'],
                 TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
-                    0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['numeng']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']+(cruise['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'])*aircraft.fuse['x_{wing}']
                      ]), # TODO improve; using x_b as a surrogate for xeng
@@ -678,14 +690,16 @@ class Mission(Model):
             if b737800:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
-                    0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}']) \
                     + (climb['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['PCFuel']) \
                     + aircraft['numeng']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
                 TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
-                    0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}']) \
                     + (cruise['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
@@ -898,9 +912,9 @@ substitutions = {
         'f_{lugg,1}': 0.4,  # [Philippe]
         'f_{lugg,2}': 0.1,  # [Philippe]
         'f_{padd}': 0.4,  # [TAS]
-        # 'f_{hpesys}': 0.01, # [TAS]
-        # 'f_{lgmain}':0.044, # [TAS]
-        # 'f_{lgnose}':0.011, # [TAS]
+        'f_{hpesys}': 0.01, # [TAS]
+        'f_{lgmain}':0.03, # [TAS]
+        'f_{lgnose}':0.0075, # [TAS]
 
         # Wing substitutions
         'C_{L_{wmax}}': 2.25, # [TAS]
@@ -1109,9 +1123,9 @@ if __name__ == '__main__':
                 '\\delta_P_{over}': 8.382 * units('psi'),
 
                 # Power system and landing gear subs
-                # 'f_{hpesys}': 0.01, # [TAS]
-                # 'f_{lgmain}':0.03, # [TAS]
-                # 'f_{lgnose}':0.0075, # [TAS]
+                'f_{hpesys}': 0.01, # [TAS]
+                'f_{lgmain}':0.03, # [TAS]
+                'f_{lgnose}':0.0075, # [TAS]
 
                 # HT subs
                 'AR_h': 12.,
@@ -1180,9 +1194,9 @@ if __name__ == '__main__':
                    'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
 
                     # Power system and landing gear subs
-                    # 'f_{hpesys}': 0.01, # [TAS]
-                    # 'f_{lgmain}':0.044, # [TAS]
-                    # 'f_{lgnose}':0.011, # [TAS]
+                    'f_{hpesys}': 0.01, # [TAS]
+                    'f_{lgmain}':0.044, # [TAS]
+                    'f_{lgnose}':0.011, # [TAS]
 
                    # fuselage subs that make fuse circular
                    '\\delta R_{fuse}': 0.0001 * units('m'),
