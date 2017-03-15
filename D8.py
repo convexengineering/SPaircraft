@@ -589,7 +589,7 @@ class CruiseP(Model): # Cruise performance constraints
 
             # Time
             self.aircraftP['thr'] * state['V'] == Rng,
-            dhft == self.aircraftP['tmin'] * RC,
+            dhft == self.aircraftP['tmin'] * state['V'] * theta,
             ])
 
         return constraints + self.aircraftP
@@ -865,8 +865,8 @@ class Mission(Model):
             cruise['D'] == aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
 
             #breguet range eqn
-            TCS([cruise['z_{bre}'] >= (aircraft.engine['TSFC'][Nclimb:] * cruise['thr']*
-            cruise['D']) / cruise['W_{avg}']]),
+            TCS([cruise['z_{bre}'] >= (aircraft.engine['TSFC'][Nclimb:] * cruise['thr'] * \
+            aircraft['numeng']*aircraft.engine['F'][Nclimb:]) / cruise['W_{avg}']]),
             ]
 
         self.cost = aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
