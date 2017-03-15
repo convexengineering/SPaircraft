@@ -128,6 +128,20 @@ class Aircraft(Model):
         WHT = Variable('W_{HT}','lbf','Horizontal Tail Weight')
         WVT = Variable('W_{VT}','lbf','Vertical Tail Weight')
 
+        # Misc system variables
+        # Waux = Variable('W_{aux}','lbf','Auxiliary Systems Weight')
+        # Wlgnose = Variable('W_{lgnose}','lbf','Nose Landing Gear Weight')
+        # Wlgmain = Variable('W_{lgmain}','lbf','Main Landing Gear Weight')
+        # Whpesys = Variable('W_{hpesys}','lbf','Power Systems Weight')
+        #
+        # flgnose = Variable('f_{lgnose}','-','Nose Landing Gear Weight Fraction')
+        # flgmain = Variable('f_{lgmain}','-','Main Landing Gear Weight Fraction')
+        # fhpesys = Variable('f_{hpesys}','-','Power Systems Weight Fraction')
+        #
+        # xlgnose = Variable('x_{lgnose}','-','Nose Landing Gear Weight x-Location')
+        # xlgmain = Variable('x_{lgmain}','-','Main Landing Gear Weight x-Location')
+        # xhpesys = Variable('x_{hpesys}','-','Power Systems Weight x-Location')
+
         #engine system weight variables
         rSnace = Variable('rSnace', '-', 'Nacelle and Pylon Wetted Area')
         lnace = Variable('l_{nacelle}', 'm', 'Nacelle Length')
@@ -175,6 +189,11 @@ class Aircraft(Model):
                             Wwing == self.wing['W_{wing_system}'],
                             WHT == self.HT['W_{HT_system}'],
                             WVT == self.VT['W_{VT_system}'],
+
+                            # LG and Power Systems weights
+                            # Wlgnose == flgnose*W_total,
+                            # Wlgmain == flgmain*W_total,
+                            # Whpesys == fhpesys*W_total,
 
                             # Tail cone sizing
                             3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
@@ -650,8 +669,6 @@ class Mission(Model):
 
         h = climb.state['h']
         hftClimb = climb.state['hft']
-        dhft = climb.climbP['dhft']
-        hftCruise = cruise.state['hft']
 
         # make overall constraints
         constraints = []
@@ -733,54 +750,57 @@ class Mission(Model):
                  aircraft['ReserveFraction'] * aircraft['W_{f_{primary}}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
             TCS([aircraft['W_{f_{climb}}'] >= sum(climb.climbP.aircraftP['W_{burn}'])]),
             TCS([aircraft['W_{f_{cruise}}'] >= sum(cruise.cruiseP.aircraftP['W_{burn}'])]),
+            ])
 
-            # Altitude constraints
-            hftCruise >= CruiseAlt,
-            TCS([hftClimb[1:Nclimb] >= hftClimb[:Nclimb - 1] + dhft[1:Nclimb]]),
-            TCS([hftClimb[0] == dhft[0]]),
-            hftClimb[-1] <= hftCruise,
-            
-            ##            hftCruise <= 39692*units('ft'),
-            hftCruise[0] == hftCruiseHold,
+        with SignomialsEnabled():
+            constraints.extend([
+                # Altitude constraints
+                cruise['hft'] >= CruiseAlt,
+                TCS([hftClimb[1:Nclimb] >= hftClimb[:Nclimb - 1] + climb['dhft'][1:Nclimb]]),
+                TCS([hftClimb[0] == climb['dhft'][0]]),
+                hftClimb[-1] <= cruise['hft'],
 
-            # Chopping up cruise range
-            cruise['Rng'] == RngCruise/Ncruise,
+                ##            cruise['hft'] <= 39692*units('ft'),
+                 cruise['hft'][0] == hftCruiseHold,
 
-            # Compute dh
-            dhft == hftCruiseHold / Nclimb,
+                # Chopping up cruise range
+                cruise['Rng'] == RngCruise / Ncruise,
 
-            # compute fuel burn from TSFC
-            cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][Nclimb:] * cruise[
-                'thr'] * aircraft.engine['F'][Nclimb:],
-            climb.climbP.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][:Nclimb] * climb['thr'] *
-            aircraft.engine['F'][:Nclimb],
+                # Compute dh
+                climb['dhft'] == hftCruiseHold / Nclimb,
 
-            # Thrust constraint
-            aircraft.VT['T_e'] == 1.2 * climb.climbP.engine['F'][0],
+                # compute fuel burn from TSFC
+                cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][Nclimb:] * \
+                    cruise['thr'] * aircraft.engine['F'][Nclimb:],
+                climb.climbP.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][:Nclimb] * \
+                    climb['thr'] * aircraft.engine['F'][:Nclimb],
 
-            # Set the range for each cruise segment, doesn't take credit for
-            # down range distance covered during climb
-            cruise.cruiseP['Rng'] == RngCruise / (Ncruise),
+                # Thrust constraint
+                aircraft.VT['T_e'] == 1.2 * climb.climbP.engine['F'][0],
 
-            # Cruise Mach Number constraint
-            cruise['M'] >= aircraft['M_{min}'],
+                # Set the range for each cruise segment, doesn't take credit for
+                # down range distance covered during climb
+                cruise['Rng'] == RngCruise / (Ncruise),
 
-            # nacelle drag constraint
-            # elevated this constraint to Mission for dimensionality
-            cruise.cruiseP['V_2'] == aircraft.engine['M_2'][Nclimb:] * cruise.state['a'],
-            climb.climbP['V_2'] == aircraft.engine['M_2'][:Nclimb] * climb.state['a'],
+                # Cruise Mach Number constraint
+                cruise['M'] >= aircraft['M_{min}'],
 
-            climb['\\alpha_{max,w}'] == .18,
-            cruise['\\alpha_{max,w}'] == .1,
+                # nacelle drag constraint
+                # elevated this constraint to Mission for dimensionality
+                cruise.cruiseP['V_2'] == aircraft.engine['M_2'][Nclimb:] * cruise.state['a'],
+                climb.climbP['V_2'] == aircraft.engine['M_2'][:Nclimb] * climb.state['a'],
 
-            ##          climb['\\alpha_{max,w}'] == .1,
-            ##          cruise['\\alpha_{max,w}'] == .1,
-            ##            aircraft['e'] <= 0.91,
+                climb['\\alpha_{max,w}'] == .18,
+                cruise['\\alpha_{max,w}'] == .1,
+
+                ##          climb['\\alpha_{max,w}'] == .1,
+                ##          cruise['\\alpha_{max,w}'] == .1,
+                ##            aircraft['e'] <= 0.91,
 
 
-            climb['RC'][0] >= 3000 * units('ft/min'),
-            ##            climb['RC'][1]>= 0.75*climb['RC'][0],
-        ])
+                climb['RC'][0] >= 3000 * units('ft/min'),
+                ##            climb['RC'][1]>= 0.75*climb['RC'][0],
+            ])
 
         # Calculating percent fuel remaining
         with SignomialsEnabled():
@@ -800,9 +820,10 @@ class Mission(Model):
         with SignomialsEnabled():
             constraints.extend([
                 #set the range constraints
-                TCS([sum(climb['RngClimb']) + RngCruise >= ReqRng]),
-##                TCS([hftCruise[1:Ncruise] <= hftCruise[:Ncruise-1] + dhft[1:Ncruise]]),
-                SignomialEquality(hftCruise[1:Ncruise], hftCruise[:Ncruise-1] + dhft[1:Ncruise])
+                TCS([sum(climb['RngClimb']) + RngCruise >= ReqRng]), #[SP]
+
+                # Cruise climb constraint
+                cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
                 ])
         
         M2 = .6
@@ -905,6 +926,9 @@ substitutions = {
         'f_{lugg,1}': 0.4,  # [Philippe]
         'f_{lugg,2}': 0.1,  # [Philippe]
         'f_{padd}': 0.4,  # [TAS]
+        # 'f_{hpesys}': 0.01, # [TAS]
+        # 'f_{lgmain}':0.044, # [TAS]
+        # 'f_{lgnose}':0.011, # [TAS]
 
         # Wing substitutions
         'C_{L_{wmax}}': 2.25, # [TAS]
@@ -1112,6 +1136,11 @@ if __name__ == '__main__':
                 # 'c_0': 17.4*0.3048,#units('ft'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
 
+                # Power system and landing gear subs
+                # 'f_{hpesys}': 0.01, # [TAS]
+                # 'f_{lgmain}':0.03, # [TAS]
+                # 'f_{lgnose}':0.0075, # [TAS]
+
                 # HT subs
                 'AR_h': 12.,
                 '\\lambda_h': 0.3,
@@ -1177,6 +1206,11 @@ if __name__ == '__main__':
 
                    'HTR_{f_SUB}': 1. - .3 ** 2.,
                    'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
+
+                    # Power system and landing gear subs
+                    # 'f_{hpesys}': 0.01, # [TAS]
+                    # 'f_{lgmain}':0.044, # [TAS]
+                    # 'f_{lgnose}':0.011, # [TAS]
 
                    # fuselage subs that make fuse circular
                    '\\delta R_{fuse}': 0.0001 * units('m'),
