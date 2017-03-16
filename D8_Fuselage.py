@@ -48,7 +48,7 @@ class Fuselage(Model):
         # Tail cone variables
         lamcone = Variable('\\lambda_{cone}', '-', 'Tailcone radius taper ratio')
         lcone = Variable('l_{cone}', 'm', 'Cone length')
-        plamv = Variable('p_{\\lambda_v}', 1.5, '-', '1 + 2*Tail taper ratio')
+        plamv = Variable('p_{\\lambda_v}', 1.6, '-', '1 + 2*Tail taper ratio')
         # tcone = Variable('t_{cone}', 'm', 'Cone thickness') # perhaps to be added later
 
         # Lengths
@@ -132,9 +132,9 @@ class Fuselage(Model):
         Whbend = Variable('W_{hbend}', 'lbf','Horizontal bending material weight')
         Wvbend = Variable('W_{vbend}','lbf','Vertical bending material weight')
 
-        xhbendLand = Variable('x_{hbend_{Land}}', 'm', 'Horizontal zero bending location (landing case)')
-        xhbendMLF = Variable('x_{hbend_{MLF}}', 'm', 'Horizontal zero bending location (maximum aero load case)')
-        xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
+        xhbendLand = Variable('x_{hbend_{Land}}', 'ft', 'Horizontal zero bending location (landing case)')
+        xhbendMLF = Variable('x_{hbend_{MLF}}', 'ft', 'Horizontal zero bending location (maximum aero load case)')
+        xvbend       = Variable('x_{vbend}','ft','Vertical zero bending location')
 
         # Material properties
         rE = Variable('r_E', 1., '-', 'Ratio of stringer/skin moduli')  # [TAS] # [b757 freight doc]
@@ -167,7 +167,7 @@ class Fuselage(Model):
             'f_{lugg,1}', '-', 'Proportion of passengers with one suitcase')  # [Philippe]
         flugg2 = Variable(
             'f_{lugg,2}', '-', 'Proportion of passengers with two suitcases')  # [Philippe]
-        fpadd = Variable('f_{padd}', 0.4, '-',
+        fpadd = Variable('f_{padd}', 0.35, '-',
                          'Other misc weight as fraction of payload weight')
         fseat = Variable('f_{seat}','-','Fractional seat weight')
         fstring = Variable('f_{string}', '-',
@@ -177,7 +177,8 @@ class Fuselage(Model):
         Wapu = Variable('W_{apu}', 'lbf', 'APU weight')
         Wavgpass = Variable('W_{avg. pass}', 'lbf',
                             'Average passenger weight')  # [Philippe]
-        Wcargo = Variable('W_{cargo}', 'N', 'Cargo weight')  # [Philippe]
+        Wavgpasstot = Variable('W_{avg. pass_{total}}',215.,'lbf','Average passenger weight including payload') #[TAS]
+        Wcargo = Variable('W_{cargo}', 'lbf', 'Cargo weight')  # [Philippe]
         Wcarryon = Variable('W_{carry on}', 'lbf',
                             'Ave. carry-on weight')  # [Philippe]
         Wchecked = Variable('W_{checked}', 'lbf',
@@ -219,6 +220,7 @@ class Fuselage(Model):
                 Wlugg >= flugg2 * npax * 2 * Wchecked + flugg1 * npax * Wchecked + Wcarryon,
                 Wpax == npax * Wavgpass,
                 Wpay >= Wpax + Wlugg + Wcargo,
+                Wpay >= npax * Wavgpasstot,
                 nseat == npax,
                 nrows == nseat / SPR,
                 lshell == nrows * pitch,
@@ -384,8 +386,10 @@ class FuselagePerformance(Model):
 
     def setup(self, fuse, state, **kwargs):
         # new variables
-        Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
-        Dfuse = Variable('D_{fuse}', 'N', 'Total drag')
+        CDfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
+        Dfuse = Variable('D_{fuse}', 'N', 'Fuselage Drag')
+        # CLfuse = Variable('C_{L_{fuse}}','-', 'Fuselage Lift Coefficient')
+        Lfuse = Variable('L_{fuse}','N','Fuselage Lift')
         # Dfrict = Variable('D_{friction}', 'N', 'Friction drag')
         # Dupswp = Variable('D_{upsweep}', 'N', 'Drag due to fuse upsweep')
         # f = Variable('f', '-', 'Fineness ratio')
@@ -398,7 +402,9 @@ class FuselagePerformance(Model):
 
         constraints = []
         constraints.extend([
-            Cdfuse == Cdfuse,
+            CDfuse == CDfuse,
+            Dfuse == Dfuse,
+            Lfuse == Lfuse,
             #Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
             # fineness ratio
             # f == fuse['l_{fuse}'] / ((4 / np.pi * fuse['A_{fuse}'])**0.5),
