@@ -61,27 +61,34 @@ def return_fit(u_1, u_2):
 def make_fit(naca_range, re_range):
     #call the fit setup function
     x, y = fit_setup(naca_range, re_range)
-    print np.size(x)
-    print np.size(x)
-    print np.size(y)
+##    print np.size(x)
+##    print np.size(x)
+##    print np.size(y)
     fit(x, y, 3, 'SMA')
 
 def plot_fits(naca_range, re_range):
     "plot fit compared to data"
 
     fig, ax = plt.subplots()
-    colors = ["k", "m", "b", "g", "y"]
+    colors = ["k", "m", "b", "g", "y", "r"]
     assert len(colors) == len(naca_range)
     res = np.linspace(re_range[0], re_range[-1], 50)
     for n, col in zip(naca_range, colors):
         cd = []
-        for r in re_range:
+        re_array = np.array(re_range)
+        i = 0
+        delcount = 0
+        for i in range(len(re_range)):
+            r = re_range[i]
             dataf = text_to_df("naca%s.cl0.Re%dk.pol" % (n, r))
-            cd.append(dataf["CD"])
-        if True in [c.empty for c in cd]:
-            i = [c.empty for c in cd].index(True)
-            cd[i] = (cd[i-1] + cd[i+1])/2
-        ax.plot(np.log(re_range), np.log(cd), "o", mec=col, mfc="None", mew=1.5)
+            if len(dataf["CD"]) != 0:
+                cd.append(dataf["CD"])
+            else:
+                re_array = np.delete(re_array,i - delcount, 0)
+                delcount = delcount + 1
+            i = i+1
+        re_range_plot = np.ndarray.tolist(re_array)
+        ax.plot(re_range_plot, cd, "o", mec=col, c="None", mew=1.5)
 ##        w = return_fit(res, float(n))
 ##        ax.plot(res, w, c=col, label="NACA %s" % n, lw=2)
 ##    ax.legend(naca_range, loc=4, fontsize=15)
@@ -92,13 +99,44 @@ def plot_fits(naca_range, re_range):
     ax.set_ylabel("$c_{dp}$")
     ax.grid()
 ##    ax.set_title('Log of Profile Drag Coefficient vs log of Re')
-    return fig, ax
+    fig.savefig("tail_fits/taildragpolar.pdf", bbox_inches="tight")
+
+    fig, ax = plt.subplots()
+    colors = ["k", "m", "b", "g", "y", "r"]
+    res = np.linspace(re_range[0], re_range[-1], 50)
+    for n, col in zip(naca_range, colors):
+        cd = []
+        re_array = np.array(re_range)
+        i = 0
+        delcount = 0
+        for i in range(len(re_range)):
+            r = re_range[i]
+            dataf = text_to_df("naca%s.cl0.Re%dk.pol" % (n, r))
+            if len(dataf["CD"]) != 0:
+                cd.append(dataf["CD"])
+            else:
+                re_array = np.delete(re_array,i - delcount, 0)
+                delcount = delcount + 1
+            i = i+1
+        re_range_plot = np.ndarray.tolist(re_array)
+        ax.plot(np.log(re_range_plot), np.log(cd), "o", mec=col, c="None", mew=1.5)
+##        w = return_fit(res, float(n))
+##        ax.plot(res, w, c=col, label="NACA %s" % n, lw=2)
+##    ax.legend(naca_range, loc=4, fontsize=15)
+##    labels = ["k" + item.get_text() for item in ax.get_xticklabels()]
+##    labels = ["%dk" % l for l in np.linspace(3500, 9000, len(labels))]
+##    ax.set_xticklabels(labels)
+    ax.set_xlabel("$Re$")
+    ax.set_ylabel("$c_{dp}$")
+    ax.grid()
+    ax.set_title('Log of Profile Drag Coefficient vs log of Re')
+    fig.savefig("tail_fits/log_log_taildragpolar.pdf", bbox_inches="tight")
+
 
 if __name__ == "__main__":
-    Re = range(3500, 9500, 500)
-    NACA = ["0008", "0009", "0010", "0015", "0020"]
-    X, Y = fit_setup(NACA, Re) # call fit(X, Y, 4, "SMA") to get fit
-    F, A = plot_fits(NACA, Re)
-    make_fit(NACA, Re)
-    F.savefig("tail_fits/taildragpolar.pdf",
-              bbox_inches="tight")
+    Re = range(500, 9500, 500)
+    NACA = ["0005", "0008", "0009", "0010", "0015", "0020"]
+##    X, Y = fit_setup(NACA, Re) # call fit(X, Y, 4, "SMA") to get fit
+##    make_fit(NACA, Re)
+    plot_fits(NACA, Re)
+    
