@@ -167,7 +167,7 @@ class Fuselage(Model):
             'f_{lugg,1}', '-', 'Proportion of passengers with one suitcase')  # [Philippe]
         flugg2 = Variable(
             'f_{lugg,2}', '-', 'Proportion of passengers with two suitcases')  # [Philippe]
-        fpadd = Variable('f_{padd}', 0.4, '-',
+        fpadd = Variable('f_{padd}', 0.35, '-',
                          'Other misc weight as fraction of payload weight')
         fseat = Variable('f_{seat}','-','Fractional seat weight')
         fstring = Variable('f_{string}', '-',
