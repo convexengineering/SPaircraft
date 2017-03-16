@@ -30,21 +30,29 @@ def text_to_df(filename):
 
 def fit_setup(naca_range, re_range, M_range):
     "set up x and y parameters for gp fitting"
-    tau = [[float(n)]*len(re_range) for n in naca_range]
-    re = [re_range]*len(naca_range)
     cd = []
-    for n in naca_range:
-        for r in re_range:
-            dataf = text_to_df("naca%s.cl0.Re%dk.pol" % (n, r))
-            cd.append(dataf["CD"])
+    tau = []
+    mach = []
+    re = []
+    for m in M_range:
+        for n in naca_range:
+            for r in re_range:
+                dataf = text_to_df("naca%s.cl0.Re%dk.M%s.pol" % (n, r, m))
+                if len(dataf["CD"]) != 0:
+                    cd.append(dataf["CD"])
+                    re.append(r)
+                    tau.append(float(n))
+                    mach.append(m)
 
     u1 = np.hstack(re)
     u2 = np.hstack(tau)
+    u3 = np.hstack(mach)
     w = np.hstack(cd)
     u1 = u1.astype(np.float)
     u2 = u2.astype(np.float)
+    u3 = u3.astype(np.float)
     w = w.astype(np.float)
-    u = [u1, u2]
+    u = [u1, u2, u3]
     x = np.log(u)
     y = np.log(w)
     return x, y
@@ -57,12 +65,10 @@ def return_fit(u_1, u_2):
     # SMA function, K=3, max RMS error = 0.0173
     return w
 
-def make_fit(naca_range, re_range):
+def make_fit(naca_range, re_range, M_range):
     #call the fit setup function
-    x, y = fit_setup(naca_range, re_range)
-##    print np.size(x)
-##    print np.size(x)
-##    print np.size(y)
+    x, y = fit_setup(naca_range, re_range, M_range)
+
     fit(x, y, 3, 'SMA')
 
 def plot_fits(naca_range, re_range, M_range):
@@ -199,6 +205,6 @@ if __name__ == "__main__":
     NACA = ["0005", "0008", "0009", "0010", "0015", "0020"]
     M = [0.4, 0.6, 0.8]
 ##    X, Y = fit_setup(NACA, Re) # call fit(X, Y, 4, "SMA") to get fit
-##    make_fit(NACA, Re, M)
+    make_fit(NACA, Re, M)
     plot_data(NACA, Re, M)
     
