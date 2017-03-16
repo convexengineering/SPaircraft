@@ -177,6 +177,7 @@ class Fuselage(Model):
         Wapu = Variable('W_{apu}', 'lbf', 'APU weight')
         Wavgpass = Variable('W_{avg. pass}', 'lbf',
                             'Average passenger weight')  # [Philippe]
+        Wavgpasstot = Variable('W_{avg. pass_{total}}',215.,'lbf','Average passenger weight including payload') #[TAS]
         Wcargo = Variable('W_{cargo}', 'lbf', 'Cargo weight')  # [Philippe]
         Wcarryon = Variable('W_{carry on}', 'lbf',
                             'Ave. carry-on weight')  # [Philippe]
@@ -219,6 +220,7 @@ class Fuselage(Model):
                 Wlugg >= flugg2 * npax * 2 * Wchecked + flugg1 * npax * Wchecked + Wcarryon,
                 Wpax == npax * Wavgpass,
                 Wpay >= Wpax + Wlugg + Wcargo,
+                Wpay >= npax * Wavgpasstot,
                 nseat == npax,
                 nrows == nseat / SPR,
                 lshell == nrows * pitch,

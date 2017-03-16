@@ -1102,6 +1102,8 @@ if __name__ == '__main__':
                 #Fuselage subs
                 'f_{seat}':0.1,
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
+                'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
+                'W_{avg. pass_{total}}':215.*units('lbf'),
                 'f_{string}':0.35,
                 'AR':10.8730,
                 'h_{floor}': 5.12*units('in'),
@@ -1132,6 +1134,8 @@ if __name__ == '__main__':
                 # Fuselage subs
                 'f_{seat}': 0.1,
                 'W\'_{seat}': 1,  # Seat weight determined by weight fraction instead
+                'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
+                'W_{avg. pass_{total}}':215.*units('lbf'),
                 'f_{string}': 0.35,
                 # 'AR':15.749,
                 'h_{floor}': 5.12*units('in'),
@@ -1228,6 +1232,8 @@ if __name__ == '__main__':
                    'SPR': 6,
                    'f_{seat}': 0.1,
                    'W\'_{seat}': 1 * units('N'),  # Seat weight determined by weight fraction instead
+                    'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
+                   'W_{avg. pass_{total}}':215.*units('lbf'),
                    'f_{string}': 0.35,
                    'h_{floor}': 5. * units('in'),
                    # 'R_{fuse}' : 1.715*units('m'),
