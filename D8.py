@@ -450,6 +450,11 @@ class AircraftP(Model):
             # Wing loading
             WLoad == .5 * self.wingP['C_{L}'] * self.aircraft['S'] * state.atm['\\rho'] * state['V']**2 / self.aircraft.wing['S'],
 
+            # Center wing lift loss
+            # self.wingP['p_{o}'] >= self.wingP['L_w']*self.wing['c_{root}']*(.5 + 0.5*self.wingP['\\eta_{o}'](/(self.wing['S']),
+            self.wingP['p_{o}'] >= self.wingP['L_w']*aircraft.wing['c_{root}']/(aircraft.wing['S']),
+            self.wingP['\\eta_{o}'] == aircraft['w_{fuse}']/(aircraft['b']/2),
+
             # Geometric average of start and end weights of flight segment
             W_avg >= (W_start * W_end)**.5, #+ W_buoy, # Buoyancy weight included in Breguet Range
 

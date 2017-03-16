@@ -374,6 +374,12 @@ class WingPerformance(Model):
         D       = Variable('D_{wing}', 'N', 'Wing drag')
         Lw      = Variable('L_w', 'N', 'Wing lift')
 
+        # Center wing section lift reduction variables
+        dLo     = Variable('\\Delta L_{o}','N','Center wing lift loss')
+        etao    = Variable('\\eta_{o}','-','Center wing span coeffcient')
+        po      = Variable('p_{o}','N/m','Center section theoretical wing loading')
+        fLo     = Variable('f_{L_{o}}',0.5,'-','Center wing lift reduction coefficient')
+
         #wing moment variables -- need a good way to model this, currently using TAT
         cmw = Variable('c_{m_{w}}', '-', 'Wing Pitching Moment Coefficient')
 
@@ -384,7 +390,9 @@ class WingPerformance(Model):
 
         with SignomialsEnabled():
             constraints.extend([
-                Lw == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw,
+                # Lw == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw,
+                0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw >= Lw + dLo,
+                dLo == etao*fLo*self.wing['b']/2*po,
 
                 # DATCOM formula (Mach number makes it SP)
                 # Swept wing lift curve slope constraint
