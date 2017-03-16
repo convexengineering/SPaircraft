@@ -101,7 +101,7 @@ class Aircraft(Model):
         numaisle = Variable('numaisle','-','Number of Aisles')
         numeng = Variable('numeng', '-', 'Number of Engines')
         numVT = Variable('numVT','-','Number of Vertical Tails')
-        Vne = Variable('V_{ne}',144, 'm/s', 'Never-exceed speed')  # [Philippe]
+        Vne = Variable('V_{ne}',144., 'm/s', 'Never-exceed speed')  # [Philippe]
         Vmn = Variable('V_{mn}',133.76,'m/s','Maneuvering speed')
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
         ReserveFraction = Variable('ReserveFraction', '-', 'Fuel Reserve Fraction')
@@ -206,13 +206,13 @@ class Aircraft(Model):
                             xmisc*Wmisc >= xlgnose*Wlgnose + xlgmain*Wlgmain + xhpesys*Whpesys,
 
                             # Tail cone sizing
-                            3 * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
-                                (self.fuse['p_{\\lambda_v}'] - 1) >= numVT*self.VT[
+                            3. * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
+                                (self.fuse['p_{\\lambda_v}'] - 1.) >= numVT*self.VT[
                                     'L_{v_{max}}'] * self.VT['b_{vt}'] * (self.fuse['p_{\\lambda_v}']),
-                            TCS([self.fuse['V_{cone}'] * (1 + self.fuse['\\lambda_{cone}']) * \
-                             (pi + 4 * self.fuse['\\theta_{db}']) >= numVT*self.VT[
+                            TCS([self.fuse['V_{cone}'] * (1. + self.fuse['\\lambda_{cone}']) * \
+                             (pi + 4. * self.fuse['\\theta_{db}']) >= numVT*self.VT[
                                 'M_r'] * self.VT['c_{root_{vt}}'] / self.fuse['\\tau_{cone}'] * \
-                                 (pi + 2 * self.fuse['\\theta_{db}']) * \
+                                 (pi + 2. * self.fuse['\\theta_{db}']) * \
                                   (self.fuse['l_{cone}'] / self.fuse['R_{fuse}'])]), #[SP]
 
                             # Lift curve slope ratio for HT and Wing
@@ -254,7 +254,7 @@ class Aircraft(Model):
 
                             # Fuselage width (numaisle comes in)
                             TCS([2.*self.fuse['w_{fuse}'] >= self.fuse['SPR'] * self.fuse['w_{seat}'] + \
-                                 numaisle*self.fuse['w_{aisle}'] + 2 * self.fuse['w_{sys}'] + self.fuse['t_{db}']]),
+                                 numaisle*self.fuse['w_{aisle}'] + 2. * self.fuse['w_{sys}'] + self.fuse['t_{db}']]),
 
                             #engine system weight constraints
                             Snace == rSnace * np.pi * 0.25 * self.engine['d_{f}']**2,
@@ -263,7 +263,7 @@ class Aircraft(Model):
                             Ainlet == 0.4 * Snace,
                             Afancowl == 0.2 * Snace,
                             Aexh == 0.4 * Snace,
-                            Acorecowl == 3 * np.pi * self.engine['d_{LPC}']**2,
+                            Acorecowl == 3. * np.pi * self.engine['d_{LPC}']**2,
                             TCS([Wnace >= ((2.5+ 0.238*self.engine['d_{f}']/units('in')) * Ainlet + 1.9*Afancowl \
                                 + (2.5+ 0.0363*self.engine['d_{f}']/units('in'))*Aexh + 1.9*Acorecowl)*units('lbf/ft^2'),
                             Weadd == feadd * self.engine['W_{engine}']]),
@@ -277,22 +277,22 @@ class Aircraft(Model):
                 constraints.extend([
 
                     # VT height constraint (4*engine radius)
-                    self.VT['b_{vt}'] >= 2 * self.engine['d_{f}'],
+                    self.VT['b_{vt}'] >= 2. * self.engine['d_{f}'],
 
                     # Engine out moment arm,
                     self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}'],
 
                     # HT root moment
                     self.HT['M_r'] * self.HT['c_{root_h}'] >= self.HT['N_{lift}'] * self.HT['L_{h_{rect}}'] * (
-                    self.HT['b_{ht}'] / 4) \
-                    + self.HT['N_{lift}'] * self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6) - self.HT['N_{lift}'] *
+                    self.HT['b_{ht}'] / 4.) \
+                    + self.HT['N_{lift}'] * self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - self.HT['N_{lift}'] *
                     self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
                     # [SP]
 
 
                     # Pin VT joint moment constraint #TODO may be problematic, should check
-                    SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4 - self.fuse['w_{fuse}']),
-                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6)),
+                    SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4. - self.fuse['w_{fuse}']),
+                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6.)),
                     # [SP] #[SPEquality]
 
                     # HT/VT joint constraint
@@ -301,13 +301,13 @@ class Aircraft(Model):
 
                     # Moment of inertia
                     Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing) / (self.wing['S'] * g) * \
-                    self.wing['c_{root}'] * self.wing['b'] ** 3 * (1. / 12. - (1 - self.wing['\\lambda']) / 16),
+                    self.wing['c_{root}'] * self.wing['b'] ** 3. * (1. / 12. - (1. - self.wing['\\lambda']) / 16.),
                     # [SP]
                     Iztail >= (self.fuse['W_{apu}'] + numeng * Wengsys + self.fuse['W_{tail}']) * self.VT[
-                        'l_{vt}'] ** 2 / g,
+                        'l_{vt}'] ** 2. / g,
                     # NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}']) / self.fuse['l_{fuse}'] * \
-                    (self.fuse['x_{wing}'] ** 3 + self.VT['l_{vt}'] ** 3) / (3. * g),
+                    (self.fuse['x_{wing}'] ** 3. + self.VT['l_{vt}'] ** 3.) / (3. * g),
 
                     # Floor loading
                     self.fuse['S_{floor}'] == (5. / 16.) * self.fuse['P_{floor}'],
@@ -340,13 +340,13 @@ class Aircraft(Model):
                    self.HT['c_{attach}'] == self.HT['c_{root_h}'],
 
                    # Moment of inertia
-                    Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2/g + \
+                    Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
                                     (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
-                                    self.wing['c_{root}']*self.wing['b']**3*(1./12.-(1-self.wing['\\lambda'])/16), #[SP]
+                                    self.wing['c_{root}']*self.wing['b']**3.*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
                     Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
                             #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
-                                    (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3)/(3.*g),
+                                    (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
 
                    # Floor loading
                     self.fuse['S_{floor}'] == 1./2. * self.fuse['P_{floor}'],
@@ -390,7 +390,7 @@ class AircraftP(Model):
         self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP]
 
         # Variable Definitions
-        Vstall = Variable('V_{stall}',120, 'knots', 'Aircraft Stall Speed')
+        Vstall = Variable('V_{stall}',120., 'knots', 'Aircraft Stall Speed')
         D = Variable('D', 'N', 'Total Aircraft Drag')
         C_D = Variable('C_D', '-', 'Total Aircraft Drag Coefficient')
         LoD = Variable('L/D','-','Lift-to-Drag Ratio')
@@ -399,7 +399,7 @@ class AircraftP(Model):
         W_start = Variable('W_{start}', 'lbf', 'Segment Start Weight')
         W_end = Variable('W_{end}', 'lbf', 'Segment End Weight')
         W_burn = Variable('W_{burn}', 'lbf', 'Segment Fuel Burn Weight')
-        WLoadmax = Variable('W_{Load_max}',6664, 'N/m^2', 'Max Wing Loading')
+        WLoadmax = Variable('W_{Load_max}',6664., 'N/m^2', 'Max Wing Loading')
         WLoad = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
         thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
@@ -475,11 +475,11 @@ class AircraftP(Model):
 
             #VTP constraints
             TCS([aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{trail_v}'] + xCG]),
-            TCS([aircraft.VT['x_{CG_{vt}}'] <= xCG + (aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2]),
+            TCS([aircraft.VT['x_{CG_{vt}}'] <= xCG + (aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2.]),
             aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Drag of a windmilling engine (VT sizing)
-            TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
+            TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2.*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
 
 
             # Aircraft trim conditions
@@ -488,7 +488,7 @@ class AircraftP(Model):
                               aircraft.HT['V_{ht}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
 
             # Tail aspect ratio and lift constraints
-            aircraft.HT['AR_h'] >= 6, #TODO change to tip Re constraint
+            aircraft.HT['AR_h'] >= 6., #TODO change to tip Re constraint
             self.HTP['C_{L_h}'] >= 0.01, #TODO remove
 
             # HT/VT moment arm constraints
@@ -507,7 +507,7 @@ class AircraftP(Model):
             # Neutral point approximation (taken from Basic Aircraft Design Rules, Unified)
             # TODO improve
             SignomialEquality(xNP/aircraft['mac']/aircraft['V_{ht}']*(aircraft['AR']+2.)*(1.+2./aircraft['AR_h']),
-                              (1.+2./aircraft['AR'])*(aircraft['AR']-2)),
+                              (1.+2./aircraft['AR'])*(aircraft['AR']-2.)),
 
             TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
@@ -521,12 +521,12 @@ class AircraftP(Model):
 
           #nacelle drag
           Renace == state['\\rho']*state['V'] * aircraft['l_{nacelle}']/state['\\mu'],
-          Cfnace == 4*0.0743/(Renace**(0.2)), #from http://www.calpoly.edu/~kshollen/ME347/Handouts/Friction_Drag_Coef.pdf
+          Cfnace == 4.*0.0743/(Renace**(0.2)), #from http://www.calpoly.edu/~kshollen/ME347/Handouts/Friction_Drag_Coef.pdf
           Vnace == aircraft['r_{vnace}'] * state['V'],
-          Vnacrat >= 2*Vnace/state['V'] - V2/state['V'],
-          rvnsurf**3 >= 0.25*(Vnacrat + aircraft['r_{vnace}'])*(Vnacrat**2 + aircraft['r_{vnace}']**2),
-          Cdnace == aircraft['f_{S_nacelle}'] * Cfnace[0] * rvnsurf **3,
-          Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2 * aircraft['S'],
+          Vnacrat >= 2.*Vnace/state['V'] - V2/state['V'],
+          rvnsurf**3. >= 0.25*(Vnacrat + aircraft['r_{vnace}'])*(Vnacrat**2. + aircraft['r_{vnace}']**2.),
+          Cdnace == aircraft['f_{S_nacelle}'] * Cfnace[0] * rvnsurf **3.,
+          Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2. * aircraft['S'],
            ])
 
         return self.Pmodels, constraints
@@ -559,7 +559,7 @@ class ClimbP(Model): # Climb performance constraints
                  * aircraft['numeng'] * self.engine['F'][:Nclimb]]),
 
             RC == excessP / self.aircraftP['W_{avg}'],
-            RC >= 500 * units('ft/min'),
+            RC >= 500. * units('ft/min'),
 
             # Climb angle and rate constraint
             theta * state['V'] == RC,
@@ -806,7 +806,7 @@ class Mission(Model):
 
                 ##            aircraft['e'] <= 0.91,
 
-                climb['RC'][0] >= 3000 * units('ft/min'),
+                climb['RC'][0] >= 3000. * units('ft/min'),
             ])
 
         # Calculating percent fuel remaining
@@ -842,9 +842,9 @@ class Mission(Model):
         engineclimb = [
             aircraft.engine.engineP['M_2'][:Nclimb] == climb['M'],
             aircraft.engine.engineP['M_{2.5}'][:Nclimb] == M25,
-            aircraft.engine.engineP['hold_{2}'][:Nclimb] == 1+.5*(1.398-1)*M2**2,
-            aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1+.5*(1.354-1)*M25**2,
-            aircraft.engine.engineP['c1'][:Nclimb] == 1+.5*(.401)*M0**2,
+            aircraft.engine.engineP['hold_{2}'][:Nclimb] == 1.+.5*(1.398-1.)*M2**2.,
+            aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
+            aircraft.engine.engineP['c1'][:Nclimb] == 1.+.5*(.401)*M0**2.,
 
             #climb rate constraints
             TCS([climb['excessP'] + climb.state['V'] * climb['D'] <=  climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
@@ -865,9 +865,9 @@ class Mission(Model):
         enginecruise = [
             aircraft.engine.engineP['M_2'][Nclimb:] == cruise['M'],
             aircraft.engine.engineP['M_{2.5}'][Nclimb:] == M25,
-            aircraft.engine.engineP['hold_{2}'][Nclimb:] == 1+.5*(1.398-1)*M2**2,
-            aircraft.engine.engineP['hold_{2.5}'][Nclimb:] == 1+.5*(1.354-1)*M25**2,
-            aircraft.engine.engineP['c1'][Nclimb:] == 1+.5*(.401)*M0**2,
+            aircraft.engine.engineP['hold_{2}'][Nclimb:] == 1.+.5*(1.398-1.)*M2**2.,
+            aircraft.engine.engineP['hold_{2.5}'][Nclimb:] == 1.+.5*(1.354-1.)*M25**2.,
+            aircraft.engine.engineP['c1'][Nclimb:] == 1.+.5*(.401)*M0**2.,
             
             #steady level flight constraint on D 
             cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
@@ -884,43 +884,43 @@ class Mission(Model):
 M4a = .1025
 fan = 1.60474
 lpc  = 4.98
-hpc = 35/8
+hpc = 35./8.
 
 substitutions = {
         # 'V_{stall}'   : 120,
-        '\\delta_P_{over}': 12*units('psi'),
-        'N_{land}': 6,
-        'SPR': 8,
+        '\\delta_P_{over}': 12.*units('psi'),
+        'N_{land}': 6.,
+        'SPR': 8.,
         'p_s': 81.*units('cm'),
-        'ReqRng': 3000*units('nmi'),
+        'ReqRng': 3000.*units('nmi'),
         '\\theta_{db}' : 0.366,
 ##        'CruiseAlt': 36632*units('ft'),
-        'numeng': 2,
-        'numVT': 2,
-        'numaisle':2,
-        'n_{pax}': 180,
-        'W_{avg. pass}': 180*units('lbf'),
-        'W_{carry on}': 15*units('lbf'),
-        'W_{cargo}': 10000*units('N'),
-        'W_{checked}':40*units('lbf'),
-        'W_{fix}': 3000*units('lbf'),
+        'numeng': 2.,
+        'numVT': 2.,
+        'numaisle':2.,
+        'n_{pax}': 180.,
+        'W_{avg. pass}': 180.*units('lbf'),
+        'W_{carry on}': 15.*units('lbf'),
+        'W_{cargo}': 10000.*units('N'),
+        'W_{checked}':40.*units('lbf'),
+        'W_{fix}': 3000.*units('lbf'),
         'w_{aisle}': 0.51*units('m'),
         'w_{seat}': 0.5*units('m'),
         'w_{sys}': 0.1*units('m'),
-        'r_E': 1,  # [TAS]
+        'r_E': 1.,  # [TAS]
         'p_{\\lambda_v}':1.6,
         '\\lambda_{cone}': 0.3,  # [TAS]
-        '\\rho_{cone}': 2700,#*units('kg/m^3'),  # [TAS]
-        '\\rho_{bend}': 2700,#*units('kg/m^3'),  # [TAS]
-        '\\rho_{floor}': 2700,#*units('kg/m^3'),  # [TAS]
-        '\\rho_{skin}': 2700,#*units('kg/m^3'),  # [TAS]
-        '\\sigma_{floor}': 30000 / 0.000145, # [TAS] [Al]
-        '\\sigma_{skin}': 15000 / 0.000145,  # [TAS] [Al]
-        '\\sigma_{bend}': 30000 / 0.000145, # [TAS] [Al]
-        '\\tau_{floor}': 30000 / 0.000145, # [TAS] [Al]
-        'W\'\'_{floor}': 60,  # [TAS]
-        'W\'\'_{insul}': 22,  # [TAS]
-        'W\'_{seat}': 150*units('N'),  # [TAS]
+        '\\rho_{cone}': 2700.,#*units('kg/m^3'),  # [TAS]
+        '\\rho_{bend}': 2700.,#*units('kg/m^3'),  # [TAS]
+        '\\rho_{floor}': 2700.,#*units('kg/m^3'),  # [TAS]
+        '\\rho_{skin}': 2700.,#*units('kg/m^3'),  # [TAS]
+        '\\sigma_{floor}': 30000. / 0.000145, # [TAS] [Al]
+        '\\sigma_{skin}': 15000. / 0.000145,  # [TAS] [Al]
+        '\\sigma_{bend}': 30000. / 0.000145, # [TAS] [Al]
+        '\\tau_{floor}': 30000. / 0.000145, # [TAS] [Al]
+        'W\'\'_{floor}': 60.,  # [TAS]
+        'W\'\'_{insul}': 22.,  # [TAS]
+        'W\'_{seat}': 150.*units('N'),  # [TAS]
         'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
 
         # TASOPT Fuselage substitutions
@@ -938,12 +938,12 @@ substitutions = {
 
         # Wing substitutions
         'C_{L_{wmax}}': 2.25, # [TAS]
-        '\\tan(\\Lambda)': tan(sweep * pi / 180),
+        '\\tan(\\Lambda)': tan(sweep * pi / 180.),
 ##        '\\alpha_{max,w}': 0.1,  # (6 deg)
-        '\\cos(\\Lambda)': cos(sweep * pi / 180),
+        '\\cos(\\Lambda)': cos(sweep * pi / 180.),
         '\\eta': 0.97,
         '\\rho_0': 1.225*units('kg/m^3'),
-        '\\rho_{fuel}': 817*units('kg/m^3'),  # Kerosene [TASOPT]
+        '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
         'FuelFrac': 0.9,
         'f_{flap}': 0.2,
         'f_{slat}': 0.0001,
@@ -956,21 +956,21 @@ substitutions = {
         # VT substitutions
        'C_{D_{wm}}': 0.5, # [2]
        'C_{L_{vmax}}': 2.6, # [TAS]
-       'V_1': 70*units('m/s'),
+       'V_1': 70.*units('m/s'),
        '\\rho_{TO}': 1.225*units('kg/m^3'),
         '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
         'c_{l_{vtEO}}': 0.5, # [TAS]
         'e_v': 0.8,
         # 'y_{eng}': 4.83*units('m'), # [3]
-        'V_{land}': 72*units('m/s'),
+        'V_{land}': 72.*units('m/s'),
         # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
         '\\dot{r}_{req}': 0.1475, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
-        'N_{spar}': 2,
+        'N_{spar}': 2.,
         'f_{VT}': 0.4,
 
         # HT substitutions
         '\\alpha_{max,h}': 2.5,
-        '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+        '\\tan(\\Lambda_{ht})': tan(30.*pi/180.),
         'C_{L_{hmax}}': 1.225,#2.0, # [TAS]
         'SM_{min}': 0.05,
         '\\Delta x_{CG}': 2.0*units('m'),
@@ -979,7 +979,7 @@ substitutions = {
         'f_{HT}': 0.3,
 
         #engine system subs
-        'rSnace': 6,
+        'rSnace': 6.,
         'f_{pylon}': 0.05,
         'f_{eadd}': 0.1,
 
@@ -1009,23 +1009,23 @@ substitutions = {
         '\\alpha_{OD}': 6.97,
         '\\alpha_{max}': 6.97,
 
-        'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
+        'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
         'r_{uc}': .01,
         '\\alpha_c': .19036,
-        'T_{t_f}': 435,
+        'T_{t_f}': 435.,
 
         'M_{takeoff}': .9556,
 
-        'G_f': 1,
+        'G_f': 1.,
 
         'h_f': 43.003,
 
-        'Cp_t1': 1280,
-        'Cp_t2': 1184,
-        'Cp_c': 1216,
+        'Cp_t1': 1280.,
+        'Cp_t2': 1184.,
+        'Cp_c': 1216.,
 
-        'HTR_{f_SUB}': 1-.3**2,
-        'HTR_{lpc_SUB}': 1 - 0.6**2,
+        'HTR_{f_SUB}': 1.-.3**2.,
+        'HTR_{lpc_SUB}': 1. - 0.6**2.,
 }
 
 def test():
@@ -1049,7 +1049,7 @@ def test():
      m.substitutions.update({
           #Fuselage subs
           'f_{seat}':0.1,
-          'W\'_{seat}':1, # Seat weight determined by weight fraction instead
+          'W\'_{seat}':1., # Seat weight determined by weight fraction instead
           'f_{string}':0.35,
           'AR':15.749,
           'h_{floor}': 5.12*units('in'),
@@ -1063,13 +1063,13 @@ def test():
           #HT subs
           'AR_h': 12.,
           '\\lambda_h' : 0.3,
-          '\\tan(\\Lambda_{ht})': np.tan(8*np.pi/180), # tangent of HT sweep
+          '\\tan(\\Lambda_{ht})': np.tan(8.*np.pi/180.), # tangent of HT sweep
           # 'V_{ht}': 0.895,
 
           #VT subs
           'A_{vt}' : 2.2,
           '\\lambda_{vt}': 0.3,
-          '\\tan(\\Lambda_{vt})': np.tan(25*np.pi/180), # tangent of VT sweep
+          '\\tan(\\Lambda_{vt})': np.tan(25.*np.pi/180.), # tangent of VT sweep
           ##                'V_{vt}': .03,
 
           #Wing subs
@@ -1101,7 +1101,7 @@ if __name__ == '__main__':
             m.substitutions.update({
                 #Fuselage subs
                 'f_{seat}':0.1,
-                'W\'_{seat}':1, # Seat weight determined by weight fraction instead
+                'W\'_{seat}':1., # Seat weight determined by weight fraction instead
                 'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
                 'W_{avg. pass_{total}}':215.*units('lbf'),
                 'f_{string}':0.35,
@@ -1114,13 +1114,13 @@ if __name__ == '__main__':
                 #HT subs
                 'AR_h': 8.25,
                 '\\lambda_h' : 0.25,
-                '\\tan(\\Lambda_{ht})':np.tan(20*np.pi/180), #tangent of HT sweep
+                '\\tan(\\Lambda_{ht})':np.tan(20.*np.pi/180.), #tangent of HT sweep
 
                 #VT subs
-                'numVT': 2,
+                'numVT': 2.,
                 'A_{vt}' : 2.0,
                 '\\lambda_{vt}': 0.3,
-                '\\tan(\\Lambda_{vt})':np.tan(25*np.pi/180),
+                '\\tan(\\Lambda_{vt})':np.tan(25.*np.pi/180.),
 
                 # Minimum Cruise Mach Number
                 'M_{min}': 0.8,
@@ -1133,7 +1133,7 @@ if __name__ == '__main__':
             m.substitutions.update({
                 # Fuselage subs
                 'f_{seat}': 0.1,
-                'W\'_{seat}': 1,  # Seat weight determined by weight fraction instead
+                'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
                 'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
                 'W_{avg. pass_{total}}':215.*units('lbf'),
                 'f_{string}': 0.35,
@@ -1154,14 +1154,14 @@ if __name__ == '__main__':
                 # HT subs
                 'AR_h': 12.,
                 '\\lambda_h': 0.3,
-                '\\tan(\\Lambda_{ht})': np.tan(8 * np.pi / 180),  # tangent of HT sweep
+                '\\tan(\\Lambda_{ht})': np.tan(8. * np.pi / 180.),  # tangent of HT sweep
                 # 'V_{ht}': 0.895,
 
                 # VT subs
-                'numVT': 2,
+                'numVT': 2.,
                 # 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
-                '\\tan(\\Lambda_{vt})': np.tan(25 * np.pi / 180),  # tangent of VT sweep
+                '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
                 ##                'V_{vt}': .03,
 
                 # Wing subs
@@ -1177,8 +1177,8 @@ if __name__ == '__main__':
                
                M4a = .1025
                fan = 1.685
-               lpc  = 8/1.685
-               hpc = 30/8
+               lpc  = 8./1.685
+               hpc = 30./8.
 
                m.substitutions.update({
                    # Engine substitutions
@@ -1231,9 +1231,9 @@ if __name__ == '__main__':
                    # Fuselage subs
                    'l_{nose}':20.*units('ft'),
                    'numaisle': 1.,
-                   'SPR': 6,
+                   'SPR': 6.,
                    'f_{seat}': 0.1,
-                   'W\'_{seat}': 1 * units('N'),  # Seat weight determined by weight fraction instead
+                   'W\'_{seat}': 1. * units('N'),  # Seat weight determined by weight fraction instead
                     'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
                    'W_{avg. pass_{total}}':215.*units('lbf'),
                    'f_{string}': 0.35,
@@ -1244,23 +1244,23 @@ if __name__ == '__main__':
                    '\\delta_P_{over}': 8.382 * units('psi'),
 
                    # HT subs
-                   'AR_h': 6,
+                   'AR_h': 6.,
                    '\\lambda_h': 0.25,
-                   '\\tan(\\Lambda_{ht})': np.tan(25 * np.pi / 180),  # tangent of HT sweep
+                   '\\tan(\\Lambda_{ht})': np.tan(25. * np.pi / 180.),  # tangent of HT sweep
                    #'V_{ht}': .6,
                    'C_{L_{hmax}}': 2.0,  # [TAS]
                    'C_{L_{hfcG}}': 0.7,
                    '\\Delta x_{CG}': 7.68 * units('ft'),
-                   'x_{CG_{min}}': 56.75 * units('ft'),
+                   'x_{CG_{min}}': 30.*units('ft'),#56.75 * units('ft'),
                    'SM_{min}': .05,
 
                    # VT subs
-                   'numVT': 1,
-                   'A_{vt}': 2,
+                   'numVT': 1.,
+                   'A_{vt}': 2.,
                    '\\lambda_{vt}': 0.3,
-                   '\\tan(\\Lambda_{vt})': np.tan(25 * np.pi / 180),  # tangent of VT sweep
+                   '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
                    #                    'V_{vt}': .07,
-                   'N_{spar}': 1,
+                   'N_{spar}': 1.,
                    '\\dot{r}_{req}': 0.15,  # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
                    # Wing subs
@@ -1271,10 +1271,10 @@ if __name__ == '__main__':
                    # Minimum Cruise Mach Number
                    'M_{min}': 0.8,
                    # Minimum Cruise Altitude
-                   'CruiseAlt': 8000 * units('ft'),
+                   'CruiseAlt': 8000. * units('ft'),
 
                    # engine system subs
-                   'rSnace': 16,
+                   'rSnace': 16.,
                    # nacelle drag calc parameter
                    'r_{vnace}': 1.02,
                })
