@@ -1,5 +1,5 @@
 NACA=$1
-POLARFILE=naca$1.cl0.Re$2k.pol
+POLARFILE=naca$1.cl0.Re$2k.M$3.pol
 
 if [ -f $POLARFILE ] ; then
     echo "yes"
@@ -10,7 +10,7 @@ xfoil << EOF
 naca $1
 oper
 v $2e3
-M 0.8
+M $3
 pacc
 $POLARFILE
 
