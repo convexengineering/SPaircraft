@@ -908,6 +908,7 @@ substitutions = {
         'w_{seat}': 0.5*units('m'),
         'w_{sys}': 0.1*units('m'),
         'r_E': 1,  # [TAS]
+        'p_{\\lambda_v}':1.6,
         '\\lambda_{cone}': 0.3,  # [TAS]
         '\\rho_{cone}': 2700,#*units('kg/m^3'),  # [TAS]
         '\\rho_{bend}': 2700,#*units('kg/m^3'),  # [TAS]
@@ -923,7 +924,7 @@ substitutions = {
         'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
 
         # TASOPT Fuselage substitutions
-        'l_{nose}': 29*0.3048*units('m'),
+        'l_{nose}': 29.*units('ft'),
 
         # Fractional weights
         'f_{fadd}': 0.2,  # [TAS]
@@ -1222,6 +1223,7 @@ if __name__ == '__main__':
                    '\\theta_{db}': 0.0001,
 
                    # Fuselage subs
+                   'l_{nose}':20.*units('ft'),
                    'numaisle': 1.,
                    'SPR': 6,
                    'f_{seat}': 0.1,
@@ -1237,7 +1239,7 @@ if __name__ == '__main__':
                    'AR_h': 6,
                    '\\lambda_h': 0.25,
                    '\\tan(\\Lambda_{ht})': np.tan(25 * np.pi / 180),  # tangent of HT sweep
-                   ##                    'V_{ht}': .6,
+                   #'V_{ht}': .6,
                    'C_{L_{hmax}}': 2.0,  # [TAS]
                    'C_{L_{hfcG}}': 0.7,
                    '\\Delta x_{CG}': 7.68 * units('ft'),

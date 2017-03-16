@@ -48,7 +48,7 @@ class Fuselage(Model):
         # Tail cone variables
         lamcone = Variable('\\lambda_{cone}', '-', 'Tailcone radius taper ratio')
         lcone = Variable('l_{cone}', 'm', 'Cone length')
-        plamv = Variable('p_{\\lambda_v}', 1.5, '-', '1 + 2*Tail taper ratio')
+        plamv = Variable('p_{\\lambda_v}', 1.6, '-', '1 + 2*Tail taper ratio')
         # tcone = Variable('t_{cone}', 'm', 'Cone thickness') # perhaps to be added later
 
         # Lengths
@@ -132,9 +132,9 @@ class Fuselage(Model):
         Whbend = Variable('W_{hbend}', 'lbf','Horizontal bending material weight')
         Wvbend = Variable('W_{vbend}','lbf','Vertical bending material weight')
 
-        xhbendLand = Variable('x_{hbend_{Land}}', 'm', 'Horizontal zero bending location (landing case)')
-        xhbendMLF = Variable('x_{hbend_{MLF}}', 'm', 'Horizontal zero bending location (maximum aero load case)')
-        xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
+        xhbendLand = Variable('x_{hbend_{Land}}', 'ft', 'Horizontal zero bending location (landing case)')
+        xhbendMLF = Variable('x_{hbend_{MLF}}', 'ft', 'Horizontal zero bending location (maximum aero load case)')
+        xvbend       = Variable('x_{vbend}','ft','Vertical zero bending location')
 
         # Material properties
         rE = Variable('r_E', 1., '-', 'Ratio of stringer/skin moduli')  # [TAS] # [b757 freight doc]
@@ -177,7 +177,7 @@ class Fuselage(Model):
         Wapu = Variable('W_{apu}', 'lbf', 'APU weight')
         Wavgpass = Variable('W_{avg. pass}', 'lbf',
                             'Average passenger weight')  # [Philippe]
-        Wcargo = Variable('W_{cargo}', 'N', 'Cargo weight')  # [Philippe]
+        Wcargo = Variable('W_{cargo}', 'lbf', 'Cargo weight')  # [Philippe]
         Wcarryon = Variable('W_{carry on}', 'lbf',
                             'Ave. carry-on weight')  # [Philippe]
         Wchecked = Variable('W_{checked}', 'lbf',
