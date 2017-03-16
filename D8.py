@@ -184,7 +184,7 @@ class Aircraft(Model):
                             self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
 
                             # Wing fuel constraints
-                            self.wing['W_{fuel_{wing}}'] == W_ftotal/self.wing['FuelFrac'],
+                            self.wing['W_{fuel_{wing}}'] >= W_ftotal/self.wing['FuelFrac'],
 
                             # Lifting surface weights
                             Wwing == self.wing['W_{wing_system}'],
@@ -511,8 +511,10 @@ class AircraftP(Model):
 
             TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
+
             # Static margin constraints
             self.wingP['c_{m_{w}}'] == 0.55,
+              
             # SM >= aircraft['SM_{min}'],
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
                  + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] <= \
@@ -772,6 +774,7 @@ class Mission(Model):
                 TCS([climb['hft'][1:Nclimb] >= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]),
                 TCS([climb['hft'][0] == climb['dhft'][0]]),
                  cruise['hft'][0] == hftCruiseHold,
+          
 
                 # Compute dh
                 climb['dhft'] == hftCruiseHold / Nclimb,
@@ -943,7 +946,9 @@ substitutions = {
         '\\cos(\\Lambda)': cos(sweep * pi / 180.),
         '\\eta': 0.97,
         '\\rho_0': 1.225*units('kg/m^3'),
+
         '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
+
         'FuelFrac': 0.9,
         'f_{flap}': 0.2,
         'f_{slat}': 0.0001,
