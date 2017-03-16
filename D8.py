@@ -1052,11 +1052,11 @@ def test():
           'W\'_{seat}':1, # Seat weight determined by weight fraction instead
           'f_{string}':0.35,
           'AR':15.749,
-          'h_{floor}': 0.13,
-          'R_{fuse}' : 1.715,
-          '\\delta R_{fuse}': 0.43,
-          'w_{db}': 0.93,
-          'b_{max}':140.0*0.3048,
+          'h_{floor}': 5.12*units('in'),
+          'R_{fuse}' : 1.715*units('m'),
+          '\\delta R_{fuse}': 0.43*units('m'),
+          'w_{db}': 0.93*units('m'),
+          'b_{max}':140.0*0.3048*units('m'),
           # 'c_0': 17.4*0.3048,#units('ft'),
           '\\delta_P_{over}': 8.382*units('psi'),
 
@@ -1104,9 +1104,9 @@ if __name__ == '__main__':
                 'W\'_{seat}':1, # Seat weight determined by weight fraction instead
                 'f_{string}':0.35,
                 'AR':10.8730,
-                'h_{floor}': 0.13,
-                'R_{fuse}' : 1.715,
-                'w_{db}': 0.93,
+                'h_{floor}': 5.12*units('in'),
+                'R_{fuse}' : 1.715*units('m'),
+                'w_{db}': 0.93*units('m'),
                 # 'b':116.548*0.3048,#units('ft'),
                 # 'c_0': 17.4*0.3048,#units('ft'),
                 #HT subs
@@ -1134,11 +1134,11 @@ if __name__ == '__main__':
                 'W\'_{seat}': 1,  # Seat weight determined by weight fraction instead
                 'f_{string}': 0.35,
                 # 'AR':15.749,
-                'h_{floor}': 0.13,
-                'R_{fuse}': 1.715,
-                '\\delta R_{fuse}': 0.43,
-                'w_{db}': 0.93,
-                'b_{max}': 140.0 * 0.3048,
+                'h_{floor}': 5.12*units('in'),
+                'R_{fuse}': 1.715*units('m'),
+                '\\delta R_{fuse}': 0.43*units('m'),
+                'w_{db}': 0.93*units('m'),
+                'b_{max}': 140.0 * 0.3048*units('m'),
                 # 'c_0': 17.4*0.3048,#units('ft'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
 
@@ -1229,8 +1229,8 @@ if __name__ == '__main__':
                    'f_{seat}': 0.1,
                    'W\'_{seat}': 1 * units('N'),  # Seat weight determined by weight fraction instead
                    'f_{string}': 0.35,
-                   'h_{floor}': 0.13 * units('m'),
-                   # 'R_{fuse}' : 1.715,
+                   'h_{floor}': 5. * units('in'),
+                   # 'R_{fuse}' : 1.715*units('m'),
                    'b_{max}': 117.5 * units('ft'),
                    # 'c_0': 17.4*0.3048,#units('ft'),
                    '\\delta_P_{over}': 8.382 * units('psi'),
