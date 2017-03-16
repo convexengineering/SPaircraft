@@ -384,8 +384,10 @@ class FuselagePerformance(Model):
 
     def setup(self, fuse, state, **kwargs):
         # new variables
-        Cdfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
-        Dfuse = Variable('D_{fuse}', 'N', 'Total drag')
+        CDfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
+        Dfuse = Variable('D_{fuse}', 'N', 'Fuselage Drag')
+        # CLfuse = Variable('C_{L_{fuse}}','-', 'Fuselage Lift Coefficient')
+        Lfuse = Variable('L_{fuse}','N','Fuselage Lift')
         # Dfrict = Variable('D_{friction}', 'N', 'Friction drag')
         # Dupswp = Variable('D_{upsweep}', 'N', 'Drag due to fuse upsweep')
         # f = Variable('f', '-', 'Fineness ratio')
@@ -398,7 +400,9 @@ class FuselagePerformance(Model):
 
         constraints = []
         constraints.extend([
-            Cdfuse == Cdfuse,
+            CDfuse == CDfuse,
+            Dfuse == Dfuse,
+            Lfuse == Lfuse,
             #Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
             # fineness ratio
             # f == fuse['l_{fuse}'] / ((4 / np.pi * fuse['A_{fuse}'])**0.5),

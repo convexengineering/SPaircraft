@@ -389,7 +389,7 @@ class AircraftP(Model):
         self.HTP = aircraft.HT.dynamic(aircraft.fuse,aircraft.wing,state)
         self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP]
 
-        # variable definitions
+        # Variable Definitions
         Vstall = Variable('V_{stall}',120, 'knots', 'Aircraft Stall Speed')
         D = Variable('D', 'N', 'Total Aircraft Drag')
         C_D = Variable('C_D', '-', 'Total Aircraft Drag Coefficient')
@@ -404,16 +404,22 @@ class AircraftP(Model):
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
         thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
 
+        # Longitudinal tability variables
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
         xNP = Variable('x_{NP}','m','Neutral Point of Aircraft')
         # SM = Variable('SM','-','Stability Margin of Aircraft')
         PCFuel = Variable('PCFuel','-','Percent Fuel Remaining (end of segment)')
 
+        # Buoyancy weight variables
         # Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
         # W_buoy = Variable('W_{buoy}','lbf','Buoyancy Weight')
         # Tcabin = Variable('T_{cabin}','K','Cabin Air Temperature')
         # rhocabin = Variable('\\rho_{cabin}','kg/m^3','Cabin Air Density')
+
+        # Lift fraction variables
+        Ltotal = Variable('L_{total}','N','Total lift')
+        Ltow = Variable('L_{total/wing}','-','Total lift as a percentage of wing lift')
 
         #variables for nacelle drag calcualation
         Vnace = Variable('V_{nacelle}', 'm/s', 'Incoming Nacelle Flow Velocity')
@@ -441,7 +447,7 @@ class AircraftP(Model):
             # speed must be greater than stall speed
             state['V'] >= Vstall,
 
-            # compute the drag
+            # Drag calculations
             self.fuseP['D_{fuse}'] == self.fuseP['f_{BLI}'] * 0.5 * state['\\rho'] * state['V']**2 * self.fuseP['C_{D_{fuse}}'] * aircraft['S'],
             D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.aircraft['numVT']*self.VTP['D_{vt}'] + self.HTP['D_{ht}'] + aircraft['numeng'] * Dnace,
             C_D == D/(.5*state['\\rho']*state['V']**2 * self.aircraft.wing['S']),
@@ -452,11 +458,14 @@ class AircraftP(Model):
 
             # Center wing lift loss
             # self.wingP['p_{o}'] >= self.wingP['L_w']*self.wing['c_{root}']*(.5 + 0.5*self.wingP['\\eta_{o}'](/(self.wing['S']),
-            self.wingP['p_{o}'] >= self.wingP['L_w']*aircraft.wing['c_{root}']/(aircraft.wing['S']),
+            self.wingP['p_{o}'] >= self.wingP['L_w']*aircraft.wing['c_{root}']/(aircraft.wing['S']), #TODO improve approx without making SP
             self.wingP['\\eta_{o}'] == aircraft['w_{fuse}']/(aircraft['b']/2),
 
+            # Fuselage lift (just calculating)
+            SignomialEquality(self.fuseP['L_{fuse}'], (Ltow-1.)*self.wingP['L_w']),
+
             # Geometric average of start and end weights of flight segment
-            W_avg >= (W_start * W_end)**.5, #+ W_buoy, # Buoyancy weight included in Breguet Range
+            W_avg >= (W_start * W_end)**.5, #+ W_buoy, # BFuoyancy weight included in Breguet Range
 
             # Maximum wing loading constraint
             WLoad <= WLoadmax,
@@ -486,8 +495,9 @@ class AircraftP(Model):
             aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG,
             aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG,
 
-           # Tail downforce penalty to wing lift
-            self.wingP['L_w'] >= W_avg + self.HTP['L_h'],
+           # Tail downforce penalty to total lift
+            TCS([Ltotal == Ltow*self.wingP['L_w']]),
+            TCS([Ltotal >= W_avg + self.HTP['L_h']]),
 
             # Wing location and AC constraints
             TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]),
@@ -501,8 +511,8 @@ class AircraftP(Model):
 
             TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
 
-            # Static margin constraint with and without dxCG
-            self.wingP['c_{m_{w}}'] == 1.5,
+            # Static margin constraints
+            self.wingP['c_{m_{w}}'] == 0.55,
             # SM >= aircraft['SM_{min}'],
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
                  + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] <= \
@@ -712,11 +722,13 @@ class Mission(Model):
                     + aircraft['numeng']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
               ])
 
-            #Setting fuselage drag
+            #Setting fuselage drag and lift
             if D80 or D82:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866,
+                    climb['L_{total/wing}'] == 1.179,
+                    cruise['L_{total/wing}'] == 1.179,
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                   ])
@@ -724,8 +736,10 @@ class Mission(Model):
                constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00762,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00762,
-                    climb['f_{BLI}'] == 1.0, #TODO area for improvement
-                    cruise['f_{BLI}'] == 1.0, #TODO area for improvement
+                    climb['L_{total/wing}'] == 1.127,
+                    cruise['L_{total/wing}'] == 1.127,
+                    climb['f_{BLI}'] == 1.0,
+                    cruise['f_{BLI}'] == 1.0,
                    ])
 
         constraints.extend([
