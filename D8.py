@@ -1217,10 +1217,12 @@ if __name__ == '__main__':
                    'HTR_{f_SUB}': 1. - .3 ** 2.,
                    'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
 
-                    # Power system and landing gear subs
+                    # Power system and landing gear and engine weight fraction subs
                     'f_{hpesys}': 0.01, # [TAS]
                     'f_{lgmain}':0.044, # [TAS]
                     'f_{lgnose}':0.011, # [TAS]
+                    'f_{pylon}': 0.10,
+
 
                    # fuselage subs that make fuse circular
                    '\\delta R_{fuse}': 0.0001 * units('m'),
