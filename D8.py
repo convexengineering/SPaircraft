@@ -1057,14 +1057,17 @@ def test():
      """
      solves a D82 and b737-800
      """
-     global D82, b737800, sweep
+     global D82, b737800, sweep, multimission
+
+     multimission = False
 
      #run the D82 case
      D82 = True
+     b737800 = False
 
      sweep = 13.237  # [deg]
 
-     Nclimb = 5
+     Nclimb = 3
      Ncruise = 2
 
      m = Mission(Nclimb, Ncruise)
@@ -1072,37 +1075,52 @@ def test():
 
      sweep = 13.237
      m.substitutions.update({
-          #Fuselage subs
-          'f_{seat}':0.1,
-          'W\'_{seat}':1., # Seat weight determined by weight fraction instead
-          'f_{string}':0.35,
-          'AR':15.749,
-          'h_{floor}': 5.12*units('in'),
-          'R_{fuse}' : 1.715*units('m'),
-          '\\delta R_{fuse}': 0.43*units('m'),
-          'w_{db}': 0.93*units('m'),
-          'b_{max}':140.0*0.3048*units('m'),
-          # 'c_0': 17.4*0.3048,#units('ft'),
-          '\\delta_P_{over}': 8.382*units('psi'),
+      # Fuselage subs
+      'f_{seat}': 0.1,
+      'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
+      'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
+      'W_{avg. pass_{total}}':215.*units('lbf'),
+      'f_{string}': 0.35,
+      # 'AR':15.749,
+      'h_{floor}': 5.12*units('in'),
+      'R_{fuse}': 1.715*units('m'),
+      '\\delta R_{fuse}': 0.43*units('m'),
+      'w_{db}': 0.93*units('m'),
+      'b_{max}': 140.0 * 0.3048*units('m'),
+      # 'c_0': 17.4*0.3048,#units('ft'),
+      '\\delta_P_{over}': 8.382 * units('psi'),
+      
 
-          #HT subs
-          'AR_h': 12.,
-          '\\lambda_h' : 0.3,
-          '\\tan(\\Lambda_{ht})': np.tan(8.*np.pi/180.), # tangent of HT sweep
-          # 'V_{ht}': 0.895,
+      # Power system and landing gear subs
+      'f_{hpesys}': 0.01, # [TAS]
+      'f_{lgmain}':0.03, # [TAS]
+      'f_{lgnose}':0.0075, # [TAS]
 
-          #VT subs
-          'A_{vt}' : 2.2,
-          '\\lambda_{vt}': 0.3,
-          '\\tan(\\Lambda_{vt})': np.tan(25.*np.pi/180.), # tangent of VT sweep
-          ##                'V_{vt}': .03,
+      # HT subs
+      'AR_h': 12.,
+      '\\lambda_h': 0.3,
+      '\\tan(\\Lambda_{ht})': np.tan(8. * np.pi / 180.),  # tangent of HT sweep
+      # 'V_{ht}': 0.895,
 
-          #Wing subs
-          'C_{L_{wmax}}': 2.15,
+      # VT subs
+      'numVT': 2.,
+      # 'A_{vt}' : 2.2,
+      '\\lambda_{vt}': 0.3,
+      '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
+      ##                'V_{vt}': .03,
 
-          # Minimum Cruise Mach Number
-          'M_{min}': 0.72,
+      # Wing subs
+      'C_{L_{wmax}}': 2.15,
+
+      # Minimum Cruise Mach Number
+      'M_{min}': 0.72,
      })
+     m.substitutions.__delitem__('\\theta_{db}')
+     if not multimission:
+       m.substitutions.update({
+            'n_{pax}': 180.,
+            'ReqRng': 3000.*units('nmi'),
+            })
      m.substitutions.__delitem__('\\theta_{db}')
 
      m = relaxed_constants(m)
