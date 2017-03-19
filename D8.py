@@ -74,7 +74,7 @@ D82 = False
 b737800 = True
 
 #choose multimission or not
-multimission = True
+multimission = False
 
 sweep = 27.566#30 [deg]
 
