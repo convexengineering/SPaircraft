@@ -849,10 +849,10 @@ class Mission(Model):
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{pax}'][0] == 180,
-                  aircraft['n_{pax}'][1] == 180,
-                  aircraft['n_{pax}'][2] == 120,
-                  aircraft['n_{pax}'][3] == 80,
+##                  aircraft['n_{pax}'][0] == 180,
+##                  aircraft['n_{pax}'][1] == 180,
+##                  aircraft['n_{pax}'][2] == 120,
+##                  aircraft['n_{pax}'][3] == 80,
                   ReqRng == 3000 * units('nmi'),
                   ])
 
@@ -1348,6 +1348,10 @@ if __name__ == '__main__':
 ##                 'n_{pax}': [180.],
 ##                 'ReqRng': [3000.*units('nmi')],
 ##            })
+        if multimission:
+               m.substitutions.update({
+                    'n_{pax}': [180, 180, 120, 80]
+                    })
 
         if D82:
              m_relax = relaxed_constants(m)
