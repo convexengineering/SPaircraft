@@ -855,6 +855,12 @@ class Mission(Model):
                   aircraft['n_{pax}'][3] == 80,
                   ReqRng == 3000 * units('nmi'),
                   ])
+
+        if not multimission:
+               constraints.extend([
+                    aircraft['n_{pax}'] == 180.,
+                    ReqRng == 3000.*units('nmi'),
+                    ])
         
         M2 = .6
         M25 = .6
@@ -900,6 +906,7 @@ class Mission(Model):
 
         if not multimission:
              self.cost = aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+             self.cost = self.cost.sum()
         else:
              self.cost = W_fmissions + 1e5*aircraft['V_{cabin}']*units('N/m**3')
 
@@ -1173,11 +1180,11 @@ if __name__ == '__main__':
                 'M_{min}': 0.8,
             })
             m.substitutions.__delitem__('\\theta_{db}')
-            if not multimission:
-                 m.substitutions.update({
-                      'n_{pax}': 180.,
-                      'ReqRng': 3000.*units('nmi'),
-                      })
+##            if not multimission:
+##                 m.substitutions.update({
+##                      'n_{pax}': [180.],
+##                      'ReqRng': [3000.*units('nmi')],
+##                      })
 
         if D82:
             print('D82 executing...')
@@ -1224,11 +1231,11 @@ if __name__ == '__main__':
                 'M_{min}': 0.72,
             })
             m.substitutions.__delitem__('\\theta_{db}')
-            if not multimission:
-                 m.substitutions.update({
-                      'n_{pax}': 180.,
-                      'ReqRng': 3000.*units('nmi'),
-                      })
+##            if not multimission:
+##                 m.substitutions.update({
+##                      'n_{pax}': [180.],
+##                      'ReqRng': [3000.*units('nmi')],
+##                      })
 
         if b737800:
                print('737-800 executing...')
@@ -1336,11 +1343,11 @@ if __name__ == '__main__':
                    # nacelle drag calc parameter
                    'r_{vnace}': 1.02,
                })
-        if not multimission:
-            m.substitutions.update({
-                 'n_{pax}': 180.,
-                 'ReqRng': 3000.*units('nmi'),
-            })
+##        if not multimission:
+##            m.substitutions.update({
+##                 'n_{pax}': [180.],
+##                 'ReqRng': [3000.*units('nmi')],
+##            })
 
         if D82:
              m_relax = relaxed_constants(m)
