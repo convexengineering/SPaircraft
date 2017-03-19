@@ -20,11 +20,14 @@ from D8_Wing_simple_profile import Wing
 from turbofan.engine_validation import Engine
 from D8_Fuselage import Fuselage
 
-#import constant relaxtion tool
+# Import constant relaxation tool
 from relaxed_constants import relaxed_constants, post_process
 
-#import tool to check solution relative to TASOPT
+# Import tool to check solution relative to TASOPT
 from D8_TASOPT_percent_diff import percent_diff
+
+# Import VSP generation tools
+from genVSP import updateOpenVSP, genDesFile
 
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
