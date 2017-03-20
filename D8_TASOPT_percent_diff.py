@@ -137,7 +137,7 @@ def percent_diff(sol, version, Nclimb):
 ##        print "\n"
 ##        print "HT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR_h')), 6)
         print "\n"
-        print "HT Area Percent Diff: %s" % compute_diff(mag(sol('S_h').to('ft^2')), 313.86  )
+        print "HT Area Percent Diff: %s" % compute_diff(mag(sol('S').to('ft^2')), 313.86  )
 ##        print "\n"
 ##        print "HT Volume Coefficient Percent Diff: %s" % compute_diff(mag(sol('V_{h}')), 1.450) 
         
