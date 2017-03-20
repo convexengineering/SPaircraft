@@ -1,6 +1,6 @@
 from gpkit import Model, Variable
 import numpy as np
-from numpy import tan, cos, pi, arctan
+from numpy import tan, cos, pi, arctan, arccos
 import gpkit
 from CFP_Fuselage_Performance_int_HT import Mission
 
@@ -28,7 +28,9 @@ def updateOpenVSP(inputDict):
         f.truncate()
         f.close()
 
-def genDesFile(sol):
+def genDesFile(sol, b737800=True):
+
+    sweep = arccos(sol('\cos(\Lambda)_Mission, Aircraft, Wing, WingNoStruct'))*180/np.pi
 
     # Wing descriptors
     b = sol('b').to('m')
@@ -158,3 +160,4 @@ def genDesFile(sol):
     # if D80 or D82:
 
     updateOpenVSP(resultsDict)
+    print('File generation successful!')
