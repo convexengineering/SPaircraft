@@ -67,7 +67,7 @@ sweepMmin = False
 sweepnpax = True
 sweepResFuel = False
 
-genVSP = False
+genVSP = True
 
 plot = True
 
@@ -1296,11 +1296,11 @@ if __name__ == '__main__':
     ##
     ##        sol = m.localsolve( verbosity = 4, iteration_limit=50, x0=sol['variables'])
 
-    if D82:
-        percent_diff(sol, 2, Nclimb)
-
-    if b737800:
-        percent_diff(sol, 801, Nclimb)
+    # if D82:
+    #     percent_diff(sol, 2, Nclimb)
+    #
+    # if b737800:
+    #     percent_diff(sol, 801, Nclimb)
 
     if sweeps:
         if sweepSMmin:
@@ -1553,8 +1553,6 @@ if __name__ == '__main__':
 ##                plt.show(),plt.close()
 
         if sweepnpax:
-            m = Mission(Nclimb, Ncruise)
-            m.substitutions.update(substitutions)
             npaxArray = np.linspace(150,400,n)
             m.substitutions.update({'n_{pax}':('sweep',npaxArray)})
             m = relaxed_constants(m)
