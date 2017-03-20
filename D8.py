@@ -770,7 +770,7 @@ class Mission(Model):
             constraints.extend([
                 # Altitude constraints
                 cruise['hft'] >= CruiseAlt,
-                TCS([climb['hft'][1:Nclimb] >= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]),
+                TCS([climb['hft'][1:Nclimb] <= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]), #[SP]
                 TCS([climb['hft'][0] == climb['dhft'][0]]),
 
                 # All climb segments have the same total altitude change
@@ -832,7 +832,6 @@ class Mission(Model):
                 # Cruise climb constraint
                 cruise['hft'][0] <= climb['hft'][-1] + cruise['dhft'][0], #[SP]
                 cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
-                cruise['dhft'] == 100*units('ft'),
                 ])
         
         M2 = .6
