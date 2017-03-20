@@ -2,7 +2,6 @@ from gpkit import Model, Variable
 import numpy as np
 from numpy import tan, cos, pi, arctan, arccos
 import gpkit
-from CFP_Fuselage_Performance_int_HT import Mission
 
 def updateOpenVSP(inputDict):
     filename = 'VSP/design.des'
@@ -28,56 +27,56 @@ def updateOpenVSP(inputDict):
         f.truncate()
         f.close()
 
-def genDesFile(sol, b737800=True):
+def genDesFile(sol, i, b737800=True):
 
-    sweep = arccos(sol('\cos(\Lambda)_Mission, Aircraft, Wing, WingNoStruct'))*180/np.pi
+    sweep = arccos(sol('\cos(\Lambda)_Mission, Aircraft, Wing, WingNoStruct')[i])*180/np.pi
 
     # Wing descriptors
-    b = sol('b').to('m')
-    croot = sol('c_{root}').to('m')
-    ctip = sol('c_{tip}').to('m')
-    S = sol('S').to('m^2')
-    xwing = sol('x_{wing}').to('m')
+    b = sol('b')[i].to('m')
+    croot = sol('c_{root}')[i].to('m')
+    ctip = sol('c_{tip}')[i].to('m')
+    S = sol('S')[i].to('m^2')
+    xwing = sol('x_{wing}')[i].to('m')
     dihedral = 7.
 
     # Fuselage descriptors
-    hfloor = sol('h_{floor}_Mission, Aircraft, Fuselage').to('m')
-    lnose = sol('l_{nose}_Mission, Aircraft, Fuselage').to('m')
-    lshell = sol('l_{shell}').to('m')
-    lcone = sol('l_{cone}').to('m')
-    lfloor = sol('l_{floor}').to('m')
-    lfuse = sol('l_{fuse}').to('m')
-    hfuse = sol('h_{fuse}').to('m')
-    wfuse = sol('w_{fuse}').to('m')
-    wfloor = sol('w_{floor}').to('m')
-    wdb = sol('w_{db}_Mission, Aircraft, Fuselage').to('m')
-    Rfuse = sol('R_{fuse}_Mission, Aircraft, Fuselage').to('m')
+    hfloor = sol('h_{floor}_Mission, Aircraft, Fuselage')[i].to('m')
+    lnose = sol('l_{nose}_Mission, Aircraft, Fuselage')[i].to('m')
+    lshell = sol('l_{shell}')[i].to('m')
+    lcone = sol('l_{cone}')[i].to('m')
+    lfloor = sol('l_{floor}')[i].to('m')
+    lfuse = sol('l_{fuse}')[i].to('m')
+    hfuse = sol('h_{fuse}')[i].to('m')
+    wfuse = sol('w_{fuse}')[i].to('m')
+    wfloor = sol('w_{floor}')[i].to('m')
+    wdb = sol('w_{db}_Mission, Aircraft, Fuselage')[i].to('m')
+    Rfuse = sol('R_{fuse}_Mission, Aircraft, Fuselage')[i].to('m')
 
     # Horizontal Tail descriptors
-    xCGht = sol('x_{CG_{ht}}').to('m')
-    crootht = sol('c_{root_h}').to('m')
-    ctipht = sol('c_{tip_h}').to('m')
-    bht = sol('b_{ht}').to('m')
-    xCGht = sol('x_{CG_{ht}}')
-    lht = sol('l_{ht}').to('m')
-    tanht = sol('\\tan(\Lambda_{ht})_Mission, Aircraft, HorizontalTail, HorizontalTailNoStruct')
+    xCGht = sol('x_{CG_{ht}}')[i].to('m')
+    crootht = sol('c_{root_h}')[i].to('m')
+    ctipht = sol('c_{tip_h}')[i].to('m')
+    bht = sol('b_{ht}')[i].to('m')
+    xCGht = sol('x_{CG_{ht}}')[i]
+    lht = sol('l_{ht}')[i].to('m')
+    tanht = sol('\\tan(\Lambda_{ht})_Mission, Aircraft, HorizontalTail, HorizontalTailNoStruct')[i]
 
     # Vertical Tail descriptors
-    xCGvt = sol('x_{CG_{vt}}').to('m')
-    xtail = sol('x_{tail}').to('m')
-    Svt = sol('S_{vt}').to('m^2')
-    bvt = sol('b_{vt}').to('m')
-    lvt = sol('l_{vt}').to('m')
-    crootvt = sol('c_{root_{vt}}').to('m')
-    ctipvt = sol('c_{tip_{vt}}').to('m')
-    dxleadvt = sol('\\Delta x_{lead_v}').to('m')
-    dxtrailvt = sol('\\Delta x_{trail_v}').to('m')
-    tanvt = sol('\\tan(\Lambda_{vt})_Mission, Aircraft, VerticalTail, VerticalTailNoStruct')
+    xCGvt = sol('x_{CG_{vt}}')[i].to('m')
+    xtail = sol('x_{tail}')[i].to('m')
+    Svt = sol('S_{vt}')[i].to('m^2')
+    bvt = sol('b_{vt}')[i].to('m')
+    lvt = sol('l_{vt}')[i].to('m')
+    crootvt = sol('c_{root_{vt}}')[i].to('m')
+    ctipvt = sol('c_{tip_{vt}}')[i].to('m')
+    dxleadvt = sol('\\Delta x_{lead_v}')[i].to('m')
+    dxtrailvt = sol('\\Delta x_{trail_v}')[i].to('m')
+    tanvt = sol('\\tan(\Lambda_{vt})_Mission, Aircraft, VerticalTail, VerticalTailNoStruct')[i]
 
     # Engine descriptors
-    df = sol('d_{f}') # Engine frontal area
-    lnace = sol('l_{nacelle}')
-    yeng = sol('y_{eng}')
+    df = sol('d_{f}')[i].to('m') # Engine frontal area
+    lnace = sol('l_{nacelle}')[i].to('m')
+    yeng = sol('y_{eng}')[i].to('m')
 
     # Things to integrate later
     # n_{rows}
@@ -161,3 +160,9 @@ def genDesFile(sol, b737800=True):
 
     updateOpenVSP(resultsDict)
     print('File generation successful!')
+
+def genDesFileSweep(sol, n, b737800=True):
+    for i in range(0,1):
+        solSingle = SolutionArray
+        for j in sol['variables']:
+            solSingle.update({j:sol(j)[i]})
