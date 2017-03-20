@@ -3,7 +3,7 @@ void main() {
 	ReadVSPFile("basicD8.vsp3");
 	Update();
 	Print("Update .vsp3 file\n",true);
-        ReadApplyDESFile('design.des');
+        ReadApplyDESFile('design0.des');
 	Print("Apply .des file\n",true);
 	Update();
 }
