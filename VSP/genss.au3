@@ -14,39 +14,47 @@
 #include <AutoItConstants.au3>
 MsgBox($MB_OK, "Tutorial", "Are you sure you are ready for this?!")
 
-MouseMove(-1520,-20,20)
+For $i = 1 to 1 Step 1
 
-MouseClick($MOUSE_CLICK_LEFT)
+	; Changing the value within reload.vspscript
+	MouseMove(-446,121)
+	MouseClick($MOUSE_CLICK_LEFT)
+	Send("{BACKSPACE}")
+	Send($i)
+	Send("^s")
 
-MouseMove(-1520,170,20)
+	; Getting to Run Script window
+	MouseMove(-1520,-20,20)
+	MouseClick($MOUSE_CLICK_LEFT)
+	MouseMove(-1520,170,20)
+	MouseClick($MOUSE_CLICK_LEFT)
 
-MouseClick($MOUSE_CLICK_LEFT)
+	; Clicking reload.vspscript
+	MouseMove(-1500,135,20)
+	MouseClick($MOUSE_CLICK_LEFT)
+	MouseMove(-1370, 740, 20)
+	MouseClick($MOUSE_CLICK_LEFT)
+	Sleep(1500)
 
-Send("reload.vspscript")
+	; Getting right orientation and zoom
+	Send("{F5}")
+	Send("f")
 
-MouseMove(-1370, 740, 100)
+	; Taking screenshot
+	MouseMove(-1420,-20,20)
+	MouseClick($MOUSE_CLICK_LEFT)
+	MouseMove(-1420,100,20)
+	MouseClick($MOUSE_CLICK_LEFT)
+	MouseMove(-1150,700,20)
+	MouseClick($MOUSE_CLICK_LEFT)
+	MouseMove(-1360,650,20)
+	MouseClick($MOUSE_CLICK_LEFT)
+	Send($i)
+	Send(".png")
+	; Accept screenshot
+	MouseMove(-1370, 740, 20)
+	MouseClick($MOUSE_CLICK_LEFT)
 
-MouseClick($MOUSE_CLICK_LEFT)
-
-; Taking screenshot
-
-MouseMove(-1420,-20,100)
-
-MouseClick($MOUSE_CLICK_LEFT)
-
-MouseMove(-1420,100,100)
-
-MouseClick($MOUSE_CLICK_LEFT)
-
-MouseMove(-1150,700,20)
-
-MouseClick($MOUSE_CLICK_LEFT)
-
-Send("ss1.png")
-
-MouseMove(-1370, 740, 20)
-
-MouseClick($MOUSE_CLICK_LEFT)
-
-Send("!{F4}")
+	Send("!{F4}")
+Next
 
