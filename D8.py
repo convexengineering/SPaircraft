@@ -675,10 +675,10 @@ class Mission(Model):
         # declare new variables
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
         ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
-        RngCruise = Variable('RngCruise', 'nautical_miles', 'Total Cruise Range')
+        # RngCruise = Variable('RngCruise', 'nautical_miles', 'Total Cruise Range')
 
         #hold variables
-        hftCruiseHold = Variable('hftCruiseHold', 'ft', 'Temp Variable to Avoid Dimension Mismatch')
+        # hftCruiseHold = Variable('hftCruiseHold', 'ft', 'Temp Variable to Avoid Dimension Mismatch')
 
         # make overall constraints
         constraints = []
@@ -776,10 +776,11 @@ class Mission(Model):
                 cruise['hft'] >= CruiseAlt,
                 TCS([climb['hft'][1:Nclimb] >= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]),
                 TCS([climb['hft'][0] == climb['dhft'][0]]),
-                 cruise['hft'][0] == hftCruiseHold,
+                climb['dhft'][1:Nclimb] == climb['dhft'][:Nclimb - 1],
+                 # cruise['hft'][0] == hftCruiseHold,
 
                 # Compute dh
-                climb['dhft'] == hftCruiseHold / Nclimb,
+                # climb['dhft'] == hftCruiseHold / Nclimb,
 
                 # compute fuel burn from TSFC
                 cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][Nclimb:] * \
@@ -796,7 +797,8 @@ class Mission(Model):
 
                 # Set the range for each cruise segment, doesn't take credit for
                 # down range distance covered during climb
-                cruise['Rng'] == RngCruise / (Ncruise),
+                # cruise['Rng'] == RngCruise / (Ncruise),
+                cruise['Rng'][:Ncruise-1] == cruise['Rng'][1:Ncruise],
 
                 # Cruise Mach Number constraint
                 cruise['M'] >= aircraft['M_{min}'],
@@ -832,12 +834,12 @@ class Mission(Model):
         with SignomialsEnabled():
             constraints.extend([
                 #set the range constraints
-                TCS([sum(climb['RngClimb']) + RngCruise >= ReqRng]), #[SP]
+                TCS([sum(climb['RngClimb']) + sum(cruise['Rng']) >= ReqRng]), #[SP]
 
                 # Cruise climb constraint
                 cruise['hft'][0] <= climb['hft'][-1] + cruise['dhft'][0], #[SP]
                 cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
-                ])
+            ])
         
         M2 = .6
         M25 = .6
