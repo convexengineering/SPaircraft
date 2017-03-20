@@ -55,7 +55,7 @@ Other markers:
 """
 
 # Script for doing sweeps
-n = 5
+n = 10
 sweeps = False
 sweepSMmin = False
 sweepdxCG = False
@@ -67,7 +67,7 @@ sweepMmin = False
 sweepnpax = True
 sweepResFuel = False
 
-genVSP = False
+genVSP = True
 
 plot = True
 
@@ -516,7 +516,7 @@ class AircraftP(Model):
 
 
             # Static margin constraints
-            self.wingP['c_{m_{w}}'] == 0.55,
+            self.wingP['c_{m_{w}}'] == 0.5,
               
             # SM >= aircraft['SM_{min}'],
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
@@ -1271,7 +1271,7 @@ if __name__ == '__main__':
             # Wing subs
             'C_{L_{wmax}}': 2.15,
             'f_{slat}': 0.1,
-            'AR': 10.1,
+            # 'AR': 10.1,
 
             # Minimum Cruise Mach Number
             'M_{min}': 0.8,
@@ -1289,19 +1289,17 @@ if __name__ == '__main__':
     if b737800:
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200)
-
-    post_process(sol)
+    if sweeps == False:
+        sol = m_relax.localsolve(verbosity=4, iteration_limit=200)
+        post_process(sol)
+        if D82:
+            percent_diff(sol, 2, Nclimb)
+        if b737800:
+            percent_diff(sol, 801, Nclimb)
 
     ##        m.cost = m_relax.cost
     ##
     ##        sol = m.localsolve( verbosity = 4, iteration_limit=50, x0=sol['variables'])
-
-    if D82:
-        percent_diff(sol, 2, Nclimb)
-
-    if b737800:
-        percent_diff(sol, 801, Nclimb)
 
     if sweeps:
         if sweepSMmin:
@@ -1554,8 +1552,6 @@ if __name__ == '__main__':
 ##                plt.show(),plt.close()
 
         if sweepnpax:
-            m = Mission(Nclimb, Ncruise)
-            m.substitutions.update(substitutions)
             npaxArray = np.linspace(150,400,n)
             m.substitutions.update({'n_{pax}':('sweep',npaxArray)})
             m = relaxed_constants(m)
@@ -1697,4 +1693,8 @@ if __name__ == '__main__':
                 plt.savefig('CFP_Sweeps/fwing-vs-resfuel.pdf')
                 plt.show(),plt.close()
     if genVSP:
-        genDesFile(sol)
+        if sweeps == False:
+            genDesFile(sol,False,0,b737800)
+        if sweeps:
+            genDesFileSweep(sol,n,b737800)
+
