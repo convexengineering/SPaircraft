@@ -5,7 +5,7 @@ import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.constraints.tight import Tight as TCS
 from gpkit.tools import te_exp_minus1
-from numpy import pi, cos, tan
+from numpy import pi, cos, tan, arctan, arccos
 
 TCS.reltol = 1e-3
 
@@ -67,7 +67,7 @@ sweepMmin = False
 sweepnpax = True
 sweepResFuel = False
 
-autoupdateVSP = False
+genVSP = False
 
 plot = True
 
@@ -108,7 +108,7 @@ class Aircraft(Model):
         Vmn = Variable('V_{mn}',133.76,'m/s','Maneuvering speed')
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
         ReserveFraction = Variable('ReserveFraction', '-', 'Fuel Reserve Fraction')
-        
+
         SMmin = Variable('SM_{min}','-', 'Minimum Static Margin')
         dxCG = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
         xCGmin = Variable('x_{CG_{min}}','m','Maximum Forward CG')
@@ -777,7 +777,6 @@ class Mission(Model):
                 TCS([climb['hft'][1:Nclimb] >= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]),
                 TCS([climb['hft'][0] == climb['dhft'][0]]),
                  cruise['hft'][0] == hftCruiseHold,
-          
 
                 # Compute dh
                 climb['dhft'] == hftCruiseHold / Nclimb,
@@ -1696,3 +1695,5 @@ if __name__ == '__main__':
                 plt.title('Wing Mass Fraction vs Reserve Fuel Fraction')
                 plt.savefig('CFP_Sweeps/fwing-vs-resfuel.pdf')
                 plt.show(),plt.close()
+    if genVSP:
+        genDesFile(sol)
