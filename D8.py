@@ -516,7 +516,7 @@ class AircraftP(Model):
 
 
             # Static margin constraints
-            self.wingP['c_{m_{w}}'] == 0.5,
+            self.wingP['c_{m_{w}}'] == 1.5,
               
             # SM >= aircraft['SM_{min}'],
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
