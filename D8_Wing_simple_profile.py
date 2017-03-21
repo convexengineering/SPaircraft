@@ -258,7 +258,7 @@ class WingNoStruct(Model):
     def setup(self, **kwargs):
         #declare variables
                #Variables
-        Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
+        # Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
         
         CLwmax  = Variable('C_{L_{wmax}}', '-', 'Max lift coefficient, wing')
         
@@ -326,8 +326,7 @@ class WingNoStruct(Model):
                  p >= 1 + 2*taper,
                  2*q >= 1 + p,
                  ymac == (b/3)*q/p,
-                 TCS([(2./3)*(1+taper+taper**2)*croot/q <= mac],
-                                   reltol=1E-2),
+                 SignomialEquality((2./3)*(1+taper+taper**2)*croot/q,mac), #[SP] #[SPEquality]
 
                  taper == ctip/croot,
                  # ymac  <= b/2,
@@ -347,16 +346,16 @@ class WingNoStruct(Model):
                 # TCS([Afuel <= wwn*0.92*tau]),
                 # # GP approx of the signomial constraint:
                 Vfuel <= mac**2*b*tau,
-                # WfuelWing <= rhofuel*Vfuel*g,
+                WfuelWing <= rhofuel*Vfuel*g,
                 #
                 # b <= bmax,
 
                 # Fuel volume [TASOPT doc]
-                TCS([Afuel <= wwn*0.92*tau]),
+                # TCS([Afuel <= wwn*0.92*tau]),
                 # GP approx of the signomial constraint:
                 # Afuel <= (w - 2*tweb)*(0.92*tau - 2*tcap),
                 # Vfuel <= croot**2 * (b/6) * (1+taper+taper**2)*cosL, #[SP]
-                WfuelWing <= rhofuel*Afuel*Vfuel*g,
+                # WfuelWing <= rhofuel*Afuel*Vfuel*g,
 
                 b <= bmax,
                 ])
