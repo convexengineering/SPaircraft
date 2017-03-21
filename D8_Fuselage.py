@@ -1,4 +1,4 @@
-from gpkit import Model, Variable, units, SignomialsEnabled, SignomialEquality
+from gpkit import Model, Variable, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.constraints.tight import Tight as TCS
 from numpy import pi
 import numpy as np
@@ -12,10 +12,11 @@ class Fuselage(Model):
     A double-bubble fuselage model
     '''
 
-    def setup(self, **kwargs):
+    def setup(self, Nmissions, **kwargs):
         g = Variable('g',9.81,'m*s^-2','Acceleration due to gravity')
         dPover = Variable('\\delta_P_{over}', 'psi', 'Cabin overpressure')
-        npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+        with Vectorize(Nmissions):
+            npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
                          'Emergency landing load factor')  # [TAS]
         Nlift = Variable('N_{lift}','-','Wing maximum load factor')
@@ -190,17 +191,19 @@ class Fuselage(Model):
         Wfloor = Variable('W_{floor}', 'lbf', 'Floor weight')
         Wfuse = Variable('W_{fuse}', 'lbf', 'Fuselage weight')
         Winsul = Variable('W_{insul}', 'lbf', 'Insulation material weight')
-        Wlugg = Variable('W_{lugg}', 'lbf', 'Passenger luggage weight')
         Wpadd = Variable('W_{padd}', 'lbf',
                          'Misc weights (galley, toilets, doors etc.)')
-        Wpax = Variable('W_{pax}', 'lbf', 'Passenger weight')
-        Wpay = Variable('W_{payload}', 'lbf', 'Payload weight')
         Wseat = Variable('W_{seat}', 'lbf', 'Seating weight')
         Wshell = Variable('W_{shell}', 'lbf', 'Shell weight')
         Wskin = Variable('W_{skin}', 'lbf', 'Skin weight')
         Wtail = Variable('W_{tail}', 'lbf', 'Total tail weight')
         Wwindow = Variable('W_{window}', 'lbf', 'Window weight')
 
+        with Vectorize(Nmissions):
+            Wpay = Variable('W_{payload}', 'lbf', 'Payload weight')
+            Wlugg = Variable('W_{lugg}', 'lbf', 'Passenger luggage weight')
+            Wpax = Variable('W_{pax}', 'lbf', 'Passenger weight')
+        
         # x-location variables
         xshell1 = Variable('x_{shell1}', 'm', 'Start of cylinder section')
         xshell2 = Variable('x_{shell2}', 'm', 'End of cylinder section')
@@ -221,7 +224,7 @@ class Fuselage(Model):
                 Wpax == npax * Wavgpass,
                 Wpay >= Wpax + Wlugg + Wcargo,
                 Wpay >= npax * Wavgpasstot,
-                nseat == npax,
+                nseat >= npax,
                 nrows == nseat / SPR,
                 lshell == nrows * pitch,
 
@@ -402,9 +405,9 @@ class FuselagePerformance(Model):
 
         constraints = []
         constraints.extend([
-            CDfuse == CDfuse,
-            Dfuse == Dfuse,
-            Lfuse == Lfuse,
+##            CDfuse == CDfuse,
+##            Dfuse == Dfuse,
+##            Lfuse == Lfuse,
             #Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
             # fineness ratio
             # f == fuse['l_{fuse}'] / ((4 / np.pi * fuse['A_{fuse}'])**0.5),
