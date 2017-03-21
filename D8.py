@@ -27,7 +27,7 @@ from relaxed_constants import relaxed_constants, post_process
 from D8_TASOPT_percent_diff import percent_diff
 
 # Import VSP generation tools
-from genVSP import updateOpenVSP, genDesFile
+from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
 
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
@@ -1573,7 +1573,7 @@ if __name__ == '__main__':
                 plt.savefig('CFP_Sweeps/AR-vs-npax.pdf')
                 plt.show(),plt.close()
 
-                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('CruiseAlt'))
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('CruiseAlt_Mission'))
                 plt.xlabel('Number of Passengers')
                 plt.ylabel('Cruise Altitude [ft]')
                 plt.title('Cruise Altitude vs Number of Passengers')

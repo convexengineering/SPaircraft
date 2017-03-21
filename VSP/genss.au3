@@ -14,7 +14,7 @@
 #include <AutoItConstants.au3>
 MsgBox($MB_OK, "Tutorial", "Are you sure you are ready for this?!")
 
-For $i = 1 to 1 Step 1
+For $i = 0 to 8 Step 1
 
 	; Changing the value within reload.vspscript
 	MouseMove(-446,121)
