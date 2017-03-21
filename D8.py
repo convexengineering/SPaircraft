@@ -74,7 +74,7 @@ D82 = False
 b737800 = True
 
 #choose multimission or not
-multimission = False
+multimission = True
 
 sweep = 27.566#30 [deg]
 
@@ -518,7 +518,7 @@ class AircraftP(Model):
 
 
             # Static margin constraints
-            self.wingP['c_{m_{w}}'] == 0.55,
+            self.wingP['c_{m_{w}}'] == 2.9,
               
             # SM >= aircraft['SM_{min}'],
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
@@ -849,10 +849,10 @@ class Mission(Model):
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-##                  aircraft['n_{pax}'][0] == 180,
-##                  aircraft['n_{pax}'][1] == 180,
-##                  aircraft['n_{pax}'][2] == 120,
-##                  aircraft['n_{pax}'][3] == 80,
+                  aircraft['n_{pax}'][0] == 180,
+                  aircraft['n_{pax}'][1] == 180,
+                  aircraft['n_{pax}'][2] == 120,
+                  aircraft['n_{pax}'][3] == 80,
                   ReqRng == 3000 * units('nmi'),
                   ])
 
@@ -1343,20 +1343,23 @@ if __name__ == '__main__':
                    # nacelle drag calc parameter
                    'r_{vnace}': 1.02,
                })
-##        if not multimission:
-##            m.substitutions.update({
-##                 'n_{pax}': [180.],
-##                 'ReqRng': [3000.*units('nmi')],
-##            })
-        if multimission:
-               m.substitutions.update({
-                    'n_{pax}': [180, 180, 120, 80]
-                    })
+        if not multimission:
+            m.substitutions.update({
+                 'n_{pax}': [180.],
+                 'ReqRng': [3000.*units('nmi')],
+            })
+##        if multimission:
+##               m.substitutions.update({
+##                    'n_{pax}': [180, 180, 120, 80]
+##                    })
 
         if D82:
              m_relax = relaxed_constants(m)
         if b737800:
              m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+        sol = m_relax.debug()
+        1/0
 
         sol = m_relax.localsolve( verbosity = 4, iteration_limit=200)
 
