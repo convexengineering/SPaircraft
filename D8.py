@@ -750,7 +750,7 @@ class Mission(Model):
                     cruise['L_{total/wing}'] == 1.127,
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
-                    CruiseAlt >= 8000. * units('ft'),
+                    CruiseAlt >= 30000. * units('ft'),
                    ])
 
         constraints.extend([
@@ -779,7 +779,7 @@ class Mission(Model):
         with SignomialsEnabled():
             constraints.extend([
                 # Altitude constraints
-                cruise['hft'] >= CruiseAlt,
+                climb['hft'][-1] >= CruiseAlt,
                 TCS([climb['hft'][1:Nclimb] <= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]), #[SP]
                 TCS([climb['hft'][0] == climb['dhft'][0]]),
 
@@ -922,7 +922,7 @@ substitutions = {
         'SPR': 8.,
         'p_s': 81.*units('cm'),
         '\\theta_{db}' : 0.366,
-##        'CruiseAlt': 36632*units('ft'),
+       # 'CruiseAlt': 30000.*units('ft'),
         'numeng': 2.,
         'numVT': 2.,
         'numaisle':2.,
@@ -1137,227 +1137,13 @@ if __name__ == '__main__':
     Ncruise = 2
     Nmission = 4
     
-    if sweeps == False:
-        if multimission:
-             m = Mission(Nclimb, Ncruise, Nmission = 4)
-        else:
-             m = Mission(Nclimb, Ncruise)
-        m.substitutions.update(substitutions)
-        # m = Model(m.cost,BCS(m))
-        if D80:
-            print('D80 executing...')
-            # for constraint in m.flat(constraintsets=False):
-            #         if 'l_{nose}' in constraint.varkeys:
-            #             print constraint
-            sweep = 27.566
-            m.substitutions.update({
-                #Fuselage subs
-                'f_{seat}':0.1,
-                'W\'_{seat}':1., # Seat weight determined by weight fraction instead
-                'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
-                'W_{avg. pass_{total}}':215.*units('lbf'),
-                'f_{string}':0.35,
-                'AR':10.8730,
-                'h_{floor}': 5.12*units('in'),
-                'R_{fuse}' : 1.715*units('m'),
-                'w_{db}': 0.93*units('m'),
-                # 'b':116.548*0.3048,#units('ft'),
-                # 'c_0': 17.4*0.3048,#units('ft'),
-                #HT subs
-                'AR_h': 8.25,
-                '\\lambda_h' : 0.25,
-                '\\tan(\\Lambda_{ht})':np.tan(20.*np.pi/180.), #tangent of HT sweep
 
-                #VT subs
-                'numVT': 2.,
-                'A_{vt}' : 2.0,
-                '\\lambda_{vt}': 0.3,
-                '\\tan(\\Lambda_{vt})':np.tan(25.*np.pi/180.),
-
-                # Minimum Cruise Mach Number
-                'M_{min}': 0.8,
-            })
-            m.substitutions.__delitem__('\\theta_{db}')
-##            if not multimission:
-##                 m.substitutions.update({
-##                      'n_{pax}': [180.],
-##                      'ReqRng': [3000.*units('nmi')],
-##                      })
-
-        if D82:
-            print('D82 executing...')
-            sweep = 13.237
-            m.substitutions.update({
-                # Fuselage subs
-                'f_{seat}': 0.1,
-                'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
-                'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
-                'W_{avg. pass_{total}}':215.*units('lbf'),
-                'f_{string}': 0.35,
-                # 'AR':15.749,
-                'h_{floor}': 5.12*units('in'),
-                'R_{fuse}': 1.715*units('m'),
-                '\\delta R_{fuse}': 0.43*units('m'),
-                'w_{db}': 0.93*units('m'),
-                'b_{max}': 140.0 * 0.3048*units('m'),
-                # 'c_0': 17.4*0.3048,#units('ft'),
-                '\\delta_P_{over}': 8.382 * units('psi'),
-                
-
-                # Power system and landing gear subs
-                'f_{hpesys}': 0.01, # [TAS]
-                'f_{lgmain}':0.03, # [TAS]
-                'f_{lgnose}':0.0075, # [TAS]
-
-                # HT subs
-                'AR_h': 12.,
-                '\\lambda_h': 0.3,
-                '\\tan(\\Lambda_{ht})': np.tan(8. * np.pi / 180.),  # tangent of HT sweep
-                # 'V_{ht}': 0.895,
-
-                # VT subs
-                'numVT': 2.,
-                # 'A_{vt}' : 2.2,
-                '\\lambda_{vt}': 0.3,
-                '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
-                ##                'V_{vt}': .03,
-
-                # Wing subs
-                'C_{L_{wmax}}': 2.15,
-
-                # Minimum Cruise Mach Number
-                'M_{min}': 0.72,
-            })
-            m.substitutions.__delitem__('\\theta_{db}')
-##            if not multimission:
-##                 m.substitutions.update({
-##                      'n_{pax}': [180.],
-##                      'ReqRng': [3000.*units('nmi')],
-##                      })
-
-        if b737800:
-               print('737-800 executing...')
-               
-               M4a = .1025
-               fan = 1.685
-               lpc  = 8./1.685
-               hpc = 30./8.
-
-               m.substitutions.update({
-                   # Engine substitutions
-                   '\\pi_{tn}': .989,
-                   '\pi_{b}': .94,
-                   '\pi_{d}': .998,
-                   '\pi_{fn}': .98,
-                   'T_{ref}': 288.15,
-                   'P_{ref}': 101.325,
-                   '\eta_{HPshaft}': .99,
-                   '\eta_{LPshaft}': .978,
-                   'eta_{B}': .985,
-
-                   '\pi_{f_D}': fan,
-                   '\pi_{hc_D}': hpc,
-                   '\pi_{lc_D}': lpc,
-
-                   '\\alpha_{OD}': 5.1,
-                   '\\alpha_{max}': 5.1,
-
-                   'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
-                   'r_{uc}': .01,
-                   '\\alpha_c': .19036,
-                   'T_{t_f}': 435.,
-
-                   'M_{takeoff}': .9556,
-
-                   'G_f': 1.,
-
-                   'h_f': 43.003,
-
-                   'Cp_t1': 1280.,
-                   'Cp_t2': 1184.,
-                   'Cp_c': 1216.,
-
-                   'HTR_{f_SUB}': 1. - .3 ** 2.,
-                   'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
-
-                    # Power system and landing gear and engine weight fraction subs
-                    'f_{hpesys}': 0.01, # [TAS]
-                    'f_{lgmain}':0.044, # [TAS]
-                    'f_{lgnose}':0.011, # [TAS]
-                    'f_{pylon}': 0.10,
-
-
-                   # fuselage subs that make fuse circular
-                   '\\delta R_{fuse}': 0.0001 * units('m'),
-                   '\\theta_{db}': 0.0001,
-
-                   # Fuselage subs
-                   'l_{nose}':20.*units('ft'),
-                   'numaisle': 1.,
-                   'SPR': 6.,
-                   'f_{seat}': 0.1,
-                   'W\'_{seat}': 1. * units('N'),  # Seat weight determined by weight fraction instead
-                    'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
-                   'W_{avg. pass_{total}}':215.*units('lbf'),
-                   'f_{string}': 0.35,
-                   'h_{floor}': 5. * units('in'),
-                   # 'R_{fuse}' : 1.715*units('m'),
-                   'b_{max}': 117.5 * units('ft'),
-                   # 'c_0': 17.4*0.3048,#units('ft'),
-                   '\\delta_P_{over}': 8.382 * units('psi'),
-
-                   # HT subs
-                   'AR_h': 6.,
-                   '\\lambda_h': 0.25,
-                   '\\tan(\\Lambda_{ht})': np.tan(25. * np.pi / 180.),  # tangent of HT sweep
-                   #'V_{ht}': .6,
-                   'C_{L_{hmax}}': 2.0,  # [TAS]
-                   'C_{L_{hfcG}}': 0.7,
-                   '\\Delta x_{CG}': 7.68 * units('ft'),
-                   'x_{CG_{min}}': 30.*units('ft'),#56.75 * units('ft'),
-                   'SM_{min}': .05,
-
-                   # VT subs
-                   'numVT': 1.,
-                   'A_{vt}': 2.,
-                   '\\lambda_{vt}': 0.3,
-                   '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
-                   #                    'V_{vt}': .07,
-                   'N_{spar}': 1.,
-                   '\\dot{r}_{req}': 0.15,  # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
-
-                   # Wing subs
-                   'C_{L_{wmax}}': 2.15,
-                   'f_{slat}': 0.1,
-                   'AR': 10.1,
-
-                   # Minimum Cruise Mach Number
-                   'M_{min}': 0.8,
-                   # Minimum Cruise Altitude
-##                   'CruiseAlt': 8000. * units('ft'),
-
-                   # engine system subs
-                   'rSnace': 16.,
-                   # nacelle drag calc parameter
-                   'r_{vnace}': 1.02,
-               })
-##        if not multimission:
-##            m.substitutions.update({
-##                 'n_{pax}': [180.],
-##                 'ReqRng': [3000.*units('nmi')],
-##            })
-        if multimission:
-               m.substitutions.update({
-                    'n_{pax}': [180, 180, 120, 80]
-                    })
-
-        if D82:
-             m_relax = relaxed_constants(m)
-        if b737800:
-             m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
-
-    m = Mission(Nclimb, Ncruise)
-    m.substitutions.update(substitutions)  # m = Model(m.cost,BCS(m))
+    if multimission:
+        m = Mission(Nclimb, Ncruise, Nmission = 4)
+    else:
+        m = Mission(Nclimb, Ncruise)
+    m.substitutions.update(substitutions)
+    # m = Model(m.cost,BCS(m))
     if D80:
         print('D80 executing...')
         # for constraint in m.flat(constraintsets=False):
@@ -1365,33 +1151,38 @@ if __name__ == '__main__':
         #             print constraint
         sweep = 27.566
         m.substitutions.update({
-            # Fuselage subs
-            'f_{seat}': 0.1,
-            'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
-            'W_{cargo}': 0.1 * units('N'),  # Cargo weight determined by W_{avg. pass_{total}}
-            'W_{avg. pass_{total}}': 215. * units('lbf'),
-            'f_{string}': 0.35,
-            'AR': 10.8730,
-            'h_{floor}': 5.12 * units('in'),
-            'R_{fuse}': 1.715 * units('m'),
-            'w_{db}': 0.93 * units('m'),
+            #Fuselage subs
+            'f_{seat}':0.1,
+            'W\'_{seat}':1., # Seat weight determined by weight fraction instead
+            'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
+            'W_{avg. pass_{total}}':215.*units('lbf'),
+            'f_{string}':0.35,
+            'AR':10.8730,
+            'h_{floor}': 5.12*units('in'),
+            'R_{fuse}' : 1.715*units('m'),
+            'w_{db}': 0.93*units('m'),
             # 'b':116.548*0.3048,#units('ft'),
             # 'c_0': 17.4*0.3048,#units('ft'),
-            # HT subs
+            #HT subs
             'AR_h': 8.25,
-            '\\lambda_h': 0.25,
-            '\\tan(\\Lambda_{ht})': np.tan(20. * np.pi / 180.),  # tangent of HT sweep
+            '\\lambda_h' : 0.25,
+            '\\tan(\\Lambda_{ht})':np.tan(20.*np.pi/180.), #tangent of HT sweep
 
-            # VT subs
+            #VT subs
             'numVT': 2.,
-            'A_{vt}': 2.0,
+            'A_{vt}' : 2.0,
             '\\lambda_{vt}': 0.3,
-            '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),
+            '\\tan(\\Lambda_{vt})':np.tan(25.*np.pi/180.),
 
             # Minimum Cruise Mach Number
             'M_{min}': 0.8,
         })
         m.substitutions.__delitem__('\\theta_{db}')
+        # if not multimission:
+        #     m.substitutions.update({
+        #         'n_{pax}': [180.],
+        #         'ReqRng': [3000.*units('nmi')],
+        #     })
 
     if D82:
         print('D82 executing...')
@@ -1400,22 +1191,23 @@ if __name__ == '__main__':
             # Fuselage subs
             'f_{seat}': 0.1,
             'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
-            'W_{cargo}': 0.1 * units('N'),  # Cargo weight determined by W_{avg. pass_{total}}
-            'W_{avg. pass_{total}}': 215. * units('lbf'),
+            'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
+            'W_{avg. pass_{total}}':215.*units('lbf'),
             'f_{string}': 0.35,
             # 'AR':15.749,
-            'h_{floor}': 5.12 * units('in'),
-            'R_{fuse}': 1.715 * units('m'),
-            '\\delta R_{fuse}': 0.43 * units('m'),
-            'w_{db}': 0.93 * units('m'),
-            'b_{max}': 140.0 * 0.3048 * units('m'),
+            'h_{floor}': 5.12*units('in'),
+            'R_{fuse}': 1.715*units('m'),
+            '\\delta R_{fuse}': 0.43*units('m'),
+            'w_{db}': 0.93*units('m'),
+            'b_{max}': 140.0 * 0.3048*units('m'),
             # 'c_0': 17.4*0.3048,#units('ft'),
             '\\delta_P_{over}': 8.382 * units('psi'),
 
+
             # Power system and landing gear subs
-            'f_{hpesys}': 0.01,  # [TAS]
-            'f_{lgmain}': 0.03,  # [TAS]
-            'f_{lgnose}': 0.0075,  # [TAS]
+            'f_{hpesys}': 0.01, # [TAS]
+            'f_{lgmain}':0.03, # [TAS]
+            'f_{lgnose}':0.0075, # [TAS]
 
             # HT subs
             'AR_h': 12.,
@@ -1437,114 +1229,128 @@ if __name__ == '__main__':
             'M_{min}': 0.72,
         })
         m.substitutions.__delitem__('\\theta_{db}')
+##            if not multimission:
+##                 m.substitutions.update({
+##                      'n_{pax}': [180.],
+##                      'ReqRng': [3000.*units('nmi')],
+##                      })
 
     if b737800:
-        print('737-800 executing...')
+           print('737-800 executing...')
 
-        M4a = .1025
-        fan = 1.685
-        lpc = 8. / 1.685
-        hpc = 30. / 8.
+           M4a = .1025
+           fan = 1.685
+           lpc  = 8./1.685
+           hpc = 30./8.
 
-        m.substitutions.update({
-            # Engine substitutions
-            '\\pi_{tn}': .989,
-            '\pi_{b}': .94,
-            '\pi_{d}': .998,
-            '\pi_{fn}': .98,
-            'T_{ref}': 288.15,
-            'P_{ref}': 101.325,
-            '\eta_{HPshaft}': .99,
-            '\eta_{LPshaft}': .978,
-            'eta_{B}': .985,
+           m.substitutions.update({
+               # Engine substitutions
+               '\\pi_{tn}': .989,
+               '\pi_{b}': .94,
+               '\pi_{d}': .998,
+               '\pi_{fn}': .98,
+               'T_{ref}': 288.15,
+               'P_{ref}': 101.325,
+               '\eta_{HPshaft}': .99,
+               '\eta_{LPshaft}': .978,
+               'eta_{B}': .985,
 
-            '\pi_{f_D}': fan,
-            '\pi_{hc_D}': hpc,
-            '\pi_{lc_D}': lpc,
+               '\pi_{f_D}': fan,
+               '\pi_{hc_D}': hpc,
+               '\pi_{lc_D}': lpc,
 
-            '\\alpha_{OD}': 5.1,
-            '\\alpha_{max}': 5.1,
+               '\\alpha_{OD}': 5.1,
+               '\\alpha_{max}': 5.1,
 
-            'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
-            'r_{uc}': .01,
-            '\\alpha_c': .19036,
-            'T_{t_f}': 435.,
+               'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
+               'r_{uc}': .01,
+               '\\alpha_c': .19036,
+               'T_{t_f}': 435.,
 
-            'M_{takeoff}': .9556,
+               'M_{takeoff}': .9556,
 
-            'G_f': 1.,
+               'G_f': 1.,
 
-            'h_f': 43.003,
+               'h_f': 43.003,
 
-            'Cp_t1': 1280.,
-            'Cp_t2': 1184.,
-            'Cp_c': 1216.,
+               'Cp_t1': 1280.,
+               'Cp_t2': 1184.,
+               'Cp_c': 1216.,
 
-            'HTR_{f_SUB}': 1. - .3 ** 2.,
-            'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
+               'HTR_{f_SUB}': 1. - .3 ** 2.,
+               'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
 
-            # Power system and landing gear and engine weight fraction subs
-            'f_{hpesys}': 0.01,  # [TAS]
-            'f_{lgmain}': 0.044,  # [TAS]
-            'f_{lgnose}': 0.011,  # [TAS]
-            'f_{pylon}': 0.10,
+                # Power system and landing gear and engine weight fraction subs
+                'f_{hpesys}': 0.01, # [TAS]
+                'f_{lgmain}':0.044, # [TAS]
+                'f_{lgnose}':0.011, # [TAS]
+                'f_{pylon}': 0.10,
 
-            # fuselage subs that make fuse circular
-            '\\delta R_{fuse}': 0.0001 * units('m'),
-            '\\theta_{db}': 0.0001,
 
-            # Fuselage subs
-            'l_{nose}': 20. * units('ft'),
-            'numaisle': 1.,
-            'SPR': 6.,
-            'f_{seat}': 0.1,
-            'W\'_{seat}': 1. * units('N'),  # Seat weight determined by weight fraction instead
-            'W_{cargo}': 0.1 * units('N'),  # Cargo weight determined by W_{avg. pass_{total}}
-            'W_{avg. pass_{total}}': 215. * units('lbf'),
-            'f_{string}': 0.35,
-            'h_{floor}': 5. * units('in'),
-            # 'R_{fuse}' : 1.715*units('m'),
-            'b_{max}': 117.5 * units('ft'),
-            # 'c_0': 17.4*0.3048,#units('ft'),
-            '\\delta_P_{over}': 8.382 * units('psi'),
+               # fuselage subs that make fuse circular
+               '\\delta R_{fuse}': 0.0001 * units('m'),
+               '\\theta_{db}': 0.0001,
 
-            # HT subs
-            'AR_h': 6.,
-            '\\lambda_h': 0.25,
-            '\\tan(\\Lambda_{ht})': np.tan(25. * np.pi / 180.),  # tangent of HT sweep
-            # 'V_{ht}': .6,
-            'C_{L_{hmax}}': 2.0,  # [TAS]
-            'C_{L_{hfcG}}': 0.7,
-            '\\Delta x_{CG}': 7.68 * units('ft'),
-            'x_{CG_{min}}': 30. * units('ft'),  # 56.75 * units('ft'),
-            'SM_{min}': .05,
+               # Fuselage subs
+               'l_{nose}':20.*units('ft'),
+               'numaisle': 1.,
+               'SPR': 6.,
+               'f_{seat}': 0.1,
+               'W\'_{seat}': 1. * units('N'),  # Seat weight determined by weight fraction instead
+                'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
+               'W_{avg. pass_{total}}':215.*units('lbf'),
+               'f_{string}': 0.35,
+               'h_{floor}': 5. * units('in'),
+               # 'R_{fuse}' : 1.715*units('m'),
+               'b_{max}': 117.5 * units('ft'),
+               # 'c_0': 17.4*0.3048,#units('ft'),
+               '\\delta_P_{over}': 8.382 * units('psi'),
 
-            # VT subs
-            'numVT': 1.,
-            'A_{vt}': 2.,
-            '\\lambda_{vt}': 0.3,
-            '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
-            #                    'V_{vt}': .07,
-            'N_{spar}': 1.,
-            '\\dot{r}_{req}': 0.15,  # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
+               # HT subs
+               'AR_h': 6.,
+               '\\lambda_h': 0.25,
+               '\\tan(\\Lambda_{ht})': np.tan(25. * np.pi / 180.),  # tangent of HT sweep
+               #'V_{ht}': .6,
+               'C_{L_{hmax}}': 2.0,  # [TAS]
+               'C_{L_{hfcG}}': 0.7,
+               '\\Delta x_{CG}': 7.68 * units('ft'),
+               'x_{CG_{min}}': 30.*units('ft'),#56.75 * units('ft'),
+               'SM_{min}': .05,
 
-            # Wing subs
-            'C_{L_{wmax}}': 2.15,
-            'f_{slat}': 0.1,
-            # 'AR': 10.1,
+               # VT subs
+               'numVT': 1.,
+               'A_{vt}': 2.,
+               '\\lambda_{vt}': 0.3,
+               '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
+               #                    'V_{vt}': .07,
+               'N_{spar}': 1.,
+               '\\dot{r}_{req}': 0.15,  # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
-            # Minimum Cruise Mach Number
-            'M_{min}': 0.8,
-            # Minimum Cruise Altitude
-            'CruiseAlt': 8000. * units('ft'),
+               # Wing subs
+               'C_{L_{wmax}}': 2.15,
+               'f_{slat}': 0.1,
+               'AR': 10.1,
 
-            # engine system subs
-            'rSnace': 16.,
-            # nacelle drag calc parameter
-            'r_{vnace}': 1.02,
-        })
+               # Minimum Cruise Mach Number
+               'M_{min}': 0.8,
+               # Minimum Cruise Altitude
+##                   'CruiseAlt': 8000. * units('ft'),
 
-    if D82:
+               # engine system subs
+               'rSnace': 16.,
+               # nacelle drag calc parameter
+               'r_{vnace}': 1.02,
+           })
+##        if not multimission:
+##            m.substitutions.update({
+##                 'n_{pax}': [180.],
+##                 'ReqRng': [3000.*units('nmi')],
+##            })
+    if multimission:
+           m.substitutions.update({
+                'n_{pax}': [180, 180, 120, 80]})
+
+    if D80 or D82:
         m_relax = relaxed_constants(m)
     if b737800:
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
@@ -1552,6 +1358,7 @@ if __name__ == '__main__':
     if sweeps == False:
         sol = m_relax.localsolve(verbosity=4, iteration_limit=200)
         post_process(sol)
+
 ##        m.cost = m_relax.cost
 ##
 ##        sol = m.localsolve( verbosity = 4, iteration_limit=50, x0=sol['variables'])
