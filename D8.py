@@ -5,7 +5,7 @@ import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.constraints.tight import Tight as TCS
 from gpkit.tools import te_exp_minus1
-from numpy import pi, cos, tan
+from numpy import pi, cos, tan, arctan, arccos
 
 TCS.reltol = 1e-3
 
@@ -20,11 +20,14 @@ from D8_Wing_simple_profile import Wing
 from turbofan.engine_validation import Engine
 from D8_Fuselage import Fuselage
 
-#import constant relaxtion tool
+# Import constant relaxation tool
 from relaxed_constants import relaxed_constants, post_process
 
-#import tool to check solution relative to TASOPT
+# Import tool to check solution relative to TASOPT
 from D8_TASOPT_percent_diff import percent_diff
+
+# Import VSP generation tools
+from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
 
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
@@ -52,19 +55,19 @@ Other markers:
 """
 
 # Script for doing sweeps
-n = 5
+n = 10
 sweeps = False
 sweepSMmin = False
-sweepdxCG = True
-sweepReqRng = True
-sweepthetadb = True
-sweepxCG = True
-sweepCruiseAlt = True
-sweepMmin = True
+sweepdxCG = False
+sweepReqRng = False
+sweepthetadb = False
+sweepxCG = False
+sweepCruiseAlt = False
+sweepMmin = False
 sweepnpax = True
-sweepResFuel = True
+sweepResFuel = False
 
-autoupdateVSP = False
+genVSP = True
 
 plot = True
 
@@ -108,7 +111,7 @@ class Aircraft(Model):
         Vmn = Variable('V_{mn}',133.76,'m/s','Maneuvering speed')
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
         ReserveFraction = Variable('ReserveFraction', '-', 'Fuel Reserve Fraction')
-        
+
         SMmin = Variable('SM_{min}','-', 'Minimum Static Margin')
         dxCG = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
         xCGmin = Variable('x_{CG_{min}}','m','Maximum Forward CG')
@@ -518,7 +521,7 @@ class AircraftP(Model):
 
 
             # Static margin constraints
-            self.wingP['c_{m_{w}}'] == 0.55,
+            self.wingP['c_{m_{w}}'] == 1.5,
               
             # SM >= aircraft['SM_{min}'],
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
@@ -681,10 +684,6 @@ class Mission(Model):
         with Vectorize(Nmission):
              CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
              ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
-             RngCruise = Variable('RngCruise', 'nautical_miles', 'Total Cruise Range')
-
-             #hold variables
-             hftCruiseHold = Variable('hftCruiseHold', 'ft', 'Temp Variable to Avoid Dimension Mismatch')
 
         # make overall constraints
         constraints = []
@@ -781,12 +780,11 @@ class Mission(Model):
             constraints.extend([
                 # Altitude constraints
                 cruise['hft'] >= CruiseAlt,
-                TCS([climb['hft'][1:Nclimb] >= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]),
+                TCS([climb['hft'][1:Nclimb] <= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]), #[SP]
                 TCS([climb['hft'][0] == climb['dhft'][0]]),
-                 cruise['hft'][0] == hftCruiseHold,
 
-                # Compute dh
-                climb['dhft'] == hftCruiseHold / Nclimb,
+                # All climb segments have the same total altitude change
+                climb['dhft'][1:Nclimb] == climb['dhft'][:Nclimb - 1],
 
                 # compute fuel burn from TSFC
                 cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][Nclimb:] * \
@@ -802,8 +800,8 @@ class Mission(Model):
                 aircraft.VT['T_e'] == 1.2 * climb.climbP.engine['F'][0],
 
                 # Set the range for each cruise segment, doesn't take credit for
-                # down range distance covered during climb
-                cruise['Rng'] == RngCruise / (Ncruise),
+                # All cruise segments cover the same range
+                cruise['Rng'][:Ncruise-1] == cruise['Rng'][1:Ncruise],
 
                 # Cruise Mach Number constraint
                 cruise['M'] >= aircraft['M_{min}'],
@@ -837,7 +835,7 @@ class Mission(Model):
         with SignomialsEnabled():
             constraints.extend([
                 #set the range constraints
-                TCS([sum(climb['RngClimb']) + RngCruise >= ReqRng]), #[SP]
+                TCS([sum(climb['RngClimb']) + sum(cruise['Rng']) >= ReqRng]), #[SP]
 
                 # Cruise climb constraint
                 cruise['hft'][0] <= climb['hft'][-1] + cruise['dhft'][0], #[SP]
@@ -1358,10 +1356,202 @@ if __name__ == '__main__':
         if b737800:
              m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-        sol = m_relax.localsolve( verbosity = 4, iteration_limit=200)
+    m = Mission(Nclimb, Ncruise)
+    m.substitutions.update(substitutions)  # m = Model(m.cost,BCS(m))
+    if D80:
+        print('D80 executing...')
+        # for constraint in m.flat(constraintsets=False):
+        #         if 'l_{nose}' in constraint.varkeys:
+        #             print constraint
+        sweep = 27.566
+        m.substitutions.update({
+            # Fuselage subs
+            'f_{seat}': 0.1,
+            'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
+            'W_{cargo}': 0.1 * units('N'),  # Cargo weight determined by W_{avg. pass_{total}}
+            'W_{avg. pass_{total}}': 215. * units('lbf'),
+            'f_{string}': 0.35,
+            'AR': 10.8730,
+            'h_{floor}': 5.12 * units('in'),
+            'R_{fuse}': 1.715 * units('m'),
+            'w_{db}': 0.93 * units('m'),
+            # 'b':116.548*0.3048,#units('ft'),
+            # 'c_0': 17.4*0.3048,#units('ft'),
+            # HT subs
+            'AR_h': 8.25,
+            '\\lambda_h': 0.25,
+            '\\tan(\\Lambda_{ht})': np.tan(20. * np.pi / 180.),  # tangent of HT sweep
 
+            # VT subs
+            'numVT': 2.,
+            'A_{vt}': 2.0,
+            '\\lambda_{vt}': 0.3,
+            '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),
+
+            # Minimum Cruise Mach Number
+            'M_{min}': 0.8,
+        })
+        m.substitutions.__delitem__('\\theta_{db}')
+
+    if D82:
+        print('D82 executing...')
+        sweep = 13.237
+        m.substitutions.update({
+            # Fuselage subs
+            'f_{seat}': 0.1,
+            'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
+            'W_{cargo}': 0.1 * units('N'),  # Cargo weight determined by W_{avg. pass_{total}}
+            'W_{avg. pass_{total}}': 215. * units('lbf'),
+            'f_{string}': 0.35,
+            # 'AR':15.749,
+            'h_{floor}': 5.12 * units('in'),
+            'R_{fuse}': 1.715 * units('m'),
+            '\\delta R_{fuse}': 0.43 * units('m'),
+            'w_{db}': 0.93 * units('m'),
+            'b_{max}': 140.0 * 0.3048 * units('m'),
+            # 'c_0': 17.4*0.3048,#units('ft'),
+            '\\delta_P_{over}': 8.382 * units('psi'),
+
+            # Power system and landing gear subs
+            'f_{hpesys}': 0.01,  # [TAS]
+            'f_{lgmain}': 0.03,  # [TAS]
+            'f_{lgnose}': 0.0075,  # [TAS]
+
+            # HT subs
+            'AR_h': 12.,
+            '\\lambda_h': 0.3,
+            '\\tan(\\Lambda_{ht})': np.tan(8. * np.pi / 180.),  # tangent of HT sweep
+            # 'V_{ht}': 0.895,
+
+            # VT subs
+            'numVT': 2.,
+            # 'A_{vt}' : 2.2,
+            '\\lambda_{vt}': 0.3,
+            '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
+            ##                'V_{vt}': .03,
+
+            # Wing subs
+            'C_{L_{wmax}}': 2.15,
+
+            # Minimum Cruise Mach Number
+            'M_{min}': 0.72,
+        })
+        m.substitutions.__delitem__('\\theta_{db}')
+
+    if b737800:
+        print('737-800 executing...')
+
+        M4a = .1025
+        fan = 1.685
+        lpc = 8. / 1.685
+        hpc = 30. / 8.
+
+        m.substitutions.update({
+            # Engine substitutions
+            '\\pi_{tn}': .989,
+            '\pi_{b}': .94,
+            '\pi_{d}': .998,
+            '\pi_{fn}': .98,
+            'T_{ref}': 288.15,
+            'P_{ref}': 101.325,
+            '\eta_{HPshaft}': .99,
+            '\eta_{LPshaft}': .978,
+            'eta_{B}': .985,
+
+            '\pi_{f_D}': fan,
+            '\pi_{hc_D}': hpc,
+            '\pi_{lc_D}': lpc,
+
+            '\\alpha_{OD}': 5.1,
+            '\\alpha_{max}': 5.1,
+
+            'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
+            'r_{uc}': .01,
+            '\\alpha_c': .19036,
+            'T_{t_f}': 435.,
+
+            'M_{takeoff}': .9556,
+
+            'G_f': 1.,
+
+            'h_f': 43.003,
+
+            'Cp_t1': 1280.,
+            'Cp_t2': 1184.,
+            'Cp_c': 1216.,
+
+            'HTR_{f_SUB}': 1. - .3 ** 2.,
+            'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
+
+            # Power system and landing gear and engine weight fraction subs
+            'f_{hpesys}': 0.01,  # [TAS]
+            'f_{lgmain}': 0.044,  # [TAS]
+            'f_{lgnose}': 0.011,  # [TAS]
+            'f_{pylon}': 0.10,
+
+            # fuselage subs that make fuse circular
+            '\\delta R_{fuse}': 0.0001 * units('m'),
+            '\\theta_{db}': 0.0001,
+
+            # Fuselage subs
+            'l_{nose}': 20. * units('ft'),
+            'numaisle': 1.,
+            'SPR': 6.,
+            'f_{seat}': 0.1,
+            'W\'_{seat}': 1. * units('N'),  # Seat weight determined by weight fraction instead
+            'W_{cargo}': 0.1 * units('N'),  # Cargo weight determined by W_{avg. pass_{total}}
+            'W_{avg. pass_{total}}': 215. * units('lbf'),
+            'f_{string}': 0.35,
+            'h_{floor}': 5. * units('in'),
+            # 'R_{fuse}' : 1.715*units('m'),
+            'b_{max}': 117.5 * units('ft'),
+            # 'c_0': 17.4*0.3048,#units('ft'),
+            '\\delta_P_{over}': 8.382 * units('psi'),
+
+            # HT subs
+            'AR_h': 6.,
+            '\\lambda_h': 0.25,
+            '\\tan(\\Lambda_{ht})': np.tan(25. * np.pi / 180.),  # tangent of HT sweep
+            # 'V_{ht}': .6,
+            'C_{L_{hmax}}': 2.0,  # [TAS]
+            'C_{L_{hfcG}}': 0.7,
+            '\\Delta x_{CG}': 7.68 * units('ft'),
+            'x_{CG_{min}}': 30. * units('ft'),  # 56.75 * units('ft'),
+            'SM_{min}': .05,
+
+            # VT subs
+            'numVT': 1.,
+            'A_{vt}': 2.,
+            '\\lambda_{vt}': 0.3,
+            '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
+            #                    'V_{vt}': .07,
+            'N_{spar}': 1.,
+            '\\dot{r}_{req}': 0.15,  # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
+
+            # Wing subs
+            'C_{L_{wmax}}': 2.15,
+            'f_{slat}': 0.1,
+            # 'AR': 10.1,
+
+            # Minimum Cruise Mach Number
+            'M_{min}': 0.8,
+            # Minimum Cruise Altitude
+            'CruiseAlt': 8000. * units('ft'),
+
+            # engine system subs
+            'rSnace': 16.,
+            # nacelle drag calc parameter
+            'r_{vnace}': 1.02,
+        })
+
+    if D82:
+        m_relax = relaxed_constants(m)
+    if b737800:
+        m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    if sweeps == False:
+        sol = m_relax.localsolve(verbosity=4, iteration_limit=200)
         post_process(sol)
-
 ##        m.cost = m_relax.cost
 ##
 ##        sol = m.localsolve( verbosity = 4, iteration_limit=50, x0=sol['variables'])
@@ -1372,11 +1562,8 @@ if __name__ == '__main__':
 
              if b737800:
                   percent_diff(sol, 801, Nclimb)
-
     if sweeps:
         if sweepSMmin:
-            m = Mission(Nclimb, Ncruise)
-            m.substitutions.update(substitutions)
             SMminArray = np.linspace(0.05,0.5,n)
             m.substitutions.update({'SM_{min}': ('sweep',SMminArray)})
             m = relaxed_constants(m)
@@ -1626,8 +1813,6 @@ if __name__ == '__main__':
 ##                plt.show(),plt.close()
 
         if sweepnpax:
-            m = Mission(Nclimb, Ncruise)
-            m.substitutions.update(substitutions)
             npaxArray = np.linspace(150,400,n)
             m.substitutions.update({'n_{pax}':('sweep',npaxArray)})
             m = relaxed_constants(m)
@@ -1655,7 +1840,7 @@ if __name__ == '__main__':
                 plt.savefig('CFP_Sweeps/AR-vs-npax.pdf')
                 plt.show(),plt.close()
 
-                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('CruiseAlt'))
+                plt.plot(solnpaxsweep('n_{pax}'),solnpaxsweep('CruiseAlt_Mission'))
                 plt.xlabel('Number of Passengers')
                 plt.ylabel('Cruise Altitude [ft]')
                 plt.title('Cruise Altitude vs Number of Passengers')
@@ -1768,3 +1953,9 @@ if __name__ == '__main__':
                 plt.title('Wing Mass Fraction vs Reserve Fuel Fraction')
                 plt.savefig('CFP_Sweeps/fwing-vs-resfuel.pdf')
                 plt.show(),plt.close()
+    if genVSP:
+        if sweeps == False:
+            genDesFile(sol,False,0,b737800)
+        if sweeps:
+            genDesFileSweep(sol,n,b737800)
+
