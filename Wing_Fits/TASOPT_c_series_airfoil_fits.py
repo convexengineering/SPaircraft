@@ -107,74 +107,31 @@ def make_fit(thick_range, re_range, M_range):
 
 def plot_fits(thick_range, re_range, M_range, cl_range):
     "plot fit compared to data"
-##    colors = ["k", "m", "b", "g", "y"]#, "r"]#, "c", "m", "k"]
-##    res = np.linspace(re_range[0], re_range[-1], 50)
-##    for m in M_range:
-##        for n in thick_range:
-##            i = 0
-##            fig, ax = plt.subplots()
-##            for i in range(len(re_range)):
-##                cd = []
-##                cl = []
-##                
-##                r = re_range[i]
-##                dataf = text_to_df("blade.c%s.Re%dk.M%s.pol" % (n, r, m))
-##                if len(dataf["CL"]) != 0:
-##                    cd.append(dataf["CD"])
-##                    cl.append(dataf["CL"])
-##                    ax.plot(cl, cd, "o", mec=colors[i], c="None", mew=1.5)
-##                i = i+1
-##            ax.set_xlabel("$C_{l}$")
-##            ax.set_ylabel("$c_{dp}$")
-##            ax.grid()
-##            ax.set_title('NC%s Drag Polar for M=%s and Re of %sk' % (n, m, r))
-##            fig.savefig("wing__data_fits/tasopt_c_series_data_M%s_Re%s.pdf" % (m, r), bbox_inches="tight")
-##
-##    for m in M_range:
-##        for n in thick_range:
-##            i = 0
-##            fig, ax = plt.subplots()
-##            for i in range(len(re_range)):
-##                cd = []
-##                cl = []
-##                
-##                r = re_range[i]
-##                dataf = text_to_df("blade.c%s.Re%dk.M%s.pol" % (n, r, m))
-##                if len(dataf["CL"]) != 0:
-##                    cd.append(dataf["CD"])
-##                    cl.append(dataf["CL"])
-##                    ax.plot(np.log(cl), np.log(cd), "o", mec=colors[i], c="None", mew=1.5)
-##                i = i+1                
-##            ax.set_xlabel("Log of $C_{l}$")
-##            ax.set_ylabel("Log of $c_{dp}$")
-##            ax.grid()
-##            ax.set_title('NC%s Drag Polar for M=%s and Re of %sk' % (n, m, r))
-##            fig.savefig("wing_data_fits/log_tasopt_c_series_data_M%s_Re%s.pdf" % (m, r), bbox_inches="tight")
-##                    
-##    colors = ["k", "m", "b", "g", "y", "r", "c", "m", "k"]
-##    for r in re_range:
-##        fig, ax = plt.subplots()
-##        for n, col in zip(thick_range, colors):
-##            i = 0
-##            for i in range(len(cl_range)):
-##                cd = []
-##                m_vec = []
-##                cl = []
-##                for m in M_range:
-##                    dataf = text_to_df("blade.c%s.Re%dk.M%s.pol" % (n, r, m))
-##                    for j in range(len(dataf["CL"])):
-##                        if dataf["CL"][j] <= cl_range[i]+0.01 and dataf["CL"][j] >= cl_range[i]-0.01:
-##                            cd.append(dataf["CD"][j])
-##                            m_vec.append(m)
-##                            cl.append(dataf["CL"][j])
-##                ax.plot(m_vec, cd, "o", mec=colors[i], c="None", mew=1.5)
-##                i = i+1
-##            ax.legend(cl_range, loc=2, fontsize=15)
-##            ax.set_xlabel("M")
-##            ax.set_ylabel("$c_{dp}$")
-##            ax.grid()
-##            ax.set_title('NC%s Drag Rise for Re of %sk' % (n, r))
-##            fig.savefig("m_fits/tasopt_NC%s_Re%s_drag_rise.pdf" % (n, r), bbox_inches="tight")
+    colors = ["k", "m", "b", "g", "y"]#, "r"]#, "c", "m", "k"]
+    res = np.linspace(re_range[0], re_range[-1], 50)
+    for m in M_range:
+        for n in thick_range:
+            i = 0
+            fig, ax = plt.subplots()
+            for i in range(len(re_range)):
+                cd = []
+                cl = []
+                w = []
+                r = re_range[i]
+                dataf = text_to_df("blade.c%s.Re%dk.M%s.pol" % (n, r, m))
+                if len(dataf["CL"]) != 0:
+                    cd.append(dataf["CD"])
+                    cl.append(dataf["CL"])
+                    ax.plot(cl, cd, "o", mec=colors[i], c="None", mew=1.5)
+                for h in range(len(cl_range)):
+                    w.append(return_fit(r, float(n)/1000., m, cl_range[h]))
+                    h = h+1
+                ax.plot(cl_range, w, c=colors[i], label="NC%s" % n, lw=2)
+                i = i+1
+            ax.set_xlabel("$C_{l}$")
+            ax.set_ylabel("$c_{dp}$")
+            ax.grid()
+            ax.set_title('NC%s Drag Polar for M=%s and Re of %sk' % (n, m, r))
     
     colors = ["k", "m", "b", "g", "y", "r", "c", "m", "k"]
     res = np.linspace(re_range[0], re_range[-1], 50)
@@ -203,38 +160,44 @@ def plot_fits(thick_range, re_range, M_range, cl_range):
                     h = h+1
                 ax.plot(m_vec, w, c=colors[i], label="NC%s" % n, lw=2)
                 i = i+1
-##                ax.legend(cl_range, loc=2, fontsize=15)
-            ax.set_xlabel("Log of M")
-            ax.set_ylabel("Log of $c_{dp}$")
+                ax.legend(cl_range, loc=2, fontsize=15)
+            ax.set_xlabel("M")
+            ax.set_ylabel("$c_{dp}$")
             ax.grid()
             ax.set_title('NC%s Drag Rise for Re of %sk' % (n, r))
             fig.savefig("m_fits/log_tasopt_NC%s_Re%s_drag_rise.pdf" % (n, r), bbox_inches="tight")
 
     #plot fixed cl diff curves based off of mach number cd vs re
-##    colors = ["k", "m", "b", "g", "y"]#, "r"]#, "c", "m", "k"]
-##    for m in M_range:
-##        fig, ax = plt.subplots()
-##        for n, col in zip(thick_range, colors):
-##            i = 0
-##            
-##            for i in range(len(cl_range)):
-##                cd = []
-##                cl = []
-##                re_plot = []
-##                for r in re_range:
-##                    dataf = text_to_df("blade.c%s.Re%dk.M%s.pol" % (n, r, m))
-##                    for j in range(len(dataf["CL"])):
-##                        if dataf["CL"][j] <= cl_range[i]+0.01 and dataf["CL"][j] >= cl_range[i]-0.01:
-##                            cd.append(dataf["CD"][j])
-##                            re_plot.append(r)
-##                ax.plot(re_plot, cd, "o", mec='k', c="None", mew=1.5)
-##                i = i+1
-####                ax.legend(cl_range, loc=2, fontsize=15)
-##            ax.set_xlabel("Log of M")
-##            ax.set_ylabel("Log of $c_{dp}$")
-##            ax.grid()
-##            ax.set_title('NC%s Drag Rise for Re of %sk' % (n, r))
-##            fig.savefig("re_fits/log_tasopt_NC%s_Re%s_drag_rise.pdf" % (n, r), bbox_inches="tight")
+    colors = ["k", "m", "b", "g", "y", "r", "c", "m", "k"]
+    for m in M_range:
+        for n, col in zip(thick_range, colors):
+            i = 0
+            fig, ax = plt.subplots()
+            for i in range(len(cl_range)):
+                cd = []
+                cl = []
+                re_plot = []
+                refit = []
+                w = []
+                for r in re_range:
+                    dataf = text_to_df("blade.c%s.Re%dk.M%s.pol" % (n, r, m))
+                    for j in range(len(dataf["CL"])):
+                        if dataf["CL"][j] <= cl_range[i]+0.01 and dataf["CL"][j] >= cl_range[i]-0.01:
+                            cd.append(dataf["CD"][j])
+                            re_plot.append(r)
+                            refit.append(r)
+                ax.plot(re_plot, cd, "o", mec=colors[i], c="None", mew=1.5)
+                for h in range(len(refit)):
+                    w.append(return_fit(refit[h], float(n)/1000., m, cl_range[i]))
+                    h = h+1
+                ax.plot(refit, w, c=colors[i], label="NC%s" % n, lw=2)
+                i = i+1
+##                ax.legend(cl_range, loc=2, fontsize=15)
+            ax.set_xlabel("$R_{e}")
+            ax.set_ylabel("$c_{dp}$")
+            ax.grid()
+            ax.set_title('NC%s Drag Rise for M=%s' % (n, m))
+            fig.savefig("re_fits/lNC%s_M%s_drag_fit_rise.pdf" % (n, m), bbox_inches="tight")
 
 def plot_data(thick_range, re_range, M_range, cl_range):
     "plot x foil data"
