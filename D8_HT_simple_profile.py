@@ -241,8 +241,8 @@ class Mission(Model):
                 #Stability constraint, is a signomial
                 TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] + aircraft.wing['c_{m_{w}}']/aircraft.wing['C_{L_{max}}'] <= aircraft.HT['V_{ht}']*aircraft.HT['m_{ratio}'] + aircraft.HT['V_{ht}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{max}}']]),
 
-                TCS([aircraft.wing['x_w'] >= cruise['x_{CG}'] + cruise['\\Delta x_w']]),
-                TCS([aircraft.wing['x_w'] >= climb['x_{CG}'] + climb['\\Delta x_w']]),
+                # TCS([aircraft.wing['x_w'] >= cruise['x_{CG}'] + cruise['\\Delta x_w']]),
+                # TCS([aircraft.wing['x_w'] >= climb['x_{CG}'] + climb['\\Delta x_w']]),
 
 
                 TCS([cruise['x_{CG}'] + cruise['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
@@ -250,8 +250,8 @@ class Mission(Model):
 
                 #compute the aerodynamic center location
                 #TODO: this sets xAC to xW in a stupid and long winded way
-                TCS([climb['x_{AC}'] <= climb['x_{CG}'] + climb['\\Delta x_w'] ]),
-                TCS([cruise['x_{AC}'] <= cruise['x_{CG}'] + cruise['\\Delta x_w'] ]),
+                # TCS([climb['x_{AC}'] <= climb['x_{CG}'] + climb['\\Delta x_w'] ]),
+                # TCS([cruise['x_{AC}'] <= cruise['x_{CG}'] + cruise['\\Delta x_w'] ]),
 
 ##                SignomialEquality(cruise['x_{ac}'],xcg + cruise['\\Delta x_w'] ),
 ##                SignomialEquality(climb['x_{ac}'],xcg + climb['\\Delta x_w'] ),
@@ -386,8 +386,8 @@ class HorizontalTailPerformance(Model):
                            'Distance from CG to horizontal tail leading edge')
         dxtrail = Variable('\\Delta x_{{trail}_h}', 'm',
                            'Distance from CG to horizontal tail trailing edge')
-        dxw     = Variable('\\Delta x_w', 'm',
-                           'Distance from aerodynamic centre to CG')
+        # dxw     = Variable('\\Delta x_w', 'm',
+        #                    'Distance from aerodynamic centre to CG')
         
         # etaht   = Variable('\\eta_{ht}', '-', 'Tail efficiency')
         # eta     = Variable('\\eta_h', '-',
