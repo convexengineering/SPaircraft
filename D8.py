@@ -206,10 +206,10 @@ class Aircraft(Model):
                             Whpesys == fhpesys*W_total,
 
                             # LG and Power System locations
-                            # xlgnose <= self.fuse['l_{nose}'],
-                            xlgnose >= 0.6*self.fuse['l_{nose}'],
-                            xlgmain >= self.fuse['x_{wing}'],
-                            # xlgmain <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
+                            xlgnose <= self.fuse['l_{nose}'],
+                            TCS([xlgnose >= 0.6*self.fuse['l_{nose}']]),
+                            TCS([xlgmain >= self.fuse['x_{wing}']]),
+                            xlgmain <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
                             xhpesys == 1.1*self.fuse['l_{nose}'],
                             xmisc*Wmisc >= xlgnose*Wlgnose + xlgmain*Wlgmain + xhpesys*Whpesys,
 
@@ -509,8 +509,9 @@ class AircraftP(Model):
 
             # Wing location and AC constraints
             TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]),
-            TCS([xAC >= aircraft['x_{wing}'] + xNP]), #TODO relax and improve
-            SignomialEquality(xAC,xCG + self.HTP['\\Delta x_w']),
+            TCS([xAC <= aircraft['x_{wing}'] + aircraft['\\Delta x_{AC_{wing}}'] + xNP]), #[SP] #TODO relax and improve
+            # SignomialEquality(xAC,xCG + self.HTP['\\Delta x_w']),
+            TCS([xAC >= xCG ]),
 
             # Neutral point approximation (taken from Basic Aircraft Design Rules, Unified)
             # TODO improve
@@ -559,6 +560,7 @@ class ClimbP(Model): # Climb performance constraints
             'dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
         RngClimb = Variable('RngClimb', 'nautical_miles',
                             'Down Range Covered in Each Climb Segment')
+        # thetaminTOC = Variable('\\theta_{min,TOC}',0.015,'-','Minimum Climb Gradient at Top of Climb')
 
         # constraints
         constraints = []
@@ -789,6 +791,9 @@ class Mission(Model):
 
                 # All climb segments have the same total altitude change
                 climb['dhft'][1:Nclimb] == climb['dhft'][:Nclimb - 1],
+
+                # Enforcing minimum climb rate at TOC
+                # climb['\\theta'][-1] >= climb['\\theta_{min,TOC}'],
 
                 # compute fuel burn from TSFC
                 cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][Nclimb:] * \
