@@ -416,7 +416,7 @@ class AircraftP(Model):
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
         xNP = Variable('x_{NP}','m','Neutral Point of Aircraft')
-        # SM = Variable('SM','-','Stability Margin of Aircraft')
+        SM = Variable('SM','-','Stability Margin of Aircraft')
         PCFuel = Variable('PCFuel','-','Percent Fuel Remaining (end of segment)')
 
         # Buoyancy weight variables
@@ -509,9 +509,10 @@ class AircraftP(Model):
 
             # Wing location and AC constraints
             TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]),
-            TCS([xAC <= aircraft['x_{wing}'] + aircraft['\\Delta x_{AC_{wing}}'] + xNP]), #[SP] #TODO relax and improve
+            TCS([xAC <= aircraft['x_{wing}'] + 0.25*aircraft['\\Delta x_{AC_{wing}}'] + xNP]), #[SP] #TODO relax and improve
             # SignomialEquality(xAC,xCG + self.HTP['\\Delta x_w']),
-            TCS([xAC >= xCG ]),
+            TCS([SM <= (xAC-xCG)/aircraft['mac']]),
+            SM >= aircraft['SM_{min}'],
 
             # Neutral point approximation (taken from Basic Aircraft Design Rules, Unified)
             # TODO improve
