@@ -681,9 +681,13 @@ class Mission(Model):
         statelinking = StateLinking(climb.state, cruise.state, enginestate, Nclimb, Ncruise)
 
         # declare new variables
-        with Vectorize(Nmission):
-             CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
-             ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
+        if multimission:
+             with Vectorize(Nmission):
+                  CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
+                  ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
+        else:
+          CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
+          ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
         # make overall constraints
         constraints = []
@@ -851,12 +855,13 @@ class Mission(Model):
 ##                  aircraft['n_{pax}'][1] == 180,
 ##                  aircraft['n_{pax}'][2] == 120,
 ##                  aircraft['n_{pax}'][3] == 80,
-                  ReqRng == 3000 * units('nmi'),
+                  ReqRng[0] == 3000 * units('nmi'),
+                  ReqRng[1] == 3000 * units('nmi'),
                   ])
 
         if not multimission:
                constraints.extend([
-                    aircraft['n_{pax}'] == 180.,
+##                    aircraft['n_{pax}'] == 180.,
                     ReqRng == 3000.*units('nmi'),
                     ])
         
@@ -1135,7 +1140,7 @@ def test():
 if __name__ == '__main__':
     Nclimb = 3
     Ncruise = 2
-    Nmission = 4
+    Nmission = 2
     
 
     if multimission:
@@ -1333,22 +1338,23 @@ if __name__ == '__main__':
 
                # Minimum Cruise Mach Number
                'M_{min}': 0.8,
-               # Minimum Cruise Altitude
+               # Minimum Cruise quit
 ##                   'CruiseAlt': 8000. * units('ft'),
 
                # engine system subs
                'rSnace': 16.,
                # nacelle drag calc parameter
                'r_{vnace}': 1.02,
+
+               'n_{pax}': 180.,
            })
-##        if not multimission:
-##            m.substitutions.update({
-##                 'n_{pax}': [180.],
-##                 'ReqRng': [3000.*units('nmi')],
-##            })
-    if multimission:
-           m.substitutions.update({
-                'n_{pax}': [180, 180, 120, 80]})
+           if not multimission:
+               m.substitutions.update({
+                 'ReqRng': 3000.*units('nmi'),
+               })
+##    if multimission:
+##           m.substitutions.update({
+##                'n_{pax}': [180, 180, 120, 80]})
 
     if D80 or D82:
         m_relax = relaxed_constants(m)
