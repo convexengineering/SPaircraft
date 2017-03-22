@@ -81,7 +81,7 @@ def return_fit(u_1, u_2, u_3, u_4):
             + 1.11829e-06 * (u_1)**0.701152 * (u_2)**-1.09254 * (u_3)**-0.192159 * (u_4)**-1.08356
             + 42.2841 * (u_1)**-0.0792097 * (u_2)**2.09529 * (u_3)**11.7479 * (u_4)**0.480427
 
-        u1 = Re
+        u1 = Re (in 100s)
         u2 = tau
         u3 = M
         u4 = cl
@@ -327,7 +327,7 @@ if __name__ == "__main__":
     M = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     cl = np.linspace(0.35, 0.70, 8)
 ##    X, Y = fit_setup(thick, Re, M) # call fit(X, Y, 4, "SMA") to get fit
-##    make_fit(thick, Re, M)
+    make_fit(thick, Re, M)
 ##    plot_data(thick, Re, M, cl)
-    plot_fits(thick, Re, M, cl)
+##    plot_fits(thick, Re, M, cl)
     
