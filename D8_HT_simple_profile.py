@@ -424,10 +424,22 @@ class HorizontalTailPerformance(Model):
                 CDh >= CD0h + CLh**2/(pi*self.HT['e_h']*self.HT['AR_h']),
 
                 # Same drag model as VerticalTail
-                CD0h**0.125 >= 0.19*(self.HT['\\tau_h'])**0.0075 *(Rec)**0.0017
-                            + 1.83e+04*(self.HT['\\tau_h'])**3.54*(Rec)**-0.494
-                            + 0.118*(self.HT['\\tau_h'])**0.0082 *(Rec)**0.00165
-                            + 0.198*(self.HT['\\tau_h'])**0.00774*(Rec)**0.00168,
+                #Martin's NACA drag fit
+##                CD0h**1.5846 >= 0.000195006 * (Rec)**-0.508965 * (self.HT['\\tau_h']*100)**1.62106 * (state['M'])**0.670788
+##                        + 9.25066e+18 * (Rec)**-0.544817 * (self.HT['\\tau_h']*100)**1.94003 * (state['M'])**240.136
+##                        + 2.23515e-05 * (Rec)**0.223161 * (self.HT['\\tau_h']*100)**0.0338899 * (state['M'])**0.0210705,
+
+                #Martin's TASOPT tail drag fit
+                CD0h**6.48983 >= (5.28751e-20 * (Rec)**0.900672 * (self.HT['\\tau_h']*100)**0.912222 * (state['M'])**8.64547
+                            + 1.67605e-28 * (Rec)**0.350958 * (self.HT['\\tau_h']*100)**6.29187 * (state['M'])**10.2559
+                            + 7.09757e-25 * (Rec)**1.39489 * (self.HT['\\tau_h']*100)**1.96239 * (state['M'])**0.567066
+                            + 3.73076e-14 * (Rec)**-2.57406 * (self.HT['\\tau_h']*100)**3.12793 * (state['M'])**0.448159
+                            + 1.44343e-12 * (Rec)**-3.91046 * (self.HT['\\tau_h']*100)**4.66279 * (state['M'])**7.68852),
+                #Philippe thesis drag fit
+##                CD0h**0.125 >= 0.19*(self.HT['\\tau_h'])**0.0075 *(Rec)**0.0017
+##                            + 1.83e+04*(self.HT['\\tau_h'])**3.54*(Rec)**-0.494
+##                            + 0.118*(self.HT['\\tau_h'])**0.0082 *(Rec)**0.00165
+##                            + 0.198*(self.HT['\\tau_h'])**0.00774*(Rec)**0.00168,
                 Rec == state['\\rho']*state['V']*self.HT['\\bar{c}_{ht}']/state['\\mu'],
                 ])
 
