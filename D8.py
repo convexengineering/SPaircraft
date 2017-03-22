@@ -722,7 +722,7 @@ class Mission(Model):
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
-                    + (aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}']) \
+                    + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (climb['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['PCFuel']) \
                     + aircraft['numeng']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
@@ -730,7 +730,7 @@ class Mission(Model):
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
-                    + (aircraft['W_{wing_system}']*aircraft.fuse['x_{wing}']) \
+                    + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (cruise['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['PCFuel'])
                     + aircraft['numeng']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
@@ -931,7 +931,7 @@ substitutions = {
         'numeng': 2.,
         'numVT': 2.,
         'numaisle':2.,
-##        'n_{pax}': 180.,
+        # 'n_{pax}': 180.,
         'W_{avg. pass}': 180.*units('lbf'),
         'W_{carry on}': 15.*units('lbf'),
         'W_{cargo}': 10000.*units('N'),
@@ -998,7 +998,6 @@ substitutions = {
         'e_v': 0.8,
         # 'y_{eng}': 4.83*units('m'), # [3]
         'V_{land}': 72.*units('m/s'),
-        # 'I_{z}': 12495000, # estimate for late model 737 at max takeoff weight (m l^2/12)
         '\\dot{r}_{req}': 0.1475, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
         'N_{spar}': 2.,
         'f_{VT}': 0.4,
