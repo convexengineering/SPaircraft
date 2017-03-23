@@ -829,6 +829,8 @@ class Mission(Model):
 
                 # TASOPT TOC climb rate constraint
                 climb['\\theta'][-1] >= 0.015, #higher than 0.015 radian climb gradient
+
+                aircraft['d_{f}'] <= 1.55*units('m'),
             ])
 
         # Calculating percent fuel remaining
@@ -877,12 +879,12 @@ class Mission(Model):
         
         M2 = .6
         M25 = .6
-        M4a = .1025
+        M4a = .2
         M0 = .5
 
         engineclimb = [
             aircraft.engine.engineP['M_2'][:Nclimb] == climb['M'],
-            aircraft.engine.engineP['M_{2.5}'][:Nclimb] == M25,
+            aircraft.engine.engineP['M_{2.5}'][:Nclimb] == .75*aircraft.engine.engineP['M_2'][:Nclimb],#M25,
             aircraft.engine.engineP['hold_{2}'][:Nclimb] == 1.+.5*(1.398-1.)*M2**2.,
             aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
             aircraft.engine.engineP['c1'][:Nclimb] == 1.+.5*(.401)*M0**2.,
@@ -899,12 +901,12 @@ class Mission(Model):
         if b737800:
              M2 = .6
              M25 = .6
-             M4a = .1025
+             M4a = .2
              M0 = .8
 
         enginecruise = [
             aircraft.engine.engineP['M_2'][Nclimb:] == cruise['M'],
-            aircraft.engine.engineP['M_{2.5}'][Nclimb:] == M25,
+            aircraft.engine.engineP['M_{2.5}'][Nclimb:] == .75*aircraft.engine.engineP['M_2'][Nclimb:],#M25,
             aircraft.engine.engineP['hold_{2}'][Nclimb:] == 1.+.5*(1.398-1.)*M2**2.,
             aircraft.engine.engineP['hold_{2.5}'][Nclimb:] == 1.+.5*(1.354-1.)*M25**2.,
             aircraft.engine.engineP['c1'][Nclimb:] == 1.+.5*(.401)*M0**2.,
@@ -925,7 +927,7 @@ class Mission(Model):
 
         return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
-M4a = .1025
+M4a = .2
 fan = 1.60474
 lpc  = 4.98
 hpc = 35./8.
@@ -980,7 +982,7 @@ substitutions = {
         'f_{lgnose}':0.0075, # [TAS]
 
         # Wing substitutions
-        'C_{L_{wmax}}': 2.25, # [TAS]
+        'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
         '\\tan(\\Lambda)': tan(sweep * pi / 180.),
 ##        '\\alpha_{max,w}': 0.1,  # (6 deg)
         '\\cos(\\Lambda)': cos(sweep * pi / 180.),
@@ -1050,8 +1052,8 @@ substitutions = {
         '\pi_{hc_D}': hpc,
         '\pi_{lc_D}': lpc,
 
-        '\\alpha_{OD}': 6.97,
-        '\\alpha_{max}': 6.97,
+##        '\\alpha_{OD}': 6.97,
+##        '\\alpha_{max}': 6.97,
 
         'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
         'r_{uc}': .01,
@@ -1252,7 +1254,7 @@ if __name__ == '__main__':
     if b737800:
            print('737-800 executing...')
 
-           M4a = .1025
+           M4a = .2
            fan = 1.685
            lpc  = 8./1.685
            hpc = 30./8.
@@ -1265,31 +1267,31 @@ if __name__ == '__main__':
                '\pi_{fn}': .98,
                'T_{ref}': 288.15,
                'P_{ref}': 101.325,
-               '\eta_{HPshaft}': .978,
-               '\eta_{LPshaft}': .99,
+               '\eta_{HPshaft}': .99,
+               '\eta_{LPshaft}': .978,
                'eta_{B}': .985,
 
                '\pi_{f_D}': fan,
                '\pi_{hc_D}': hpc,
                '\pi_{lc_D}': lpc,
 
-##               '\\alpha_{OD}': 5.1,
-##               '\\alpha_{max}': 5.1,
+               '\\alpha_{OD}': 5.1,
+               '\\alpha_{max}': 7,
 
                'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
-               'r_{uc}': .01,
+               'r_{uc}': .05,
                '\\alpha_c': .19036,
                'T_{t_f}': 435.,
 
-               'M_{takeoff}': .9556,
+               'M_{takeoff}': .9709,
 
                'G_f': 1.,
 
                'h_f': 43.003,
 
-               'Cp_t1': 1280.,
-               'Cp_t2': 1184.,
-               'Cp_c': 1216.,
+               'Cp_t1': 1253.,
+               'Cp_t2': 1223.,
+               'Cp_c': 1283.,
 
                'HTR_{f_SUB}': 1. - .3 ** 2.,
                'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
