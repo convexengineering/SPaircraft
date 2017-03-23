@@ -188,8 +188,10 @@ class Aircraft(Model):
 
                             # Load factor matching
                             self.fuse['N_{lift}'] == self.wing['N_{lift}'],
-                            #set the wing lift
-                            self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
+                            #set the wing lift, must overcome tail downforce plus total aircraft weight
+                            self.wing['L_{max}'] >= self.wing['N_{lift}'] * (W_total \
+                                                    + 0.5*0.5*self.wing['\\rho_0']*self.wing['V_{ne}']**2 \
+                                                    *self.HT['S_{ht}']*self.wing['C_{L_{wmax}}']),
 
                             # Wing fuel constraints
                             self.wing['W_{fuel_{wing}}'] >= W_ftotal/self.wing['FuelFrac'],
@@ -523,7 +525,7 @@ class AircraftP(Model):
 
 
             # Static margin constraints
-            self.wingP['c_{m_{w}}'] == 1.5,
+            self.wingP['c_{m_{w}}'] == 1.9,
               
             # SM >= aircraft['SM_{min}'],
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
@@ -1332,12 +1334,12 @@ if __name__ == '__main__':
                'A_{vt}': 2.,
                '\\lambda_{vt}': 0.3,
                '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
-               #                    'V_{vt}': .07,
+#               'V_{vt}': .07,
                'N_{spar}': 1.,
-               '\\dot{r}_{req}': 0.15,  # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
+               '\\dot{r}_{req}': 0.0001,  # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
                # Wing subs
-               'C_{L_{wmax}}': 2.15,
+               'C_{L_{wmax}}': 2.785,
                'f_{slat}': 0.1,
                'AR': 10.1,
 
