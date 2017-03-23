@@ -141,7 +141,7 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
         'GKMTRGNCEVD':float(yeng.magnitude), #Engine y location
         'XFTWTTHLVRI':float(hfuse.magnitude - (df/5.).magnitude), # Engine z location
         'JTPPOOJVVPE':float(lnace.magnitude),# Engine length
-        'QRBDHPAPDFX':float(lnace.magnitude/df.magnitude), # Engine fineness ratio (set at 2 for now)
+        'QRBDHPAPDFX':float(2.*lnace.magnitude/df.magnitude), # Engine fineness ratio (set at 2 for now)
 
         # Floor Variables
         'MCVUEHMJBGG':float(hfloor.magnitude),  # Floor height
@@ -194,9 +194,9 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
     if b737800:
         resultsDict.update({
          # Engine Variables
-        'REBAHPKXPRR':float((xwing-0.6*lnace).magnitude), # Engine x location
+        'REBAHPKXPRR':float((xwing-0.25*lnace).magnitude), # Engine x location
         'GKMTRGNCEVD':float(yeng.magnitude), #Engine y location
-        'XFTWTTHLVRI':float(-hfuse.magnitude - 0.6*df.magnitude), # Engine z location
+        'XFTWTTHLVRI':float(-hfuse.magnitude - 0.2*df.magnitude), # Engine z location
         # Floor Variables
         # Fuselage variables
         # HT Variables
