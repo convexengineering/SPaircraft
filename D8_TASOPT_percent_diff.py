@@ -75,6 +75,8 @@ def percent_diff(sol, version, Nclimb):
         print "\n"
         print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.03304)
         print "\n"
+        # print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 17.252)
+        # print "\n"
         print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.00191)
         print "\n"
         print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission, CruiseSegment, CruiseP, AircraftP, HorizontalTailPerformance'][0]), 0.00239)
@@ -98,7 +100,9 @@ def percent_diff(sol, version, Nclimb):
         print "\n\n\n"
         print "FUSELAGE DIFFERENCES"
         print "\n"
-        print
+        # print "Weight of HB material: %s "  % compute_diff(mag(sol('W_{hbend}')), 2021.3)
+        # print "\n"
+        # print "Weight of VB material: %s "  % compute_diff(mag(sol('W_{vbend}')), 1210.5)
 
     if version == 801:
        #weights to compare for TASOPT 737-800 run...sizing w/out specifying tail volume
@@ -159,6 +163,8 @@ def percent_diff(sol, version, Nclimb):
         print "\n\n\n"
         print "CRUISE SEGMENT 1 DRAG DIFFERENCES"
         print "\n"
+        print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 17.252)
+        print "\n"
         print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.03292)
         print "\n"
         print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission, CruiseSegment, CruiseP, AircraftP'][0]),0.00191)
@@ -184,7 +190,9 @@ def percent_diff(sol, version, Nclimb):
         print "\n\n\n"
         print "FUSELAGE DIFFERENCES"
         print "\n"
-        print
+        print "Weight of HB material: %s "  % compute_diff(mag(sol('W_{hbend}')), 2021.3)
+        print "\n"
+        print "Weight of VB material: %s "  % compute_diff(mag(sol('W_{vbend}')), 1210.5)
     
     if version == 2:
         #weights to compare
@@ -247,6 +255,8 @@ def percent_diff(sol, version, Nclimb):
         print "\n"
         print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.03212)
         print "\n"
+        print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 21.477)
+        print "\n"
         print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.00054)
         print "\n"
         print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission, CruiseSegment, CruiseP, AircraftP, HorizontalTailPerformance'][0]), 0.00227)
@@ -266,7 +276,10 @@ def percent_diff(sol, version, Nclimb):
         print "\n\n\n"
         print "FUSELAGE DIFFERENCES"
         print "\n"
-        print
+        print "\n"
+        print "Weight of HB material: %s "  % compute_diff(mag(sol('W_{hbend}')), 359.7)
+        print "\n"
+        print "Weight of VB material: %s "  % compute_diff(mag(sol('W_{vbend}')), 5.5)
 
 def compute_diff(sp, tasopt):
     """
