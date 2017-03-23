@@ -527,8 +527,7 @@ class AircraftP(Model):
             # Static margin constraints
             self.wingP['c_{m_{w}}'] == 1.9,
               
-            # SM >= aircraft['SM_{min}'],
-            TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
+            TCS([SM + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
                  + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] <= \
                                             aircraft.HT['V_{ht}']*aircraft.HT['m_{ratio}'] +\
                                             aircraft.HT['V_{ht}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
@@ -759,7 +758,7 @@ class Mission(Model):
                     cruise['L_{total/wing}'] == 1.127,
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
-                    CruiseAlt >= 30000. * units('ft'),
+                    CruiseAlt >= 35000. * units('ft'),
                    ])
 
         constraints.extend([
@@ -827,6 +826,9 @@ class Mission(Model):
                 cruise['\\alpha_{max,w}'] == .1,
 
                 climb['RC'][0] >= 2500. * units('ft/min'),
+
+                # TASOPT TOC climb rate constraint
+                climb['\\theta'][-1] >= 0.015, #higher than 0.015 radian climb gradient
             ])
 
         # Calculating percent fuel remaining
