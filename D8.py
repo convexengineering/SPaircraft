@@ -1339,7 +1339,7 @@ if __name__ == '__main__':
                '\\dot{r}_{req}': 0.0001,  # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
                # Wing subs
-               'C_{L_{wmax}}': 2.785,
+               'C_{L_{wmax}}': 2.25/(cos(sweep)**2),
                'f_{slat}': 0.1,
                'AR': 10.1,
 
