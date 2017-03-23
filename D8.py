@@ -826,7 +826,7 @@ class Mission(Model):
                 climb['\\alpha_{max,w}'] == .18,
                 cruise['\\alpha_{max,w}'] == .1,
 
-                climb['RC'][0] >= 3000. * units('ft/min'),
+                climb['RC'][0] >= 2500. * units('ft/min'),
             ])
 
         # Calculating percent fuel remaining
