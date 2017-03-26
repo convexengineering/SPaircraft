@@ -258,7 +258,7 @@ class WingNoStruct(Model):
     def setup(self, **kwargs):
         #declare variables
                #Variables
-        Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
+        # Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
         
         CLwmax  = Variable('C_{L_{wmax}}', '-', 'Max lift coefficient, wing')
         
