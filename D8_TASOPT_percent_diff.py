@@ -264,7 +264,9 @@ def percent_diff(sol, version, Nclimb):
         print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission, CruiseSegment, CruiseP, AircraftP, FuselagePerformance'][0]), 0.00866)
         print "\n"
         print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission, CruiseSegment, CruiseP, AircraftP, VerticalTailPerformance'][0]), 0.00089)
-
+        print "\n"
+        print "Wing Cd percent Diff (w/induced drag): %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]),0.00947)
+        
         #crusie TSFC
         print "\n\n\n"
         print "CRUISE SEGMENT 1 TSFC DIFFERENCES"
