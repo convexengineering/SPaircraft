@@ -821,7 +821,7 @@ class Mission(Model):
             constraints.extend([
                 # Altitude constraints
                 climb['hft'][-1] >= CruiseAlt,
-                TCS([climb['hft'][1:Nclimb] <= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]), #[SP]
+                SignomialEquality(climb['hft'][1:Nclimb], climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]), #[SP]
                 TCS([climb['hft'][0] == climb['dhft'][0]]),
 
                 # All climb segments have the same total altitude change
@@ -1004,7 +1004,7 @@ hpc = 35./8.
 substitutions = {
         # Basic mission subs
         'n_{pax}':180,
-        'ReqRng':1500.,
+        'ReqRng':3000.,
 
         # 'V_{stall}'   : 120,
         '\\delta_P_{over}': 12.*units('psi'),
