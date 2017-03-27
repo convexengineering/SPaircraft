@@ -93,14 +93,16 @@ g = 9.81 * units('m*s**-2')
 class Aircraft(Model):
     "Aircraft class"
 
-    def setup(self, Nclimb, Ncruise, enginestate, eng, Nmissions=0, **kwargs):
+    def setup(self, Nclimb, Ncruise, enginestate, eng, Nmissions=0, BLI = False, **kwargs):
         # create submodels
         self.fuse = Fuselage(Nmissions)
         self.wing = Wing()
+        if not b737800:
+             BLI = True
         if Nmissions != 0:
-            self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, Nmissions)
+            self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, Nmissions, BLI)
         else:
-           self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng)
+           self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, BLI)
         self.VT = VerticalTail()
         self.HT = HorizontalTail()
 
@@ -656,17 +658,17 @@ class StateLinking(Model):
                 constraints.extend([
                     cruisestate[varkey][i] == enginestate[varkey][i+Nclimb]
                     ])
-        if not b737800:
-             for i in range(Nclimb):
-                  constraints.extend([
-                      climbstate['P_{atm}'][i] == phold[i],
-                      enginestate['P_{atm}'][i] == pdrop*phold[i],
-                 ])
-             for i in range(Ncruise):
-                  constraints.extend([
-                      cruisestate['P_{atm}'][i] == phold[i+Nclimb],
-                      enginestate['P_{atm}'][i+Nclimb] == pdrop*phold[i+Nclimb]
-                 ])
+##        if not b737800:
+##             for i in range(Nclimb):
+##                  constraints.extend([
+##                      climbstate['P_{atm}'][i] == phold[i],
+##                      enginestate['P_{atm}'][i] == pdrop*phold[i],
+##                 ])
+##             for i in range(Ncruise):
+##                  constraints.extend([
+##                      cruisestate['P_{atm}'][i] == phold[i+Nclimb],
+##                      enginestate['P_{atm}'][i+Nclimb] == pdrop*phold[i+Nclimb]
+##                 ])
      
         return constraints
 
@@ -913,7 +915,7 @@ class Mission(Model):
                  aircraft.engine.engineP['hold_{2}'][:Nclimb] == 1.+.5*(1.398-1.)*M2**2.,
                  aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
 ##                 aircraft.engine.engineP['c1'][:Nclimb] <= 1.+.5*(.401)*climb['M']**2.,
-                 SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], 1.+.5*(.401)*climb['M']**2.),
+                 SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1.+.5*(.401)*climb['M']**2.)),
                  
                  #climb rate constraints
                  TCS([climb['excessP'] + climb.state['V'] * climb['D'] <=  climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
@@ -937,7 +939,7 @@ class Mission(Model):
                  aircraft.engine.engineP['hold_{2}'][Nclimb:] == 1.+.5*(1.398-1.)*M2**2.,
                  aircraft.engine.engineP['hold_{2.5}'][Nclimb:] == 1.+.5*(1.354-1.)*M25**2.,
 ##                 aircraft.engine.engineP['c1'][Nclimb:] <= 1.+.5*(.401)*cruise['M']**2.,
-                 SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], 1.+.5*(.401)*cruise['M']**2.),                
+                 SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1.+.5*(.401)*cruise['M']**2.)),                
                  #steady level flight constraint on D 
                  cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
 
