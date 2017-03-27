@@ -74,11 +74,15 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
-b737800 = True
+D82 = True
+b737800 = False
 
 #choose multimission or not
 multimission = False
+
+#choose objective type
+manufacturer = True
+operator = False
 
 sweep = 27.566#30 [deg]
 
@@ -960,13 +964,23 @@ class Mission(Model):
                   aircraft.engine.engineP['c1'][Nclimb:] <= 1.+.5*(.401)*0.8**2.,
                   ])
 
-        if not multimission:
-             self.cost = aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
-             self.cost = self.cost.sum()
-        else:
-             self.cost = W_fmissions + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+        if operator:
+             if not multimission:
+                  self.cost = aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+                  self.cost = self.cost.sum()
+             else:
+                  self.cost = W_fmissions + 1e5*aircraft['V_{cabin}']*units('N/m**3')
 
-        return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
+             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
+
+        if manufacturer:
+             if not multimission:
+                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+                  self.cost = self.cost.sum()
+             else:
+                  self.cost = aircraft['W_{dry}'] + W_fmissions + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+
+             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
 M4a = .2
 fan = 1.60474
