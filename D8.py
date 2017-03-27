@@ -81,8 +81,9 @@ b737800 = False
 multimission = False
 
 #choose objective type
-manufacturer = True
+manufacturer = False
 operator = False
+fuel = True
 
 sweep = 27.566#30 [deg]
 
@@ -964,7 +965,8 @@ class Mission(Model):
                   aircraft.engine.engineP['c1'][Nclimb:] <= 1.+.5*(.401)*0.8**2.,
                   ])
 
-        if operator:
+        if fuel:
+             #just fuel burn cost model
              if not multimission:
                   self.cost = aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
                   self.cost = self.cost.sum()
@@ -972,8 +974,20 @@ class Mission(Model):
                   self.cost = W_fmissions + 1e5*aircraft['V_{cabin}']*units('N/m**3')
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
+             
+
+        if operator:
+             #basic operator cost model
+             if not multimission:
+                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+                  self.cost = self.cost.sum()
+             else:
+                  self.cost = aircraft['W_{dry}'] + W_fmissions + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+
+             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
         if manufacturer:
+             #basic manufacturer cost model
              if not multimission:
                   self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
                   self.cost = self.cost.sum()
