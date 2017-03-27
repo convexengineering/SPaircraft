@@ -74,8 +74,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
-b737800 = True
+D82 = True
+b737800 = False
 
 #choose multimission or not
 multimission = False
@@ -890,11 +890,11 @@ class Mission(Model):
 
         engineclimb = [
             aircraft.engine.engineP['M_2'][:Nclimb] == climb['M'],
-            aircraft.engine.engineP['M_{2.5}'][:Nclimb] == .75*aircraft.engine.engineP['M_2'][:Nclimb],#M25,
+            aircraft.engine.engineP['M_{2.5}'][:Nclimb] == M25,
             aircraft.engine.engineP['hold_{2}'][:Nclimb] == 1.+.5*(1.398-1.)*M2**2.,
             aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
             aircraft.engine.engineP['c1'][:Nclimb] == 1.+.5*(.401)*M0**2.,
-
+            
             #climb rate constraints
             TCS([climb['excessP'] + climb.state['V'] * climb['D'] <=  climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
@@ -902,7 +902,7 @@ class Mission(Model):
         if D80 or D82:
              M2 = .6
              M25 = .6
-             M4a = .1025
+             M4a = .2
              M0 = .72
         if b737800:
              M2 = .6
@@ -912,7 +912,7 @@ class Mission(Model):
 
         enginecruise = [
             aircraft.engine.engineP['M_2'][Nclimb:] == cruise['M'],
-            aircraft.engine.engineP['M_{2.5}'][Nclimb:] == .75*aircraft.engine.engineP['M_2'][Nclimb:],#M25,
+            aircraft.engine.engineP['M_{2.5}'][Nclimb:] == M25,
             aircraft.engine.engineP['hold_{2}'][Nclimb:] == 1.+.5*(1.398-1.)*M2**2.,
             aircraft.engine.engineP['hold_{2.5}'][Nclimb:] == 1.+.5*(1.354-1.)*M25**2.,
             aircraft.engine.engineP['c1'][Nclimb:] == 1.+.5*(.401)*M0**2.,
