@@ -74,8 +74,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
-b737800 = False
+D82 = False
+b737800 = True
 
 #choose multimission or not
 multimission = False
@@ -899,7 +899,7 @@ class Mission(Model):
 ##                  aircraft['n_{pax}'][2] == 120,
 ##                  aircraft['n_{pax}'][3] == 80,
                   ReqRng[0] == 3000 * units('nmi'),
-                  ReqRng[1] == 3000 * units('nmi'),
+                  ReqRng[1] == 3200 * units('nmi'),
                   ])
 
         if not multimission:
@@ -1001,10 +1001,11 @@ fan = 1.60474
 lpc  = 4.98
 hpc = 35./8.
 
+
 substitutions = {
         # Basic mission subs
         'n_{pax}':180,
-        'ReqRng':1500.,
+##        'ReqRng':1500.,
 
         # 'V_{stall}'   : 120,
         '\\delta_P_{over}': 12.*units('psi'),
@@ -1274,11 +1275,11 @@ if __name__ == '__main__':
             'M_{min}': 0.8,
         })
         m.substitutions.__delitem__('\\theta_{db}')
-        # if not multimission:
-        #     m.substitutions.update({
-        #         'n_{pax}': [180.],
-        #         'ReqRng': [3000.*units('nmi')],
-        #     })
+        if not multimission:
+             m.substitutions.update({
+                 'n_{pax}': 180.,
+                 'ReqRng': 3000.*units('nmi'),
+             })
 
     if D82:
         print('D82 executing...')
@@ -1326,11 +1327,11 @@ if __name__ == '__main__':
             'M_{min}': 0.72,
         })
         m.substitutions.__delitem__('\\theta_{db}')
-##            if not multimission:
-##                 m.substitutions.update({
-##                      'n_{pax}': [180.],
-##                      'ReqRng': [3000.*units('nmi')],
-##                      })
+        if not multimission:
+            m.substitutions.update({
+                 'n_{pax}': 180.,
+                 'ReqRng': 3000.*units('nmi'),
+                 })
 
     if b737800:
            print('737-800 executing...')
@@ -1451,7 +1452,7 @@ if __name__ == '__main__':
         m_relax = relaxed_constants(m)
     if b737800:
         # m = Model(m.cost,BCS(m))
-        m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+        m_relax = relaxed_constants(m, None)
 
     if sweeps == False:
         sol = m_relax.localsolve(verbosity=4, iteration_limit=200)
