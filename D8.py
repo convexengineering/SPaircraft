@@ -78,7 +78,7 @@ D82 = False
 b737800 = True
 
 #choose multimission or not
-multimission = False
+multimission = True
 
 #choose objective type
 manufacturer = False
@@ -899,14 +899,8 @@ class Mission(Model):
 ##                  aircraft['n_{pax}'][2] == 120,
 ##                  aircraft['n_{pax}'][3] == 80,
                   ReqRng[0] == 3000 * units('nmi'),
-                  ReqRng[1] == 3200 * units('nmi'),
+##                  ReqRng[1] == 2200 * units('nmi'),
                   ])
-
-        if not multimission:
-               constraints.extend([
-#                    aircraft['n_{pax}'] == 180.,
-#                     ReqRng == 3000.*units('nmi'),
-                    ])
 
         M2 = .6
         M25 = .6
@@ -952,17 +946,17 @@ class Mission(Model):
         if D80 or D82:
              with SignomialsEnabled():
                   engineclimb.extend([
-                       SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1.+.5*(.401)*climb['M']**2.)),
+                       SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
                        ])
                   enginecruise.extend([
-                       SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1.+.5*(.401)*cruise['M']**2.)),                
+                       SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
                        ])
         if b737800:
              engineclimb.extend([
-                  aircraft.engine.engineP['c1'][:Nclimb] <= 1.+.5*(.401)*0.6**2.,
+                  aircraft.engine.engineP['c1'][:Nclimb] <= 1. + 0.5*(.401)*0.6**2.,
                   ])
              enginecruise.extend([
-                  aircraft.engine.engineP['c1'][Nclimb:] <= 1.+.5*(.401)*0.8**2.,
+                  aircraft.engine.engineP['c1'][Nclimb:] <= 1. + 0.5*(.401)*0.8**2.,
                   ])
 
         if fuel:
@@ -1232,7 +1226,7 @@ def test():
 if __name__ == '__main__':
     Nclimb = 3
     Ncruise = 2
-    Nmission = 2
+    Nmission = 1
     
 
     if multimission:
@@ -1452,7 +1446,7 @@ if __name__ == '__main__':
         m_relax = relaxed_constants(m)
     if b737800:
         # m = Model(m.cost,BCS(m))
-        m_relax = relaxed_constants(m, None)
+        m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     if sweeps == False:
         sol = m_relax.localsolve(verbosity=4, iteration_limit=200)
