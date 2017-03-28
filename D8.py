@@ -821,7 +821,7 @@ class Mission(Model):
             constraints.extend([
                 # Altitude constraints
                 climb['hft'][-1] >= CruiseAlt,
-                TCS([climb['hft'][1:Nclimb] <= climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]]), #[SP]
+                SignomialEquality(climb['hft'][1:Nclimb], climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]), #[SP]
                 TCS([climb['hft'][0] == climb['dhft'][0]]),
 
                 # All climb segments have the same total altitude change
