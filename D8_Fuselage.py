@@ -354,7 +354,6 @@ class Fuselage(Model):
                 Vnose == Snose * tskin,
                 Vbulk == Sbulk * tskin,
                 Vdb == Adb * lshell,
-                # [SP] #[SPEquality]
                 Vcabin >= Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse),
 
                 # Weight relations
