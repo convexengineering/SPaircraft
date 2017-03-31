@@ -827,9 +827,6 @@ class Mission(Model):
                 # All climb segments have the same total altitude change
                 climb['dhft'][1:Nclimb] == climb['dhft'][:Nclimb - 1],
 
-                # Enforcing minimum climb rate at TOC
-                # climb['\\theta'][-1] >= climb['\\theta_{min,TOC}'],
-
                 # compute fuel burn from TSFC
                 cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['numeng'] * aircraft.engine['TSFC'][Nclimb:] * \
                     cruise['thr'] * aircraft.engine['F'][Nclimb:],
@@ -858,6 +855,7 @@ class Mission(Model):
                 climb['\\alpha_{max,w}'] == .18,
                 cruise['\\alpha_{max,w}'] == .1,
 
+                # T/O climb rate constraint
                 climb['RC'][0] >= 2500. * units('ft/min'),
 
                 # TASOPT TOC climb rate constraint
@@ -890,7 +888,7 @@ class Mission(Model):
                 ])
 
         if multimission:
-             W_fmissions = Variable('W_{f_{misisons}', 'N', 'Fuel burn across all missions')
+             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
@@ -898,8 +896,8 @@ class Mission(Model):
 ##                  aircraft['n_{pax}'][1] == 180,
 ##                  aircraft['n_{pax}'][2] == 120,
 ##                  aircraft['n_{pax}'][3] == 80,
-                  ReqRng[0] == 3000 * units('nmi'),
-##                  ReqRng[1] == 2200 * units('nmi'),
+                  ReqRng[:Nmission] == 3000 * units('nmi'),
+                  # ReqRng[1] == 2200 * units('nmi'),
                   ])
 
         M2 = .6
@@ -1231,7 +1229,7 @@ if __name__ == '__main__':
     
 
     if multimission:
-        m = Mission(Nclimb, Ncruise, Nmission = 4)
+        m = Mission(Nclimb, Ncruise, Nmission)
     else:
         m = Mission(Nclimb, Ncruise)
     m.substitutions.update(substitutions)
@@ -1432,11 +1430,11 @@ if __name__ == '__main__':
                # nacelle drag calc parameter
                'r_{vnace}': 1.02,
 
-               'n_{pax}': 180.,
            })
            if not multimission:
                m.substitutions.update({
-                 'ReqRng': 3000.*units('nmi'),
+               'n_{pax}': 180.,
+               'ReqRng': 3000.*units('nmi'),
                })
 ##    if multimission:
 ##           m.substitutions.update({
