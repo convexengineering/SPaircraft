@@ -74,11 +74,11 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
-b737800 = True
+D82 = True
+b737800 = False
 
 #choose multimission or not
-multimission = True
+multimission = False
 
 #choose objective type
 manufacturer = False
@@ -995,7 +995,6 @@ fan = 1.60474
 lpc  = 4.98
 hpc = 35./8.
 
-
 substitutions = {
         # Basic mission subs
         'n_{pax}':180,
@@ -1147,6 +1146,8 @@ substitutions = {
 
         'HTR_{f_SUB}': 1.-.3**2.,
         'HTR_{lpc_SUB}': 1. - 0.6**2.,
+
+        'T_{t_{4.1_{max}}}': 1750*units('K'),
 }
 
 def test():
