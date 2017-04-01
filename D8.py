@@ -74,8 +74,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
-b737800 = False
+D82 = False
+b737800 = True
 
 #choose multimission or not
 multimission = False
@@ -757,7 +757,7 @@ class Mission(Model):
                     + aircraft['numeng']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
               ])
 
-            #Setting fuselage drag and lift
+            #Setting fuselage drag and lift, and BLI correction
             if D80 or D82:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866,
@@ -767,6 +767,8 @@ class Mission(Model):
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
+                    # Setting minimum HPC pressure ratio
+                    aircraft.engine['\\pi_{hc}'] >= 1.7,
                   ])
             if b737800:
                constraints.extend([
@@ -777,6 +779,7 @@ class Mission(Model):
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
                     CruiseAlt >= 35000. * units('ft'),
+                    aircraft.engine['\\pi_{hc}'] >= 1.7,
                    #Limiting engine diameter for the b737800
                     aircraft['d_{f}'] <= 1.55*units('m'),
                    ])
@@ -1416,6 +1419,8 @@ if __name__ == '__main__':
                'rSnace': 16.,
                # nacelle drag calc parameter
                'r_{vnace}': 1.02,
+               'T_{t_{4.1_{max}}}': 1833*units('K'),
+
 
            })
            if not multimission:
