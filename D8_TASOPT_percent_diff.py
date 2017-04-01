@@ -22,7 +22,7 @@ def percent_diff(sol, version, Nclimb):
         print "\n"
         print "Total Aircraft Weight Percent Diff: %s" % compute_diff(mag(sol('W_{total}').to('lbf')), 174979.1)
         print "\n"
-        print "Engine Weight Percent Diff: %s" % compute_diff(mag(sol('W_{engine}').to('lbf')), 12280.0)
+        print "Engine Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{engsys}').to('lbf')), 12280.0)
         print "\n"
         print "Fuselage Weight Percent Diff: %s" % compute_diff(mag(sol('W_{fuse}').to('lbf')), 37025.2)
         print "\n"
@@ -112,7 +112,7 @@ def percent_diff(sol, version, Nclimb):
         print "\n"
         print "Total Aircraft Weight Percent Diff: %s" % compute_diff(mag(sol('W_{total}').to('lbf')), 166502.0)
         print "\n"
-        print "Engine Weight Percent Diff: %s" % compute_diff(mag(sol('W_{engine}').to('lbf')), 7467.9)
+        print "Engine Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{engsys}').to('lbf')), 7467.9)
         print "\n"
         print "Fuselage Weight Percent Diff: %s" % compute_diff(mag(sol('W_{fuse}').to('lbf')), 35641.6)
         print "\n"
@@ -195,20 +195,20 @@ def percent_diff(sol, version, Nclimb):
         print "Weight of VB material: %s "  % compute_diff(mag(sol('W_{vbend}')), 1210.5)
     
     if version == 2:
-        #weights to compare
+        #weights to compare for D8.2
         print "WEIGHT DIFFERENCES"
         print "\n"
         print "Total Fuel Weight Percent Diff: %s" % compute_diff(mag(sol('W_{f_{total}}').to('lbf')), 26959.1)
         print "\n"
         print "Total Aircraft Weight Percent Diff: %s" % compute_diff(mag(sol('W_{total}').to('lbf')), 134758.2)
         print "\n"
-        print "Engine Weight Percent Diff: %s" % compute_diff(mag(sol('W_{engine}').to('lbf')), 8168.2)
+        print "Engine Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{engsys}').to('lbf')), 10502.8)
         print "\n"
         print "Fuselage Weight Percent Diff: %s" % compute_diff(mag(sol('W_{fuse}').to('lbf')), 30487.4)
         print "\n"
         print "Payload Weight Percent Diff: %s" % compute_diff(mag(sol('W_{payload}').to('lbf')), 38715.5)
         print "\n"
-        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{VT}').to('lbf')), 376.4)
+        print "VT Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{VT}').to('lbf')), 376.4)
         print "\n"
         print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{HT}').to('lbf')), 1578.5)
         print "\n"
