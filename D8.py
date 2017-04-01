@@ -74,8 +74,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
-b737800 = True
+D82 = True
+b737800 = False
 
 #choose multimission or not
 multimission = False
@@ -768,7 +768,7 @@ class Mission(Model):
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                     # Setting minimum HPC pressure ratio
-                    aircraft.engine['\\pi_{hc}'] >= 1.7,
+                    # aircraft.engine['\\pi_{hc}'] >= 1.7,
                   ])
             if b737800:
                constraints.extend([
@@ -779,9 +779,10 @@ class Mission(Model):
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
                     CruiseAlt >= 35000. * units('ft'),
-                    aircraft.engine['\\pi_{hc}'] >= 1.7,
+                    # Setting minimum HPC pressure ratio
+                    # aircraft.engine['\\pi_{hc}'] >= 1.7,
                    #Limiting engine diameter for the b737800
-                    aircraft['d_{f}'] <= 1.55*units('m'),
+                    # aircraft['d_{f}'] <= 1.55*units('m'),
                    ])
 
         constraints.extend([
@@ -1135,7 +1136,7 @@ substitutions = {
         'HTR_{f_SUB}': 1.-.3**2.,
         'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
-        'T_{t_{4.1_{max}}}': 1750*units('K'),
+        'T_{t_{4.1_{max}}}': 1750.*units('K'),
 }
 
 def test():
@@ -1419,7 +1420,7 @@ if __name__ == '__main__':
                'rSnace': 16.,
                # nacelle drag calc parameter
                'r_{vnace}': 1.02,
-               'T_{t_{4.1_{max}}}': 1833*units('K'),
+               'T_{t_{4.1_{max}}}': 1833.*units('K'),
 
 
            })
