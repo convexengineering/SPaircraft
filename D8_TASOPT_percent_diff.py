@@ -287,6 +287,6 @@ def compute_diff(sp, tasopt):
     """
     Method to actually compute the percent difference
     """
-    diff = 100*(sp-tasopt)/sp
+    diff = 100*(sp-tasopt)/tasopt
     
     return diff
