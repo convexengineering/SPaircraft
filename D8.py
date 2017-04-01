@@ -647,9 +647,6 @@ class StateLinking(Model):
              statevarkeys = ['L_{atm}', 'M_{atm}', 'P_{atm}', 'R_{atm}',
                              '\\rho', 'T_{atm}', '\\mu', 'T_s', 'C_1', 'h', 'hft', 'V', 'a', 'R', '\\gamma', 'M']
         else:
-             with Vectorize(Nclimb+Ncruise):
-                  phold = Variable('P_{hold}', 'Pa', 'Intermediate pressure variable')
-             pdrop = Variable('p_{drop}', 0.2, '-', 'Stagnation pressure drop before engine inlet')
              statevarkeys = ['P_{atm}', 'R_{atm}',
                         '\\rho', 'T_{atm}', '\\mu', 'T_s', 'C_1', 'h', 'hft', 'V', 'a', 'R', '\\gamma', 'M']
         constraints = []
@@ -663,17 +660,7 @@ class StateLinking(Model):
                 constraints.extend([
                     cruisestate[varkey][i] == enginestate[varkey][i+Nclimb]
                     ])
-##        if not b737800:
-##             for i in range(Nclimb):
-##                  constraints.extend([
-##                      climbstate['P_{atm}'][i] == phold[i],
-##                      enginestate['P_{atm}'][i] == pdrop*phold[i],
-##                 ])
-##             for i in range(Ncruise):
-##                  constraints.extend([
-##                      cruisestate['P_{atm}'][i] == phold[i+Nclimb],
-##                      enginestate['P_{atm}'][i+Nclimb] == pdrop*phold[i+Nclimb]
-##                 ])
+
      
         return constraints
 
