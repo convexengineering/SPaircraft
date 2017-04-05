@@ -301,7 +301,7 @@ class Aircraft(Model):
                     self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}'],
 
                     # HT root moment
-                    self.HT['M_r'] * self.HT['c_{root_h}'] >= self.HT['N_{lift}'] * self.HT['L_{h_{rect}}'] * (
+                    self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['N_{lift}'] * self.HT['L_{h_{rect}}'] * (
                     self.HT['b_{ht}'] / 4.) \
                     + self.HT['N_{lift}'] * self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - self.HT['N_{lift}'] *
                     self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
@@ -314,7 +314,7 @@ class Aircraft(Model):
                     # [SP] #[SPEquality]
 
                     # HT/VT joint constraint
-                    self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_h'] * self.HT['c_{root_h}'] ==
+                    self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_h'] * self.HT['c_{root_{ht}}'] ==
                     self.HT['c_{attach}'],
 
                     # Moment of inertia
@@ -351,11 +351,11 @@ class Aircraft(Model):
 
                     # HT root moment
                     # TCS([self.HT['M_r'] >= self.HT['L_{h_{max}}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
-                    TCS([self.HT['M_r']*self.HT['c_{root_h}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
+                    TCS([self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
                          1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']]),
 
                     # HT joint constraint
-                   self.HT['c_{attach}'] == self.HT['c_{root_h}'],
+                   self.HT['c_{attach}'] == self.HT['c_{root_{ht}}'],
 
                    # Moment of inertia
                     Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
@@ -404,7 +404,7 @@ class AircraftP(Model):
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
         self.VTP = aircraft.VT.dynamic(aircraft.fuse,state)
-        self.HTP = aircraft.HT.dynamic(aircraft.fuse,aircraft.wing,state)
+        self.HTP = aircraft.HT.dynamic(aircraft.wing,state)
         self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP]
 
         # Variable Definitions
@@ -518,7 +518,7 @@ class AircraftP(Model):
             TCS([Ltotal >= W_avg + self.HTP['L_h']]),
 
             # Wing location and AC constraints
-            TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]),
+
             TCS([xAC <= aircraft['x_{wing}'] + 0.25*aircraft['\\Delta x_{AC_{wing}}'] + xNP]), #[SP] #TODO relax and improve
             # SignomialEquality(xAC,xCG + self.HTP['\\Delta x_w']),
             TCS([SM <= (xAC-xCG)/aircraft['mac']]),
@@ -529,13 +529,17 @@ class AircraftP(Model):
             SignomialEquality(xNP/aircraft['mac']/aircraft['V_{ht}']*(aircraft['AR']+2.)*(1.+2./aircraft['AR_h']),
                               (1.+2./aircraft['AR'])*(aircraft['AR']-2.)),
 
-            TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
-
+            # HT Location constraints
+            # TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]),
+            # TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
+            aircraft.HT['x_{CG_{ht}}'] <= aircraft.fuse['l_{fuse}'],
+            # self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.HT['x_{CG_{ht}}'] + 0.6*aircraft.HT['c_{root_{ht}}'],
+            # self.HTP['\\Delta x_{{lead}_h}'] >= aircraft.HT['x_{CG_{ht}}'] - 0.6*aircraft.HT['c_{root_{ht}}'],
 
             # Static margin constraints
             self.wingP['c_{m_{w}}'] == 1.9,
               
-            TCS([SM + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
+            TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
                  + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] <= \
                                             aircraft.HT['V_{ht}']*aircraft.HT['m_{ratio}'] +\
                                             aircraft.HT['V_{ht}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
@@ -951,10 +955,10 @@ class Mission(Model):
         if fuel:
              #just fuel burn cost model
              if not multimission:
-                  self.cost = aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+                  self.cost = aircraft['W_{f_{total}}']
                   self.cost = self.cost.sum()
              else:
-                  self.cost = W_fmissions + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+                  self.cost = W_fmissions
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
              
@@ -962,20 +966,20 @@ class Mission(Model):
         if operator:
              #basic operator cost model
              if not multimission:
-                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']
                   self.cost = self.cost.sum()
              else:
-                  self.cost = aircraft['W_{dry}'] + W_fmissions + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+                  self.cost = aircraft['W_{dry}'] + W_fmissions
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
         if manufacturer:
              #basic manufacturer cost model
              if not multimission:
-                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']
                   self.cost = self.cost.sum()
              else:
-                  self.cost = aircraft['W_{dry}'] + W_fmissions + 1e5*aircraft['V_{cabin}']*units('N/m**3')
+                  self.cost = aircraft['W_{dry}'] + W_fmissions
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
