@@ -297,6 +297,10 @@ class HorizontalTailNoStruct(Model):
         tau     = Variable('\\tau_h', '-',
                            'Horizontal tail thickness/chord ratio')
         xcght   = Variable('x_{CG_{ht}}', 'm', 'Horizontal tail CG location')
+        # dxlead  = Variable('\\Delta x_{{lead}_h}', 'm',
+        #                    'Distance from CG to horizontal tail leading edge')
+        # dxtrail = Variable('\\Delta x_{{trail}_h}', 'm',
+        #                    'Distance from CG to horizontal tail trailing edge')
         ymac    = Variable('y_{\\bar{c}_{ht}}', 'm',
                            'Spanwise location of mean aerodynamic chord')
         lht     = Variable('l_{ht}', 'm', 'Horizontal tail moment arm')
@@ -320,7 +324,7 @@ class HorizontalTailNoStruct(Model):
         Vh = Variable('V_{ht}', '-', 'Horizontal Tail Volume Coefficient')
         mrat = Variable('m_{ratio}', '-', 'Wing to Tail Lift Slope Ratio')
         #variable just for the D8
-        cattach = Variable('c_{attach}', 'm', 'HT Chord Where it is Mountded to the VT')
+        cattach = Variable('c_{attach}', 'm', 'HT Chord Where it is Mounted to the VT')
 
         #constraints
         constraints = []
@@ -329,6 +333,7 @@ class HorizontalTailNoStruct(Model):
 
             constraints.extend([
                 # Moment arm and geometry -- same as for vtail
+                # TCS([dxlead + croot <= dxtrail]),
                 p >= 1 + 2*taper,
                 2*q >= 1 + p,
                 ymac == (bht/3)*q/p,
@@ -381,10 +386,7 @@ class HorizontalTailPerformance(Model):
 
         
         CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
-        dxlead  = Variable('\\Delta x_{{lead}_h}', 'm',
-                           'Distance from CG to horizontal tail leading edge')
-        dxtrail = Variable('\\Delta x_{{trail}_h}', 'm',
-                           'Distance from CG to horizontal tail trailing edge')
+
         # dxw     = Variable('\\Delta x_w', 'm',
         #                    'Distance from aerodynamic centre to CG')
         
@@ -412,7 +414,6 @@ class HorizontalTailPerformance(Model):
 
                 # Moment arm and geometry -- same as for vtail
 ##                dxlead >= self.wing['x_w'] + 1.5*units('m'),
-                TCS([dxlead + self.HT['c_{root_{ht}}'] <= dxtrail]),
 
                 # Currently using TAT to approximate
                 CLah == 2*3.14,
