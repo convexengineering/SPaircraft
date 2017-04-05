@@ -266,7 +266,7 @@ class Mission(Model):
                 climb['x_{AC}'] == aircraft.wing['x_w'],
 
                 #compute the HT chord at its attachment point to the VT
-                (aircraft.HT['b_{ht}']/aircraft.fuse['w_{fuse}'])*aircraft.HT['\lambda_h']*aircraft.HT['c_{root_h}'] == aircraft.HT['c_{attach}']
+                (aircraft.HT['b_{ht}']/aircraft.fuse['w_{fuse}'])*aircraft.HT['\lambda_h']*aircraft.HT['c_{root_{ht}}'] == aircraft.HT['c_{attach}']
                                               
                 ])
 
@@ -306,7 +306,7 @@ class HorizontalTailNoStruct(Model):
         Sh      = Variable('S_{ht}', 'm^2', 'Horizontal tail area')
         bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
         chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
-        croot   = Variable('c_{root_h}', 'm', 'Horizontal tail root chord')
+        croot   = Variable('c_{root_{ht}}', 'm', 'Horizontal tail root chord')
         ctip    = Variable('c_{tip_h}', 'm', 'Horizontal tail tip chord')
         Lmax    = Variable('L_{h_{max}}', 'N', 'Maximum load')
         # Kf      = Variable('K_f', '-',
@@ -364,9 +364,8 @@ class HorizontalTailPerformance(Model):
     """
     Horizontal tail performance model
     """
-    def setup(self, ht, fuse, wing, state):
+    def setup(self, ht, wing, state):
         self.HT = ht
-        self.fuse = fuse
         self.wing = wing
         
         #variables
@@ -413,8 +412,7 @@ class HorizontalTailPerformance(Model):
 
                 # Moment arm and geometry -- same as for vtail
 ##                dxlead >= self.wing['x_w'] + 1.5*units('m'),
-                TCS([dxlead + self.HT['c_{root_h}'] <= dxtrail]),           
-                dxtrail <= self.fuse['l_{fuse}'],
+                TCS([dxlead + self.HT['c_{root_{ht}}'] <= dxtrail]),
 
                 # Currently using TAT to approximate
                 CLah == 2*3.14,
@@ -466,7 +464,7 @@ class HorizontalTail(Model):
         with SignomialsEnabled():
             constraints.append([
                 self.wb['L_{h_{rect}}'] >= self.wb['L_{h_{max}}']/2.*self.HTns['c_{tip_h}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'],
-                self.wb['L_{h_{tri}}'] >= self.wb['L_{h_{max}}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_h}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'], #[SP]
+                self.wb['L_{h_{tri}}'] >= self.wb['L_{h_{max}}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'], #[SP]
 
                 WHT >= self.wb['W_{struct}'] + self.wb['W_{struct}']  * fHT,
             ])
@@ -474,11 +472,11 @@ class HorizontalTail(Model):
         return self.HTns, self.wb, constraints
 
 
-    def dynamic(self, fuse, wing, state):
+    def dynamic(self, wing, state):
         """"
         creates a horizontal tail performance model
         """
-        return HorizontalTailPerformance(self, fuse, wing, state)
+        return HorizontalTailPerformance(self, wing, state)
     
 class WingBox(Model):
     """
