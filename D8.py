@@ -252,7 +252,7 @@ class Aircraft(Model):
                             self.VT['c_{root_{vt}}'] <= 1.5*self.fuse['l_{cone}'],
 
                             # VT volume coefficient
-                            self.VT['V_{vt}'] == numVT*self.VT['S_{vt}'] * self.VT['x_{CG_{vt}}']/(self.wing['S']*self.wing['b']),
+                            self.VT['V_{vt}'] == numVT*self.VT['S_{vt}'] * self.VT['l_{vt}']/(self.wing['S']*self.wing['b']),
 
                             # VT sizing constraints
                             # Yaw rate constraint at flare
@@ -294,8 +294,8 @@ class Aircraft(Model):
             with SignomialsEnabled():
                 constraints.extend([
 
-                    # VT height constraint (4*engine radius)
-                    self.VT['b_{vt}'] >= 2. * self.engine['d_{f}'],
+                    # VT height constraint (4*engine diameter)
+                    self.VT['b_{vt}'] >= 4. * self.engine['d_{f}'],
 
                     # Engine out moment arm,
                     self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}'],
@@ -495,9 +495,9 @@ class AircraftP(Model):
             t == thours,
 
             #VTP constraints
-            TCS([aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{trail_v}'] + xCG]),
-            TCS([aircraft.VT['x_{CG_{vt}}'] <= xCG + (aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2.]),
-            aircraft.VT['x_{CG_{vt}}'] <= aircraft.fuse['l_{fuse}'],
+            # TCS([aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{trail_v}'] + xCG]),
+            # TCS([aircraft.VT['x_{CG_{vt}}'] <= xCG + (aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2.]),
+            aircraft.VT['x_{CG_{vt}}'] + 0.5*aircraft.VT['c_{root_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Drag of a windmilling engine (VT sizing)
             TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2.*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
@@ -958,10 +958,10 @@ class Mission(Model):
         if fuel:
              #just fuel burn cost model
              if not multimission:
-                  self.cost = aircraft['W_{f_{total}}']
+                  self.cost = aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m^3') #+ 1e9*aircraft['l_{fuse}']*units('N/m')
                   self.cost = self.cost.sum()
              else:
-                  self.cost = W_fmissions
+                  self.cost = W_fmissions  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
              
@@ -969,20 +969,20 @@ class Mission(Model):
         if operator:
              #basic operator cost model
              if not multimission:
-                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']
+                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
                   self.cost = self.cost.sum()
              else:
-                  self.cost = aircraft['W_{dry}'] + W_fmissions
+                  self.cost = aircraft['W_{dry}'] + W_fmissions  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
         if manufacturer:
              #basic manufacturer cost model
              if not multimission:
-                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']
+                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
                   self.cost = self.cost.sum()
              else:
-                  self.cost = aircraft['W_{dry}'] + W_fmissions
+                  self.cost = aircraft['W_{dry}'] + W_fmissions  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
