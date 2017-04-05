@@ -305,7 +305,10 @@ class Aircraft(Model):
                     self.HT['b_{ht}'] / 4.) \
                     + self.HT['N_{lift}'] * self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - self.HT['N_{lift}'] *
                     self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
-                    # [SP]
+                    # constraint to lower bound M_r w.r.t. a conventional tail config (0.25*M_r of conventional)
+                    self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
+                         1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP]
+
 
 
                     # Pin VT joint moment constraint #TODO may be problematic, should check
