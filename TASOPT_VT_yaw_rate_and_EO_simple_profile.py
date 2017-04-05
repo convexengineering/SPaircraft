@@ -296,10 +296,10 @@ class VerticalTailNoStruct(Model):
         cma    = Variable('\\bar{c}_{vt}', 'm', 'Vertical tail mean aero chord')
         croot  = Variable('c_{root_{vt}}', 'm', 'Vertical tail root chord')
         ctip   = Variable('c_{tip_{vt}}', 'm', 'Vertical tail tip chord')
-        dxlead = Variable('\\Delta x_{lead_v}', 'm',
-                          'Distance from CG to vertical tail leading edge')
-        dxtrail= Variable('\\Delta x_{trail_v}', 'm',
-                          'Distance from CG to vertical tail trailing edge')
+        # dxlead = Variable('\\Delta x_{lead_v}', 'm',
+        #                   'Distance from CG to vertical tail leading edge')
+        # dxtrail= Variable('\\Delta x_{trail_v}', 'm',
+        #                   'Distance from CG to vertical tail trailing edge')
         e      = Variable('e_v', '-', 'Span efficiency of vertical tail')
         lvt    = Variable('l_{vt}', 'm', 'Vertical tail moment arm')
         mu0    = Variable('\\mu_0', 1.8E-5, 'N*s/m^2', 'Dynamic viscosity (SL)')
@@ -347,7 +347,7 @@ class VerticalTailNoStruct(Model):
                 Svt <= bvt*(croot + ctip)/2, # [SP]
                 # Tail geometry relationship
 
-                TCS([dxtrail >= croot + dxlead]),
+                # TCS([dxtrail >= croot + dxlead]),
                 # Tail geometry constraint
 
                 
