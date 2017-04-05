@@ -49,7 +49,7 @@ def percent_diff(sol, version, Nclimb):
         print "\n\n\n"
         print "HORIZONTAL TAIL DIFFERENCES"
 ##        print "\n"
-##        print "HT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR_h')), 6)
+##        print "HT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR_{ht}')), 6)
         print "\n"
         print "HT Area Percent Diff: %s" % compute_diff(mag(sol('S_{ht}').to('ft^2')), 456.86  )
 ##        print "\n"
@@ -139,7 +139,7 @@ def percent_diff(sol, version, Nclimb):
         print "\n\n\n"
         print "HORIZONTAL TAIL DIFFERENCES"
 ##        print "\n"
-##        print "HT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR_h')), 6)
+##        print "HT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR_{ht}')), 6)
         print "\n"
         print "HT Area Percent Diff: %s" % compute_diff(mag(sol('S_{ht}').to('ft^2')), 313.86  )
 ##        print "\n"
@@ -229,7 +229,7 @@ def percent_diff(sol, version, Nclimb):
         print "\n\n\n"
         print "HORIZONTAL TAIL DIFFERENCES"
 ##        print "\n"
-##        print "HT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR_h')), 12.0000)
+##        print "HT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR_{ht}')), 12.0000)
         print "\n"
         print "HT Area Percent Diff: %s" % compute_diff(mag(sol('S_{ht}').to('ft^2')), 243.76  )
 ##        print "\n"

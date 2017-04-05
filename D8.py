@@ -234,7 +234,7 @@ class Aircraft(Model):
                                   (self.fuse['l_{cone}'] / self.fuse['R_{fuse}'])]), #[SP]
 
                             # Lift curve slope ratio for HT and Wing
-                            SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_h']),
+                            SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_{ht}']),
 
                             # HT Location and Volume Coefficient
                             self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
@@ -317,7 +317,7 @@ class Aircraft(Model):
                     # [SP] #[SPEquality]
 
                     # HT/VT joint constraint
-                    self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_h'] * self.HT['c_{root_{ht}}'] ==
+                    self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
                     self.HT['c_{attach}'],
 
                     # Moment of inertia
@@ -353,7 +353,7 @@ class Aircraft(Model):
                     self.VT['y_{eng}'] == 4.83*units('m'),
 
                     # HT root moment
-                    # TCS([self.HT['M_r'] >= self.HT['L_{h_{max}}']*self.HT['AR_h']*self.HT['p_{ht}']/24]),
+                    # TCS([self.HT['M_r'] >= self.HT['L_{h_{max}}']*self.HT['AR_{ht}']*self.HT['p_{ht}']/24]),
                     TCS([self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
                          1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']]),
 
@@ -509,7 +509,7 @@ class AircraftP(Model):
                               aircraft.HT['V_{ht}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
 
             # Tail aspect ratio and lift constraints
-            aircraft.HT['AR_h'] >= 6., #TODO change to tip Re constraint
+            aircraft.HT['AR_{ht}'] >= 6., #TODO change to tip Re constraint
             self.HTP['C_{L_h}'] >= 0.01, #TODO remove
 
             # HT/VT moment arm constraints
@@ -529,7 +529,7 @@ class AircraftP(Model):
 
             # Neutral point approximation (taken from Basic Aircraft Design Rules, Unified)
             # TODO improve
-            SignomialEquality(xNP/aircraft['mac']/aircraft['V_{ht}']*(aircraft['AR']+2.)*(1.+2./aircraft['AR_h']),
+            SignomialEquality(xNP/aircraft['mac']/aircraft['V_{ht}']*(aircraft['AR']+2.)*(1.+2./aircraft['AR_{ht}']),
                               (1.+2./aircraft['AR'])*(aircraft['AR']-2.)),
 
             # HT Location constraints
@@ -1190,8 +1190,8 @@ def test():
       'f_{lgnose}':0.0075, # [TAS]
 
       # HT subs
-      'AR_h': 12.,
-      '\\lambda_h': 0.3,
+      'AR_{ht}': 12.,
+      '\\lambda_{ht}': 0.3,
       '\\tan(\\Lambda_{ht})': np.tan(8. * np.pi / 180.),  # tangent of HT sweep
       # 'V_{ht}': 0.895,
 
@@ -1252,8 +1252,8 @@ if __name__ == '__main__':
             # 'b':116.548*0.3048,#units('ft'),
             # 'c_0': 17.4*0.3048,#units('ft'),
             #HT subs
-            'AR_h': 8.25,
-            '\\lambda_h' : 0.25,
+            'AR_{ht}': 8.25,
+            '\\lambda_{ht}' : 0.25,
             '\\tan(\\Lambda_{ht})':np.tan(20.*np.pi/180.), #tangent of HT sweep
 
             #VT subs
@@ -1299,8 +1299,8 @@ if __name__ == '__main__':
             'f_{pylon}': 0.10,
 
             # HT subs
-            'AR_h': 12.,
-            '\\lambda_h': 0.3,
+            'AR_{ht}': 12.,
+            '\\lambda_{ht}': 0.3,
             '\\tan(\\Lambda_{ht})': np.tan(8. * np.pi / 180.),  # tangent of HT sweep
             # 'V_{ht}': 0.895,
 
@@ -1396,8 +1396,8 @@ if __name__ == '__main__':
                '\\delta_P_{over}': 8.382 * units('psi'),
 
                # HT subs
-               'AR_h': 6.,
-               '\\lambda_h': 0.25,
+               'AR_{ht}': 6.,
+               '\\lambda_{ht}': 0.25,
                '\\tan(\\Lambda_{ht})': np.tan(25. * np.pi / 180.),  # tangent of HT sweep
                #'V_{ht}': .6,
                'C_{L_{hmax}}': 2.0,  # [TAS]

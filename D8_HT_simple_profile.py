@@ -228,7 +228,7 @@ class Mission(Model):
 
                 aircraft.HT['L_{h_{max}}'] == 0.5*aircraft['\\rho_0']*aircraft['V_{ne}']**2*aircraft.HT['S_{ht}']*aircraft.HT['C_{L_{hmax}}'],
                 #compute mrat, is a signomial equality
-                SignomialEquality(aircraft.HT['m_{ratio}']*(1+2/aircraft.wing['AR']), 1 + 2/aircraft.HT['AR_h']),
+                SignomialEquality(aircraft.HT['m_{ratio}']*(1+2/aircraft.wing['AR']), 1 + 2/aircraft.HT['AR_{ht}']),
 
                 #tail volume coefficient
                 aircraft.HT['V_{ht}'] == aircraft.HT['S_{ht}']*aircraft.HT['x_{CG_{ht}}']/(aircraft.wing['S']*aircraft.wing['mac']),
@@ -266,7 +266,7 @@ class Mission(Model):
                 climb['x_{AC}'] == aircraft.wing['x_w'],
 
                 #compute the HT chord at its attachment point to the VT
-                (aircraft.HT['b_{ht}']/aircraft.fuse['w_{fuse}'])*aircraft.HT['\lambda_h']*aircraft.HT['c_{root_{ht}}'] == aircraft.HT['c_{attach}']
+                (aircraft.HT['b_{ht}']/aircraft.fuse['w_{fuse}'])*aircraft.HT['\lambda_{ht}']*aircraft.HT['c_{root_{ht}}'] == aircraft.HT['c_{attach}']
                                               
                 ])
 
@@ -293,8 +293,8 @@ class HorizontalTailNoStruct(Model):
         
         tanLh   = Variable('\\tan(\\Lambda_{ht})', '-',
                            'tangent of horizontal tail sweep')
-        taper   = Variable('\lambda_h', '-', 'Horizontal tail taper ratio')
-        tau     = Variable('\\tau_h', '-',
+        taper   = Variable('\lambda_{ht}', '-', 'Horizontal tail taper ratio')
+        tau     = Variable('\\tau_{ht}', '-',
                            'Horizontal tail thickness/chord ratio')
         xcght   = Variable('x_{CG_{ht}}', 'm', 'Horizontal tail CG location')
         # dxlead  = Variable('\\Delta x_{{lead}_h}', 'm',
@@ -304,18 +304,18 @@ class HorizontalTailNoStruct(Model):
         ymac    = Variable('y_{\\bar{c}_{ht}}', 'm',
                            'Spanwise location of mean aerodynamic chord')
         lht     = Variable('l_{ht}', 'm', 'Horizontal tail moment arm')
-        ARh     = Variable('AR_h', '-', 'Horizontal tail aspect ratio')
+        ARht     = Variable('AR_{ht}', '-', 'Horizontal tail aspect ratio')
         amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack, htail')
         e       = Variable('e_h', '-', 'Oswald efficiency factor')
         Sh      = Variable('S_{ht}', 'm^2', 'Horizontal tail area')
         bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
         chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
         croot   = Variable('c_{root_{ht}}', 'm', 'Horizontal tail root chord')
-        ctip    = Variable('c_{tip_h}', 'm', 'Horizontal tail tip chord')
+        ctip    = Variable('c_{tip_{ht}}', 'm', 'Horizontal tail tip chord')
         Lmax    = Variable('L_{h_{max}}', 'N', 'Maximum load')
         # Kf      = Variable('K_f', '-',
         #                    'Empirical factor for fuselage-wing interference')
-        fl      = Variable(r"f(\lambda_h)", '-',
+        fl      = Variable(r"f(\lambda_{ht})", '-',
                            'Empirical efficiency function of taper')
         CLhmax  = Variable('C_{L_{hmax}}', '-', 'Max lift coefficient')
         CLfCG = Variable('C_{L_{hfcG}}', '-', 'HT CL During Max Forward CG')
@@ -353,9 +353,9 @@ class HorizontalTailNoStruct(Model):
                             + 0.1659*taper**2
                             - 0.0706*taper + 0.0119)], reltol=0.2),
                 # NOTE: slightly slack
-                TCS([e*(1 + fl*ARh) <= 1]),
+                TCS([e*(1 + fl*ARht) <= 1]),
 
-                ARh == bht**2/Sh,
+                ARht == bht**2/Sh,
                 
                 taper >= 0.2, # TODO: make less arbitrary
                 taper <= 1,
@@ -420,25 +420,25 @@ class HorizontalTailPerformance(Model):
 
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CDh,
-                CDh >= CD0h + CLh**2/(pi*self.HT['e_h']*self.HT['AR_h']),
+                CDh >= CD0h + CLh**2/(pi*self.HT['e_h']*self.HT['AR_{ht}']),
 
                 # Same drag model as VerticalTail
                 #Martin's NACA drag fit
-##                CD0h**1.5846 >= 0.000195006 * (Rec)**-0.508965 * (self.HT['\\tau_h']*100)**1.62106 * (state['M'])**0.670788
-##                        + 9.25066e+18 * (Rec)**-0.544817 * (self.HT['\\tau_h']*100)**1.94003 * (state['M'])**240.136
-##                        + 2.23515e-05 * (Rec)**0.223161 * (self.HT['\\tau_h']*100)**0.0338899 * (state['M'])**0.0210705,
+##                CD0h**1.5846 >= 0.000195006 * (Rec)**-0.508965 * (self.HT['\\tau_{ht}']*100)**1.62106 * (state['M'])**0.670788
+##                        + 9.25066e+18 * (Rec)**-0.544817 * (self.HT['\\tau_{ht}']*100)**1.94003 * (state['M'])**240.136
+##                        + 2.23515e-05 * (Rec)**0.223161 * (self.HT['\\tau_{ht}']*100)**0.0338899 * (state['M'])**0.0210705,
 
                 #Martin's TASOPT tail drag fit
-                CD0h**6.48983 >= (5.28751e-20 * (Rec)**0.900672 * (self.HT['\\tau_h']*100)**0.912222 * (state['M'])**8.64547
-                            + 1.67605e-28 * (Rec)**0.350958 * (self.HT['\\tau_h']*100)**6.29187 * (state['M'])**10.2559
-                            + 7.09757e-25 * (Rec)**1.39489 * (self.HT['\\tau_h']*100)**1.96239 * (state['M'])**0.567066
-                            + 3.73076e-14 * (Rec)**-2.57406 * (self.HT['\\tau_h']*100)**3.12793 * (state['M'])**0.448159
-                            + 1.44343e-12 * (Rec)**-3.91046 * (self.HT['\\tau_h']*100)**4.66279 * (state['M'])**7.68852),
+                CD0h**6.48983 >= (5.28751e-20 * (Rec)**0.900672 * (self.HT['\\tau_{ht}']*100)**0.912222 * (state['M'])**8.64547
+                            + 1.67605e-28 * (Rec)**0.350958 * (self.HT['\\tau_{ht}']*100)**6.29187 * (state['M'])**10.2559
+                            + 7.09757e-25 * (Rec)**1.39489 * (self.HT['\\tau_{ht}']*100)**1.96239 * (state['M'])**0.567066
+                            + 3.73076e-14 * (Rec)**-2.57406 * (self.HT['\\tau_{ht}']*100)**3.12793 * (state['M'])**0.448159
+                            + 1.44343e-12 * (Rec)**-3.91046 * (self.HT['\\tau_{ht}']*100)**4.66279 * (state['M'])**7.68852),
                 #Philippe thesis drag fit
-##                CD0h**0.125 >= 0.19*(self.HT['\\tau_h'])**0.0075 *(Rec)**0.0017
-##                            + 1.83e+04*(self.HT['\\tau_h'])**3.54*(Rec)**-0.494
-##                            + 0.118*(self.HT['\\tau_h'])**0.0082 *(Rec)**0.00165
-##                            + 0.198*(self.HT['\\tau_h'])**0.00774*(Rec)**0.00168,
+##                CD0h**0.125 >= 0.19*(self.HT['\\tau_{ht}'])**0.0075 *(Rec)**0.0017
+##                            + 1.83e+04*(self.HT['\\tau_{ht}'])**3.54*(Rec)**-0.494
+##                            + 0.118*(self.HT['\\tau_{ht}'])**0.0082 *(Rec)**0.00165
+##                            + 0.198*(self.HT['\\tau_{ht}'])**0.00774*(Rec)**0.00168,
                 Rec == state['\\rho']*state['V']*self.HT['\\bar{c}_{ht}']/state['\\mu'],
                 ])
 
@@ -464,7 +464,7 @@ class HorizontalTail(Model):
         constraints = []
         with SignomialsEnabled():
             constraints.append([
-                self.wb['L_{h_{rect}}'] >= self.wb['L_{h_{max}}']/2.*self.HTns['c_{tip_h}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'],
+                self.wb['L_{h_{rect}}'] >= self.wb['L_{h_{max}}']/2.*self.HTns['c_{tip_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'],
                 self.wb['L_{h_{tri}}'] >= self.wb['L_{h_{max}}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'], #[SP]
 
                 WHT >= self.wb['W_{struct}'] + self.wb['W_{struct}']  * fHT,
@@ -526,12 +526,12 @@ class WingBox(Model):
         objective = Wstruct
 
         if isinstance(surface, HorizontalTailNoStruct):
-            AR = surface['AR_h']
+            AR = surface['AR_{ht}']
             b = surface['b_{ht}']
             S = surface['S_{ht}']
             p = surface['p_{ht}']
             q = surface['q_{ht}']
-            tau = surface['\\tau_h']
+            tau = surface['\\tau_{ht}']
             Lmax = surface['L_{h_{max}}']
 
         constraints = [
@@ -649,7 +649,7 @@ if __name__ == '__main__':
     #     m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
     #     solRsweep = m.localsolve(solver='mosek', verbosity = 4)
         
-    #     plt.plot(solRsweep('ReqRng'), solRsweep('AR_h'), '-r')
+    #     plt.plot(solRsweep('ReqRng'), solRsweep('AR_{ht}'), '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Horizontal Tail Aspect Ratio')
     #     plt.title('Horizontal Tail Aspect Ratio vs Range')
@@ -706,7 +706,7 @@ if __name__ == '__main__':
     #     m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
     #     solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
         
-    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('AR_h'), '-r')
+    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('AR_{ht}'), '-r')
     #     plt.xlabel('Cruise Altitude [ft]')
     #     plt.ylabel('Horizontal Tail Aspect Ratio')
     #     plt.title('Horizontal Tail Aspect Ratio vs Cruise Altitude')

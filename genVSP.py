@@ -58,8 +58,8 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
 
         # Horizontal Tail descriptors
         xCGht = sol('x_{CG_{ht}}')[i].to('m')
-        crootht = sol('c_{root_h}')[i].to('m')
-        ctipht = sol('c_{tip_h}')[i].to('m')
+        crootht = sol('c_{root_{ht}}')[i].to('m')
+        ctipht = sol('c_{tip_{ht}}')[i].to('m')
         bht = sol('b_{ht}')[i].to('m')
         xCGht = sol('x_{CG_{ht}}')[i]
         lht = sol('l_{ht}')[i].to('m')
@@ -73,8 +73,8 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
         lvt = sol('l_{vt}')[i].to('m')
         crootvt = sol('c_{root_{vt}}')[i].to('m')
         ctipvt = sol('c_{tip_{vt}}')[i].to('m')
-        dxleadvt = sol('\\Delta x_{lead_v}')[i].to('m')
-        dxtrailvt = sol('\\Delta x_{trail_v}')[i].to('m')
+        # dxleadvt = sol('\\Delta x_{lead_v}')[i].to('m')
+        # dxtrailvt = sol('\\Delta x_{trail_v}')[i].to('m')
         tanvt = sol('\\tan(\Lambda_{vt})_Mission, Aircraft, VerticalTail, VerticalTailNoStruct')[i]
 
         # Engine descriptors
@@ -111,8 +111,8 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
 
         # Horizontal Tail descriptors
         xCGht = sol('x_{CG_{ht}}').to('m')
-        crootht = sol('c_{root_h}').to('m')
-        ctipht = sol('c_{tip_h}').to('m')
+        crootht = sol('c_{root_{ht}}').to('m')
+        ctipht = sol('c_{tip_{ht}}').to('m')
         bht = sol('b_{ht}').to('m')
         xCGht = sol('x_{CG_{ht}}')
         lht = sol('l_{ht}').to('m')
@@ -126,8 +126,8 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
         lvt = sol('l_{vt}').to('m')
         crootvt = sol('c_{root_{vt}}').to('m')
         ctipvt = sol('c_{tip_{vt}}').to('m')
-        dxleadvt = sol('\\Delta x_{lead_v}').to('m')
-        dxtrailvt = sol('\\Delta x_{trail_v}').to('m')
+        # dxleadvt = sol('\\Delta x_{lead_v}').to('m')
+        # dxtrailvt = sol('\\Delta x_{trail_v}').to('m')
         tanvt = sol('\\tan(\Lambda_{vt})_Mission, Aircraft, VerticalTail, VerticalTailNoStruct')
 
         # Engine descriptors
