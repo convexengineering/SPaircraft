@@ -224,7 +224,7 @@ class Fuselage(Model):
                 Wpax == npax * Wavgpass,
                 Wpay >= Wpax + Wlugg + Wcargo,
                 Wpay >= npax * Wavgpasstot,
-                nseat >= npax,
+                nseat == npax,
                 nrows == nseat / SPR,
                 lshell == nrows * pitch,
 
@@ -354,7 +354,7 @@ class Fuselage(Model):
                 Vnose == Snose * tskin,
                 Vbulk == Sbulk * tskin,
                 Vdb == Adb * lshell,
-                SignomialEquality(Vcabin, Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse)),
+                Vcabin >= Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse),
 
                 # Weight relations
                 Wapu == Wpay * fapu,
