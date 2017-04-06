@@ -197,9 +197,10 @@ class Aircraft(Model):
                             # Load factor matching
                             self.fuse['N_{lift}'] == self.wing['N_{lift}'],
                             #set the wing lift, must overcome tail downforce plus total aircraft weight
-                            self.wing['L_{max}'] >= self.wing['N_{lift}'] * (W_total \
-                                                    + 0.5*0.5*self.wing['\\rho_0']*self.wing['V_{ne}']**2 \
-                                                    *self.HT['S_{ht}']*self.wing['C_{L_{wmax}}']),
+                            # self.wing['L_{max}'] >= self.wing['N_{lift}'] * (W_total \
+                            #                         + 0.5*0.5*self.wing['\\rho_0']*self.wing['V_{ne}']**2 \
+                            #                         *self.HT['S_{ht}']*self.wing['C_{L_{wmax}}']),
+                            self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + 0.5*self.HT['L_{h_{max}}'],
 
                             # Wing fuel constraints
                             self.wing['W_{fuel_{wing}}'] >= W_ftotal/self.wing['FuelFrac'],
@@ -349,9 +350,6 @@ class Aircraft(Model):
         if b737800:
             with SignomialsEnabled():
                constraints.extend([
-                   # Engine out moment arm,
-                    self.VT['y_{eng}'] == 4.83*units('m'),
-
                     # HT root moment
                     # TCS([self.HT['M_r'] >= self.HT['L_{h_{max}}']*self.HT['AR_{ht}']*self.HT['p_{ht}']/24]),
                     TCS([self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
@@ -425,7 +423,7 @@ class AircraftP(Model):
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
         thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
 
-        # Longitudinal tability variables
+        # Longitudinal stability variables
         xAC = Variable('x_{AC}','m','Aerodynamic Center of Aircraft')
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
         xNP = Variable('x_{NP}','m','Neutral Point of Aircraft')
@@ -1407,6 +1405,7 @@ if __name__ == '__main__':
                'SM_{min}': .05,
 
                # VT subs
+               'y_{eng}': 4.83*units('m'),
                'numVT': 1.,
                'A_{vt}': 2.,
                '\\lambda_{vt}': 0.3,
