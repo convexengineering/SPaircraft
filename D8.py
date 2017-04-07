@@ -74,8 +74,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
-b737800 = False
+D82 = False
+b737800 = True
 
 #choose multimission or not
 multimission = False
@@ -200,7 +200,7 @@ class Aircraft(Model):
                             # self.wing['L_{max}'] >= self.wing['N_{lift}'] * (W_total \
                             #                         + 0.5*0.5*self.wing['\\rho_0']*self.wing['V_{ne}']**2 \
                             #                         *self.HT['S_{ht}']*self.wing['C_{L_{wmax}}']),
-                            self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + 0.5*self.HT['L_{h_{max}}'],
+                            self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
 
                             # Wing fuel constraints
                             self.wing['W_{fuel_{wing}}'] >= W_ftotal/self.wing['FuelFrac'],
@@ -269,7 +269,8 @@ class Aircraft(Model):
                             self.fuse['B1v'] == self.fuse['r_{M_v}']*numVT*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
 
                             # Moment of inertia around z-axis
-                            SignomialEquality(self.VT['I_{z}'], Izwing + Iztail + Izfuse),
+                            # SignomialEquality(self.VT['I_{z}'], Izwing + Iztail + Izfuse),
+                            self.VT['I_{z}'] >= Izwing + Iztail + Izfuse,
 
                             # Fuselage width (numaisle comes in)
                             TCS([2.*self.fuse['w_{fuse}'] >= self.fuse['SPR'] * self.fuse['w_{seat}'] + \
