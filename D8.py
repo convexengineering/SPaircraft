@@ -788,7 +788,7 @@ class Mission(Model):
                     # Setting minimum HPC pressure ratio
                     # aircraft.engine['\\pi_{hc}'] >= 1.7,
                    #Limiting engine diameter for the b737800
-                    # aircraft['d_{f}'] <= 1.55*units('m'),
+                    aircraft['d_{f}'] <= 1.55*units('m'),
                    ])
 
         constraints.extend([

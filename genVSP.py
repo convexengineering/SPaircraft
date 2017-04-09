@@ -200,7 +200,7 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
         # Floor Variables
         # Fuselage variables
         # HT Variables
-        'USGQFZQKJWC':float(float(xCGht.magnitude) - 0.5*crootht.magnitude), # HT x location
+        'USGQFZQKJWC':float(float(xCGht.magnitude) - crootht.magnitude), # HT x location
         'BLMHVDOLAQJ':float(0.),                                             # HT z location
         # VT variables
         'LLYTEYDPDID':float(xCGvt.magnitude - 0.5*crootvt.magnitude),        # VT x location (LE location)
