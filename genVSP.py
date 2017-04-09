@@ -131,9 +131,9 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
         tanvt = sol('\\tan(\Lambda_{vt})_Mission, Aircraft, VerticalTail, VerticalTailNoStruct')
 
         # Engine descriptors
-        df = sol('d_{f}').to('m') # Engine frontal area
+        df = sol('d_{f}_Mission, Aircraft, Engine').to('m') # Engine frontal area
         lnace = sol('l_{nacelle}').to('m')
-        yeng = sol('y_{eng}').to('m')
+        yeng = sol('y_{eng}_Mission, Aircraft, VerticalTail, VerticalTailNoStruct').to('m')
 
     resultsDict = {
         # Engine Variables
