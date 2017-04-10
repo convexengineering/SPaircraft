@@ -1398,7 +1398,7 @@ if __name__ == '__main__':
                'AR_{ht}': 6.,
                '\\lambda_{ht}': 0.25,
                '\\tan(\\Lambda_{ht})': np.tan(25. * np.pi / 180.),  # tangent of HT sweep
-               #'V_{ht}': .6,
+               # 'V_{ht}': 1.45,
                'C_{L_{hmax}}': 2.0,  # [TAS]
                'C_{L_{hfcG}}': 0.7,
                '\\Delta x_{CG}': 7.68 * units('ft'),

@@ -86,7 +86,7 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
         # n_{rows}
         # wingbox (x_b) (x_f)
     else:
-        sweep = arccos(sol('\cos(\Lambda) _Mission, Aircraft, Wing, WingNoStruct'))*180/np.pi
+        sweep = arccos(sol('\cos(\Lambda)_Mission, Aircraft, Wing, WingNoStruct'))*180/np.pi
 
         # Wing descriptors
         b = sol('b').to('m')
