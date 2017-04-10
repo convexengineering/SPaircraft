@@ -78,15 +78,15 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
         tanvt = sol('\\tan(\Lambda_{vt})_Mission, Aircraft, VerticalTail, VerticalTailNoStruct')[i]
 
         # Engine descriptors
-        df = sol('d_{f}')[i].to('m') # Engine frontal area
+        df = sol('d_{f}_Mission, Aircraft, Engine')[i].to('m') # Engine frontal area
         lnace = sol('l_{nacelle}')[i].to('m')
-        yeng = sol('y_{eng}')[i].to('m')
+        yeng = sol('y_{eng}_Mission, Aircraft, VerticalTail, VerticalTailNoStruct')[i].to('m')
 
         # Things to integrate later
         # n_{rows}
         # wingbox (x_b) (x_f)
     else:
-        sweep = arccos(sol('\cos(\Lambda)_Mission, Aircraft, Wing, WingNoStruct'))*180/np.pi
+        sweep = arccos(sol('\cos(\Lambda) _Mission, Aircraft, Wing, WingNoStruct'))*180/np.pi
 
         # Wing descriptors
         b = sol('b').to('m')

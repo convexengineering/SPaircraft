@@ -297,7 +297,7 @@ class Aircraft(Model):
                 constraints.extend([
 
                     # VT height constraint (4*engine diameter)
-                    self.VT['b_{vt}'] >= 4. * self.engine['d_{f}'],
+                    # self.VT['b_{vt}'] >= 4. * self.engine['d_{f}'],
 
                     # Engine out moment arm,
                     self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}'],
@@ -1493,7 +1493,7 @@ if __name__ == '__main__':
         if sweepReqRng:
             # m = Mission(Nclimb, Ncruise)
             # m.substitutions.update(substitutions)
-            ReqRngArray = np.linspace(500,3000,n)
+            ReqRngArray = np.linspace(1000,5000,n)
             m.substitutions.update({'ReqRng': ('sweep',ReqRngArray)})
             m = relaxed_constants(m)
             solReqRngsweep = m.localsolve(verbosity=2, iteration_limit=25, skipsweepfailures=True)
