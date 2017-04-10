@@ -406,7 +406,7 @@ class AircraftP(Model):
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
         self.VTP = aircraft.VT.dynamic(aircraft.fuse,state)
-        self.HTP = aircraft.HT.dynamic(aircraft.wing,state)
+        self.HTP = aircraft.HT.dynamic(state)
         self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP]
 
         # Variable Definitions

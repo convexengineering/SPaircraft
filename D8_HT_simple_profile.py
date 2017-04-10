@@ -360,7 +360,6 @@ class HorizontalTailNoStruct(Model):
                 taper >= 0.2, # TODO: make less arbitrary
                 taper <= 1,
 
-##                Sh >= .1*units('m^2'),
                 ])
 
         return constraints
@@ -369,9 +368,8 @@ class HorizontalTailPerformance(Model):
     """
     Horizontal tail performance model
     """
-    def setup(self, ht, wing, state):
+    def setup(self, ht, state):
         self.HT = ht
-        self.wing = wing
         
         #variables
 
@@ -384,12 +382,8 @@ class HorizontalTailPerformance(Model):
         #                    'Isolated lift curve slope (htail)')
         # CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
 
-        
         CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
 
-        # dxw     = Variable('\\Delta x_w', 'm',
-        #                    'Distance from aerodynamic centre to CG')
-        
         # etaht   = Variable('\\eta_{ht}', '-', 'Tail efficiency')
         # eta     = Variable('\\eta_h', '-',
         #                    ("Lift efficiency (diff between sectional and "
@@ -473,11 +467,11 @@ class HorizontalTail(Model):
         return self.HTns, self.wb, constraints
 
 
-    def dynamic(self, wing, state):
+    def dynamic(self, state):
         """"
         creates a horizontal tail performance model
         """
-        return HorizontalTailPerformance(self, wing, state)
+        return HorizontalTailPerformance(self, state)
     
 class WingBox(Model):
     """
