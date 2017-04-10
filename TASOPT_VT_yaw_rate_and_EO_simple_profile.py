@@ -76,7 +76,7 @@ class AircraftP(Model):
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
         self.engineP = aircraft.engine.dynamic(state)
-        self.VTP = aircraft.VT.dynamic(aircraft.fuse, state)
+        self.VTP = aircraft.VT.dynamic(state)
 
         self.Pmodels = [self.wingP, self.fuseP, self.engineP, self.VTP]
 
@@ -258,11 +258,11 @@ class VerticalTail(Model):
 
         return self.vtns, self.wb, constraints
 
-    def dynamic(self, fuse, state):
+    def dynamic(self, state):
         """"
         creates a horizontal tail performance model
         """
-        return VerticalTailPerformance(self, fuse, state)
+        return VerticalTailPerformance(self,state)
 
 class VerticalTailNoStruct(Model):
     """
@@ -375,8 +375,7 @@ class VerticalTailPerformance(Model):
     """
     Vertical tail perofrmance model
     """
-    def setup(self, vt, fuse, state):
-        self.fuse = fuse
+    def setup(self, vt, state):
         self.vt = vt
 
         #define new variables

@@ -405,7 +405,7 @@ class AircraftP(Model):
         self.aircraft = aircraft
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
-        self.VTP = aircraft.VT.dynamic(aircraft.fuse,state)
+        self.VTP = aircraft.VT.dynamic(state)
         self.HTP = aircraft.HT.dynamic(state)
         self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP]
 
@@ -1411,7 +1411,7 @@ if __name__ == '__main__':
                'A_{vt}': 2.,
                '\\lambda_{vt}': 0.3,
                '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
-#               'V_{vt}': .07,
+              # 'V_{vt}': .1,
                'N_{spar}': 1.,
                '\\dot{r}_{req}': 0.0001,  # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
