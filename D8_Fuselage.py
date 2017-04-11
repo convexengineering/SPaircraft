@@ -15,8 +15,8 @@ class Fuselage(Model):
     def setup(self, Nmissions, **kwargs):
         g = Variable('g',9.81,'m*s^-2','Acceleration due to gravity')
         dPover = Variable('\\delta_P_{over}', 'psi', 'Cabin overpressure')
-##        with Vectorize(Nmissions):
-        npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+        with Vectorize(Nmissions):
+            npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
                          'Emergency landing load factor')  # [TAS]
         Nlift = Variable('N_{lift}','-','Wing maximum load factor')
@@ -199,10 +199,10 @@ class Fuselage(Model):
         Wtail = Variable('W_{tail}', 'lbf', 'Total tail weight')
         Wwindow = Variable('W_{window}', 'lbf', 'Window weight')
 
-##        with Vectorize(Nmissions):
-        Wpay = Variable('W_{payload}', 'lbf', 'Payload weight')
-        Wlugg = Variable('W_{lugg}', 'lbf', 'Passenger luggage weight')
-        Wpax = Variable('W_{pax}', 'lbf', 'Passenger weight')
+        with Vectorize(Nmissions):
+            Wpay = Variable('W_{payload}', 'lbf', 'Payload weight')
+            Wlugg = Variable('W_{lugg}', 'lbf', 'Passenger luggage weight')
+            Wpax = Variable('W_{pax}', 'lbf', 'Passenger weight')
         
         # x-location variables
         xshell1 = Variable('x_{shell1}', 'm', 'Start of cylinder section')
@@ -224,7 +224,7 @@ class Fuselage(Model):
                 Wpax == npax * Wavgpass,
                 Wpay >= Wpax + Wlugg + Wcargo,
                 Wpay >= npax * Wavgpasstot,
-                nseat == npax,
+                nseat >= npax,
                 nrows == nseat / SPR,
                 lshell == nrows * pitch,
 
