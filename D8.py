@@ -893,11 +893,11 @@ class Mission(Model):
                   aircraft['n_{pax}'][1] == 180,
 ##                  aircraft['n_{pax}'][2] == 120,
 ##                  aircraft['n_{pax}'][3] == 80,
-##                  ReqRng[:Nmission] == 3000 * units('nmi'),
-                  ReqRng[0] == 3200 * units('nmi'),
-                  ReqRng[1] == 3000 * units('nmi'),
-##                  ReqRng[2] == 2200 * units('nmi'),
-##                  ReqRng[3] == 2000 * units('nmi'),
+                  ReqRng[:Nmission] == 3000 * units('nmi'),
+##                  ReqRng[0] == 3000 * units('nmi'),
+##                  ReqRng[1] == 3000 * units('nmi'),
+##                  ReqRng[2] == 3000 * units('nmi'),
+##                  ReqRng[3] == 3000 * units('nmi'),
                   ])
 
         M2 = .6
@@ -1225,7 +1225,7 @@ def test():
 if __name__ == '__main__':
     Nclimb = 3
     Ncruise = 2
-    Nmission = 2
+    Nmission = 4
     
 
     if multimission:

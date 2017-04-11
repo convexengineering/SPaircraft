@@ -224,7 +224,7 @@ class Fuselage(Model):
                 Wpax == npax * Wavgpass,
                 Wpay >= Wpax + Wlugg + Wcargo,
                 Wpay >= npax * Wavgpasstot,
-                nseat == npax,
+                nseat >= npax,
                 nrows == nseat / SPR,
                 lshell == nrows * pitch,
 
