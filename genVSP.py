@@ -137,11 +137,14 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
 
     resultsDict = {
         # Engine Variables
-        'REBAHPKXPRR':float(xCGvt.magnitude), # Engine x location
-        'GKMTRGNCEVD':float(yeng.magnitude), #Engine y location
-        'XFTWTTHLVRI':float(hfuse.magnitude - (df/5.).magnitude), # Engine z location
-        'JTPPOOJVVPE':float(lnace.magnitude),# Engine length
-        'QRBDHPAPDFX':float(2.*lnace.magnitude/df.magnitude), # Engine fineness ratio (set at 2 for now)
+        'VMKMZGNLMJP':float(lnace.magnitude),    # Engine length (chord)
+        'ZMFRBNHWECC':float(df.magnitude),       # Engine height
+        'BPFMSDZXFIH':float(0.1625),             # Engine airfoil thickness/chord
+        'ZJNJVEDIAKQ':float(df.magnitude),       # Engine width
+        'QJDKHYHUERO':float(xCGvt.magnitude),    # Engine x location
+        'GSCVZMZSIEE':float(0.5*wfuse.magnitude),     #Engine y location
+        'JZFQRLWEMQX':float(hfuse.magnitude - (df/5.).magnitude), # Engine z location
+        'UWVIKHNPFOM':float(0.),                                  # Engine up-rotation (degrees)
 
         # Floor Variables
         'MCVUEHMJBGG':float(hfloor.magnitude),  # Floor height
