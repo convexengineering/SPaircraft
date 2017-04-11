@@ -712,6 +712,8 @@ class Mission(Model):
           CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
           ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
+        Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
+        
         # make overall constraints
         constraints = []
 
@@ -857,6 +859,9 @@ class Mission(Model):
 
                 # TASOPT TOC climb rate constraint
                 climb['\\theta'][-1] >= 0.015, #higher than 0.015 radian climb gradient
+
+                #compute the total time
+                Total_Time >= sum(cruise['thr']) + sum(climb['thr']),
             ])
 
         # Calculating percent fuel remaining
@@ -890,9 +895,9 @@ class Mission(Model):
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   aircraft['n_{pax}'][0] == 180,
-                  aircraft['n_{pax}'][1] == 180,
-##                  aircraft['n_{pax}'][2] == 120,
-##                  aircraft['n_{pax}'][3] == 80,
+##                  aircraft['n_{pax}'][1] == 120,
+##                  aircraft['n_{pax}'][2] == 160,
+##                  aircraft['n_{pax}'][3] == 160,
                   ReqRng[:Nmission] == 3000 * units('nmi'),
 ##                  ReqRng[0] == 3000 * units('nmi'),
 ##                  ReqRng[1] == 3000 * units('nmi'),
@@ -960,10 +965,10 @@ class Mission(Model):
         if fuel:
              #just fuel burn cost model
              if not multimission:
-                  self.cost = aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m^3') #+ 1e9*aircraft['l_{fuse}']*units('N/m')
+                  self.cost = aircraft['W_{fuel_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m^3') #+ 1e9*aircraft['l_{fuse}']*units('N/m')
                   self.cost = self.cost.sum()
              else:
-                  self.cost = W_fmissions  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
+                  self.cost = Total_Time + aircraft['V_{cabin}']*units('hr/m^3') #W_fmissions  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
              
@@ -1225,7 +1230,7 @@ def test():
 if __name__ == '__main__':
     Nclimb = 3
     Ncruise = 2
-    Nmission = 4
+    Nmission = 1
     
 
     if multimission:
