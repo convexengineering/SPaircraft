@@ -861,7 +861,7 @@ class Mission(Model):
                 climb['\\theta'][-1] >= 0.015, #higher than 0.015 radian climb gradient
 
                 #compute the total time
-                Total_Time >= sum(cruise['thr']) + sum(climb['thr']),
+##                Total_Time >= sum(cruise['thr']) + sum(climb['thr']),
             ])
 
         # Calculating percent fuel remaining
@@ -968,7 +968,7 @@ class Mission(Model):
                   self.cost = aircraft['W_{fuel_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m^3') #+ 1e9*aircraft['l_{fuse}']*units('N/m')
                   self.cost = self.cost.sum()
              else:
-                  self.cost = Total_Time + aircraft['V_{cabin}']*units('hr/m^3') #W_fmissions  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
+                  self.cost = W_fmissions + aircraft['V_{cabin}']*units('hr/m^3') #W_fmissions  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
              
