@@ -78,7 +78,7 @@ D82 = False
 b737800 = True
 
 #choose multimission or not
-multimission = False
+multimission = True
 
 #choose objective type
 manufacturer = False
@@ -889,12 +889,15 @@ class Mission(Model):
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-##                  aircraft['n_{pax}'][0] == 180,
-##                  aircraft['n_{pax}'][1] == 180,
+                  aircraft['n_{pax}'][0] == 180,
+                  aircraft['n_{pax}'][1] == 180,
 ##                  aircraft['n_{pax}'][2] == 120,
 ##                  aircraft['n_{pax}'][3] == 80,
-                  ReqRng[:Nmission] == 3000 * units('nmi'),
-                  # ReqRng[1] == 2200 * units('nmi'),
+##                  ReqRng[:Nmission] == 3000 * units('nmi'),
+                  ReqRng[0] == 3200 * units('nmi'),
+                  ReqRng[1] == 3000 * units('nmi'),
+##                  ReqRng[2] == 2200 * units('nmi'),
+##                  ReqRng[3] == 2000 * units('nmi'),
                   ])
 
         M2 = .6
@@ -992,7 +995,7 @@ hpc = 35./8.
 
 substitutions = {
         # Basic mission subs
-        'n_{pax}':180,
+##        'n_{pax}':180,
 ##        'ReqRng':1500.,
 
         # 'V_{stall}'   : 120,
@@ -1222,7 +1225,7 @@ def test():
 if __name__ == '__main__':
     Nclimb = 3
     Ncruise = 2
-    Nmission = 1
+    Nmission = 2
     
 
     if multimission:
@@ -1398,7 +1401,7 @@ if __name__ == '__main__':
                'AR_{ht}': 6.,
                '\\lambda_{ht}': 0.25,
                '\\tan(\\Lambda_{ht})': np.tan(25. * np.pi / 180.),  # tangent of HT sweep
-               # 'V_{ht}': 1.45,
+               #'V_{ht}': .6,
                'C_{L_{hmax}}': 2.0,  # [TAS]
                'C_{L_{hfcG}}': 0.7,
                '\\Delta x_{CG}': 7.68 * units('ft'),
