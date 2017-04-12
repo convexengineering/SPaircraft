@@ -78,7 +78,7 @@ D82 = False
 b737800 = True
 
 #choose multimission or not
-multimission = True
+multimission = False
 
 #choose objective type
 manufacturer = False
@@ -906,6 +906,11 @@ class Mission(Model):
 ##                  ReqRng[2] == 3000 * units('nmi'),
 ##                  ReqRng[3] == 3000 * units('nmi'),
                   ])
+        else:
+             constraints.extend([
+                  aircraft['n_{pax}'] == 180.,
+                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  ])
 
         M2 = .6
         M25 = .6
@@ -919,7 +924,7 @@ class Mission(Model):
             aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
             
             #climb rate constraints
-            TCS([climb['excessP'] + climb.state['V'] * climb['D'] <=  climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
+            TCS([climb['excessP'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
 
         if D80 or D82:
@@ -974,7 +979,6 @@ class Mission(Model):
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
              
-
         if operator:
              #basic operator cost model
              if not multimission:
@@ -1015,7 +1019,6 @@ substitutions = {
         'numeng': 2.,
         'numVT': 2.,
         'numaisle':2.,
-        # 'n_{pax}': 180.,
         'W_{avg. pass}': 180.*units('lbf'),
         'W_{carry on}': 15.*units('lbf'),
         'W_{cargo}': 10000.*units('N'),
@@ -1364,12 +1367,11 @@ def test():
                # nacelle drag calc parameter
                'r_{vnace}': 1.02,
                'T_{t_{4.1_{max}}}': 1833.*units('K'),
-
-
            })
+
            if not multimission:
                m.substitutions.update({
-               'n_{pax}': 180.,
+##               'n_{pax}': [180.],
                'ReqRng': 3000.*units('nmi'),
                })
 ##    if multimission:
@@ -1794,6 +1796,8 @@ def test():
         if sweeps:
             genDesFileSweep(sol,n,b737800)
 
+    return sol
+
 if __name__ == '__main__':
-     test()
+     sol = test()
 
