@@ -248,7 +248,8 @@ class Fuselage(Model):
                 Sbulk >= (2 * pi + 4 * thetadb) * Rfuse**2,
 
                 # Fuselage length relations
-                SignomialEquality(lfuse, lnose + lshell + lcone),  
+                SignomialEquality(lfuse, lnose + lshell + lcone), #[SP] #[SPEquality]
+                    # NOTE: it is not clear which direction the pressure is!
                 lcone == Rfuse / lamcone,
                 xshell1 == lnose,
                 TCS([xshell2 >= lnose + lshell]), 
