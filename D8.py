@@ -312,6 +312,12 @@ class Aircraft(Model):
                     self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
                          1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP]
 
+                    # Wing root moment constraint
+                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] -
+                                                                    self.wing['N_{lift}'] * (Wwing)) * \
+                        (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
+                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
+
 
 
                     # Pin VT joint moment constraint #TODO may be problematic, should check
@@ -373,8 +379,14 @@ class Aircraft(Model):
                     self.fuse['S_{floor}'] == 1./2. * self.fuse['P_{floor}'],
                     self.fuse['M_{floor}'] == 1./4. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
 
-                   # Wing loading due to landing loads (might matter for 737!)
-                   TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
+                    # Wing root moment constraint
+                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] -
+                                                                    self.wing['N_{lift}'] * (Wwing + numeng*Wengsys)) * \
+                        (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
+                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
+
+                    # Wing loading due to landing loads (might matter for 737!)
+                    TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
                                     (Wengsys*self.VT['y_{eng}'] + \
                                      0.5*(Wwing + W_ftotal)* \
                                      (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
@@ -1321,6 +1333,8 @@ def test():
                 'f_{lgnose}':0.011, # [TAS]
                 'f_{pylon}': 0.10,
 
+               # Wing fractional weights
+                'f_{slat}': 0.1,
 
                # fuselage subs that make fuse circular
                '\\delta R_{fuse}': 0.0001 * units('m'),
