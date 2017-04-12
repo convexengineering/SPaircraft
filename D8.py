@@ -712,6 +712,8 @@ class Mission(Model):
           CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
           ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
+        Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
+
         # make overall constraints
         constraints = []
 
@@ -858,6 +860,9 @@ class Mission(Model):
 
                 # TASOPT TOC climb rate constraint
                 climb['\\theta'][-1] >= 0.015, #higher than 0.015 radian climb gradient
+
+                #compute the total time
+##                Total_Time >= sum(cruise['thr']) + sum(climb['thr']),
             ])
 
         # Calculating percent fuel remaining
@@ -892,9 +897,9 @@ class Mission(Model):
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   aircraft['n_{pax}'][0] == 180.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
-                  # aircraft['n_{pax}'][1] == 180,
-##                  aircraft['n_{pax}'][2] == 120,
-##                  aircraft['n_{pax}'][3] == 80,
+##                  aircraft['n_{pax}'][1] == 120,
+##                  aircraft['n_{pax}'][2] == 160,
+##                  aircraft['n_{pax}'][3] == 160,
                   ReqRng[:Nmission] == 3000 * units('nmi'),
 ##                  ReqRng[0] == 3000 * units('nmi'),
 ##                  ReqRng[1] == 3000 * units('nmi'),
