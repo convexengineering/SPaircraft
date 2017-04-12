@@ -74,7 +74,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
+D82 = False
+D8big = True
 b737800 = False
 
 #choose multimission or not
@@ -144,9 +145,6 @@ class Aircraft(Model):
         WHT = Variable('W_{HT}','lbf','Horizontal Tail Weight')
         WVT = Variable('W_{VT}','lbf','Vertical Tail Weight')
 
-        # Fuselage lift fraction variables
-        Ltow = Variable('L_{total/wing}','-','Total lift as a percentage of wing lift')
-
         # Misc system variables
         Wmisc   = Variable('W_{misc}','lbf','Sum of Miscellaneous Weights')
         Wlgnose = Variable('W_{lgnose}','lbf','Nose Landing Gear Weight')
@@ -203,7 +201,7 @@ class Aircraft(Model):
                             # self.wing['L_{max}'] >= self.wing['N_{lift}'] * (W_total \
                             #                         + 0.5*0.5*self.wing['\\rho_0']*self.wing['V_{ne}']**2 \
                             #                         *self.HT['S_{ht}']*self.wing['C_{L_{wmax}}']),
-                            self.wing['L_{max}']*Ltow >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
+                            self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
 
                             # Wing fuel constraints
                             self.wing['W_{fuel_{wing}}'] >= W_ftotal/self.wing['FuelFrac'],
@@ -295,7 +293,7 @@ class Aircraft(Model):
                             ])
 
         #d8 only constraints
-        if D80 or D82:
+        if D80 or D82 or D8big:
             with SignomialsEnabled():
                 constraints.extend([
 
@@ -314,12 +312,6 @@ class Aircraft(Model):
                     # constraint to lower bound M_r w.r.t. a conventional tail config (0.25*M_r of conventional)
                     self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
                          1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP]
-
-                    # Wing root moment constraint
-                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] -
-                                                                    self.wing['N_{lift}'] * (Wwing)) * \
-                        (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
-                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
 
 
 
@@ -382,14 +374,8 @@ class Aircraft(Model):
                     self.fuse['S_{floor}'] == 1./2. * self.fuse['P_{floor}'],
                     self.fuse['M_{floor}'] == 1./4. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
 
-                    # Wing root moment constraint
-                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] -
-                                                                    self.wing['N_{lift}'] * (Wwing + numeng*Wengsys)) * \
-                        (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
-                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
-
-                    # Wing loading due to landing loads (might matter for 737!)
-                    TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
+                   # Wing loading due to landing loads (might matter for 737!)
+                   TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
                                     (Wengsys*self.VT['y_{eng}'] + \
                                      0.5*(Wwing + W_ftotal)* \
                                      (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
@@ -462,6 +448,7 @@ class AircraftP(Model):
 
         # Lift fraction variables
         Ltotal = Variable('L_{total}','N','Total lift')
+        Ltow = Variable('L_{total/wing}','-','Total lift as a percentage of wing lift')
 
         #variables for nacelle drag calcualation
         Vnace = Variable('V_{nacelle}', 'm/s', 'Incoming Nacelle Flow Velocity')
@@ -504,7 +491,7 @@ class AircraftP(Model):
             self.wingP['\\eta_{o}'] == aircraft['w_{fuse}']/(aircraft['b']/2),
 
             # Fuselage lift (just calculating)
-            SignomialEquality(self.fuseP['L_{fuse}'], (self.aircraft['L_{total/wing}']-1.)*self.wingP['L_w']),
+            SignomialEquality(self.fuseP['L_{fuse}'], (Ltow-1.)*self.wingP['L_w']),
 
             # Geometric average of start and end weights of flight segment
             W_avg >= (W_start * W_end)**.5 + W_buoy, # Buoyancy weight included in Breguet Range
@@ -538,7 +525,7 @@ class AircraftP(Model):
             aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG,
 
            # Tail downforce penalty to total lift
-            TCS([Ltotal == self.aircraft['L_{total/wing}']*self.wingP['L_w']]),
+            TCS([Ltotal == Ltow*self.wingP['L_w']]),
             TCS([Ltotal >= W_avg + self.HTP['L_h']]),
 
             # Wing location and AC constraints
@@ -705,6 +692,9 @@ class Mission(Model):
 
         if b737800:
              eng = 1
+
+        if D8big:
+             eng = 2
         
         # vectorize
         with Vectorize(Nmission):
@@ -748,7 +738,7 @@ class Mission(Model):
                 climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
             ])
             #CG constraints
-            if D80 or D82:
+            if D80 or D82 or D8big:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
@@ -789,11 +779,12 @@ class Mission(Model):
               ])
 
             #Setting fuselage drag and lift, and BLI correction
-            if D80 or D82:
+            if D80 or D82 or D8big:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866*(aircraft['l_{fuse}']/(106*units('ft')))**0.8,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866*(aircraft['l_{fuse}']/(106*units('ft')))**0.8,
-                    aircraft['L_{total/wing}'] == 1.179,
+                    climb['L_{total/wing}'] == 1.179,
+                    cruise['L_{total/wing}'] == 1.179,
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
@@ -804,7 +795,8 @@ class Mission(Model):
                constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00762*(aircraft['l_{fuse}']/(124*units('ft')))**0.8,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00762*(aircraft['l_{fuse}']/(124*units('ft')))**0.8,
-                    aircraft['L_{total/wing}'] == 1.127,
+                    climb['L_{total/wing}'] == 1.127,
+                    cruise['L_{total/wing}'] == 1.127,
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
                     CruiseAlt >= 35000. * units('ft'),
@@ -910,15 +902,15 @@ class Mission(Model):
                 cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
                 ])
 
-        if multimission:
+        if multimission and not D8big:
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   aircraft['n_{pax}'][0] == 180.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
-                 # aircraft['n_{pax}'][1] == 120,
-                 # aircraft['n_{pax}'][2] == 160,
+##                  aircraft['n_{pax}'][1] == 120,
+##                  aircraft['n_{pax}'][2] == 160,
                  # aircraft['n_{pax}'][3] == 160,
                   ReqRng[:Nmission] == 3000 * units('nmi'),
 #                  ReqRng[0] == 3000 * units('nmi'),
@@ -926,9 +918,31 @@ class Mission(Model):
 ##                  ReqRng[2] == 3000 * units('nmi'),
 ##                  ReqRng[3] == 3000 * units('nmi'),
                   ])
-        else:
+        if not multimission and not D8big:
              constraints.extend([
                   aircraft['n_{pax}'] == 180.,
+                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  ])
+
+        if multimission and D8big:
+             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
+
+             constraints.extend([
+                  W_fmissions >= sum(aircraft['W_{f_{total}}']),
+                  aircraft['n_{pax}'][0] == 450.,
+                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
+##                  aircraft['n_{pax}'][1] == 120,
+##                  aircraft['n_{pax}'][2] == 160,
+                 # aircraft['n_{pax}'][3] == 160,
+                  ReqRng[:Nmission] == 3000 * units('nmi'),
+#                  ReqRng[0] == 3000 * units('nmi'),
+#                  ReqRng[1] == 3000 * units('nmi'),
+##                  ReqRng[2] == 3000 * units('nmi'),
+##                  ReqRng[3] == 3000 * units('nmi'),
+                  ])
+        if not multimission and D8big:
+             constraints.extend([
+                  aircraft['n_{pax}'] == 450.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
                   ])
 
@@ -947,7 +961,7 @@ class Mission(Model):
             TCS([climb['excessP'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
 
-        if D80 or D82:
+        if D80 or D82 or D8big:
              M2 = .6
              M25 = .6
              M4a = .2
@@ -973,7 +987,7 @@ class Mission(Model):
             # aircraft['numeng']*aircraft.engine['F'][Nclimb:]) / cruise['W_{avg}']]),
             ]
 
-        if D80 or D82:
+        if D80 or D82 or D8big:
              with SignomialsEnabled():
                   engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
@@ -1248,6 +1262,7 @@ def test():
             'b_{max}': 140.0 * 0.3048*units('m'),
             # 'c_0': 17.4*0.3048,#units('ft'),
             '\\delta_P_{over}': 8.382 * units('psi'),
+            'SPR': 10,
 
 
             # Power system and landing gear subs
@@ -1267,7 +1282,7 @@ def test():
             # 'A_{vt}' : 2.2,
             '\\lambda_{vt}': 0.3,
             '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
-            ##                'V_{vt}': .03,
+##                'V_{vt}': .03,
 
             # Wing subs
             'C_{L_{wmax}}': 2.25/(cos(sweep)**2),
@@ -1279,7 +1294,99 @@ def test():
         if not multimission:
             m.substitutions.update({
 ##                 'n_{pax}': 180.,
-                 'ReqRng': 3000.*units('nmi'),
+                 'ReqRng': 6000.*units('nmi'),
+                 })
+
+    if D8big:
+        print('D8big executing...')
+        sweep = 13.237
+        M4a = .1025
+        fan = 1.58
+        lpc  = 1.26
+        hpc = 20.033
+        m.substitutions.update({
+            # Fuselage subs
+            'f_{seat}': 0.1,
+            'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
+            'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
+            'W_{avg. pass_{total}}':215.*units('lbf'),
+            'f_{string}': 0.35,
+##            'AR':15.749,
+            'h_{floor}': 5.12*units('in'),
+##            'R_{fuse}': 1.715*units('m'),
+##            '\\delta R_{fuse}': 0.43*units('m'),
+            'w_{db}': 0.93*units('m'),
+##            'b_{max}': 140.0 * 0.3048*units('m'),
+            # 'c_0': 17.4*0.3048,#units('ft'),
+            '\\delta_P_{over}': 8.382 * units('psi'),
+
+
+            # Power system and landing gear subs
+            'f_{hpesys}': 0.01, # [TAS]
+            'f_{lgmain}':0.03, # [TAS]
+            'f_{lgnose}':0.0075, # [TAS]
+            'f_{pylon}': 0.10,
+
+            # HT subs
+##            'AR_{ht}': 12.,
+            '\\lambda_{ht}': 0.3,
+            '\\tan(\\Lambda_{ht})': np.tan(8. * np.pi / 180.),  # tangent of HT sweep
+            # 'V_{ht}': 0.895,
+
+            # VT subs
+            'numVT': 2.,
+            # 'A_{vt}' : 2.2,
+            '\\lambda_{vt}': 0.3,
+            '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
+            ##                'V_{vt}': .03,
+
+            # Wing subs
+            'C_{L_{wmax}}': 2.25/(cos(sweep)**2),
+
+            # Minimum Cruise Mach Number
+            'M_{min}': 0.72,
+
+            #new engine params
+                       '\pi_{tn}': .98,
+            '\pi_{b}': .94,
+            '\pi_{d}': .98,
+            '\pi_{fn}': .98,
+            'T_{ref}': 288.15,
+            'P_{ref}': 101.325,
+            '\eta_{HPshaft}': .98,
+            '\eta_{LPshaft}': .98,
+            'eta_{B}': .9970,
+
+            '\pi_{f_D}': 1.58,
+            '\pi_{hc_D}': 20.033,
+            '\pi_{lc_D}': 1.26,
+
+            '\\alpha_{OD}': 8.7877,
+            '\\alpha_{max}': 8.7877,
+
+            'hold_{4a}': 1+.5*(1.313-1)*M4a**2,#sol('hold_{4a}'),
+            'r_{uc}': .01,
+            '\\alpha_c': .14,
+            'T_{t_f}': 435,
+
+            'M_{takeoff}': .955,
+
+            'G_f': 1,
+
+            'h_f': 43.003,
+
+            'Cp_t1': 1280,
+            'Cp_t2': 1184,
+            'Cp_c': 1216,
+
+            'HTR_{f_SUB}': 1-.3**2,
+            'HTR_{lpc_SUB}': 1 - 0.6**2,
+        })
+        m.substitutions.__delitem__('\\theta_{db}')
+        if not multimission:
+            m.substitutions.update({
+##                 'n_{pax}': 180.,
+                 'ReqRng': 7370.*units('nmi'),
                  })
 
     if b737800:
@@ -1333,8 +1440,6 @@ def test():
                 'f_{lgnose}':0.011, # [TAS]
                 'f_{pylon}': 0.10,
 
-               # Wing fractional weights
-                'f_{slat}': 0.1,
 
                # fuselage subs that make fuse circular
                '\\delta R_{fuse}': 0.0001 * units('m'),
@@ -1400,7 +1505,7 @@ def test():
 ##           m.substitutions.update({
 ##                'n_{pax}': [180, 180, 120, 80]})
 
-    if D80 or D82:
+    if D80 or D82 or D8big:
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m)
     if b737800:
