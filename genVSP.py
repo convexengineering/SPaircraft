@@ -137,14 +137,14 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
 
     resultsDict = {
         # Engine Variables
-        'VMKMZGNLMJP':float(lnace.magnitude),    # Engine length (chord)
-        'ZMFRBNHWECC':float(df.magnitude),       # Engine height
-        'BPFMSDZXFIH':float(0.1625),             # Engine airfoil thickness/chord
-        'ZJNJVEDIAKQ':float(df.magnitude),       # Engine width
-        'QJDKHYHUERO':float(xCGvt.magnitude),    # Engine x location
-        'GSCVZMZSIEE':float(0.5*wfuse.magnitude),     #Engine y location
-        'JZFQRLWEMQX':float(hfuse.magnitude - (df/5.).magnitude), # Engine z location
-        'UWVIKHNPFOM':float(0.),                                  # Engine up-rotation (degrees)
+        'OOWZWGGROQZ':float(lnace.magnitude),    # Engine length (chord)
+        'TTRJCLVSWWP':float(df.magnitude),       # Engine height
+        'YUWFYBTYKTL':float(0.1625),             # Engine airfoil thickness/chord
+        'TVQVWMMVRYB':float(df.magnitude),       # Engine width
+        'EGCVYPSLWEZ':float(xCGvt.magnitude+0.25*crootvt.magnitude),    # Engine x location
+        'RJLYSBJAFOT':float(0.5*wfuse.magnitude),     #Engine y location
+        'GBGVQARDEVD':float(hfuse.magnitude - (df/5.).magnitude), # Engine z location
+        'HKVDGHIEXRW':float(15.),                                  # Engine up-rotation (degrees)
 
         # Floor Variables
         'MCVUEHMJBGG':float(hfloor.magnitude),  # Floor height
@@ -197,9 +197,10 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
     if b737800:
         resultsDict.update({
          # Engine Variables
-        'REBAHPKXPRR':float((xwing-0.25*lnace).magnitude), # Engine x location
-        'GKMTRGNCEVD':float(yeng.magnitude), #Engine y location
-        'XFTWTTHLVRI':float(-hfuse.magnitude - 0.2*df.magnitude), # Engine z location
+        'EGCVYPSLWEZ':float((xwing).magnitude), # Engine x location
+        'RJLYSBJAFOT':float(yeng.magnitude), #Engine y location
+        'GBGVQARDEVD':float(-hfuse.magnitude - 0.2*df.magnitude), # Engine z location
+        'HKVDGHIEXRW':float(0.),                                  # Engine up-rotation (degrees)
         # Floor Variables
         # Fuselage variables
         # HT Variables
