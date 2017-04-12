@@ -967,10 +967,10 @@ class Mission(Model):
         if fuel:
              #just fuel burn cost model
              if not multimission:
-                  self.cost = aircraft['W_{f_{total}}'] #+ 1e5*aircraft['V_{cabin}']*units('N/m^3') #+ 1e9*aircraft['l_{fuse}']*units('N/m')
+                  self.cost = aircraft['W_{f_{total}}']
                   self.cost = self.cost.sum()
              else:
-                  self.cost = W_fmissions  #+ 1e5*aircraft['V_{cabin}']*units('N/m^3')
+                  self.cost = W_fmissions
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
              
@@ -978,20 +978,20 @@ class Mission(Model):
         if operator:
              #basic operator cost model
              if not multimission:
-                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
+                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']
                   self.cost = self.cost.sum()
              else:
-                  self.cost = aircraft['W_{dry}'] + W_fmissions  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
+                  self.cost = aircraft['W_{dry}'] + W_fmissions
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
         if manufacturer:
              #basic manufacturer cost model
              if not multimission:
-                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
+                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']
                   self.cost = self.cost.sum()
              else:
-                  self.cost = aircraft['W_{dry}'] + W_fmissions  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
+                  self.cost = aircraft['W_{dry}'] + W_fmissions
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
