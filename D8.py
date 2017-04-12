@@ -75,8 +75,9 @@ plot = True
 # Only one active at a time
 D80 = False
 D82 = False
-D8big = True
-b737800 = False
+D8big = False
+b737800 = True
+b777300ER = False
 
 #choose multimission or not
 multimission = False
@@ -350,7 +351,7 @@ class Aircraft(Model):
                 ])
 
           #737 only constraints
-        if b737800:
+        if b737800 or b777300ER:
             with SignomialsEnabled():
                constraints.extend([
                     # HT root moment
@@ -658,7 +659,7 @@ class StateLinking(Model):
     link all the state model variables
     """
     def setup(self, climbstate, cruisestate, enginestate, Nclimb, Ncruise):
-        if b737800:
+        if b737800 or b777300ER:
              statevarkeys = ['L_{atm}', 'M_{atm}', 'P_{atm}', 'R_{atm}',
                              '\\rho', 'T_{atm}', '\\mu', 'T_s', 'C_1', 'h', 'hft', 'V', 'a', 'R', '\\gamma', 'M']
         else:
@@ -693,7 +694,7 @@ class Mission(Model):
         if b737800:
              eng = 1
 
-        if D8big:
+        if D8big or b777300ER:
              eng = 2
         
         # vectorize
@@ -758,7 +759,7 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['PCFuel'])
                      ]),
               ])
-            if b737800:
+            if b737800 or b777300ER:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
@@ -791,7 +792,7 @@ class Mission(Model):
                     # Setting minimum HPC pressure ratio
                     # aircraft.engine['\\pi_{hc}'] >= 1.7,
                   ])
-            if b737800:
+            if b737800 orr b777300ER:
                constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00762*(aircraft['l_{fuse}']/(124*units('ft')))**0.8,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00762*(aircraft['l_{fuse}']/(124*units('ft')))**0.8,
@@ -967,7 +968,7 @@ class Mission(Model):
              M4a = .2
              M0 = .72
              
-        if b737800:
+        if b737800 or b777300ER:
              M2 = .6
              M25 = .6
              M4a = .2
@@ -995,7 +996,7 @@ class Mission(Model):
                   enginecruise.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
                        ])
-        if b737800:
+        if b737800 or b777300ER:
              engineclimb.extend([
                   aircraft.engine.engineP['c1'][:Nclimb] <= 1. + 0.5*(.401)*0.6**2.,
                   ])
