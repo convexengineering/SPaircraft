@@ -328,7 +328,6 @@ class WingNoStruct(Model):
                  ymac == (b/3)*q/p,
                  TCS([(2./3)*(1+taper+taper**2)*croot/q <= mac],
                                    reltol=1E-2),
-
                  taper == ctip/croot,
 
                  SignomialEquality(Sw, b*(croot + ctip)/2),
