@@ -144,6 +144,9 @@ class Aircraft(Model):
         WHT = Variable('W_{HT}','lbf','Horizontal Tail Weight')
         WVT = Variable('W_{VT}','lbf','Vertical Tail Weight')
 
+        # Fuselage lift fraction variables
+        Ltow = Variable('L_{total/wing}','-','Total lift as a percentage of wing lift')
+
         # Misc system variables
         Wmisc   = Variable('W_{misc}','lbf','Sum of Miscellaneous Weights')
         Wlgnose = Variable('W_{lgnose}','lbf','Nose Landing Gear Weight')
@@ -459,7 +462,6 @@ class AircraftP(Model):
 
         # Lift fraction variables
         Ltotal = Variable('L_{total}','N','Total lift')
-        Ltow = Variable('L_{total/wing}','-','Total lift as a percentage of wing lift')
 
         #variables for nacelle drag calcualation
         Vnace = Variable('V_{nacelle}', 'm/s', 'Incoming Nacelle Flow Velocity')
@@ -502,7 +504,7 @@ class AircraftP(Model):
             self.wingP['\\eta_{o}'] == aircraft['w_{fuse}']/(aircraft['b']/2),
 
             # Fuselage lift (just calculating)
-            SignomialEquality(self.fuseP['L_{fuse}'], (Ltow-1.)*self.wingP['L_w']),
+            SignomialEquality(self.fuseP['L_{fuse}'], (self.aircraft['L_{total/wing}']-1.)*self.wingP['L_w']),
 
             # Geometric average of start and end weights of flight segment
             W_avg >= (W_start * W_end)**.5 + W_buoy, # Buoyancy weight included in Breguet Range
@@ -536,7 +538,7 @@ class AircraftP(Model):
             aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG,
 
            # Tail downforce penalty to total lift
-            TCS([Ltotal == Ltow*self.wingP['L_w']]),
+            TCS([Ltotal == self.aircraft['L_{total/wing}']*self.wingP['L_w']]),
             TCS([Ltotal >= W_avg + self.HTP['L_h']]),
 
             # Wing location and AC constraints
@@ -791,8 +793,7 @@ class Mission(Model):
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866*(aircraft['l_{fuse}']/(106*units('ft')))**0.8,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866*(aircraft['l_{fuse}']/(106*units('ft')))**0.8,
-                    climb['L_{total/wing}'] == 1.179,
-                    cruise['L_{total/wing}'] == 1.179,
+                    aircraft['L_{total/wing}'] == 1.179,
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
@@ -803,8 +804,7 @@ class Mission(Model):
                constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00762*(aircraft['l_{fuse}']/(124*units('ft')))**0.8,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00762*(aircraft['l_{fuse}']/(124*units('ft')))**0.8,
-                    climb['L_{total/wing}'] == 1.127,
-                    cruise['L_{total/wing}'] == 1.127,
+                    aircraft['L_{total/wing}'] == 1.127,
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
                     CruiseAlt >= 35000. * units('ft'),
