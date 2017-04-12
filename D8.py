@@ -299,7 +299,7 @@ class Aircraft(Model):
                     # VT height constraint (4*engine diameter)
                     # self.VT['b_{vt}'] >= 4. * self.engine['d_{f}'],
 
-                    # Engine out moment arm,
+                    # Engine out moment arm
                     self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}'],
 
                     # HT root moment
@@ -307,6 +307,7 @@ class Aircraft(Model):
                     self.HT['b_{ht}'] / 4.) \
                     + self.HT['N_{lift}'] * self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - self.HT['N_{lift}'] *
                     self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
+
                     # constraint to lower bound M_r w.r.t. a conventional tail config (0.25*M_r of conventional)
                     self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
                          1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP]
@@ -371,6 +372,13 @@ class Aircraft(Model):
                    # Floor loading
                     self.fuse['S_{floor}'] == 1./2. * self.fuse['P_{floor}'],
                     self.fuse['M_{floor}'] == 1./4. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
+
+                   # Wing loading due to landing loads (might matter for 737!)
+                   TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
+                                    (Wengsys*self.VT['y_{eng}'] + \
+                                     0.5*(Wwing + W_ftotal)* \
+                                     (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
+                                      self.wing['A_{rect}']/self.wing['S']*self.wing['b']/4))]),
 
                     # Horizontal tail aero+landing loads constants A1h
                     self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
@@ -897,12 +905,12 @@ class Mission(Model):
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   aircraft['n_{pax}'][0] == 180.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
-##                  aircraft['n_{pax}'][1] == 120,
-##                  aircraft['n_{pax}'][2] == 160,
-##                  aircraft['n_{pax}'][3] == 160,
+                 # aircraft['n_{pax}'][1] == 120,
+                 # aircraft['n_{pax}'][2] == 160,
+                 # aircraft['n_{pax}'][3] == 160,
                   ReqRng[:Nmission] == 3000 * units('nmi'),
-##                  ReqRng[0] == 3000 * units('nmi'),
-##                  ReqRng[1] == 3000 * units('nmi'),
+#                  ReqRng[0] == 3000 * units('nmi'),
+#                  ReqRng[1] == 3000 * units('nmi'),
 ##                  ReqRng[2] == 3000 * units('nmi'),
 ##                  ReqRng[3] == 3000 * units('nmi'),
                   ])

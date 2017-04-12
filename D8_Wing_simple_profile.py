@@ -237,8 +237,8 @@ class Wing(Model):
             TCS([Wwing >= self.wb['W_{struct}'] + self.wb['W_{struct}']*(self.wns['f_{flap}'] + \
                     self.wns['f_{slat}'] + self.wns['f_{aileron}'] + self.wns['f_{lete}'] + self.wns['f_{ribs}'] + \
                     self.wns['f_{spoiler}'] + self.wns['f_{watt}'])]),
-            SignomialEquality(dxACwing,(1/12.*self.wns['A_{tri}'] + 1/4.*self.wns['A_{rect}'])/self.wns['S'] \
-                 *self.wns['b']*self.wns['\\tan(\\Lambda)']),
+            TCS([dxACwing >= (1/12.*self.wns['A_{tri}'] + 1/4.*self.wns['A_{rect}'])/self.wns['S'] \
+                 *self.wns['b']*self.wns['\\tan(\\Lambda)']]),
 
 ##            self.wns['\\bar{A}_{fuel, max}'] <= (self.wns['wwn'] - 2*self.wb['t_{web}'])*(0.92*self.wns['\\tau'] - 2*self.wb['t_{web}']),
             ])
@@ -321,8 +321,8 @@ class WingNoStruct(Model):
         with SignomialsEnabled():
 
             constraints.extend([
-                 SignomialEquality(Arect, ctip*b),
-                 SignomialEquality(Atri, 1./2.*(1-taper)*croot*b), #[SP]
+                 Arect == ctip*b,
+                 Atri >= 1./2.*(1-taper)*croot*b, #[SP]
                  p >= 1 + 2*taper,
                  2*q >= 1 + p,
                  ymac == (b/3)*q/p,
@@ -330,7 +330,6 @@ class WingNoStruct(Model):
                                    reltol=1E-2),
 
                  taper == ctip/croot,
-                 # ymac  <= b/2,
 
                  SignomialEquality(Sw, b*(croot + ctip)/2),
 
