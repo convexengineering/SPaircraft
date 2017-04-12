@@ -1261,7 +1261,7 @@ def test():
 
     if b737800:
            print('737-800 executing...')
-
+           sweep = 26.0 # [deg]
            M4a = .2
            fan = 1.685
            lpc  = 8./1.685
