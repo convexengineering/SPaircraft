@@ -890,7 +890,8 @@ class Mission(Model):
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{pax}'][0] == 180,
+                  aircraft['n_{pax}'][0] == 180.,
+                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
                   # aircraft['n_{pax}'][1] == 180,
 ##                  aircraft['n_{pax}'][2] == 120,
 ##                  aircraft['n_{pax}'][3] == 80,
