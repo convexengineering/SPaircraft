@@ -74,8 +74,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
-b737800 = True
+D82 = True
+b737800 = False
 
 #choose multimission or not
 multimission = False
@@ -1258,7 +1258,7 @@ def test():
         m.substitutions.__delitem__('\\theta_{db}')
         if not multimission:
             m.substitutions.update({
-                 'n_{pax}': 180.,
+##                 'n_{pax}': 180.,
                  'ReqRng': 3000.*units('nmi'),
                  })
 
