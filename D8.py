@@ -78,7 +78,7 @@ D82 = False
 b737800 = True
 
 #choose multimission or not
-multimission = True
+multimission = False
 
 #choose objective type
 manufacturer = False
@@ -912,6 +912,11 @@ class Mission(Model):
 ##                  ReqRng[2] == 3000 * units('nmi'),
 ##                  ReqRng[3] == 3000 * units('nmi'),
                   ])
+        else:
+             constraints.extend([
+                  aircraft['n_{pax}'] == 180.,
+                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  ])
 
         M2 = .6
         M25 = .6
@@ -925,7 +930,7 @@ class Mission(Model):
             aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
             
             #climb rate constraints
-            TCS([climb['excessP'] + climb.state['V'] * climb['D'] <=  climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
+            TCS([climb['excessP'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
 
         if D80 or D82:
@@ -980,7 +985,6 @@ class Mission(Model):
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
              
-
         if operator:
              #basic operator cost model
              if not multimission:
@@ -1021,7 +1025,6 @@ substitutions = {
         'numeng': 2.,
         'numVT': 2.,
         'numaisle':2.,
-        # 'n_{pax}': 180.,
         'W_{avg. pass}': 180.*units('lbf'),
         'W_{carry on}': 15.*units('lbf'),
         'W_{cargo}': 10000.*units('N'),
@@ -1162,80 +1165,6 @@ substitutions = {
 }
 
 def test():
-     """
-     solves a D82 and b737-800
-     """
-     global D82, b737800, sweep, multimission
-
-     multimission = False
-
-     #run the D82 case
-     D82 = True
-     b737800 = False
-
-     sweep = 13.237  # [deg]
-
-     Nclimb = 3
-     Ncruise = 2
-
-     m = Mission(Nclimb, Ncruise)
-     m.substitutions.update(substitutions)
-
-     sweep = 13.237
-     m.substitutions.update({
-      # Fuselage subs
-      'f_{seat}': 0.1,
-      'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
-      'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
-      'W_{avg. pass_{total}}':215.*units('lbf'),
-      'f_{string}': 0.35,
-      # 'AR':15.749,
-      'h_{floor}': 5.12*units('in'),
-      'R_{fuse}': 1.715*units('m'),
-      '\\delta R_{fuse}': 0.43*units('m'),
-      'w_{db}': 0.93*units('m'),
-      'b_{max}': 140.0 * 0.3048*units('m'),
-      # 'c_0': 17.4*0.3048,#units('ft'),
-      '\\delta_P_{over}': 8.382 * units('psi'),
-      
-
-      # Power system and landing gear subs
-      'f_{hpesys}': 0.01, # [TAS]
-      'f_{lgmain}':0.03, # [TAS]
-      'f_{lgnose}':0.0075, # [TAS]
-
-      # HT subs
-      'AR_{ht}': 12.,
-      '\\lambda_{ht}': 0.3,
-      '\\tan(\\Lambda_{ht})': np.tan(8. * np.pi / 180.),  # tangent of HT sweep
-      # 'V_{ht}': 0.895,
-
-      # VT subs
-      'numVT': 2.,
-      # 'A_{vt}' : 2.2,
-      '\\lambda_{vt}': 0.3,
-      '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
-      ##                'V_{vt}': .03,
-
-      # Wing subs
-      'C_{L_{wmax}}': 2.25/(cos(sweep)**2),
-
-      # Minimum Cruise Mach Number
-      'M_{min}': 0.72,
-     })
-     # m.substitutions.__delitem__('\\theta_{db}')
-     if not multimission:
-       m.substitutions.update({
-            'n_{pax}': 180.,
-            'ReqRng': 3000.*units('nmi'),
-            })
-     # m.substitutions.__delitem__('\\theta_{db}')
-
-     m = relaxed_constants(m)
-
-     sol = m.localsolve( verbosity = 4, iteration_limit=50)
-
-if __name__ == '__main__':
     Nclimb = 3
     Ncruise = 2
     Nmission = 1
@@ -1341,7 +1270,7 @@ if __name__ == '__main__':
 
     if b737800:
            print('737-800 executing...')
-
+           sweep = 26.0 # [deg]
            M4a = .2
            fan = 1.685
            lpc  = 8./1.685
@@ -1444,12 +1373,11 @@ if __name__ == '__main__':
                # nacelle drag calc parameter
                'r_{vnace}': 1.02,
                'T_{t_{4.1_{max}}}': 1833.*units('K'),
-
-
            })
+
            if not multimission:
                m.substitutions.update({
-               'n_{pax}': 180.,
+##               'n_{pax}': [180.],
                'ReqRng': 3000.*units('nmi'),
                })
 ##    if multimission:
@@ -1873,4 +1801,9 @@ if __name__ == '__main__':
             genDesFile(sol,False,0,b737800)
         if sweeps:
             genDesFileSweep(sol,n,b737800)
+
+    return sol
+
+if __name__ == '__main__':
+     sol = test()
 
