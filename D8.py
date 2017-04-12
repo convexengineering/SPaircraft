@@ -74,8 +74,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
-b737800 = True
+D82 = True
+b737800 = False
 
 #choose multimission or not
 multimission = True
@@ -432,10 +432,10 @@ class AircraftP(Model):
         PCFuel = Variable('PCFuel','-','Percent Fuel Remaining (end of segment)')
 
         # Buoyancy weight variables
-        # Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
-        # W_buoy = Variable('W_{buoy}','lbf','Buoyancy Weight')
-        # Tcabin = Variable('T_{cabin}','K','Cabin Air Temperature')
-        # rhocabin = Variable('\\rho_{cabin}','kg/m^3','Cabin Air Density')
+        Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
+        W_buoy = Variable('W_{buoy}','lbf','Buoyancy Weight')
+        Tcabin = Variable('T_{cabin}','K','Cabin Air Temperature')
+        rhocabin = Variable('\\rho_{cabin}','kg/m^3','Cabin Air Density')
 
         # Lift fraction variables
         Ltotal = Variable('L_{total}','N','Total lift')
@@ -460,9 +460,9 @@ class AircraftP(Model):
             PCFuel == PCFuel,
 
             #Cabin Air properties
-            # rhocabin == Pcabin/(state['R']*Tcabin),
-            # Pcabin == 75000*units('Pa'),
-            # Tcabin == 297*units('K'),
+            rhocabin == Pcabin/(state['R']*Tcabin),
+            Pcabin == 75000*units('Pa'),
+            Tcabin == 297*units('K'),
 
             # speed must be greater than stall speed
             state['V'] >= Vstall,
@@ -485,7 +485,7 @@ class AircraftP(Model):
             SignomialEquality(self.fuseP['L_{fuse}'], (Ltow-1.)*self.wingP['L_w']),
 
             # Geometric average of start and end weights of flight segment
-            W_avg >= (W_start * W_end)**.5, #+ W_buoy, # BFuoyancy weight included in Breguet Range
+            W_avg >= (W_start * W_end)**.5 + W_buoy, # Buoyancy weight included in Breguet Range
 
             # Maximum wing loading constraint
             WLoad <= WLoadmax,
@@ -554,7 +554,7 @@ class AircraftP(Model):
           rvnsurf**3. >= 0.25*(Vnacrat + aircraft['r_{vnace}'])*(Vnacrat**2. + aircraft['r_{vnace}']**2.),
           Cdnace == aircraft['f_{S_nacelle}'] * Cfnace[0] * rvnsurf **3.,
           Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2. * aircraft['S'],
-           ])
+            ])
 
         return self.Pmodels, constraints
 
@@ -718,10 +718,11 @@ class Mission(Model):
         with SignomialsEnabled():
             # Buoyancy weight #TODO relax the equality
             # SignomialEquality(W_buoy,(rhocabin - state['\\rho'])*g*aircraft['V_{cabin}']),  #[SP] #[SPEquality]
-            # constraints.extend([
-            #     cruise['W_{buoy}'] >= (cruise['\\rho_{cabin}'] - cruise['\\rho'])*g*aircraft['V_{cabin}'], # [SP]
-            #     climb['W_{buoy}'] >= 0.1*units('lbf'),
-            # ])
+            constraints.extend([
+                cruise['W_{buoy}'] >= (cruise['\\rho_{cabin}'])*g*aircraft['V_{cabin}'], # [SP] #- cruise['\\rho']
+                # climb['W_{buoy}'] >= 0.1*units('lbf'),
+                climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
+            ])
             #CG constraints
             if D80 or D82:
                 constraints.extend([
@@ -890,7 +891,7 @@ class Mission(Model):
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   aircraft['n_{pax}'][0] == 180,
-                  aircraft['n_{pax}'][1] == 180,
+                  # aircraft['n_{pax}'][1] == 180,
 ##                  aircraft['n_{pax}'][2] == 120,
 ##                  aircraft['n_{pax}'][3] == 80,
                   ReqRng[:Nmission] == 3000 * units('nmi'),
@@ -960,10 +961,10 @@ class Mission(Model):
         if fuel:
              #just fuel burn cost model
              if not multimission:
-                  self.cost = aircraft['W_{f_{total}}'] + 1e5*aircraft['V_{cabin}']*units('N/m^3') #+ 1e9*aircraft['l_{fuse}']*units('N/m')
+                  self.cost = aircraft['W_{f_{total}}'] #+ 1e5*aircraft['V_{cabin}']*units('N/m^3') #+ 1e9*aircraft['l_{fuse}']*units('N/m')
                   self.cost = self.cost.sum()
              else:
-                  self.cost = W_fmissions  + 1e5*aircraft['V_{cabin}']*units('N/m^3')
+                  self.cost = W_fmissions  #+ 1e5*aircraft['V_{cabin}']*units('N/m^3')
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
              
@@ -1225,7 +1226,7 @@ def test():
 if __name__ == '__main__':
     Nclimb = 3
     Ncruise = 2
-    Nmission = 4
+    Nmission = 1
     
 
     if multimission:
