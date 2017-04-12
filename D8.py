@@ -203,7 +203,7 @@ class Aircraft(Model):
                             # self.wing['L_{max}'] >= self.wing['N_{lift}'] * (W_total \
                             #                         + 0.5*0.5*self.wing['\\rho_0']*self.wing['V_{ne}']**2 \
                             #                         *self.HT['S_{ht}']*self.wing['C_{L_{wmax}}']),
-                            self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
+                            self.wing['L_{max}']*Ltow >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
 
                             # Wing fuel constraints
                             self.wing['W_{fuel_{wing}}'] >= W_ftotal/self.wing['FuelFrac'],
