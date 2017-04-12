@@ -78,7 +78,7 @@ D82 = True
 b737800 = False
 
 #choose multimission or not
-multimission = False
+multimission = True
 
 #choose objective type
 manufacturer = False
@@ -905,8 +905,8 @@ class Mission(Model):
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   aircraft['n_{pax}'][0] == 180.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
-                 # aircraft['n_{pax}'][1] == 120,
-                 # aircraft['n_{pax}'][2] == 160,
+                  aircraft['n_{pax}'][1] == 120,
+                  aircraft['n_{pax}'][2] == 160,
                  # aircraft['n_{pax}'][3] == 160,
                   ReqRng[:Nmission] == 3000 * units('nmi'),
 #                  ReqRng[0] == 3000 * units('nmi'),
@@ -1169,7 +1169,7 @@ substitutions = {
 def test():
     Nclimb = 3
     Ncruise = 2
-    Nmission = 1
+    Nmission = 3
     
 
     if multimission:
