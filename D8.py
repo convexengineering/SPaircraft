@@ -373,10 +373,12 @@ class Aircraft(Model):
                     self.fuse['S_{floor}'] == 1./2. * self.fuse['P_{floor}'],
                     self.fuse['M_{floor}'] == 1./4. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
 
-                   # Wing loading due to landing loads,
-                   self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
+                   # Wing loading due to landing loads (might matter for 737!)
+                   TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
                                     (Wengsys*self.VT['y_{eng}'] + \
-                                     0.5*(Wwing + W_ftotal)*self.wing['y_{mac}']),
+                                     0.5*(Wwing + W_ftotal)* \
+                                     (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
+                                      self.wing['A_{rect}']/self.wing['S']*self.wing['b']/4))]),
 
                     # Horizontal tail aero+landing loads constants A1h
                     self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
