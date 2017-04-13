@@ -74,9 +74,9 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
+D82 = True
 D8big = False
-b737800 = True
+b737800 = False
 b777300ER = False
 
 
