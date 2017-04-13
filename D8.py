@@ -1120,7 +1120,7 @@ substitutions = {
         # Wing fractional weights
         'FuelFrac': 0.9,
         'f_{flap}': 0.2,
-        'f_{slat}': 0.0001,
+        'f_{slat}': 0.001,
         'f_{aileron}': 0.04,
         'f_{lete}': 0.1,
         'f_{ribs}': 0.15,
@@ -1564,10 +1564,26 @@ if __name__ == '__main__':
 
                 # Power system and landing gear and engine weight fraction subs
                 'f_{hpesys}': 0.01, # [TAS]
-                'f_{lgmain}':0.044, # [TAS]
-                'f_{lgnose}':0.011, # [TAS]
-                'f_{pylon}': 0.10,
+                'f_{lgmain}':0.04, # [TAS]
+                'f_{lgnose}':0.01, # [TAS]
+                'f_{pylon}': 0.05,
 
+               # Wing fractional weights
+               'FuelFrac': 0.9,
+               'f_{flap}': 0.2,
+               'f_{slat}': 0.1,
+               'f_{aileron}': 0.04,
+               'f_{lete}': 0.1,
+               'f_{ribs}': 0.15,
+               'f_{spoiler}': 0.02,
+               'f_{watt}': 0.03,
+
+               # Fractional weights
+               'f_{fadd}': 0.2,  # [TAS]
+               'f_{frame}': 0.24,  # [Philippe]
+               'f_{lugg,1}': 0.4,  # [Philippe]
+               'f_{lugg,2}': 0.4,  # [Philippe]
+               'f_{padd}': 0.35,  # [TAS]
 
                # fuselage subs that make fuse circular
                '\\delta R_{fuse}': 0.0001 * units('m'),
@@ -1581,7 +1597,7 @@ if __name__ == '__main__':
                'W\'_{seat}': 1. * units('N'),  # Seat weight determined by weight fraction instead
                 'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
                'W_{avg. pass_{total}}':215.*units('lbf'),
-               'f_{string}': 0.35,
+               'f_{string}': 0.34,
                'h_{floor}': 5. * units('in'),
                'R_{fuse}' : 3.0988*units('m'),
                'b_{max}': 200 * units('ft'),
