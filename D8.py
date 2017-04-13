@@ -74,9 +74,9 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
+D82 = False
 D8big = False
-b737800 = False
+b737800 = True
 b777300ER = False
 
 
@@ -743,7 +743,7 @@ class Mission(Model):
           CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
           ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
 
-        Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
+        # Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
 
         # make overall constraints
         constraints = []
@@ -1208,7 +1208,7 @@ substitutions = {
         'T_{t_{4.1_{max}}}': 1750.*units('K'),
 }
 
-def test():
+if __name__ == '__main__':
     Nclimb = 3
     Ncruise = 2
     Nmission = 1
@@ -1641,7 +1641,7 @@ def test():
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m)
     if b737800 or b777300ER:
-        # m = Model(m.cost,BCS(m))
+        m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     if sweeps == False:
@@ -2055,8 +2055,8 @@ def test():
         if sweeps:
             genDesFileSweep(sol,n,b737800)
 
-    return sol
+    # return sol
 
-if __name__ == '__main__':
-     sol = test()
+# if __name__ == '__main__':
+#      sol = test()
 
