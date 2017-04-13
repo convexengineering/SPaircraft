@@ -94,6 +94,8 @@ if D82:
 
 if b737800:
      sweep = 26.0 # [deg]
+if b777300ER:
+     sweep = sweep = 32.583 # [deg]
 
 g = 9.81 * units('m*s**-2')
 
@@ -694,8 +696,11 @@ class Mission(Model):
         if b737800:
              eng = 1
 
-        if D8big or b777300ER:
+        if D8big:
              eng = 2
+
+        if b777300ER:
+             eng = 4
         
         # vectorize
         with Vectorize(Nmission):
@@ -935,7 +940,7 @@ class Mission(Model):
 ##                  aircraft['n_{pax}'][1] == 120,
 ##                  aircraft['n_{pax}'][2] == 160,
                  # aircraft['n_{pax}'][3] == 160,
-                  ReqRng[:Nmission] == 3000 * units('nmi'),
+                  ReqRng[:Nmission] == 7360 * units('nmi'),
 #                  ReqRng[0] == 3000 * units('nmi'),
 #                  ReqRng[1] == 3000 * units('nmi'),
 ##                  ReqRng[2] == 3000 * units('nmi'),
@@ -1505,18 +1510,18 @@ def test():
 
     if b777300ER:
            print('777-300ER executing...')
-           sweep = 26.0 # [deg]
+           sweep = 32.583 # [deg]
            M4a = .1025
-           fan = 1.58
+           fan = 1.5958
            lpc  = 1.26
            hpc = 20.033
 
            m.substitutions.update({
                #new engine params
-               '\pi_{tn}': .98,
+               '\pi_{tn}': .995,
                '\pi_{b}': .94,
-               '\pi_{d}': .98,
-               '\pi_{fn}': .98,
+               '\pi_{d}': .995,
+               '\pi_{fn}': .985,
                'T_{ref}': 288.15,
                'P_{ref}': 101.325,
                '\eta_{HPshaft}': .98,
@@ -1560,7 +1565,7 @@ def test():
                '\\theta_{db}': 0.0001,
 
                # Fuselage subs
-               'l_{nose}':20.*units('ft'),
+               'l_{nose}': 242.4*.11*units('ft'),
                'numaisle': 2.,
                'SPR': 10.,
                'f_{seat}': 0.1,
@@ -1569,36 +1574,34 @@ def test():
                'W_{avg. pass_{total}}':215.*units('lbf'),
                'f_{string}': 0.35,
                'h_{floor}': 5. * units('in'),
-               # 'R_{fuse}' : 1.715*units('m'),
-##               'b_{max}': 117.5 * units('ft'),
+               'R_{fuse}' : 3.0988*units('m'),
+               'b_{max}': 200 * units('ft'),
                # 'c_0': 17.4*0.3048,#units('ft'),
                '\\delta_P_{over}': 8.382 * units('psi'),
 
                # HT subs
-##               'AR_{ht}': 6.,
-               '\\lambda_{ht}': 0.25,
-               '\\tan(\\Lambda_{ht})': np.tan(25. * np.pi / 180.),  # tangent of HT sweep
-               #'V_{ht}': .6,
+               'AR_{ht}': 4.8,
+               '\\lambda_{ht}': 0.32,
+               '\\tan(\\Lambda_{ht})': np.tan(33. * np.pi / 180.),  # tangent of HT sweep
                'C_{L_{hmax}}': 2.0,  # [TAS]
                'C_{L_{hfcG}}': 0.7,
-               '\\Delta x_{CG}': 7.68 * units('ft'),
-               'x_{CG_{min}}': 30.*units('ft'),#56.75 * units('ft'),
+               '\\Delta x_{CG}': 11.97 * units('ft'),
+               'x_{CG_{min}}': 117.31*units('ft'),
                'SM_{min}': .05,
 
                # VT subs
-               'y_{eng}': 4.83*units('m'),
+               'y_{eng}': 32*units('ft'),
                'numVT': 1.,
-##               'A_{vt}': 2.,
-               '\\lambda_{vt}': 0.3,
-               '\\tan(\\Lambda_{vt})': np.tan(25. * np.pi / 180.),  # tangent of VT sweep
-              # 'V_{vt}': .1,
+               'A_{vt}': 2.35,
+               '\\lambda_{vt}': 0.25,
+               '\\tan(\\Lambda_{vt})': np.tan(28. * np.pi / 180.),  # tangent of VT sweep
                'N_{spar}': 1.,
                '\\dot{r}_{req}': 0.0001,  # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
 
                # Wing subs
                'C_{L_{wmax}}': 2.25/(cos(sweep)**2),
                'f_{slat}': 0.1,
-##               'AR': 10.1,
+##               'AR': 8.455,
 
                # Minimum Cruise Mach Number
                'M_{min}': 0.8,
@@ -1608,6 +1611,7 @@ def test():
                # nacelle drag calc parameter
                'r_{vnace}': 1.02,
 ##               'T_{t_{4.1_{max}}}': 1833.*units('K'),
+               'ReserveFraction': .05,
            })
 
            if not multimission:
