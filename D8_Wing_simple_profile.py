@@ -488,7 +488,7 @@ class WingBox(Model):
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
                        # Assumes lift per unit span proportional to local chord
-                       TCS([Mr >= Lmax*AR*p/24]),
+                       # TCS([Mr >= Lmax*AR*p/24]),
 
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
