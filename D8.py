@@ -76,8 +76,8 @@ plot = True
 D80 = False
 D82 = False
 D8big = False
-b737800 = True
-b777300ER = False
+b737800 = False
+b777300ER = True
 
 
 #choose multimission or not
@@ -1541,15 +1541,15 @@ if __name__ == '__main__':
                '\pi_{hc_D}': 20.033,
                '\pi_{lc_D}': 1.26,
 
-               '\\alpha_{OD}': 8.7877,
-               '\\alpha_{max}': 8.7877,
+               '\\alpha_{OD}': 8.62,
+               '\\alpha_{max}': 8.62,
 
                'hold_{4a}': 1+.5*(1.313-1)*M4a**2,#sol('hold_{4a}'),
                'r_{uc}': .01,
-               '\\alpha_c': .14,
+               '\\alpha_c': .156,
                'T_{t_f}': 435,
 
-               'M_{takeoff}': .955,
+               'M_{takeoff}': .9539,
 
                'G_f': 1,
 
@@ -1653,6 +1653,9 @@ if __name__ == '__main__':
 
              if b737800:
                   percent_diff(sol, 801, Nclimb)
+
+             if b777300ER:
+                  percent_diff(sol, 777, Nclimb)
     if sweeps:
         if sweepSMmin:
             SMminArray = np.linspace(0.05,0.5,n)
