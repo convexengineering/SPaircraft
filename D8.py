@@ -204,10 +204,6 @@ class Aircraft(Model):
 
                             # Load factor matching
                             self.fuse['N_{lift}'] == self.wing['N_{lift}'],
-                            #set the wing lift, must overcome tail downforce plus total aircraft weight
-                            # self.wing['L_{max}'] >= self.wing['N_{lift}'] * (W_total \
-                            #                         + 0.5*0.5*self.wing['\\rho_0']*self.wing['V_{ne}']**2 \
-                            #                         *self.HT['S_{ht}']*self.wing['C_{L_{wmax}}']),
                             Ltow*self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
 
                             # Wing fuel constraints
@@ -320,12 +316,10 @@ class Aircraft(Model):
                     self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
                          1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP]
 
-                    # Wing root moment constraint
-                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing)) * \
+                    # Wing root moment constraint, with wing weight load relief
+                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing+W_ftotal)) * \
                         (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
                                 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
-
-
 
                     # Pin VT joint moment constraint #TODO may be problematic, should check
                     SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4. - self.fuse['w_{fuse}']),
@@ -386,15 +380,16 @@ class Aircraft(Model):
                     self.fuse['S_{floor}'] == 1./2. * self.fuse['P_{floor}'],
                     self.fuse['M_{floor}'] == 1./4. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
 
-                    # Wing root moment constraint # TODO Add bending relief due to distributed load
-                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing + numeng*Wengsys)) * \
+                    # Wing root moment constraint, with wing and engine weight load relief
+                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}']*(Wwing+W_ftotal)) * \
                         (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
-                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
+                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) - \
+                                        self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
 
                     # Wing loading due to landing loads (might matter for 737!)
                    TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
                                     (Wengsys*self.VT['y_{eng}'] + \
-                                     0.5*(Wwing + W_ftotal)* \
+                                     (Wwing + W_ftotal) * \
                                      (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
                                       self.wing['A_{rect}']/self.wing['S']*self.wing['b']/4))]),
 
@@ -1638,7 +1633,7 @@ if __name__ == '__main__':
 ##                'n_{pax}': [180, 180, 120, 80]})
 
     if D80 or D82 or D8big:
-        # m = Model(m.cost,BCS(m))
+        m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m)
     if b737800 or b777300ER:
         m = Model(m.cost,BCS(m))
