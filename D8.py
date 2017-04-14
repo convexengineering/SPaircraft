@@ -30,6 +30,13 @@ from D8_TASOPT_percent_diff import percent_diff
 # Import VSP generation tools
 from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
 
+#import substitution dict files
+from subsD80.py import getD80subs
+from subsD82.py import getD82subs
+from subsD8big.py import getbD8bigsubs
+from subsb737800.py import getb7773000ERsubs
+from subsb777300ER.py import getb7773000ERsubs
+
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
 Anderson's Aircraft Performance and Design (eqn 5.85).
