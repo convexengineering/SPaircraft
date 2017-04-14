@@ -163,7 +163,7 @@ substitutions = {
         'M_{min}': 0.8,
 
         # engine system subs
-        'rSnace': 16.,
+        'rSnace': 12.,
         # nacelle drag calc parameter
         'r_{vnace}': 1.02,
         ##               'T_{t_{4.1_{max}}}': 1833.*units('K'),
