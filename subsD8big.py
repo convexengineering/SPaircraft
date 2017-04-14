@@ -1,3 +1,8 @@
+def getD8bigsubs():
+"""
+returns substitution dic for a 777esque D8
+"""
+
 sweep = 13.237
 M4a = .1025
 fan = 1.58
@@ -180,3 +185,4 @@ substitutions = {
 ##                 'n_{pax}': 180.,
                  'ReqRng': 7370.*units('nmi'),
                  })
+return substitutions

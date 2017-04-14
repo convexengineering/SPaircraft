@@ -1,3 +1,8 @@
+def getb737800subs():
+"""
+returns substitution dic for the TASOPT Boeing 737-800 model
+"""
+
 sweep = 26.0 # [deg]
 M4a = .2
 fan = 1.685
@@ -175,3 +180,4 @@ substitutions = {
 ##               'n_{pax}': [180.],
                'ReqRng': 3000.*units('nmi'),
                })
+return substitutions

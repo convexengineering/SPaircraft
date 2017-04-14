@@ -1,21 +1,21 @@
-substitutions = {
-        # Basic mission subs
-##        'n_{pax}':180,
-##        'ReqRng':1500.,
+def getD80subs():
+"""
+returns substitution dic for the D8.0
+"""
 
+substitutions = {
         # 'V_{stall}'   : 120,
         '\\delta_P_{over}': 12.*units('psi'),
         'N_{land}': 6.,
         'SPR': 8.,
         'p_s': 81.*units('cm'),
         '\\theta_{db}' : 0.366,
-       # 'CruiseAlt': 30000.*units('ft'),
+        # 'CruiseAlt': 30000.*units('ft'),
         'numeng': 2.,
         'numVT': 2.,
         'numaisle':2.,
         'W_{avg. pass}': 180.*units('lbf'),
         'W_{carry on}': 15.*units('lbf'),
-        'W_{cargo}': 10000.*units('N'),
         'W_{checked}':40.*units('lbf'),
         'W_{fix}': 3000.*units('lbf'),
         'w_{aisle}': 0.51*units('m'),
@@ -34,8 +34,20 @@ substitutions = {
         '\\tau_{floor}': 30000. / 0.000145, # [TAS] [Al]
         'W\'\'_{floor}': 60.,  # [TAS]
         'W\'\'_{insul}': 22.,  # [TAS]
-        'W\'_{seat}': 150.*units('N'),  # [TAS]
         'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
+
+        #Fuselage subs
+        'f_{seat}':0.1,
+        'W\'_{seat}':1., # Seat weight determined by weight fraction instead
+        'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
+        'W_{avg. pass_{total}}':215.*units('lbf'),
+        'f_{string}':0.35,
+        'AR':10.8730,
+        'h_{floor}': 5.12*units('in'),
+        'R_{fuse}' : 1.715*units('m'),
+        'w_{db}': 0.93*units('m'),
+
+
 
         # TASOPT Fuselage substitutions
         'l_{nose}': 29.*units('ft'),
@@ -60,7 +72,7 @@ substitutions = {
         # Wing substitutions
         'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
         '\\tan(\\Lambda)': tan(sweep * pi / 180.),
-##        '\\alpha_{max,w}': 0.1,  # (6 deg)
+        ##        '\\alpha_{max,w}': 0.1,  # (6 deg)
         '\\cos(\\Lambda)': cos(sweep * pi / 180.),
         '\\eta': 0.97,
         '\\rho_0': 1.225*units('kg/m^3'),
@@ -78,11 +90,10 @@ substitutions = {
         'f_{watt}': 0.03,
 
         # VT substitutions
-       'C_{D_{wm}}': 0.5, # [2]
-       'C_{L_{vmax}}': 2.6, # [TAS]
-       'V_1': 70.*units('m/s'),
-       '\\rho_{TO}': 1.225*units('kg/m^3'),
-        '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
+        'C_{D_{wm}}': 0.5, # [2]
+        'C_{L_{vmax}}': 2.6, # [TAS]
+        'V_1': 70.*units('m/s'),
+        '\\rho_{TO}': 1.225*units('kg/m^3'),
         'c_{l_{vtEO}}': 0.5, # [TAS]
         'e_v': 0.8,
         # 'y_{eng}': 4.83*units('m'), # [3]
@@ -90,16 +101,21 @@ substitutions = {
         '\\dot{r}_{req}': 0.1475, # 10 deg/s/s yaw rate acceleration
         'N_{spar}': 2.,
         'f_{VT}': 0.4,
+        'A_{vt}' : 2.0,
+        '\\lambda_{vt}': 0.3,
+        '\\tan(\\Lambda_{vt})':np.tan(25.*np.pi/180.),
 
         # HT substitutions
         '\\alpha_{max,h}': 2.5,
-        '\\tan(\\Lambda_{ht})': tan(30.*pi/180.),
         'C_{L_{hmax}}': 1.225,#2.0, # [TAS]
         'SM_{min}': 0.05,
         '\\Delta x_{CG}': 2.0*units('m'),
         'x_{CG_{min}}' : 10.0*units('m'),
         'C_{L_{hfcG}}': 0.85,
         'f_{HT}': 0.3,
+        'AR_{ht}': 8.25,
+        '\\lambda_{ht}' : 0.25,
+        '\\tan(\\Lambda_{ht})':np.tan(20.*np.pi/180.), #tangent of HT sweep
 
         #engine system subs
         'rSnace': 6.,
@@ -107,14 +123,14 @@ substitutions = {
         'f_{eadd}': 0.1,
 
         #nacelle drag calc parameter
-       'r_{vnace}': 0.925,
+        'r_{vnace}': 0.925,
 
         # Cabin air substitutions in AircraftP
 
         #set the fuel reserve fraction
         'ReserveFraction': .20,
 
-         # Engine substitutions
+        # Engine substitutions
         '\\pi_{tn}': .995,
         '\pi_{b}': .94,
         '\pi_{d}': .995,
@@ -129,8 +145,8 @@ substitutions = {
         '\pi_{hc_D}': hpc,
         '\pi_{lc_D}': lpc,
 
-       '\\alpha_{OD}': 6.97,
-       '\\alpha_{max}': 6.97,
+        '\\alpha_{OD}': 6.97,
+        '\\alpha_{max}': 6.97,
 
         'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
         'r_{uc}': .01,
@@ -151,43 +167,15 @@ substitutions = {
         'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
         'T_{t_{4.1_{max}}}': 1750.*units('K'),
+
+        # Minimum Cruise Mach Number
+        'M_{min}': 0.8,
 }
-if D80:
-        print('D80 executing...')
-        # for constraint in m.flat(constraintsets=False):
-        #         if 'l_{nose}' in constraint.varkeys:
-        #             print constraint
-        sweep = 27.566
-        m.substitutions.update({
-            #Fuselage subs
-            'f_{seat}':0.1,
-            'W\'_{seat}':1., # Seat weight determined by weight fraction instead
-            'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
-            'W_{avg. pass_{total}}':215.*units('lbf'),
-            'f_{string}':0.35,
-            'AR':10.8730,
-            'h_{floor}': 5.12*units('in'),
-            'R_{fuse}' : 1.715*units('m'),
-            'w_{db}': 0.93*units('m'),
-            # 'b':116.548*0.3048,#units('ft'),
-            # 'c_0': 17.4*0.3048,#units('ft'),
-            #HT subs
-            'AR_{ht}': 8.25,
-            '\\lambda_{ht}' : 0.25,
-            '\\tan(\\Lambda_{ht})':np.tan(20.*np.pi/180.), #tangent of HT sweep
 
-            #VT subs
-            'numVT': 2.,
-            'A_{vt}' : 2.0,
-            '\\lambda_{vt}': 0.3,
-            '\\tan(\\Lambda_{vt})':np.tan(25.*np.pi/180.),
-
-            # Minimum Cruise Mach Number
-            'M_{min}': 0.8,
-        })
         m.substitutions.__delitem__('\\theta_{db}')
         if not multimission:
              m.substitutions.update({
                  'n_{pax}': 180.,
                  'ReqRng': 3000.*units('nmi'),
              })
+return substitutions

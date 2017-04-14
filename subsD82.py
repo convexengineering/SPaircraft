@@ -1,3 +1,8 @@
+def getD82subs():
+"""
+returns substitution dic for the D8.2
+"""
+
 M4a = .2
 fan = 1.60474
 lpc  = 4.98
@@ -173,3 +178,4 @@ substitutions = {
 ##                 'n_{pax}': 180.,
                  'ReqRng': 3000.*units('nmi'),
                  })
+return substitutions

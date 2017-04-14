@@ -1,3 +1,8 @@
+def getb777300ERsubs():
+"""
+returns substitution dic for the TASOPT Boeing 777-300ER model
+"""
+
 sweep = 32.583 # [deg]
 M4a = .1025
 fan = 1.5958
@@ -177,3 +182,4 @@ substitutions = {
 ##    if multimission:
 ##           m.substitutions.update({
 ##                'n_{pax}': [180, 180, 120, 80]})
+return substitutions
