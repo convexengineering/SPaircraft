@@ -41,14 +41,14 @@ def getb777300ERsubs():
             'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
 
             # Fuselage subs
-            'l_{nose}': 242.4*.11*units('ft'),
+##            'l_{nose}': 242.4*.11*units('ft'),
             'f_{seat}': 0.1,
             'W\'_{seat}': 1. * units('N'),  # Seat weight determined by weight fraction instead
             'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
             'W_{avg. pass_{total}}':215.*units('lbf'),
             'f_{string}': 0.34,
             'h_{floor}': 5. * units('in'),
-            'R_{fuse}' : 3.0988*units('m'),
+##            'R_{fuse}' : 3.0988*units('m'),
             '\\delta_P_{over}': 8.382 * units('psi'),
 
             # fuselage subs that make fuse circular
@@ -56,7 +56,7 @@ def getb777300ERsubs():
             '\\theta_{db}': 0.0001,
 
             # TASOPT Fuselage substitutions
-            'L_{total/wing}': 1.179,
+            'L_{total/wing}': 1.127,
 
             # Power system and landing gear and engine weight fraction subs
             'f_{hpesys}': 0.01, # [TAS]
@@ -77,7 +77,7 @@ def getb777300ERsubs():
             '\\cos(\\Lambda)': cos(sweep * pi / 180.),
             '\\eta': 0.97,
             '\\rho_0': 1.225*units('kg/m^3'),
-            'b_{max}': 200 * units('ft'),
+##            'b_{max}': 200 * units('ft'),
 
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
 ##            'AR': 8.455,
@@ -104,7 +104,7 @@ def getb777300ERsubs():
             '\\dot{r}_{req}': 0.0001, # 10 deg/s/s yaw rate acceleration
             'y_{eng}': 32*units('ft'),
             'numVT': 1.,
-            'A_{vt}': 2.35,
+##            'A_{vt}': 2.35,
             '\\lambda_{vt}': 0.25,
             '\\tan(\\Lambda_{vt})': tan(28. * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
@@ -112,7 +112,7 @@ def getb777300ERsubs():
 
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
-            'AR_{ht}': 4.8,
+##            'AR_{ht}': 4.8,
             '\\lambda_{ht}': 0.32,
             '\\tan(\\Lambda_{ht})': tan(33. * pi / 180.),  # tangent of HT sweep
             'C_{L_{hmax}}': 2.0,  # [TAS]
@@ -137,14 +137,14 @@ def getb777300ERsubs():
             '\eta_{LPshaft}': .98,
             'eta_{B}': .9970,
 
-            '\pi_{f_D}': 1.58,
-            '\pi_{hc_D}': 20.033,
-            '\pi_{lc_D}': 1.26,
+            '\pi_{f_D}': fan,
+            '\pi_{hc_D}': hpc,
+            '\pi_{lc_D}': lpc,
 
             '\\alpha_{OD}': 8.62,
             '\\alpha_{max}': 8.62,
 
-            'hold_{4a}': 1+.5*(1.313-1)*M4a**2,#sol('hold_{4a}'),
+            'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
             'r_{uc}': .01,
             '\\alpha_c': .156,
             'T_{t_f}': 435,
