@@ -1074,7 +1074,7 @@ if __name__ == '__main__':
         substitutions = getD82subs()
         if not multimission:
                 substitutions.update({
-##                 'n_{pax}': 180.,
+                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
 
@@ -1092,7 +1092,7 @@ if __name__ == '__main__':
            substitutions = getb737800subs()
            if not multimission:
                 substitutions.update({
-##                 'n_{pax}': 180.,
+                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
 
@@ -1107,14 +1107,14 @@ if __name__ == '__main__':
 
     m.substitutions.update(substitutions)
     if D80 or D82 or D8big:
-        m = Model(m.cost,BCS(m))
+        # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m)
     if b737800 or b777300ER:
         m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     if sweeps == False:
-        sol = m_relax.localsolve(verbosity=4, iteration_limit=200)
+        sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
         post_process(sol)
 
 ##        m.cost = m_relax.cost
