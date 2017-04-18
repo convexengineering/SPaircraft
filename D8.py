@@ -80,8 +80,8 @@ genVSP = True
 plot = True
 
 # Only one active at a time
-D80 = True
-D82 = False
+D80 = False
+D82 = True
 D8big = False
 b737800 = False
 b777300ER = False
@@ -394,11 +394,11 @@ class Aircraft(Model):
                                         self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
 
                     # Wing loading due to landing loads (might matter for 737!)
-                   TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
-                                    (Wengsys*self.VT['y_{eng}'] + \
-                                     (Wwing + W_ftotal) * \
-                                     (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
-                                      self.wing['A_{rect}']/self.wing['S']*self.wing['b']/4))]),
+                   # TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
+                   #                  (Wengsys*self.VT['y_{eng}'] + \
+                   #                   (Wwing + W_ftotal) * \
+                   #                   (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
+                   #                    self.wing['A_{rect}']/self.wing['S']*self.wing['b']/4))]),
 
                     # Horizontal tail aero+landing loads constants A1h
                     self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
