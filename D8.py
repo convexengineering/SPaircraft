@@ -81,9 +81,9 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
+D82 = True
 D8big = False
-b737800 = True
+b737800 = False
 b777300ER = False
 
 
@@ -910,15 +910,16 @@ class Mission(Model):
 
         if multimission and not D8big and not b777300ER:
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
-
+             print "YES #2"
+             print ReqRng[:Nmission][0]
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{pax}'][0] == 180.,
+##                  aircraft['n_{pax}'][0] == 180.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
 ##                  aircraft['n_{pax}'][1] == 120,
 ##                  aircraft['n_{pax}'][2] == 160,
                  # aircraft['n_{pax}'][3] == 160,
-                  ReqRng[:Nmission] == 3000. * units('nmi'),
+##                  ReqRng[:Nmission] == 3000. * units('nmi'),
 #                  ReqRng[0] == 3000 * units('nmi'),
 #                  ReqRng[1] == 3000 * units('nmi'),
 ##                  ReqRng[2] == 3000 * units('nmi'),
@@ -1001,6 +1002,7 @@ class Mission(Model):
                   enginecruise.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
                        ])
+
         if b737800 or b777300ER:
              engineclimb.extend([
                   aircraft.engine.engineP['c1'][:Nclimb] <= 1. + 0.5*(.401)*0.6**2.,
@@ -1066,6 +1068,12 @@ if __name__ == '__main__':
 ##                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
+        if multimission:
+                print "YES" 
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.*units('nmi')],
+                })
 
     if D8big:
         print('D8big executing...')
@@ -1095,9 +1103,11 @@ if __name__ == '__main__':
                 })
 
     m.substitutions.update(substitutions)
+    print m.substitutions['ReqRng']
+    print m.substitutions['b_{max}']
     if D80 or D82 or D8big:
         # m = Model(m.cost,BCS(m))
-        m_relax = relaxed_constants(m)
+        m_relax = relaxed_constants(m, None, ['ReqRng'])
     if b737800 or b777300ER:
         m = Model(m.cost, BCS(m))
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
