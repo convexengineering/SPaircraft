@@ -1072,7 +1072,7 @@ if __name__ == '__main__':
                 print "YES" 
                 substitutions.update({
                 'n_{pax}': [180.],
-                'ReqRng': [3000.*units('nmi')],
+                'ReqRng': [3000.],
                 })
 
     if D8big:
