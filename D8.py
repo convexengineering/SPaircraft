@@ -104,7 +104,7 @@ class Aircraft(Model):
         # create submodels
         self.fuse = Fuselage(Nmissions)
         self.wing = Wing()
-        if not b737800:
+        if not (b737800 or b777300ER):
              BLI = True
         if Nmissions != 0:
             self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, Nmissions, BLI)
