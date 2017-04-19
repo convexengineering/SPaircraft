@@ -83,8 +83,8 @@ plot = True
 D80 = False
 D82 = False
 D8big = False
-b737800 = False
-b777300ER = True
+b737800 = True
+b777300ER = False
 
 
 #choose multimission or not
@@ -94,16 +94,6 @@ multimission = True
 manufacturer = False
 operator = False
 fuel = True
-
-sweep = 27.566#30 [deg]
-
-if D82:
-     sweep = 13.237  # [deg]
-
-if b737800:
-     sweep = 26.0 # [deg]
-if b777300ER:
-     sweep = sweep = 32.583 # [deg]
 
 g = 9.81 * units('m*s**-2')
 
