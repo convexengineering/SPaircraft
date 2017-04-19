@@ -83,8 +83,8 @@ plot = True
 D80 = False
 D82 = False
 D8big = False
-b737800 = True
-b777300ER = False
+b737800 = False
+b777300ER = True
 
 
 #choose multimission or not
@@ -925,7 +925,7 @@ class Mission(Model):
                   ])
         if not multimission and not D8big and not b777300ER:
              constraints.extend([
-##                  aircraft['n_{pax}'] == 180.,
+                  aircraft['n_{pax}'] == 180.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
                   ])
 
@@ -947,7 +947,7 @@ class Mission(Model):
                   ])
         if not multimission and (D8big or b777300ER):
              constraints.extend([
-##                  aircraft['n_{pax}'] == 450.,
+                  aircraft['n_{pax}'] == 450.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
                   ])
 
@@ -1055,7 +1055,7 @@ if __name__ == '__main__':
         substitutions = getD82subs()
         if not multimission:
                 substitutions.update({
-                 'n_{pax}': 180.,
+##                 'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
 
@@ -1069,7 +1069,7 @@ if __name__ == '__main__':
         substitutions = getD82subs()
         if not multimission:
                 substitutions.update({
-                'n_{pax}': 180.,
+##                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
         if multimission:
@@ -1083,7 +1083,7 @@ if __name__ == '__main__':
         substitutions = getD8bigsubs()
         if not multimission:
                 substitutions.update({
-                 'n_{pax}': 450.,
+##                 'n_{pax}': 450.,
                 'ReqRng': 7360.*units('nmi'),
                 })
                 
@@ -1097,8 +1097,9 @@ if __name__ == '__main__':
            print('737-800 executing...')
            substitutions = getb737800subs()
            if not multimission:
+                print "TEST"
                 substitutions.update({
-                'n_{pax}': 180.,
+##                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
            if multimission:
@@ -1112,11 +1113,11 @@ if __name__ == '__main__':
            substitutions = getb777300ERsubs()
            if not multimission:
                 substitutions.update({
-                 'n_{pax}': 180.,
+##                 'n_{pax}': 180.,
                 'ReqRng': 7360.*units('nmi'),
                 })
 
-           if not multimission:
+           if multimission:
                 substitutions.update({
                  'n_{pax}': [450.],
                 'ReqRng': [7360.],
