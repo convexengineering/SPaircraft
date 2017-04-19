@@ -81,10 +81,10 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
+D82 = False
 D8big = False
 b737800 = False
-b777300ER = False
+b777300ER = True
 
 
 #choose multimission or not
@@ -362,7 +362,7 @@ class Aircraft(Model):
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
                 ])
 
-          #737 only constraints
+          #737 and 777 only constraints
         if b737800 or b777300ER:
             with SignomialsEnabled():
                constraints.extend([
@@ -694,7 +694,6 @@ class StateLinking(Model):
                     cruisestate[varkey][i] == enginestate[varkey][i+Nclimb]
                     ])
 
-     
         return constraints
 
 class Mission(Model):
@@ -919,7 +918,7 @@ class Mission(Model):
                 cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
                 ])
 
-        if multimission and not D8big:
+        if multimission and not D8big and not b777300ER:
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
 
              constraints.extend([
@@ -929,7 +928,7 @@ class Mission(Model):
 ##                  aircraft['n_{pax}'][1] == 120,
 ##                  aircraft['n_{pax}'][2] == 160,
                  # aircraft['n_{pax}'][3] == 160,
-                  ReqRng[:Nmission] == 3000 * units('nmi'),
+                  ReqRng[:Nmission] == 3000. * units('nmi'),
 #                  ReqRng[0] == 3000 * units('nmi'),
 #                  ReqRng[1] == 3000 * units('nmi'),
 ##                  ReqRng[2] == 3000 * units('nmi'),
@@ -951,13 +950,13 @@ class Mission(Model):
 ##                  aircraft['n_{pax}'][1] == 120,
 ##                  aircraft['n_{pax}'][2] == 160,
                  # aircraft['n_{pax}'][3] == 160,
-                  ReqRng[:Nmission] == 7360 * units('nmi'),
+                  ReqRng[:Nmission] == 7360. * units('nmi'),
 #                  ReqRng[0] == 3000 * units('nmi'),
 #                  ReqRng[1] == 3000 * units('nmi'),
 ##                  ReqRng[2] == 3000 * units('nmi'),
 ##                  ReqRng[3] == 3000 * units('nmi'),
                   ])
-        if not multimission and D8big or b777300ER:
+        if not multimission and (D8big or b777300ER):
              constraints.extend([
                   aircraft['n_{pax}'] == 450.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
@@ -1074,7 +1073,7 @@ if __name__ == '__main__':
         substitutions = getD82subs()
         if not multimission:
                 substitutions.update({
-                'n_{pax}': 180.,
+##                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
 
@@ -1092,7 +1091,7 @@ if __name__ == '__main__':
            substitutions = getb737800subs()
            if not multimission:
                 substitutions.update({
-                'n_{pax}': 180.,
+##                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
 
@@ -1110,7 +1109,7 @@ if __name__ == '__main__':
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m)
     if b737800 or b777300ER:
-        m = Model(m.cost,BCS(m))
+        m = Model(m.cost, BCS(m))
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     if sweeps == False:
