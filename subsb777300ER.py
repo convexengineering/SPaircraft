@@ -77,7 +77,7 @@ def getb777300ERsubs():
             '\\cos(\\Lambda)': cos(sweep * pi / 180.),
             '\\eta': 0.97,
             '\\rho_0': 1.225*units('kg/m^3'),
-##            'b_{max}': 200 * units('ft'),
+           'b_{max}': 200 * units('ft'),
 
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
 ##            'AR': 8.455,
@@ -161,6 +161,8 @@ def getb777300ERsubs():
 
             'HTR_{f_SUB}': 1-.3**2,
             'HTR_{lpc_SUB}': 1 - 0.6**2,
+
+            'T_{t_{4.1_{max}}}':1828.5*units('K'),
 
             # Minimum Cruise Mach Number
             'M_{min}': 0.8,
