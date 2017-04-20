@@ -83,8 +83,8 @@ plot = True
 D80 = False
 D82 = False
 D8big = False
-b737800 = False
-b777300ER = True
+b737800 = True
+b777300ER = False
 
 
 #choose multimission or not
@@ -1130,10 +1130,11 @@ if __name__ == '__main__':
     if D80 or D82 or D8big:
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
-    if b737800 or b777300ER:
+    if b737800:
         m = Model(m.cost, BCS(m))
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
-
+    if b777300ER:
+        m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
     if sweeps == False:
         sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
         post_process(sol)
