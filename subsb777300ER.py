@@ -93,7 +93,7 @@ def getb777300ERsubs():
             'f_{watt}': 0.03,
 
             # VT substitutions
-            'C_{D_{wm}}': 0.5, # [2]
+            'C_{D_{wm}}': 0.01, # [2] #NOTE: TAIL SIZED BY VOLUME COEFF!!
             'C_{L_{vmax}}': 2.6, # [TAS]
             'V_1': 70.*units('m/s'),
             '\\rho_{TO}': 1.225*units('kg/m^3'),
@@ -109,6 +109,7 @@ def getb777300ERsubs():
             '\\tan(\\Lambda_{vt})': tan(28. * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
             'f_{VT}': 0.4,
+            'V_{vt}':0.06,
 
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
