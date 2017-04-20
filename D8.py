@@ -383,6 +383,8 @@ class Aircraft(Model):
                                 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) - \
                                         self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
 
+                   TCS([self.wing['M_r'] >= self.wing['L_{max}']*self.wing['AR']*self.wing['p']/24]),
+
                     # Wing loading due to landing loads (might matter for 737!)
                    # TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
                    #                  (Wengsys*self.VT['y_{eng}'] + \
@@ -1542,7 +1544,10 @@ if __name__ == '__main__':
                 plt.show(),plt.close()
     if genVSP:
         if sweeps == False:
-            genDesFile(sol,False,0,b737800)
+            if D80 or D82 or D8big:
+                genDesFile(sol,False,0,False)
+            if b737800 or b777300ER:
+                genDesFile(sol,False,0,True)
         if sweeps:
             genDesFileSweep(sol,n,b737800)
 
