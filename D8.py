@@ -802,7 +802,6 @@ class Mission(Model):
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00762*(aircraft['l_{fuse}']/(124*units('ft')))**0.8,
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
-                    CruiseAlt >= 35000. * units('ft'),
                     # Setting minimum HPC pressure ratio
                     # aircraft.engine['\\pi_{hc}'] >= 1.7,
                    ])
@@ -810,6 +809,11 @@ class Mission(Model):
                 constraints.extend([
                     #Limiting engine diameter for the b737800
                     aircraft['d_{f}'] <= 1.55*units('m'),
+                    CruiseAlt >= 35000. * units('ft'),
+                ])
+            if b777300ER:
+                constraints.extend([
+                    CruiseAlt >= 31946. * units('ft'),
                 ])
 
         constraints.extend([
