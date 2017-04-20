@@ -41,11 +41,11 @@ def getb777300ERsubs():
             'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
 
             # Fuselage subs
-##            'l_{nose}': 242.4*.11*units('ft'),
+            'l_{nose}': 40*units('ft'),
             'f_{seat}': 0.1,
             'W\'_{seat}': 1. * units('N'),  # Seat weight determined by weight fraction instead
             'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
-            'W_{avg. pass_{total}}':215.*units('lbf'),
+            'W_{avg. pass_{total}}':230.*units('lbf'),
             'f_{string}': 0.34,
             'h_{floor}': 5. * units('in'),
 ##            'R_{fuse}' : 3.0988*units('m'),
@@ -104,7 +104,7 @@ def getb777300ERsubs():
             '\\dot{r}_{req}': 0.0001, # 10 deg/s/s yaw rate acceleration
             'y_{eng}': 32*units('ft'),
             'numVT': 1.,
-##            'A_{vt}': 2.35,
+           'A_{vt}': 2.35,
             '\\lambda_{vt}': 0.25,
             '\\tan(\\Lambda_{vt})': tan(28. * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
@@ -112,7 +112,7 @@ def getb777300ERsubs():
 
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
-##            'AR_{ht}': 4.8,
+           'AR_{ht}': 4.8,
             '\\lambda_{ht}': 0.32,
             '\\tan(\\Lambda_{ht})': tan(33. * pi / 180.),  # tangent of HT sweep
             'C_{L_{hmax}}': 2.0,  # [TAS]
@@ -171,7 +171,7 @@ def getb777300ERsubs():
             'rSnace': 16.,
             # nacelle drag calc parameter
             'r_{vnace}': 1.02,
-##            'T_{t_{4.1_{max}}}': 1833.*units('K'),
+           'T_{t_{4.1_{max}}}': 1860.*units('K'),
             'ReserveFraction': .05,
     }
 
