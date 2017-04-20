@@ -83,8 +83,8 @@ plot = True
 D80 = False
 D82 = False
 D8big = False
-b737800 = True
-b777300ER = False
+b737800 = False
+b777300ER = True
 
 
 #choose multimission or not
@@ -527,7 +527,7 @@ class AircraftP(Model):
                               aircraft.HT['V_{ht}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
 
             # Tail aspect ratio and lift constraints
-            aircraft.HT['AR_{ht}'] >= 6., #TODO change to tip Re constraint
+            aircraft.HT['AR_{ht}'] >= 3., #TODO change to tip Re constraint
             self.HTP['C_{L_h}'] >= 0.01, #TODO remove
 
             # HT/VT moment arm constraints
@@ -541,7 +541,6 @@ class AircraftP(Model):
             # Wing location and AC constraints
 
             TCS([xAC <= aircraft['x_{wing}'] + 0.25*aircraft['\\Delta x_{AC_{wing}}'] + xNP]), #[SP] #TODO relax and improve
-            # SignomialEquality(xAC,xCG + self.HTP['\\Delta x_w']),
             TCS([SM <= (xAC-xCG)/aircraft['mac']]),
             SM >= aircraft['SM_{min}'],
 
@@ -551,11 +550,7 @@ class AircraftP(Model):
                               (1.+2./aircraft['AR'])*(aircraft['AR']-2.)),
 
             # HT Location constraints
-            # TCS([xCG + self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']]),
-            # TCS([aircraft.HT['x_{CG_{ht}}'] <= xCG + 0.5*(self.HTP['\\Delta x_{{trail}_h}'] + self.HTP['\\Delta x_{{lead}_h}'])]), #TODO tighten
             aircraft.HT['x_{CG_{ht}}'] <= aircraft.fuse['l_{fuse}'],
-            # self.HTP['\\Delta x_{{trail}_h}'] <= aircraft.HT['x_{CG_{ht}}'] + 0.6*aircraft.HT['c_{root_{ht}}'],
-            # self.HTP['\\Delta x_{{lead}_h}'] >= aircraft.HT['x_{CG_{ht}}'] - 0.6*aircraft.HT['c_{root_{ht}}'],
 
             # Static margin constraints
             self.wingP['c_{m_{w}}'] == 1.9,
