@@ -805,9 +805,12 @@ class Mission(Model):
                     CruiseAlt >= 35000. * units('ft'),
                     # Setting minimum HPC pressure ratio
                     # aircraft.engine['\\pi_{hc}'] >= 1.7,
-                   #Limiting engine diameter for the b737800
-                    aircraft['d_{f}'] <= 1.55*units('m'),
                    ])
+            if b737800:
+                constraints.extend([
+                    #Limiting engine diameter for the b737800
+                    aircraft['d_{f}'] <= 1.55*units('m'),
+                ])
 
         constraints.extend([
             climb.climbP.aircraftP['W_{start}'][0] == aircraft['W_{total}'],
@@ -1129,6 +1132,7 @@ if __name__ == '__main__':
         m = Model(m.cost, BCS(m))
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
     if b777300ER:
+        m = Model(m.cost, BCS(m))
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
     if sweeps == False:
         sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
