@@ -813,7 +813,7 @@ class Mission(Model):
                 ])
             if b777300ER:
                 constraints.extend([
-                    CruiseAlt >= 31946. * units('ft'),
+##                    CruiseAlt >= 31946. * units('ft'),
                 ])
 
         constraints.extend([
