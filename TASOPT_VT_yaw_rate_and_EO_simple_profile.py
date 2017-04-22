@@ -364,7 +364,7 @@ class VerticalTailNoStruct(Model):
                 Lvmax == 0.5*rho0*Vne**2*Svt*CLvmax,
                 #compute the max force
 
-                taper >= 0.27,
+                taper >= 0.25,
                 # TODO: Constrain taper by tip Reynolds number
                 # source: b737.org.uk
                 ])
