@@ -98,7 +98,7 @@ def getb777300ERsubs():
             'V_1': 70.*units('m/s'),
             '\\rho_{TO}': 1.225*units('kg/m^3'),
             '\\tan(\\Lambda_{vt})': tan(28*pi/180),
-            'c_{l_{vtEO}}': 0.5, # [TAS]
+            'c_{l_{vtEO}}': 1.0, # [TAS]
             'e_v': 0.8,
             'V_{land}': 72.*units('m/s'),
             '\\dot{r}_{req}': 0.000001, # 10 deg/s/s yaw rate acceleration
@@ -109,7 +109,7 @@ def getb777300ERsubs():
             '\\tan(\\Lambda_{vt})': tan(28. * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
             'f_{VT}': 0.4,
-            'V_{vt}':0.06,
+##            'V_{vt}':0.06,
 
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
