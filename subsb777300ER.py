@@ -94,17 +94,17 @@ def getb777300ERsubs():
 
             # VT substitutions
             'C_{D_{wm}}': 0.01, # [2] #NOTE: TAIL SIZED BY VOLUME COEFF!!
-            'C_{L_{vmax}}': 2.6, # [TAS]
+            'C_{L_{vmax}}': 2.0, # [TAS]
             'V_1': 70.*units('m/s'),
             '\\rho_{TO}': 1.225*units('kg/m^3'),
             '\\tan(\\Lambda_{vt})': tan(28*pi/180),
             'c_{l_{vtEO}}': 0.5, # [TAS]
             'e_v': 0.8,
             'V_{land}': 72.*units('m/s'),
-            '\\dot{r}_{req}': 0.0001, # 10 deg/s/s yaw rate acceleration
+            '\\dot{r}_{req}': 0.000001, # 10 deg/s/s yaw rate acceleration
             'y_{eng}': 32*units('ft'),
             'numVT': 1.,
-           'A_{vt}': 2.35,
+            'A_{vt}': 2.35,
             '\\lambda_{vt}': 0.25,
             '\\tan(\\Lambda_{vt})': tan(28. * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
