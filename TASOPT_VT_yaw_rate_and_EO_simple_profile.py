@@ -323,6 +323,7 @@ class VerticalTailNoStruct(Model):
         zmac   = Variable('z_{\\bar{c}_{vt}}', 'm',
                           'Vertical location of mean aerodynamic chord')
         Vvt = Variable('V_{vt}', '-', 'Vertical Tail Volume Coefficient')
+        Vvtmin = Variable('V_{vt_{min}}', '-', 'Minimum Vertical Tail Volume Coefficient')
 
         #engine values
         Te     = Variable('T_e', 'N', 'Thrust per engine at takeoff')
@@ -356,9 +357,7 @@ class VerticalTailNoStruct(Model):
                 # TCS([dxtrail >= croot + dxlead]),
                 # Tail geometry constraint
 
-                
                 # Fuselage length constrains the tail trailing edge
-
                 TCS([p >= 1 + 2*taper]),
                 TCS([2*q >= 1 + p]),
                 zmac == (bvt/3)*q/p,
@@ -370,9 +369,11 @@ class VerticalTailNoStruct(Model):
                 Lvmax == 0.5*rho0*Vne**2*Svt*CLvmax,
                 #compute the max force
 
-                taper >= 0.25,
                 # TODO: Constrain taper by tip Reynolds number
-                # source: b737.org.uk
+                taper >= 0.25,
+                
+                #Enforce a minimum vertical tail volume
+                Vvt >= Vvtmin,
                 ])
 
         return constraints
