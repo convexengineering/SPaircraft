@@ -98,9 +98,16 @@ fuel = True
 g = 9.81 * units('m*s**-2')
 
 class Aircraft(Model):
-    "Aircraft class"
+    """
+    Aircraft class
 
-    def setup(self, Nclimb, Ncruise, enginestate, eng, Nmissions=0, BLI = False, **kwargs):
+    ARGUMENTS
+    ---------
+    BLI: True = have engine stagnation pressure drop drom BLI, False = no engine stagnation pressure drop
+    fitDrag: True = use Martin's tail drag fits, False = use the TASOPT tail drag model
+    """
+
+    def setup(self, Nclimb, Ncruise, enginestate, eng, fitDrag, BLI = False, Nmissions=0,  **kwargs):
         # create submodels
         self.fuse = Fuselage(Nmissions)
         self.wing = Wing()
@@ -112,6 +119,9 @@ class Aircraft(Model):
            self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, BLI)
         self.VT = VerticalTail()
         self.HT = HorizontalTail()
+
+        #set the tail drag flag
+        self.fitDrag = fitDrag
 
         # variable definitions
         numaisle = Variable('numaisle','-','Number of Aisles')
@@ -425,7 +435,7 @@ class AircraftP(Model):
         self.aircraft = aircraft
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
-        self.VTP = aircraft.VT.dynamic(state)
+        self.VTP = aircraft.VT.dynamic(state, aircraft.fitDrag)
         self.HTP = aircraft.HT.dynamic(state)
         self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP]
 
@@ -570,6 +580,13 @@ class AircraftP(Model):
           Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2. * aircraft['S'],
             ])
 
+        if not aircraft.fitDrag:
+            constraints.extend([
+                #set the VT drag coefficient
+                self.VTP['C_{D_{vis}}'] >= self.aircraft.VT['S_{vt}']/self.aircraft.wing['S']* \
+                       (self.aircraft.VT['c_{d_{fv}}'] + self.aircraft.VT['c_{d_{pv}}']*self.aircraft.VT['\\cos(\\Lambda_{vt})^3']),
+                ])
+
         return self.Pmodels, constraints
 
 class ClimbP(Model): # Climb performance constraints
@@ -693,23 +710,30 @@ class Mission(Model):
 
         if D80 or D82:
              eng = 3
+             BLI = True
 
         if b737800:
              eng = 1
+             BLI = False
 
         if D8big:
              eng = 2
+             BLI = True
 
         if b777300ER:
              eng = 4
+             BLI = False
 
         # vectorize
         with Vectorize(Nmission):
              with Vectorize(Nclimb + Ncruise):
                  enginestate = FlightState()
 
+        #use the TASOPT tail drag model
+        fitDrag = False
+
         # build required submodels
-        aircraft = Aircraft(Nclimb, Ncruise, enginestate, eng, Nmission)
+        aircraft = Aircraft(Nclimb, Ncruise, enginestate, eng, fitDrag, BLI, Nmission)
 
         # vectorize
         with Vectorize(Nmission):

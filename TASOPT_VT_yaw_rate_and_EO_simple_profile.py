@@ -242,6 +242,7 @@ class VerticalTail(Model):
     5: http://www.digitaldutch.com/atmoscalc
     6: Engineering toolbox
     7: Boeing.com
+
     """
     def setup(self, **kwargs):
         self.vtns = VerticalTailNoStruct()
@@ -251,6 +252,11 @@ class VerticalTail(Model):
         WVT = Variable('W_{VT_system}', 'N', 'Total VT System Weight')
         fVT = Variable('f_{VT}', '-', 'VT Fractional Weight')
 
+        #variables only used for the TASOPT tail drag formulation
+        cdfv = Variable('c_{d_{fv}}', '-', 'VT friction drag coefficient')
+        cdpv = Variable('c_{d_{pv}}', '-', 'VT pressure drag coefficient')
+        coslamcube = Variable('\\cos(\\Lambda_{vt})^3', '-', 'Cosine of tail sweep cubed')
+
         constraints = [
             self.vtns['\\lambda_{vt}'] == self.wb['taper'],
             WVT >= self.wb['W_{struct}'] + self.wb['W_{struct}'] * fVT,
@@ -258,11 +264,11 @@ class VerticalTail(Model):
 
         return self.vtns, self.wb, constraints
 
-    def dynamic(self, state):
+    def dynamic(self, state, fitDrag):
         """"
         creates a horizontal tail performance model
         """
-        return VerticalTailPerformance(self,state)
+        return VerticalTailPerformance(self, state, fitDrag)
 
 class VerticalTailNoStruct(Model):
     """
@@ -374,8 +380,12 @@ class VerticalTailNoStruct(Model):
 class VerticalTailPerformance(Model):
     """
     Vertical tail perofrmance model
+
+    ARGUMENTS
+    ---------
+    fitDrag: True = use Martin's tail drag fits, False = use the TASOPT tail drag model
     """
-    def setup(self, vt, state):
+    def setup(self, vt, state, fitDrag):
         self.vt = vt
 
         #define new variables
@@ -385,7 +395,6 @@ class VerticalTailPerformance(Model):
         #                   'Sectional lift force coefficient')
         Dvt    = Variable('D_{vt}', 'N', 'Vertical tail viscous drag, cruise')
         Rec    = Variable('Re_{vt}', '-', 'Vertical tail reynolds number, cruise')
-        # Vinf   = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
         CDvis  = Variable('C_{D_{vis}}', '-', 'Viscous drag coefficient')
 
         #constraints
@@ -402,32 +411,36 @@ class VerticalTailPerformance(Model):
             # (lift curve slope passes through origin)
 
             Dvt >= 0.5*state['\\rho']*state['V']**2*self.vt['S_{vt}']*CDvis,
-            
-            #Martin's NACA fit
+
+            # Cruise Reynolds number
+            Rec == state.atm['\\rho']*state['V']*self.vt['\\bar{c}_{vt}']/state.atm['\\mu'],
+            ])
+
+        if fitDrag:
+            constraints.extned([
+                #Martin's TASOPT tail fit
+                CDvis**0.119892 >= 0.0693931 * (Rec/1000)**-0.0021665 * (self.vt['\\tau_{vt}']*100)**0.104391 * (state['M'])**-0.0177484
+                            + 0.273439 * (Rec/1000)**-0.0017356 * (self.vt['\\tau_{vt}']*100)**-0.164667 * (state['M'])**0.0233832
+                            + 0.000150403 * (Rec/1000)**-0.186771 * (self.vt['\\tau_{vt}']*100)**1.52706 * (state['M'])**3.89794
+                            + 0.27215 * (Rec/1000)**-0.00170564 * (self.vt['\\tau_{vt}']*100)**-0.175197 * (state['M'])**0.0242146
+                            + 0.0608952 * (Rec/1000)**-0.00195729 * (self.vt['\\tau_{vt}']*100)**0.227082 * (state['M'])**-0.0439115,
+
+                        #Martin's NACA fit
 ##            CDvis**1.5846 >= 0.000195006 * (Rec)**-0.508965 * (self.vt['\\tau_{vt}']*100)**1.62106 * (state['M'])**0.670788
 ##                        + 9.25066e+18 * (Rec)**-0.544817 * (self.vt['\\tau_{vt}']*100)**1.94003 * (state['M'])**240.136
 ##                        + 2.23515e-05 * (Rec)**0.223161 * (self.vt['\\tau_{vt}']*100)**0.0338899 * (state['M'])**0.0210705,
 
-            #Martin's TASOPT tail fit
-            CDvis**0.119892 >= 0.0693931 * (Rec/1000)**-0.0021665 * (self.vt['\\tau_{vt}']*100)**0.104391 * (state['M'])**-0.0177484
-                        + 0.273439 * (Rec/1000)**-0.0017356 * (self.vt['\\tau_{vt}']*100)**-0.164667 * (state['M'])**0.0233832
-                        + 0.000150403 * (Rec/1000)**-0.186771 * (self.vt['\\tau_{vt}']*100)**1.52706 * (state['M'])**3.89794
-                        + 0.27215 * (Rec/1000)**-0.00170564 * (self.vt['\\tau_{vt}']*100)**-0.175197 * (state['M'])**0.0242146
-                        + 0.0608952 * (Rec/1000)**-0.00195729 * (self.vt['\\tau_{vt}']*100)**0.227082 * (state['M'])**-0.0439115,
-
-            #Philippe thesis fit            
+            #Philippe thesis fit
+            # Vertical tail viscous drag in cruise
+            # Data fit from Xfoil
 ##            CDvis**0.125 >= 0.19*(self.vt['\\tau_{vt}'])**0.0075 *(Rec)**0.0017
 ##                        + 1.83e+04*(self.vt['\\tau_{vt}'])**3.54*(Rec)**-0.494
 ##                        + 0.118*(self.vt['\\tau_{vt}'])**0.0082 *(Rec)**0.00165
 ##                        + 0.198*(self.vt['\\tau_{vt}'])**0.00774*(Rec)**0.00168,
-            # Vertical tail viscous drag in cruise
-            # Data fit from Xfoil
-
-            Rec == state.atm['\\rho']*state['V']*self.vt['\\bar{c}_{vt}']/state.atm['\\mu'],
-            # Cruise Reynolds number
-
-
             ])
+        else:
+            None
+            #drag constraints found in aircraftP
 
         return constraints
 class WingBox(Model):
