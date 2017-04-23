@@ -367,8 +367,12 @@ class HorizontalTailNoStruct(Model):
 class HorizontalTailPerformance(Model):
     """
     Horizontal tail performance model
+
+    ARGUMENTS
+    ---------
+    fitDrag: True = use Martin's tail drag fits, False = use the TASOPT tail drag model
     """
-    def setup(self, ht, state):
+    def setup(self, ht, state, fitDrag):
         self.HT = ht
         
         #variables
@@ -416,6 +420,12 @@ class HorizontalTailPerformance(Model):
                 D == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CDh,
                 CDh >= CD0h + CLh**2/(pi*self.HT['e_h']*self.HT['AR_{ht}']),
 
+                #cruise Reynolds number
+                Rec == state['\\rho']*state['V']*self.HT['\\bar{c}_{ht}']/state['\\mu'],
+                ])
+
+        if fitDrag:
+            constriants.extend([
                 # Same drag model as VerticalTail
                 #Martin's NACA drag fit
 ##                CD0h**1.5846 >= 0.000195006 * (Rec)**-0.508965 * (self.HT['\\tau_{ht}']*100)**1.62106 * (state['M'])**0.670788
@@ -433,8 +443,10 @@ class HorizontalTailPerformance(Model):
 ##                            + 1.83e+04*(self.HT['\\tau_{ht}'])**3.54*(Rec)**-0.494
 ##                            + 0.118*(self.HT['\\tau_{ht}'])**0.0082 *(Rec)**0.00165
 ##                            + 0.198*(self.HT['\\tau_{ht}'])**0.00774*(Rec)**0.00168,
-                Rec == state['\\rho']*state['V']*self.HT['\\bar{c}_{ht}']/state['\\mu'],
                 ])
+        else:
+            #HT drag constraints in AircraftP
+            None
 
         return constraints
 
@@ -455,6 +467,11 @@ class HorizontalTail(Model):
         WHT = Variable('W_{HT_system}', 'N', 'HT System Weight')
         fHT = Variable('f_{HT}' ,'-', 'Rudder etc. fractional weight')
 
+        #variables only used for the TASOPT tail drag formulation
+        cdfh = Variable('c_{d_{fh}}', '-', 'VT friction drag coefficient')
+        cdph = Variable('c_{d_{ph}}', '-', 'VT pressure drag coefficient')
+        coslamcube = Variable('\\cos(\\Lambda_{ht})^3', '-', 'Cosine of tail sweep cubed')
+
         constraints = []
         with SignomialsEnabled():
             constraints.append([
@@ -467,11 +484,11 @@ class HorizontalTail(Model):
         return self.HTns, self.wb, constraints
 
 
-    def dynamic(self, state):
+    def dynamic(self, state, fitDrag):
         """"
         creates a horizontal tail performance model
         """
-        return HorizontalTailPerformance(self, state)
+        return HorizontalTailPerformance(self, state, fitDrag)
     
 class WingBox(Model):
     """
