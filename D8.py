@@ -81,9 +81,9 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
+D82 = False
 D8big = False
-b737800 = False
+b737800 = True
 b777300ER = False
 
 
@@ -587,7 +587,7 @@ class AircraftP(Model):
                        (self.aircraft.VT['c_{d_{fv}}'] + self.aircraft.VT['c_{d_{pv}}']*self.aircraft.VT['\\cos(\\Lambda_{vt})^3']),
 
                 #set the HT drag coefficient
-                self.HTP['C_{D_h}'] >= self.aircraft.HT['S_{ht}']/self.aircraft.wing['S']* \
+                self.HTP['C_{D_{0_h}}'] >= self.aircraft.HT['S_{ht}']/self.aircraft.wing['S']* \
                        (self.aircraft.HT['c_{d_{fh}}'] + self.aircraft.HT['c_{d_{ph}}']*self.aircraft.HT['\\cos(\\Lambda_{ht})^3']),
                 ])
 
