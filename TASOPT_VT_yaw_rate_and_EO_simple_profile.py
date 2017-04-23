@@ -417,7 +417,7 @@ class VerticalTailPerformance(Model):
             ])
 
         if fitDrag:
-            constraints.extned([
+            constraints.extend([
                 #Martin's TASOPT tail fit
                 CDvis**0.119892 >= 0.0693931 * (Rec/1000)**-0.0021665 * (self.vt['\\tau_{vt}']*100)**0.104391 * (state['M'])**-0.0177484
                             + 0.273439 * (Rec/1000)**-0.0017356 * (self.vt['\\tau_{vt}']*100)**-0.164667 * (state['M'])**0.0233832

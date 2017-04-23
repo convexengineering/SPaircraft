@@ -425,7 +425,7 @@ class HorizontalTailPerformance(Model):
                 ])
 
         if fitDrag:
-            constriants.extend([
+            constraints.extend([
                 # Same drag model as VerticalTail
                 #Martin's NACA drag fit
 ##                CD0h**1.5846 >= 0.000195006 * (Rec)**-0.508965 * (self.HT['\\tau_{ht}']*100)**1.62106 * (state['M'])**0.670788
