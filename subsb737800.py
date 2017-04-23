@@ -6,6 +6,8 @@ def getb737800subs():
     returns substitution dic for the TASOPT Boeing 737-800 model
     """
     sweep = 26.0 # [deg]
+    VTsweep = 25. #[deg]
+    HTsweep = 25. #[deg]
     M4a = .2
     fan = 1.685
     lpc  = 8./1.685
@@ -107,21 +109,27 @@ def getb737800subs():
             'numVT': 1.,
             'A_{vt}': 2.,
             '\\lambda_{vt}': 0.3,
-            '\\tan(\\Lambda_{vt})': tan(25. * pi / 180.),  # tangent of VT sweep
+            '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
             '\\dot{r}_{req}': 0.001, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
-
+            '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
+            'c_{d_{fv}}': 0.0060,
+            'c_{d_{pv}}': 0.0030,
+            
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
             'f_{HT}': 0.3,
             'AR_{ht}': 6.,
             '\\lambda_{ht}': 0.25,
-            '\\tan(\\Lambda_{ht})': tan(25. * pi / 180.),  # tangent of HT sweep
+            '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
             'C_{L_{hmax}}': 2.0,  # [TAS]
             'C_{L_{hfcG}}': 0.7,
             '\\Delta x_{CG}': 7.68 * units('ft'),
             'x_{CG_{min}}': 30.*units('ft'),#56.75 * units('ft'),
             'SM_{min}': .05,
+            '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
+            'c_{d_{fh}}': 0.0060,
+            'c_{d_{ph}}': 0.0030,
 
             #engine system subs
             'f_{pylon}': 0.05,
