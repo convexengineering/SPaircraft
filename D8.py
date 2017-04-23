@@ -436,7 +436,7 @@ class AircraftP(Model):
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
         self.VTP = aircraft.VT.dynamic(state, aircraft.fitDrag)
-        self.HTP = aircraft.HT.dynamic(state)
+        self.HTP = aircraft.HT.dynamic(state, aircraft.fitDrag)
         self.Pmodels = [self.wingP, self.fuseP, self.VTP, self.HTP]
 
         # Variable Definitions
@@ -585,6 +585,10 @@ class AircraftP(Model):
                 #set the VT drag coefficient
                 self.VTP['C_{D_{vis}}'] >= self.aircraft.VT['S_{vt}']/self.aircraft.wing['S']* \
                        (self.aircraft.VT['c_{d_{fv}}'] + self.aircraft.VT['c_{d_{pv}}']*self.aircraft.VT['\\cos(\\Lambda_{vt})^3']),
+
+                #set the HT drag coefficient
+                self.HTP['C_{D_h}'] >= self.aircraft.HT['S_{ht}']/self.aircraft.wing['S']* \
+                       (self.aircraft.HT['c_{d_{fh}}'] + self.aircraft.HT['c_{d_{ph}}']*self.aircraft.HT['\\cos(\\Lambda_{ht})^3']),
                 ])
 
         return self.Pmodels, constraints

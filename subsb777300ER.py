@@ -7,6 +7,8 @@ def getb777300ERsubs():
     """
 
     sweep = 32.583 # [deg]
+    VTsweep = 28. #[deg]
+    HTsweep = 33. #[deg]
     M4a = .1025
     fan = 1.5958
     lpc  = 1.26
@@ -106,22 +108,28 @@ def getb777300ERsubs():
             'numVT': 1.,
 ##            'A_{vt}': 2.35,
             '\\lambda_{vt}': 0.25,
-            '\\tan(\\Lambda_{vt})': tan(28. * pi / 180.),  # tangent of VT sweep
+            '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
             'f_{VT}': 0.4,
+            '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
+            'c_{d_{fv}}': 0.0060,
+            'c_{d_{pv}}': 0.0035,
 ##            'V_{vt}':0.06,
 
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
            'AR_{ht}': 4.8,
             '\\lambda_{ht}': 0.32,
-            '\\tan(\\Lambda_{ht})': tan(33. * pi / 180.),  # tangent of HT sweep
+            '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
             'C_{L_{hmax}}': 2.0,  # [TAS]
             'C_{L_{hfcG}}': 0.7,
             '\\Delta x_{CG}': 11.97 * units('ft'),
             'x_{CG_{min}}': 117.31*units('ft'),
             'SM_{min}': .05,
             'f_{HT}': 0.3,
+            '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
+            'c_{d_{fh}}': 0.0060,
+            'c_{d_{ph}}': 0.0035,
 
             #engine system subs
             'f_{pylon}': 0.05,
