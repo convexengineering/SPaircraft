@@ -6,6 +6,9 @@ def getD80subs():
         returns substitution dic for the D8.0
         """
 
+        VTsweep = 25.0 #[deg]
+        HTsweep = 20. #[deg]
+
         substitutions = {
                 # 'V_{stall}'   : 120,
                 '\\delta_P_{over}': 12.*units('psi'),
@@ -106,7 +109,10 @@ def getD80subs():
                 'f_{VT}': 0.4,
                 'A_{vt}' : 2.0,
                 '\\lambda_{vt}': 0.3,
-                '\\tan(\\Lambda_{vt})':tan(25.*pi/180.),
+                '\\tan(\\Lambda_{vt})':tan(VTsweep*pi/180.),
+                '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
+                'c_{d_{fv}}': 0.0060,
+                'c_{d_{pv}}': 0.0035,
 
                 # HT substitutions
                 '\\alpha_{max,h}': 2.5,
@@ -118,8 +124,11 @@ def getD80subs():
                 'f_{HT}': 0.3,
                 'AR_{ht}': 8.25,
                 '\\lambda_{ht}' : 0.25,
-                '\\tan(\\Lambda_{ht})':tan(20.*pi/180.), #tangent of HT sweep
-
+                '\\tan(\\Lambda_{ht})':tan(HTsweep*pi/180.), #tangent of HT sweep
+                '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
+                'c_{d_{fh}}': 0.0060,
+                'c_{d_{ph}}': 0.0035,
+                
                 #engine system subs
                 'rSnace': 6.,
                 'f_{pylon}': 0.05,

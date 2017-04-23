@@ -6,7 +6,9 @@ def getD8bigsubs():
         returns substitution dic for a 777esque D8
         """
 
-        sweep = 13.237
+        sweep = 13.237 #[deg]
+        VTsweep = 25.0 #[deg]
+        HTsweep = 8.0 #[deg]
         M4a = .1025
         fan = 1.58
         lpc  = 1.26
@@ -106,7 +108,7 @@ def getD8bigsubs():
                 'C_{L_{vmax}}': 2.6, # [TAS]
                 'V_1': 70.*units('m/s'),
                 '\\rho_{TO}': 1.225*units('kg/m^3'),
-                '\\tan(\\Lambda_{vt})': tan(40*pi/180),
+                '\\tan(\\Lambda_{vt})': tan(VTsweep*pi/180),
                 'c_{l_{vtEO}}': 0.5, # [TAS]
                 'e_v': 0.8,
                 # 'y_{eng}': 4.83*units('m'), # [3]
@@ -114,6 +116,9 @@ def getD8bigsubs():
                 '\\dot{r}_{req}': 0.1475, # 10 deg/s/s yaw rate acceleration
                 'N_{spar}': 2.,
                 'f_{VT}': 0.4,
+                '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
+                'c_{d_{fv}}': 0.0060,
+                'c_{d_{pv}}': 0.0035,
 
                 # HT substitutions
                 '\\alpha_{max,h}': 2.5,
@@ -123,13 +128,13 @@ def getD8bigsubs():
                 'x_{CG_{min}}' : 10.0*units('m'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
-
-                # HT subs
-                ##            'AR_{ht}': 12.,
+                '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
+                'c_{d_{fh}}': 0.0060,
+                'c_{d_{ph}}': 0.0035,
+##                'AR_{ht}': 12.,
                 '\\lambda_{ht}': 0.3,
-                '\\tan(\\Lambda_{ht})': tan(8. * pi / 180.),  # tangent of HT sweep
+                '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
                 '\\lambda_{vt}': 0.3,
-                '\\tan(\\Lambda_{vt})': tan(25. * pi / 180.),  # tangent of VT sweep
 
                 #engine system subs
                 'rSnace': 6.,

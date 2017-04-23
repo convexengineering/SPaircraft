@@ -6,6 +6,8 @@ def getD82subs():
         returns substitution dic for the D8.2
         """
         sweep = 13.237  # [deg]
+        VTsweep = 25.0 #[deg]
+        HTsweep = 8.0 #[deg]
         M4a = .2
         fan = 1.60474
         lpc  = 4.98
@@ -107,7 +109,10 @@ def getD82subs():
                 'numVT': 2.,
                 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
-                '\\tan(\\Lambda_{vt})': tan(25. * pi / 180.),  # tangent of VT sweep
+                '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
+                '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
+                'c_{d_{fv}}': 0.0060,
+                'c_{d_{pv}}': 0.0035,
 
                 # HT substitutions
                 '\\alpha_{max,h}': 2.5,
@@ -119,8 +124,11 @@ def getD82subs():
                 'f_{HT}': 0.3,
                 'AR_{ht}': 12.,
                 '\\lambda_{ht}': 0.3,
-                '\\tan(\\Lambda_{ht})': tan(8. * pi / 180.),  # tangent of HT sweep
-
+                '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
+                '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
+                'c_{d_{fh}}': 0.0060,
+                'c_{d_{ph}}': 0.0035,
+                
                 #engine system subs
                 'rSnace': 6.,
                 'f_{pylon}': 0.05,
