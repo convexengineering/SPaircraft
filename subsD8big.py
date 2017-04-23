@@ -40,6 +40,7 @@ def getD8bigsubs():
                 'W\'\'_{floor}': 60.,  # [TAS]
                 'W\'\'_{insul}': 22.,  # [TAS]
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
+                'V_{mn}': 130.2*units('m/s'),
 
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft'),

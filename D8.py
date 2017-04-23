@@ -117,8 +117,8 @@ class Aircraft(Model):
         numaisle = Variable('numaisle','-','Number of Aisles')
         numeng = Variable('numeng', '-', 'Number of Engines')
         numVT = Variable('numVT','-','Number of Vertical Tails')
-        Vne = Variable('V_{ne}',144., 'm/s', 'Never-exceed speed')  # [Philippe]
-        Vmn = Variable('V_{mn}',133.76,'m/s','Maneuvering speed')
+        Vne = Variable('V_{ne}', 'm/s', 'Never-exceed speed')  # [Philippe]
+        Vmn = Variable('V_{mn}', 'm/s','Maneuvering speed')
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
         ReserveFraction = Variable('ReserveFraction', '-', 'Fuel Reserve Fraction')
 

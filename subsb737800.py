@@ -36,6 +36,7 @@ def getb737800subs():
             'W\'\'_{floor}': 60.,  # [TAS]
             'W\'\'_{insul}': 22.,  # [TAS]
             'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
+            'V_{mn}': 133.76*units('m/s'),
 
             # TASOPT Fuselage substitutions
             'L_{total/wing}': 1.127,

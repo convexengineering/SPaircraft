@@ -37,6 +37,7 @@ def getD80subs():
                 'W\'\'_{floor}': 60.,  # [TAS]
                 'W\'\'_{insul}': 22.,  # [TAS]
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
+                'V_{mn}': 133.76*units('m/s'),
 
                 #Fuselage subs
                 'f_{seat}':0.1,
