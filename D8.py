@@ -81,10 +81,10 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
+D82 = True
 D8big = False
 b737800 = False
-b777300ER = True
+b777300ER = False
 
 
 #choose multimission or not
@@ -715,7 +715,7 @@ class Mission(Model):
         if D80 or D82:
              eng = 3
              BLI = True
-
+             
         if b737800:
              eng = 1
              BLI = False
@@ -733,7 +733,7 @@ class Mission(Model):
              with Vectorize(Nclimb + Ncruise):
                  enginestate = FlightState()
 
-        #use the TASOPT tail drag model
+        #True is use xfoil fit tail drag model, False is TASOPT tail drag model
         fitDrag = False
 
         # build required submodels
@@ -1129,7 +1129,6 @@ if __name__ == '__main__':
            print('737-800 executing...')
            substitutions = getb737800subs()
            if not multimission:
-                print "TEST"
                 substitutions.update({
 ##                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
