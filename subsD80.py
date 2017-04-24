@@ -9,6 +9,11 @@ def getD80subs():
         VTsweep = 25.0 #[deg]
         HTsweep = 20. #[deg]
 
+        #Percent of velocity loss from BL smeared across entire fan
+        BLIVloss = .2
+        #Min cruise mach number
+        Mcruisemin = 0.8
+
         substitutions = {
                 # 'V_{stall}'   : 120,
                 '\\delta_P_{over}': 12.*units('psi'),
@@ -182,11 +187,14 @@ def getD80subs():
                 'T_{t_{4.1_{max}}}': 1750.*units('K'),
 
                 # Minimum Cruise Mach Number
-                'M_{min}': 0.8,
+                'M_{min}': Mcruisemin,
+
+                #BLI factors
+                #compute the cruise stagnation pressure loss factor given a min
+                #mach number and the BLI velocity loss factor
+                'f_{BLI_P}': (10400. +.2546*1.225*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
+                              (10400. +.2546*1.225*(Mcruisemin*295.)**2),
+                'f_{BLI_V}': 1 - BLIVloss,
         }
-##                if not multimission:
-##                     m.substitutions.update({
-##                         'n_{pax}': 180.,
-##                         'ReqRng': 3000.*units('nmi'),
-##                     })
+
         return substitutions

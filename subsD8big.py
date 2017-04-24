@@ -14,6 +14,11 @@ def getD8bigsubs():
         lpc  = 1.26
         hpc = 20.033
 
+        #Percent of velocity loss from BL smeared across entire fan
+        BLIVloss = .2
+        #Min cruise mach number
+        Mcruisemin = 0.72
+
         substitutions = {
                 'N_{land}': 6.,
                 'p_s': 81.*units('cm'),
@@ -151,7 +156,7 @@ def getD8bigsubs():
                 'ReserveFraction': .05,
 
                 # Minimum Cruise Mach Number
-                'M_{min}': 0.72,
+                'M_{min}': Mcruisemin,
 
                 #new engine params
                 '\pi_{tn}': .98,
@@ -188,11 +193,13 @@ def getD8bigsubs():
 
                 'HTR_{f_SUB}': 1-.3**2,
                 'HTR_{lpc_SUB}': 1 - 0.6**2,
+
+                #BLI factors
+                #compute the cruise stagnation pressure loss factor given a min
+                #mach number and the BLI velocity loss factor
+                'f_{BLI_P}': (10400. +.2546*1.225*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
+                              (10400. +.2546*1.225*(Mcruisemin*295.)**2),
+                'f_{BLI_V}': 1 - BLIVloss,
         }
 
-##                if not multimission:
-##                    m.substitutions.update({
-##        ##                 'n_{pax}': 180.,
-##                         'ReqRng': 7370.*units('nmi'),
-##                         })
         return substitutions

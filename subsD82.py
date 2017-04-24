@@ -13,6 +13,11 @@ def getD82subs():
         lpc  = 4.98
         hpc = 35./8.
 
+        #Percent of velocity loss from BL smeared across entire fan
+        BLIVloss = .2
+        #Min cruise mach number
+        Mcruisemin = 0.72
+
         substitutions = {
                 'N_{land}': 6.,
                 'p_s': 81.*units('cm'),
@@ -183,6 +188,13 @@ def getD82subs():
                 'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
                 'T_{t_{4.1_{max}}}': 1750.*units('K'),
+
+                #BLI factors
+                #compute the cruise stagnation pressure loss factor given a min
+                #mach number and the BLI velocity loss factor
+                'f_{BLI_P}': (10400. +.2546*1.225*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
+                              (10400. +.2546*1.225*(Mcruisemin*295.)**2),
+                'f_{BLI_V}': 1 - BLIVloss,
         }
 
         return substitutions
