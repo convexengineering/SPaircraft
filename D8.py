@@ -81,9 +81,9 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
+D82 = False
 D8big = False
-b737800 = False
+b737800 = True
 b777300ER = False
 
 
@@ -392,8 +392,6 @@ class Aircraft(Model):
                         (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
                                 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) - \
                                         self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
-
-                   TCS([self.wing['M_r'] >= self.wing['L_{max}']*self.wing['AR']*self.wing['p']/24]),
 
                     # Wing loading due to landing loads (might matter for 737!)
                    # TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
