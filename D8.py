@@ -393,9 +393,7 @@ class Aircraft(Model):
                                 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) - \
                                         self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
 
-                   TCS([self.wing['M_r'] >= self.wing['L_{max}']*self.wing['AR']*self.wing['p']/24]),
-
-                   # Wing loading due to landing loads (might matter for 737!)
+                    Wing loading due to landing loads (might matter for 737!)
                    TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
                                     (Wengsys*self.VT['y_{eng}'] + \
                                      (Wwing + W_ftotal) * \
