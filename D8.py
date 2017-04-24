@@ -826,8 +826,8 @@ class Mission(Model):
             #Setting fuselage drag and lift, and BLI correction
             if D80 or D82 or D8big:
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866*(aircraft['l_{fuse}']/(106*units('ft')))**0.8,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866*(aircraft['l_{fuse}']/(106*units('ft')))**0.8,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866,#*(aircraft['l_{fuse}']/(106*units('ft')))**0.8,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866,#*(aircraft['l_{fuse}']/(106*units('ft')))**0.8,
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
@@ -836,8 +836,8 @@ class Mission(Model):
                   ])
             if b737800 or b777300ER:
                constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00762*(aircraft['l_{fuse}']/(124*units('ft')))**0.8,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00762*(aircraft['l_{fuse}']/(124*units('ft')))**0.8,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00762,#*(aircraft['l_{fuse}']/(124*units('ft')))**0.8,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00762,#*(aircraft['l_{fuse}']/(124*units('ft')))**0.8,
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
                     # Setting minimum HPC pressure ratio
@@ -851,7 +851,7 @@ class Mission(Model):
                 ])
             if b777300ER:
                 constraints.extend([
-##                    CruiseAlt >= 31946. * units('ft'),
+                    CruiseAlt >= 31946. * units('ft'),
                 ])
 
         constraints.extend([
