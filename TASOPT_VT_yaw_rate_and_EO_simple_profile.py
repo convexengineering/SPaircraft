@@ -480,6 +480,7 @@ class WingBox(Model):
         w      = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
+        AR   = Variable('A_{vt_{struct}}', '-', 'Vertical tail aspect ratio used in structural model')
 
         numspar = Variable('N_{spar}', '-', 'Number of Spars in Each VT Carrying Stress in 1 in 20 Case')
 
@@ -488,18 +489,20 @@ class WingBox(Model):
         if isinstance(surface, VerticalTailNoStruct):
             #factors of 2 required since the VT is only half span and the wing model
             #is for a full span wing
-            AR = 2*surface['A_{vt}']
+##            AR = 2*surface['A_{vt}']
             b = 2*surface['b_{vt}']
             S = 2*surface['S_{vt}']
             p = surface['p_{vt}']
             q = surface['q_{vt}']
             tau = surface['\\tau_{vt}']
-            Lmax = 2*surface['L_{v_{max}}']
+            Lmax = surface['L_{v_{max}}']
             taper = surface['\\lambda_{vt}']
 
         constraints = [
                        # Upper bound on maximum thickness
                        tau <= 0.14,
+
+                       AR == b**2/S,
 
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
