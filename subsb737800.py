@@ -105,7 +105,7 @@ def getb737800subs():
             'V_{land}': 72.*units('m/s'),
             'N_{spar}': 2.,
             'f_{VT}': 0.4,
-            'y_{eng}': 4.83*units('m'),
+            'y_{eng}': 4.8768*units('m'),
             'numVT': 1.,
             'A_{vt}': 2.,
             '\\lambda_{vt}': 0.3,
