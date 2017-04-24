@@ -83,8 +83,8 @@ plot = True
 D80 = False
 D82 = False
 D8big = False
-b737800 = True
-b777300ER = False
+b737800 = False
+b777300ER = True
 
 
 #choose multimission or not
@@ -393,13 +393,6 @@ class Aircraft(Model):
                                 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) - \
                                         self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
 
-                   # Wing loading due to landing loads (might matter for 737!)
-                   TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
-                                    (Wengsys*self.VT['y_{eng}'] + \
-                                     (Wwing + W_ftotal) * \
-                                     (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
-                                      self.wing['A_{rect}']/self.wing['S']*self.wing['b']/4))]),
-
                     # Horizontal tail aero+landing loads constants A1h
                     self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
                                 (self.fuse['W_{tail}'] + self.fuse['W_{apu}'])) / \
@@ -410,6 +403,25 @@ class Aircraft(Model):
                                 + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
                     ])
+
+        if b737800:
+            with SignomialsEnabled():
+                 constraints.extend([
+                 # Wing loading due to landing loads (might matter for 737!)
+                 TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
+                                    (Wengsys*self.VT['y_{eng}'] + \
+                                     (Wwing + W_ftotal) * \
+                                     (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
+                                      self.wing['A_{rect}']/self.wing['S']*self.wing['b']/4))])])
+        if b777300ER:
+            with SignomialsEnabled():
+                 constraints.extend([
+                 # Wing loading due to landing loads (might matter for 737!)
+                 TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
+                                    (Wengsys*self.VT['y_{eng}'] + \
+                                     (Wwing + W_ftotal*ReserveFraction) * \
+                                     (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
+                                      self.wing['A_{rect}']/self.wing['S']*self.wing['b']/4))])])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
 
