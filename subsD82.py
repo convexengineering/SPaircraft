@@ -14,7 +14,7 @@ def getD82subs():
         hpc = 35./8.
 
         #Percent of velocity loss from BL smeared across entire fan
-        BLIVloss = .2
+        BLIVloss = .18
         #Min cruise mach number
         Mcruisemin = 0.72
 
