@@ -11,8 +11,8 @@ def getb777300ERsubs():
     HTsweep = 33. #[deg]
     M4a = .1025
     fan = 1.5958
-    lpc  = 1.26
-    hpc = 20.033
+    lpc  = 5.0
+    hpc = 5.25
 
     substitutions = {
             'N_{land}': 6.,
@@ -81,9 +81,9 @@ def getb777300ERsubs():
             '\\eta': 0.97,
             '\\rho_0': 1.225*units('kg/m^3'),
             'b_{max}': 200 * units('ft'),
-
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-##            'AR': 8.455,
+            'AR': 8.455,
+            'f_{wingfuel}': 0.62,
 
             # Wing fractional weights
             'FuelFrac': 0.9,
@@ -106,7 +106,7 @@ def getb777300ERsubs():
             '\\dot{r}_{req}': 0.000001, # 10 deg/s/s yaw rate acceleration
             'y_{eng}': 32*units('ft'),
             'numVT': 1.,
-##            'A_{vt}': 2.35,
+            'A_{vt}': 2.35,
             '\\lambda_{vt}': 0.25,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
@@ -118,7 +118,7 @@ def getb777300ERsubs():
 
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
-           'AR_{ht}': 4.8,
+            'AR_{ht}': 4.8,
             '\\lambda_{ht}': 0.32,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
             'C_{L_{hmax}}': 2.0,  # [TAS]
@@ -142,9 +142,9 @@ def getb777300ERsubs():
             '\pi_{fn}': .985,
             'T_{ref}': 288.15,
             'P_{ref}': 101.325,
-            '\eta_{HPshaft}': .98,
-            '\eta_{LPshaft}': .98,
-            'eta_{B}': .9970,
+            '\eta_{HPshaft}': .978,
+            '\eta_{LPshaft}': .99,
+            'eta_{B}': .985,
 
             '\pi_{f_D}': fan,
             '\pi_{hc_D}': hpc,
@@ -154,7 +154,7 @@ def getb777300ERsubs():
             '\\alpha_{max}': 8.62,
 
             'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
-            'r_{uc}': .01,
+            'r_{uc}': .1,
             '\\alpha_c': .156,
             'T_{t_f}': 435,
 
@@ -164,23 +164,21 @@ def getb777300ERsubs():
 
             'h_f': 43.003,
 
-            'Cp_t1': 1280,
-            'Cp_t2': 1184,
-            'Cp_c': 1216,
+            'Cp_t1': 1257.3,
+            'Cp_t2': 1158.35,
+            'Cp_c': 1278.5,
 
             'HTR_{f_SUB}': 1-.3**2,
             'HTR_{lpc_SUB}': 1 - 0.6**2,
 
-            'T_{t_{4.1_{max}}}':1828.5*units('K'),
-
             # Minimum Cruise Mach Number
-            'M_{min}': 0.8,
+            'M_{min}': 0.84,
 
             # engine system subs
-            'rSnace': 16.,
+            'rSnace': 12.,
             # nacelle drag calc parameter
             'r_{vnace}': 1.02,
-           'T_{t_{4.1_{max}}}': 1860.*units('K'),
+            'T_{t_{4.1_{max}}}': 1860.*units('K'),
             'ReserveFraction': .05,
     }
 

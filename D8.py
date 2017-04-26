@@ -364,6 +364,7 @@ class Aircraft(Model):
 
           #737 and 777 only constraints
         if b737800 or b777300ER:
+            f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
             with SignomialsEnabled():
                constraints.extend([
                     # HT root moment
@@ -388,7 +389,7 @@ class Aircraft(Model):
                     self.fuse['M_{floor}'] == 1./4. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
 
                     # Wing root moment constraint, with wing and engine weight load relief
-                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}']*(Wwing+W_ftotal)) * \
+                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}']*(Wwing+f_wingfuel*W_ftotal)) * \
                         (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
                                 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) - \
                                         self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
@@ -403,25 +404,6 @@ class Aircraft(Model):
                                 + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
                     ])
-
-        if b737800:
-            with SignomialsEnabled():
-                 constraints.extend([
-                 # Wing loading due to landing loads (might matter for 737!)
-                 TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
-                                    (Wengsys*self.VT['y_{eng}'] + \
-                                     (Wwing + W_ftotal) * \
-                                     (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
-                                      self.wing['A_{rect}']/self.wing['S']*self.wing['b']/4))])])
-        if b777300ER:
-            with SignomialsEnabled():
-                 constraints.extend([
-                 # Wing loading due to landing loads (might matter for 737!)
-                 TCS([self.wing['M_r'] * self.wing['c_{root}'] >= self.fuse['N_{land}'] * \
-                                    (Wengsys*self.VT['y_{eng}'] + \
-                                     (Wwing + W_ftotal*ReserveFraction) * \
-                                     (self.wing['A_{tri}']/self.wing['S']*self.wing['b']/6. + \
-                                      self.wing['A_{rect}']/self.wing['S']*self.wing['b']/4))])])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
 
@@ -1002,6 +984,12 @@ class Mission(Model):
         M4a = .2
         M0 = .5
 
+        if b777300ER:
+             M2 = .65
+             M25 = .6
+             M4a = .2
+             M0 = .84
+
         engineclimb = [
             aircraft.engine.engineP['M_2'][:Nclimb] == climb['M'],
             aircraft.engine.engineP['M_{2.5}'][:Nclimb] == M25,
@@ -1018,11 +1006,17 @@ class Mission(Model):
              M4a = .2
              M0 = .72
              
-        if b737800 or b777300ER:
+        if b737800:
              M2 = .6
              M25 = .6
              M4a = .2
              M0 = .8
+
+        if b777300ER:
+             M2 = .65
+             M25 = .6
+             M4a = .2
+             M0 = .84
 
         enginecruise = [
             aircraft.engine.engineP['M_2'][Nclimb:] == cruise['M'],
