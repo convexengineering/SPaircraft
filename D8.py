@@ -86,7 +86,6 @@ D8big = False
 b737800 = False
 b777300ER = True
 
-
 #choose multimission or not
 multimission = False
 

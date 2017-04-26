@@ -467,6 +467,7 @@ class WingBox(Model):
         wwb      = Variable('wwb', 0.5, '-', 'Wingbox-width-to-chord ratio') # [TAS]
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
+        tau_max = Variable('\\tau_{max_w}', '-', 'Max allowed wing thickness')
         
         objective = Wstruct
 
@@ -484,7 +485,7 @@ class WingBox(Model):
                        AR == b**2/S,
 
                        # Upper bound on maximum thickness
-                       tau <= 0.15,
+                       tau <= tau_max,
 
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
@@ -506,7 +507,6 @@ class WingBox(Model):
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam)
                        # nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # PHILIPPE'S FIT
                         (nu/1.09074074)**.166 >= 0.205*(p/1.7)**0.772 + 0.795*(p/1.7)**-0.125, # BERK'S FIT
-
 
                        # Weight of spar caps and shear webs
                        Wcap >= 8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5),

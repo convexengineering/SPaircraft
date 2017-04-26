@@ -83,12 +83,12 @@ def getD80subs():
                 # Wing substitutions
                 'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
                 '\\tan(\\Lambda)': tan(sweep * pi / 180.),
-                ##        '\\alpha_{max,w}': 0.1,  # (6 deg)
                 '\\cos(\\Lambda)': cos(sweep * pi / 180.),
                 '\\eta': 0.97,
                 '\\rho_0': 1.225*units('kg/m^3'),
 
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
+                '\\tau_{max_w}': 0.15,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,

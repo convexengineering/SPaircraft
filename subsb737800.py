@@ -83,6 +83,7 @@ def getb737800subs():
             'b_{max}': 117.5 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'f_{wingfuel}': .35,
+            '\\tau_{max_w}': 0.1267,
 
             # Wing fractional weights
             'FuelFrac': 0.9,

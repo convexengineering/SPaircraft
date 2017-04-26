@@ -97,6 +97,7 @@ def getD8bigsubs():
                 '\\rho_0': 1.225*units('kg/m^3'),
 
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
+                '\\tau_{max_w}': 0.15,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,

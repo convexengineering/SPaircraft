@@ -84,6 +84,7 @@ def getb777300ERsubs():
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'AR': 8.455,
             'f_{wingfuel}': 0.62,
+            '\\tau_{max_w}': 0.14208,
 
             # Wing fractional weights
             'FuelFrac': 0.9,
