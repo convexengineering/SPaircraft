@@ -126,7 +126,7 @@ def getb737800subs():
             'C_{L_{hmax}}': 2.0,  # [TAS]
             'C_{L_{hfcG}}': 0.7,
             '\\Delta x_{CG}': 7.68 * units('ft'),
-            'x_{CG_{min}}': 30.*units('ft'),#56.75 * units('ft'),
+            'x_{CG_{min}}': 56.75 * units('ft'),
             'SM_{min}': .31,
             '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
             'c_{d_{fh}}': 0.0060,

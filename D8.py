@@ -810,15 +810,11 @@ class Mission(Model):
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
-                    # Setting minimum HPC pressure ratio
-                    # aircraft.engine['\\pi_{hc}'] >= 1.7,
                   ])
             if b737800 or b777300ER:
                constraints.extend([
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
-                    # Setting minimum HPC pressure ratio
-                    # aircraft.engine['\\pi_{hc}'] >= 1.7,
                    ])
             if b737800:
                 constraints.extend([
@@ -937,16 +933,7 @@ class Mission(Model):
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-##                  aircraft['n_{pax}'][0] == 180.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
-##                  aircraft['n_{pax}'][1] == 120,
-##                  aircraft['n_{pax}'][2] == 160,
-                 # aircraft['n_{pax}'][3] == 160,
-##                  ReqRng[:Nmission] == 3000. * units('nmi'),
-#                  ReqRng[0] == 3000 * units('nmi'),
-#                  ReqRng[1] == 3000 * units('nmi'),
-##                  ReqRng[2] == 3000 * units('nmi'),
-##                  ReqRng[3] == 3000 * units('nmi'),
                   ])
         if not multimission and not D8big and not b777300ER:
              constraints.extend([
@@ -959,16 +946,8 @@ class Mission(Model):
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-##                  aircraft['n_{pax}'][0] == 450.,
+
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
-##                  aircraft['n_{pax}'][1] == 120,
-##                  aircraft['n_{pax}'][2] == 160,
-                 # aircraft['n_{pax}'][3] == 160,
-##                  ReqRng[:Nmission] == 7360. * units('nmi'),
-#                  ReqRng[0] == 3000 * units('nmi'),
-#                  ReqRng[1] == 3000 * units('nmi'),
-##                  ReqRng[2] == 3000 * units('nmi'),
-##                  ReqRng[3] == 3000 * units('nmi'),
                   ])
         if not multimission and (D8big or b777300ER):
              constraints.extend([
@@ -1023,10 +1002,6 @@ class Mission(Model):
             
             #steady level flight constraint on D 
             cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
-
-            #breguet range eqn
-            # TCS([cruise['z_{bre}'] >= (aircraft.engine['TSFC'][Nclimb:] * cruise['thr'] * \
-            # aircraft['numeng']*aircraft.engine['F'][Nclimb:]) / cruise['W_{avg}']]),
             ]
 
         if D80 or D82 or D8big:
