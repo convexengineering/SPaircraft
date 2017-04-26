@@ -81,7 +81,7 @@ def getD82subs():
                 'f_{lgnose}':0.0075, # [TAS]
 
                 # Wing substitutions
-                'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
+                'C_{L_{wmax}}': 2.15/(cos(sweep)**2), # [TAS]
                 '\\tan(\\Lambda)': tan(sweep * pi / 180.),
                 '\\cos(\\Lambda)': cos(sweep * pi / 180.),
                 '\\eta': 0.97,
@@ -89,7 +89,7 @@ def getD82subs():
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
                 'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
-                '\\tau_{max_w}': 0.15,
+                '\\tau_{max_w}': 0.14733,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,
@@ -109,8 +109,8 @@ def getD82subs():
                 'c_{l_{vtEO}}': 0.5, # [TAS]
                 'e_v': 0.8,
                 'V_{land}': 72.*units('m/s'),
-                '\\dot{r}_{req}': 0.1475, # 10 deg/s/s yaw rate acceleration
-                'N_{spar}': 2.,
+                '\\dot{r}_{req}': 0.0001, #0.1475 10 deg/s/s yaw rate acceleration
+                'N_{spar}': 1,
                 'f_{VT}': 0.4,
                 'numVT': 2.,
                 'A_{vt}' : 2.2,
@@ -123,7 +123,7 @@ def getD82subs():
 
                 # HT substitutions
                 '\\alpha_{max,h}': 2.5,
-                'C_{L_{hmax}}': 1.225,#2.0, # [TAS]
+                'C_{L_{hmax}}': 2.0, # [TAS]
                 'SM_{min}': 0.05,
                 '\\Delta x_{CG}': 2.0*units('m'),
                 'x_{CG_{min}}' : 10.0*units('m'),
