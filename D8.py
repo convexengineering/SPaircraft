@@ -81,9 +81,9 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
+D82 = True
 D8big = False
-b737800 = True
+b737800 = False
 b777300ER = False
 
 #choose multimission or not
@@ -110,8 +110,6 @@ class Aircraft(Model):
         # create submodels
         self.fuse = Fuselage(Nmissions)
         self.wing = Wing()
-        if not (b737800 or b777300ER):
-             BLI = True
         if Nmissions != 0:
             self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, Nmissions, BLI)
         else:
