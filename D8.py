@@ -83,8 +83,8 @@ plot = True
 D80 = False
 D82 = False
 D8big = False
-b737800 = False
-b777300ER = True
+b737800 = True
+b777300ER = False
 
 #choose multimission or not
 multimission = False
@@ -825,8 +825,8 @@ class Mission(Model):
             if b737800:
                 constraints.extend([
                     #Setting fuselage drag coefficient
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00762,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00762,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00801,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00801,
                     #Limiting engine diameter for the b737800
                     aircraft['d_{f}'] <= 1.55*units('m'),
                     CruiseAlt >= 35000. * units('ft'),

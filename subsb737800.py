@@ -133,9 +133,8 @@ def getb737800subs():
             'c_{d_{ph}}': 0.0030,
 
             #engine system subs
-            'f_{pylon}': 0.05,
+            'f_{pylon}': 0.1,
             'f_{eadd}': 0.1,
-
 
             # Cabin air substitutions in AircraftP
 
@@ -158,7 +157,7 @@ def getb737800subs():
             '\pi_{lc_D}': lpc,
 
             '\\alpha_{OD}': 5.1,
-            '\\alpha_{max}': 7,
+            '\\alpha_{max}': 5.6958,
 
             'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
             'r_{uc}': .05,
