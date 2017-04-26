@@ -14,7 +14,7 @@ def getD82subs():
         hpc = 35./8.
 
         #Percent of velocity loss from BL smeared across entire fan
-        BLIVloss = .18
+        BLIVloss = .2
         #Min cruise mach number
         Mcruisemin = 0.72
 
@@ -159,8 +159,8 @@ def getD82subs():
                 '\pi_{fn}': .985,
                 'T_{ref}': 288.15,
                 'P_{ref}': 101.325,
-                '\eta_{HPshaft}': .97,
-                '\eta_{LPshaft}': .97,
+                '\eta_{HPshaft}': .978,
+                '\eta_{LPshaft}': .99,
                 'eta_{B}': .985,
 
                 '\pi_{f_D}': fan,
@@ -172,7 +172,7 @@ def getD82subs():
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,
-                '\\alpha_c': .19036,
+                '\\alpha_c': .16,
                 'T_{t_f}': 435.,
 
                 'M_{takeoff}': .9556,
@@ -181,9 +181,9 @@ def getD82subs():
 
                 'h_f': 43.003,
 
-                'Cp_t1': 1280.,
-                'Cp_t2': 1184.,
-                'Cp_c': 1216.,
+                'Cp_t1': 1236.5,
+                'Cp_t2': 1200.4,
+                'Cp_c': 1257.9,
 
                 'HTR_{f_SUB}': 1.-.3**2.,
                 'HTR_{lpc_SUB}': 1. - 0.6**2.,

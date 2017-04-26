@@ -805,8 +805,8 @@ class Mission(Model):
             #Setting fuselage drag and lift, and BLI correction
             if D80 or D82 or D8big:
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
