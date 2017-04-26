@@ -161,7 +161,7 @@ def getD82subs():
                 'P_{ref}': 101.325,
                 '\eta_{HPshaft}': .97,
                 '\eta_{LPshaft}': .97,
-                'eta_{B}': .9827,
+                'eta_{B}': .985,
 
                 '\pi_{f_D}': fan,
                 '\pi_{hc_D}': hpc,
