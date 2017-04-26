@@ -42,7 +42,6 @@ def getb737800subs():
 
             # TASOPT Fuselage substitutions
             'L_{total/wing}': 1.127,
-
             'l_{nose}':20.*units('ft'),
             'numaisle': 1.,
             'SPR': 6.,
@@ -82,8 +81,8 @@ def getb737800subs():
             '\\rho_0': 1.225*units('kg/m^3'),
             'AR': 10.1,
             'b_{max}': 117.5 * units('ft'),
-
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
+            'f_{wingfuel}': .35,
 
             # Wing fractional weights
             'FuelFrac': 0.9,
@@ -103,7 +102,7 @@ def getb737800subs():
             'c_{l_{vtEO}}': 0.5, # [TAS]
             'e_v': 0.8,
             'V_{land}': 72.*units('m/s'),
-            'N_{spar}': 2.,
+            'N_{spar}': 1.,
             'f_{VT}': 0.4,
             'y_{eng}': 4.8768*units('m'),
             'numVT': 1.,
@@ -115,7 +114,7 @@ def getb737800subs():
             '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
             'c_{d_{fv}}': 0.0060,
             'c_{d_{pv}}': 0.0030,
-            'V_{vt_{min}}': 0.06,
+            'V_{vt_{min}}': 0.1,
             
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
@@ -127,7 +126,7 @@ def getb737800subs():
             'C_{L_{hfcG}}': 0.7,
             '\\Delta x_{CG}': 7.68 * units('ft'),
             'x_{CG_{min}}': 30.*units('ft'),#56.75 * units('ft'),
-            'SM_{min}': .05,
+            'SM_{min}': .31,
             '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
             'c_{d_{fh}}': 0.0060,
             'c_{d_{ph}}': 0.0030,
