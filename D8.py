@@ -34,6 +34,7 @@ from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
 from subsD80 import getD80subs
 from subsD82 import getD82subs
 from subsD82_73eng import getD82_73engsubs
+subsD8_eng_wing import getD8_eng_wing_subs
 from subsD8big import getD8bigsubs
 from subsb737800 import getb737800subs
 from subsb777300ER import getb777300ERsubs
@@ -83,7 +84,8 @@ plot = True
 # Only one active at a time
 D80 = False
 D82 = False
-D82_73eng = True
+D82_73eng = False
+D8_eng_wing = True
 D8big = False
 b737800 = False
 b777300ER = False
@@ -345,6 +347,63 @@ class Aircraft(Model):
                     # NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}']) / self.fuse['l_{fuse}'] * \
                     (self.fuse['x_{wing}'] ** 3. + self.VT['l_{vt}'] ** 3.) / (3. * g),
+
+                    # Floor loading
+                    self.fuse['S_{floor}'] == (5. / 16.) * self.fuse['P_{floor}'],
+                    self.fuse['M_{floor}'] == 9. / 256. * self.fuse['P_{floor}'] * self.fuse['w_{floor}'],
+
+                    # Horizontal tail aero+landing loads constants A1h
+                    self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
+                                                (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}'])) / \
+                                                (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{bend}']),
+
+                    self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
+                                               (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}']) \
+                                               + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
+                                                (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+                ])
+
+        #d8 only constraints
+        if D82_wing_eng:
+            with SignomialsEnabled():
+                constraints.extend([
+                    # VT height constraint (3*engine diameter)
+                    # self.VT['b_{vt}'] >= 3. * self.engine['d_{f}'],
+
+                    # HT root moment
+                    self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['N_{lift}'] * self.HT['L_{h_{rect}}'] * (
+                    self.HT['b_{ht}'] / 4.) \
+                    + self.HT['N_{lift}'] * self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - self.HT['N_{lift}'] *
+                    self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
+
+                    # constraint to lower bound M_r w.r.t. a conventional tail config (0.25*M_r of conventional)
+                    self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
+                         1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP]
+
+                    # Wing root moment constraint, with wing and engine weight load relief
+                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}']*(Wwing+f_wingfuel*W_ftotal)) * \
+                        (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
+                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) - \
+                                        self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
+ 
+
+                    # Pin VT joint moment constraint #TODO may be problematic, should check
+                    SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4. - self.fuse['w_{fuse}']),
+                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6.)),
+                    # [SP] #[SPEquality]
+
+                    # HT/VT joint constraint
+                    self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
+                    self.HT['c_{attach}'],
+
+                    # Moment of inertia
+                    Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
+                                    (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
+                                    self.wing['c_{root}']*self.wing['b']**3.*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
+                    Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
+                            #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
+                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
+                                    (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
 
                     # Floor loading
                     self.fuse['S_{floor}'] == (5. / 16.) * self.fuse['P_{floor}'],
@@ -706,6 +765,10 @@ class Mission(Model):
         if D80 or D82:
              eng = 3
              BLI = True
+
+        if D8_eng_wing:
+            eng = 3
+            BLI = False
              
         if b737800:
              eng = 1
@@ -788,7 +851,7 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['PCFuel'])
                      ]),
               ])
-            if b737800 or b777300ER:
+            if b737800 or b777300ER or D8_eng_wing:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
@@ -811,13 +874,19 @@ class Mission(Model):
             #Setting fuselage drag and lift, and BLI correction
             if D80 or D82 or D8big or D82_73eng:
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/climb['f_{BLI}'] ,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/cruise['f_{BLI}'],
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
-            if b737800 or b777300ER:
+            if D8_eng_wing:
+                constraints.extend([
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866,
+                    CruiseAlt >= 30000. * units('ft'),
+                  ])
+            if b737800 or b777300ER or D8_eng_wing:
                constraints.extend([
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
@@ -1110,6 +1179,20 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
+    if D82_wing_eng:
+        print('D82_wing_eng executing...')
+        substitutions = getD8_eng_wing_subs()
+        if not multimission:
+                substitutions.update({
+##                'n_{pax}': 180.,
+                'ReqRng': 3000.*units('nmi'),
+                })
+        if multimission:
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.],
+                })
+
     if D8big:
         print('D8big executing...')
         substitutions = getD8bigsubs()
@@ -1159,7 +1242,7 @@ if __name__ == '__main__':
     if D80 or D82:
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
-    if D8big or D82_73eng:
+    if D8big or D82_73eng or D82_wing_eng:
         m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
     if b737800:
