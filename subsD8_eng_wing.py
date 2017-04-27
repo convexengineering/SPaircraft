@@ -85,7 +85,7 @@ def getD8_eng_wing_subs():
                 '\\eta': 0.97,
                 '\\rho_0': 1.225*units('kg/m^3'),
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-                'AR':15.749,
+##                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
                 'f_{wingfuel}': 1,
@@ -129,7 +129,7 @@ def getD8_eng_wing_subs():
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
-                'AR_{ht}': 12.,
+##                'AR_{ht}': 12.,
                 '\\lambda_{ht}': 0.3,
                 '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
                 '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
