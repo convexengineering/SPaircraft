@@ -34,7 +34,7 @@ from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
 from subsD80 import getD80subs
 from subsD82 import getD82subs
 from subsD82_73eng import getD82_73engsubs
-subsD8_eng_wing import getD8_eng_wing_subs
+from subsD8_eng_wing import getD8_eng_wing_subs
 from subsD8big import getD8bigsubs
 from subsb737800 import getb737800subs
 from subsb777300ER import getb777300ERsubs
@@ -364,7 +364,8 @@ class Aircraft(Model):
                 ])
 
         #d8 only constraints
-        if D82_wing_eng:
+        if D8_eng_wing:
+            f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
             with SignomialsEnabled():
                 constraints.extend([
                     # VT height constraint (3*engine diameter)
@@ -1179,8 +1180,8 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
-    if D82_wing_eng:
-        print('D82_wing_eng executing...')
+    if D8_eng_wing:
+        print('D8_eng_wing executing...')
         substitutions = getD8_eng_wing_subs()
         if not multimission:
                 substitutions.update({
@@ -1242,7 +1243,7 @@ if __name__ == '__main__':
     if D80 or D82:
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
-    if D8big or D82_73eng or D82_wing_eng:
+    if D8big or D82_73eng or D8_eng_wing:
         m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
     if b737800:
