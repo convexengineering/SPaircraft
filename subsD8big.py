@@ -10,8 +10,8 @@ def getD8bigsubs():
         VTsweep = 25.0 #[deg]
         HTsweep = 8.0 #[deg]
         M4a = .1025
-        fan = 1.5958
-        lpc  = 5.0
+        fan = 1.7
+        lpc  = 4.69
         hpc = 5.25
 
         #Percent of velocity loss from BL smeared across entire fan
@@ -64,7 +64,7 @@ def getD8bigsubs():
 ##            '\\delta R_{fuse}': 0.43*units('m'),
 ##                'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
-                'SPR': 14.,
+                'SPR': 12.,
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
@@ -127,8 +127,8 @@ def getD8bigsubs():
                 '\\alpha_{max,h}': 2.5,
                 'C_{L_{hmax}}': 2.0, # [TAS]
                 'SM_{min}': 0.05,
-                '\\Delta x_{CG}': 5. * units('ft'),
-                'x_{CG_{min}}' : 30.*units('ft'),
+                '\\Delta x_{CG}': 11. * units('ft'),
+                'x_{CG_{min}}' : 130.*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
                 '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
