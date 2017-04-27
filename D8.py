@@ -33,6 +33,7 @@ from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
 #import substitution dict files
 from subsD80 import getD80subs
 from subsD82 import getD82subs
+from subsD82_73eng import getD82_73engsubs
 from subsD8big import getD8bigsubs
 from subsb737800 import getb737800subs
 from subsb777300ER import getb777300ERsubs
@@ -81,7 +82,8 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
+D82 = False
+D82_73eng = True
 D8big = False
 b737800 = False
 b777300ER = False
@@ -300,7 +302,7 @@ class Aircraft(Model):
                             ])
 
         #d8 only constraints
-        if D80 or D82 or D8big:
+        if D80 or D82 or D8big or D82_73eng:
             with SignomialsEnabled():
                 constraints.extend([
 
@@ -709,6 +711,10 @@ class Mission(Model):
              eng = 1
              BLI = False
 
+        if D82_73eng:
+             eng = 1
+             BLI = True
+
         if D8big:
              eng = 2
              BLI = True
@@ -762,7 +768,7 @@ class Mission(Model):
                 climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
             ])
             #CG constraints
-            if D80 or D82 or D8big:
+            if D80 or D82 or D8big or D82_73eng:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
@@ -803,7 +809,7 @@ class Mission(Model):
               ])
 
             #Setting fuselage drag and lift, and BLI correction
-            if D80 or D82 or D8big:
+            if D80 or D82 or D8big or D82_73eng:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
@@ -976,7 +982,7 @@ class Mission(Model):
             TCS([climb['excessP'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
 
-        if D80 or D82 or D8big:
+        if D80 or D82 or D8big or D82_73eng:
              M2 = .6
              M25 = .6
              M4a = .2
@@ -1004,7 +1010,7 @@ class Mission(Model):
             cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
             ]
 
-        if D80 or D82 or D8big:
+        if D80 or D82 or D8big or D82_73eng:
              with SignomialsEnabled():
                   engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
@@ -1090,6 +1096,20 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
+    if D82_73eng:
+        print('D82_73eng executing...')
+        substitutions = getD82_73engsubs()
+        if not multimission:
+                substitutions.update({
+##                'n_{pax}': 180.,
+                'ReqRng': 3000.*units('nmi'),
+                })
+        if multimission:
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.],
+                })
+
     if D8big:
         print('D8big executing...')
         substitutions = getD8bigsubs()
@@ -1136,8 +1156,11 @@ if __name__ == '__main__':
 
     m.substitutions.update(substitutions)
 
-    if D80 or D82 or D8big:
+    if D80 or D82:
         # m = Model(m.cost,BCS(m))
+        m_relax = relaxed_constants(m, None, ['ReqRng'])
+    if D8big or D82_73eng:
+        m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
     if b737800:
         m = Model(m.cost, BCS(m))
