@@ -127,8 +127,8 @@ def getD8bigsubs():
                 '\\alpha_{max,h}': 2.5,
                 'C_{L_{hmax}}': 2.0, # [TAS]
                 'SM_{min}': 0.05,
-                '\\Delta x_{CG}': 11. * units('ft'),
-                'x_{CG_{min}}' : 130.*units('ft'),
+                '\\Delta x_{CG}': 11.97 * units('ft'),
+                'x_{CG_{min}}' : 117.31*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
                 '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
