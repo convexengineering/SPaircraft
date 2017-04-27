@@ -150,7 +150,7 @@ def getD82subs():
                 'ReserveFraction': .20,
 
                 # Minimum Cruise Mach Number
-                'M_{min}': 0.72,
+                'M_{min}': Mcruisemin,
 
                 # Engine substitutions
                 '\\pi_{tn}': .995,
