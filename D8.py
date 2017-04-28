@@ -83,9 +83,9 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = False
+D82 = True
 D82_73eng = False
-D8_eng_wing = True
+D8_eng_wing = False
 D8big = False
 b737800 = False
 b777300ER = False
