@@ -69,7 +69,7 @@ n = 10
 sweeps = False
 sweepSMmin = False
 sweepdxCG = False
-sweepReqRng = True
+sweepReqRng = False
 sweepthetadb = False
 sweepxCG = False
 sweepCruiseAlt = False
@@ -883,8 +883,8 @@ class Mission(Model):
                   ])
             if D8_eng_wing:
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/.91,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/.91,
                     CruiseAlt >= 30000. * units('ft'),
                   ])
             if b737800 or b777300ER or D8_eng_wing:
@@ -1080,7 +1080,7 @@ class Mission(Model):
             cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
             ]
 
-        if D80 or D82 or D8big or D82_73eng:
+        if D80 or D82 or D8big or D82_73eng or D8_eng_wing:
              with SignomialsEnabled():
                   engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
@@ -1261,7 +1261,7 @@ if __name__ == '__main__':
 ##        sol = m.localsolve( verbosity = 4, iteration_limit=50, x0=sol['variables'])
 
         if not multimission:
-             if D82:
+             if D82 or D8_eng_wing:
                   percent_diff(sol, 2, Nclimb)
 
              if b737800:

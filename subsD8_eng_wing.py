@@ -50,10 +50,9 @@ def getD8_eng_wing_subs():
                 'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
                 'W_{avg. pass_{total}}':215.*units('lbf'),
                 'f_{string}': 0.35,
-
                 'h_{floor}': 5.12*units('in'),
-                'R_{fuse}': 1.715*units('m'),
-                '\\delta R_{fuse}': 0.43*units('m'),
+##                'R_{fuse}': 1.715*units('m'),
+##                '\\delta R_{fuse}': 0.43*units('m'),
                 'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
@@ -87,7 +86,7 @@ def getD8_eng_wing_subs():
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
 ##                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
-                '\\tau_{max_w}': 0.14733,
+                '\\tau_{max_w}': 0.15,
                 'f_{wingfuel}': 1,
 
                 # Wing fractional weights
