@@ -38,6 +38,7 @@ from subsD8_eng_wing import getD8_eng_wing_subs
 from subsD8big import getD8bigsubs
 from subsb737800 import getb737800subs
 from subsb777300ER import getb777300ERsubs
+from subs_optimal_737 import get737_optimal_subs
 
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
@@ -83,12 +84,13 @@ plot = True
 
 # Only one active at a time
 D80 = False
-D82 = True
+D82 = False
 D82_73eng = False
 D8_eng_wing = False
 D8big = False
 b737800 = False
 b777300ER = False
+optimal737 = True
 
 #choose multimission or not
 multimission = False
@@ -422,7 +424,7 @@ class Aircraft(Model):
                 ])
 
           #737 and 777 only constraints
-        if b737800 or b777300ER:
+        if b737800 or b777300ER or optimal737:
             f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
             with SignomialsEnabled():
                constraints.extend([
@@ -735,7 +737,7 @@ class StateLinking(Model):
     link all the state model variables
     """
     def setup(self, climbstate, cruisestate, enginestate, Nclimb, Ncruise):
-        if b737800 or b777300ER:
+        if b737800 or b777300ER or optimal737:
              statevarkeys = ['L_{atm}', 'M_{atm}', 'P_{atm}', 'R_{atm}',
                              '\\rho', 'T_{atm}', '\\mu', 'T_s', 'C_1', 'h', 'hft', 'V', 'a', 'R', '\\gamma', 'M']
         else:
@@ -771,7 +773,7 @@ class Mission(Model):
             eng = 3
             BLI = False
              
-        if b737800:
+        if b737800 or optimal737:
              eng = 1
              BLI = False
 
@@ -793,7 +795,10 @@ class Mission(Model):
                  enginestate = FlightState()
 
         #True is use xfoil fit tail drag model, False is TASOPT tail drag model
-        fitDrag = False
+        if not optimal737:
+            fitDrag = False
+        else:
+            fitDrag = True
 
         # build required submodels
         aircraft = Aircraft(Nclimb, Ncruise, enginestate, eng, fitDrag, BLI, Nmission)
@@ -852,7 +857,7 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['PCFuel'])
                      ]),
               ])
-            if b737800 or b777300ER or D8_eng_wing:
+            if b737800 or b777300ER or D8_eng_wing or optimal737:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
@@ -887,12 +892,12 @@ class Mission(Model):
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/.91,
                     CruiseAlt >= 30000. * units('ft'),
                   ])
-            if b737800 or b777300ER or D8_eng_wing:
+            if b737800 or b777300ER or D8_eng_wing or optimal737:
                constraints.extend([
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
                    ])
-            if b737800:
+            if b737800 or optimal737:
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00801,
@@ -1058,7 +1063,7 @@ class Mission(Model):
              M4a = .2
              M0 = .72
              
-        if b737800:
+        if b737800 or optimal737:
              M2 = .6
              M25 = .6
              M4a = .2
@@ -1089,7 +1094,7 @@ class Mission(Model):
                        SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
                        ])
 
-        if b737800 or b777300ER:
+        if b737800 or b777300ER or optimal737:
              engineclimb.extend([
                   aircraft.engine.engineP['c1'][:Nclimb] <= 1. + 0.5*(.401)*0.6**2.,
                   ])
@@ -1223,6 +1228,20 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
+    if optimal737:
+           print('Optimal 737 executing...')
+           substitutions = get737_optimal_subs()
+           if not multimission:
+                substitutions.update({
+##                'n_{pax}': 180.,
+                'ReqRng': 3000.*units('nmi'),
+                })
+           if multimission:
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.],
+                })
+
     if b777300ER:
            print('777-300ER executing...')
            substitutions = getb777300ERsubs()
@@ -1246,7 +1265,7 @@ if __name__ == '__main__':
     if D8big or D82_73eng or D8_eng_wing:
         m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
-    if b737800:
+    if b737800 or optimal737:
         m = Model(m.cost, BCS(m))
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
     if b777300ER:
@@ -1264,7 +1283,7 @@ if __name__ == '__main__':
              if D82 or D8_eng_wing:
                   percent_diff(sol, 2, Nclimb)
 
-             if b737800:
+             if b737800 or optimal737:
                   percent_diff(sol, 801, Nclimb)
 
              if b777300ER:
