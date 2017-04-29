@@ -40,6 +40,7 @@ from subsb737800 import getb737800subs
 from subsb777300ER import getb777300ERsubs
 from subs_optimal_737 import get737_optimal_subs
 from subs_optimal_D8 import get_optimal_D8_subs
+from subs_M08_D8 import subs_M08_D8
 
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
@@ -89,10 +90,20 @@ D82 = False
 D82_73eng = False
 D8_eng_wing = False
 D8big = False
-b737800 = False
+b737800 = True
 b777300ER = False
 optimal737 = False
-optimalD8 = True
+optimalD8 = False
+
+if optimalD8 or D80 or D82 or D82_73eng or D8big:
+    D8fam = True
+else:
+    D8fam = False
+
+if b737800 or b777300ER or optimal737:
+    conventional = True
+else:
+    conventional = False
 
 #choose multimission or not
 multimission = False
@@ -308,7 +319,7 @@ class Aircraft(Model):
                             ])
 
         #d8 only constraints
-        if D80 or D82 or D8big or D82_73eng or optimalD8:
+        if D8fam:
             with SignomialsEnabled():
                 constraints.extend([
 
@@ -426,7 +437,7 @@ class Aircraft(Model):
                 ])
 
           #737 and 777 only constraints
-        if b737800 or b777300ER or optimal737:
+        if conventional:
             f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
             with SignomialsEnabled():
                constraints.extend([
@@ -738,7 +749,7 @@ class StateLinking(Model):
     link all the state model variables
     """
     def setup(self, climbstate, cruisestate, enginestate, Nclimb, Ncruise):
-        if b737800 or b777300ER or optimal737:
+        if conventional:
              statevarkeys = ['L_{atm}', 'M_{atm}', 'P_{atm}', 'R_{atm}',
                              '\\rho', 'T_{atm}', '\\mu', 'T_s', 'C_1', 'h', 'hft', 'V', 'a', 'R', '\\gamma', 'M']
         else:
@@ -838,7 +849,7 @@ class Mission(Model):
                 climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
             ])
             #CG constraints
-            if D80 or D82 or D8big or D82_73eng or optimalD8:
+            if D8fam:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
@@ -858,7 +869,7 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['PCFuel'])
                      ]),
               ])
-            if b737800 or b777300ER or D8_eng_wing or optimal737:
+            if conventional or D8_eng_wing:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
@@ -879,7 +890,7 @@ class Mission(Model):
               ])
 
             #Setting fuselage drag and lift, and BLI correction
-            if D80 or D82 or D8big or D82_73eng or optimalD8:
+            if D8fam:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/climb['f_{BLI}'] ,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/cruise['f_{BLI}'],
@@ -893,7 +904,7 @@ class Mission(Model):
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/.91,
                     CruiseAlt >= 30000. * units('ft'),
                   ])
-            if b737800 or b777300ER or D8_eng_wing or optimal737:
+            if conventional or D8_eng_wing:
                constraints.extend([
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
@@ -1058,7 +1069,7 @@ class Mission(Model):
             TCS([climb['excessP'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
 
-        if D80 or D82 or D8big or D82_73eng or optimalD8:
+        if D8fam:
              M2 = .6
              M25 = .6
              M4a = .2
@@ -1086,7 +1097,7 @@ class Mission(Model):
             cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
             ]
 
-        if D80 or D82 or D8big or D82_73eng or D8_eng_wing or optimalD8:
+        if D8fam or D8_eng_wing:
              with SignomialsEnabled():
                   engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
@@ -1095,7 +1106,7 @@ class Mission(Model):
                        SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
                        ])
 
-        if b737800 or b777300ER or optimal737:
+        if conventional:
              engineclimb.extend([
                   aircraft.engine.engineP['c1'][:Nclimb] <= 1. + 0.5*(.401)*0.6**2.,
                   ])
