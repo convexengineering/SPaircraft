@@ -1173,6 +1173,8 @@ def test():
     operator = False
     fuel = True
 
+    m = Mission(Nclimb, Ncruise)
+
     substitutions = getb737800subs()
        
     substitutions.update({
