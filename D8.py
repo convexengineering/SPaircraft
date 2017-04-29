@@ -1185,6 +1185,8 @@ def test():
     operator = False
     fuel = True
 
+    #test the TASOPT 737 recreation
+
     m = Mission(Nclimb, Ncruise)
 
     substitutions = getb737800subs()
@@ -1198,7 +1200,43 @@ def test():
 
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
 
+    #test the TASOPT 777 recreation
+    b737800 = False
+    b777300ER = True
+
+    m = Mission(Nclimb, Ncruise)
+
+    substitutions = getb777300ERsubs()
+       
+    substitutions.update({
+##                'n_{pax}': 450.,
+    'ReqRng': 7360.*units('nmi'),
+    })
+
+    m.substitutions.update(substitutions)
+
+    m = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+
+    #test the TASOPT D8.2 recreation
+    b777300ER = False
+    D82 = True
+
+    m = Mission(Nclimb, Ncruise)
+
+
+    substitutions = getD82subs()
+
+    substitutions.update({
+##                'n_{pax}': 180.,
+    'ReqRng': 3000.*units('nmi'),
+    })
+
+    m_relax = relaxed_constants(m, None, ['ReqRng'])
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
 
 if __name__ == '__main__':
     Nclimb = 3
