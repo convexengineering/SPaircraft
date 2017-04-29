@@ -1132,6 +1132,60 @@ class Mission(Model):
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
+def test():
+    """
+    test function
+    """
+    global genVSP, plot, D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, multimission, \
+           manufacturer, operator, fuel
+
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+
+    #choose multimission or not
+    multimission = False
+
+    #choose objective type
+    manufacturer = False
+    operator = False
+    fuel = True
+
+    genVSP = False
+
+    plot = False
+
+    # Only one active at a time
+    D80 = False
+    D82 = False
+    D82_73eng = False
+    D8_eng_wing = False
+    D8big = False
+    b737800 = True
+    b777300ER = False
+    optimal737 = False
+
+    #choose multimission or not
+    multimission = False
+
+    #choose objective type
+    manufacturer = False
+    operator = False
+    fuel = True
+
+    substitutions = getb737800subs()
+       
+    substitutions.update({
+##                'n_{pax}': 180.,
+    'ReqRng': 3000.*units('nmi'),
+    })
+
+    m.substitutions.update(substitutions)
+
+    m = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+
 if __name__ == '__main__':
     Nclimb = 3
     Ncruise = 2
