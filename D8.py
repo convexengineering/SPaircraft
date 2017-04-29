@@ -39,6 +39,7 @@ from subsD8big import getD8bigsubs
 from subsb737800 import getb737800subs
 from subsb777300ER import getb777300ERsubs
 from subs_optimal_737 import get737_optimal_subs
+from subs_optimal_D8 import get_optimal_D8_subs
 
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
@@ -90,7 +91,8 @@ D8_eng_wing = False
 D8big = False
 b737800 = False
 b777300ER = False
-optimal737 = True
+optimal737 = False
+optimalD8 = True
 
 #choose multimission or not
 multimission = False
@@ -306,7 +308,7 @@ class Aircraft(Model):
                             ])
 
         #d8 only constraints
-        if D80 or D82 or D8big or D82_73eng:
+        if D80 or D82 or D8big or D82_73eng or optimalD8:
             with SignomialsEnabled():
                 constraints.extend([
 
@@ -718,7 +720,6 @@ class CruiseP(Model): # Cruise performance constraints
 
         return constraints + self.aircraftP
 
-
 class CruiseSegment(Model): # Combines FlightState and Aircraft to form a cruise flight segment
     def setup(self, aircraft, Nclimb, **kwargs):
         self.state = FlightState()
@@ -765,7 +766,7 @@ class Mission(Model):
     def setup(self, Nclimb, Ncruise, Nmission = 1, **kwargs):
         # define the number of each flight segment
 
-        if D80 or D82:
+        if D80 or D82 or optimalD8:
              eng = 3
              BLI = True
 
@@ -795,7 +796,7 @@ class Mission(Model):
                  enginestate = FlightState()
 
         #True is use xfoil fit tail drag model, False is TASOPT tail drag model
-        if not optimal737:
+        if not (optimal737 or optimalD8):
             fitDrag = False
         else:
             fitDrag = True
@@ -837,7 +838,7 @@ class Mission(Model):
                 climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
             ])
             #CG constraints
-            if D80 or D82 or D8big or D82_73eng:
+            if D80 or D82 or D8big or D82_73eng or optimalD8:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
@@ -878,7 +879,7 @@ class Mission(Model):
               ])
 
             #Setting fuselage drag and lift, and BLI correction
-            if D80 or D82 or D8big or D82_73eng:
+            if D80 or D82 or D8big or D82_73eng or optimalD8:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/climb['f_{BLI}'] ,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/cruise['f_{BLI}'],
@@ -1057,7 +1058,7 @@ class Mission(Model):
             TCS([climb['excessP'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
 
-        if D80 or D82 or D8big or D82_73eng:
+        if D80 or D82 or D8big or D82_73eng or optimalD8:
              M2 = .6
              M25 = .6
              M4a = .2
@@ -1085,7 +1086,7 @@ class Mission(Model):
             cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
             ]
 
-        if D80 or D82 or D8big or D82_73eng or D8_eng_wing:
+        if D80 or D82 or D8big or D82_73eng or D8_eng_wing or optimalD8:
              with SignomialsEnabled():
                   engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
@@ -1227,6 +1228,20 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
+    if optimalD8:
+        print('Optimal D8 executing...')
+        substitutions = get_optimal_D8_subs()
+        if not multimission:
+                substitutions.update({
+##                'n_{pax}': 180.,
+                'ReqRng': 3000.*units('nmi'),
+                })
+        if multimission:
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.],
+                })
+
     if D82_73eng:
         print('D82_73eng executing...')
         substitutions = getD82_73engsubs()
@@ -1318,7 +1333,7 @@ if __name__ == '__main__':
     if D80 or D82:
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
-    if D8big or D82_73eng or D8_eng_wing:
+    if D8big or D82_73eng or D8_eng_wing or optimalD8:
         m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
     if b737800 or optimal737:
@@ -1336,7 +1351,7 @@ if __name__ == '__main__':
 ##        sol = m.localsolve( verbosity = 4, iteration_limit=50, x0=sol['variables'])
 
         if not multimission:
-             if D82 or D8_eng_wing:
+             if D82 or D8_eng_wing or optimalD8:
                   percent_diff(sol, 2, Nclimb)
 
              if b737800 or optimal737:
