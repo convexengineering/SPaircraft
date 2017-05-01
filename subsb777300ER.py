@@ -41,7 +41,7 @@ def getb777300ERsubs():
             'W\'\'_{floor}': 60.,  # [TAS]
             'W\'\'_{insul}': 22.,  # [TAS]
             'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
-            'V_{mn}': 130.2*units('m/s'),
+            'V_{mn}': 133.76*units('m/s'),
 
             # Fuselage subs
             'l_{nose}': 40*units('ft'),
@@ -51,12 +51,12 @@ def getb777300ERsubs():
             'W_{avg. pass_{total}}':230.*units('lbf'),
             'f_{string}': 0.34,
             'h_{floor}': 5. * units('in'),
-##            'R_{fuse}' : 3.0988*units('m'),
+            'R_{fuse}' : 3.11*units('m'),
             '\\delta_P_{over}': 8.382 * units('psi'),
 
             # fuselage subs that make fuse circular
-            '\\delta R_{fuse}': 0.0001 * units('m'),
-            '\\theta_{db}': 0.0001,
+            '\\delta R_{fuse}': 0.00001 * units('m'),
+            '\\theta_{db}': 0.00001,
 
             # TASOPT Fuselage substitutions
             'L_{total/wing}': 1.127,
@@ -83,9 +83,9 @@ def getb777300ERsubs():
             'b_{max}': 200 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'AR': 8.455,
-            'f_{wingfuel}': 0.62,
-            '\\tau_{max_w}': 0.14446,
-            'TipReduct': 0.945,
+            'f_{wingfuel}': 0.35,
+            '\\tau_{max_w}': 0.14208,
+            'TipReduct': 0.955,
 
             # Wing fractional weights
             'FuelFrac': 0.9,

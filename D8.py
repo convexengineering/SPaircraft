@@ -1323,13 +1323,13 @@ if __name__ == '__main__':
         if not multimission:
                 substitutions.update({
 ##                 'n_{pax}': 450.,
-                'ReqRng': 7360.*units('nmi'),
+                'ReqRng': 6000.*units('nmi'),
                 })
                 
         if multimission:
                 substitutions.update({
                  'n_{pax}': [450.],
-                'ReqRng': [7360.],
+                'ReqRng': [6000.],
                 })
 
     if b737800:
@@ -1366,13 +1366,13 @@ if __name__ == '__main__':
            if not multimission:
                 substitutions.update({
 ##                 'n_{pax}': 180.,
-                'ReqRng': 7360.*units('nmi'),
+                'ReqRng': 6000.*units('nmi'),
                 })
 
            if multimission:
                 substitutions.update({
                  'n_{pax}': [450.],
-                'ReqRng': [7360.],
+                'ReqRng': [6000.],
                 })
 
     m.substitutions.update(substitutions)
