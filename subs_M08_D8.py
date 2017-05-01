@@ -5,7 +5,7 @@ def subs_M08_D8():
         """
         returns substitution dic for the D8.2
         """
-        sweep = 13.237  # [deg]
+        sweep = 26.0  # [deg]
         VTsweep = 25.0 #[deg]
         HTsweep = 8.0 #[deg]
         M4a = .2
@@ -16,7 +16,7 @@ def subs_M08_D8():
         #Percent of velocity loss from BL smeared across entire fan
         BLIVloss = .18
         #Min cruise mach number
-        Mcruisemin = 0.72
+        Mcruisemin = 0.80
 
         substitutions = {
                 'N_{land}': 6.,
@@ -90,6 +90,7 @@ def subs_M08_D8():
                 'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
+                'TipReduct': 1.0,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,
