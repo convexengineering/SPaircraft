@@ -810,8 +810,6 @@ class Mission(Model):
         else:
             fitDrag = True
 
-        fitDrag = True
-
         # build required submodels
         aircraft = Aircraft(Nclimb, Ncruise, enginestate, eng, fitDrag, BLI, Nmission)
 
