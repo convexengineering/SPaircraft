@@ -369,6 +369,8 @@ class WingPerformance(Model):
         Re      = Variable('Re_w', '-', 'Reynolds number (wing)')
         CDp     = Variable('C_{D_{p_w}}', '-',
                            'Wing parasitic drag coefficient')
+        CDi     = Variable('C_{D_{i_w}}', '-',
+                           'Wing induced drag coefficient')
         CDw     = Variable('C_{d_w}', '-', 'Drag coefficient, wing')
         CLw     = Variable('C_{L}', '-', 'Lift coefficient, wing')
  
@@ -410,7 +412,8 @@ class WingPerformance(Model):
 
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CDw,
-                TCS([CDw >= CDp + CLw**2/(pi*self.wing['e']*self.wing['AR'])]),
+                TCS([CDw >= CDp + CDi]),
+                TCS([CDi >= CLw**2/(pi*self.wing['e']*self.wing['AR'])]),
                 Re == state['\\rho']*state['V']*self.wing['mac']/state['\\mu'],
 
                 #original Philippe thesis fit

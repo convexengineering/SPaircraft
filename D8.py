@@ -90,8 +90,8 @@ D82 = False
 D82_73eng = False
 D8_eng_wing = False
 D8big = False
-b737800 = True
-b777300ER = False
+b737800 = False
+b777300ER = True
 optimal737 = False
 optimalD8 = False
 
@@ -636,25 +636,23 @@ class AircraftP(Model):
                                             aircraft.HT['V_{ht}']*aircraft.HT['m_{ratio}'] +\
                                             aircraft.HT['V_{ht}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
 
-          #nacelle drag
-          Renace == state['\\rho']*state['V'] * aircraft['l_{nacelle}']/state['\\mu'],
-          Cfnace == 4.*0.0743/(Renace**(0.2)), #from http://www.calpoly.edu/~kshollen/ME347/Handouts/Friction_Drag_Coef.pdf
-          Vnace == aircraft['r_{vnace}'] * state['V'],
-          Vnacrat >= 2.*Vnace/state['V'] - V2/state['V'],
-          rvnsurf**3. >= 0.25*(Vnacrat + aircraft['r_{vnace}'])*(Vnacrat**2. + aircraft['r_{vnace}']**2.),
-          Cdnace == aircraft['f_{S_nacelle}'] * Cfnace[0] * rvnsurf **3.,
-          Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2. * aircraft['S'],
+            #nacelle drag
+            Renace == state['\\rho']*state['V'] * aircraft['l_{nacelle}']/state['\\mu'],
+            Cfnace == 4.*0.0743/(Renace**(0.2)), #from http://www.calpoly.edu/~kshollen/ME347/Handouts/Friction_Drag_Coef.pdf
+            Vnace == aircraft['r_{vnace}'] * state['V'],
+            Vnacrat >= 2.*Vnace/state['V'] - V2/state['V'],
+            rvnsurf**3. >= 0.25*(Vnacrat + aircraft['r_{vnace}'])*(Vnacrat**2. + aircraft['r_{vnace}']**2.),
+            Cdnace == aircraft['f_{S_nacelle}'] * Cfnace[0] * rvnsurf **3.,
+            Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2. * aircraft['S'],
             ])
 
         if not aircraft.fitDrag:
             constraints.extend([
                 #set the VT drag coefficient
-                self.VTP['C_{D_{vis}}'] >= self.aircraft.VT['S_{vt}']/self.aircraft.wing['S']* \
-                       (self.aircraft.VT['c_{d_{fv}}'] + self.aircraft.VT['c_{d_{pv}}']*self.aircraft.VT['\\cos(\\Lambda_{vt})^3']),
+                self.VTP['C_{D_{vis}}'] >= (self.aircraft.VT['c_{d_{fv}}'] + self.aircraft.VT['c_{d_{pv}}']*self.aircraft.VT['\\cos(\\Lambda_{vt})^3']),
 
                 #set the HT drag coefficient
-                self.HTP['C_{D_{0_h}}'] >= self.aircraft.HT['S_{ht}']/self.aircraft.wing['S']* \
-                       (self.aircraft.HT['c_{d_{fh}}'] + self.aircraft.HT['c_{d_{ph}}']*self.aircraft.HT['\\cos(\\Lambda_{ht})^3']),
+                self.HTP['C_{D_{0_h}}'] >= (self.aircraft.HT['c_{d_{fh}}'] + self.aircraft.HT['c_{d_{ph}}']*self.aircraft.HT['\\cos(\\Lambda_{ht})^3']),
                 ])
 
         return self.Pmodels, constraints
@@ -811,6 +809,8 @@ class Mission(Model):
             fitDrag = False
         else:
             fitDrag = True
+
+        fitDrag = True
 
         # build required submodels
         aircraft = Aircraft(Nclimb, Ncruise, enginestate, eng, fitDrag, BLI, Nmission)
@@ -1390,7 +1390,7 @@ if __name__ == '__main__':
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
     if b777300ER:
         m = Model(m.cost, BCS(m))
-        m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+        m_relax = relaxed_constants(m, None)
     if sweeps == False:
         sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
         post_process(sol)
