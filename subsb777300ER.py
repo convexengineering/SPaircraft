@@ -122,7 +122,7 @@ def getb777300ERsubs():
             'AR_{ht}': 4.8,
             '\\lambda_{ht}': 0.32,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
-            'C_{L_{hmax}}': 2.0,  # [TAS]
+            'C_{L_{hmax}}': 1.5,  # [TAS]
             'C_{L_{hfcG}}': 0.7,
             '\\Delta x_{CG}': 11.97 * units('ft'),
             'x_{CG_{min}}': 117.31*units('ft'),
@@ -155,7 +155,7 @@ def getb777300ERsubs():
             '\\alpha_{max}': 8.62,
 
             'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
-            'r_{uc}': .1,
+            'r_{uc}': 0.3,
             '\\alpha_c': .156,
             'T_{t_f}': 435,
 
