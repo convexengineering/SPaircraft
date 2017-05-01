@@ -227,7 +227,10 @@ class Wing(Model):
         Wwing = Variable('W_{wing_system}', 'N', 'Total Wing Weight')
 
         dxACwing = Variable('\\Delta x_{AC_{wing}}','m','Wing Aerodynamic Center Shift')
-            # w.r.t. the quarter chord of the root of the wing.
+        # w.r.t. the quarter chord of the root of the wing.
+
+        #wing induced drag reduction due to wing tip devices
+        TipReduct = Variable('TipReduct', '-', 'Induced Drag Reduction Factor from Wing Tip Devices')
 
         constraints = []
         with SignomialsEnabled():
@@ -339,6 +342,10 @@ class WingNoStruct(Model):
                          + 0.1659*taper**2 - 0.0706*taper + 0.0119],
                     reltol=1E-2),
                 TCS([e*(1 + fl*AR) <= 1]),
+
+##                (1/e)**25.83551736847673 >= 0.0003471818473394128 * (AR)**1.986445677275891 * (taper)**-1.352261863161144   
+##                + 1.044439738352572 * (AR)**-0.2201203645519972 * (taper)**-0.0411332468801354   
+##                + 0.004481514943241946 * (AR)**2.502762266336954 * (taper)**5.061781313263068,
                 taper >= 0.15, # TODO
 
                 # Fuel volume [TASOPT doc]
@@ -413,7 +420,7 @@ class WingPerformance(Model):
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CDw,
                 TCS([CDw >= CDp + CDi]),
-                TCS([CDi >= CLw**2/(pi*self.wing['e']*self.wing['AR'])]),
+                TCS([CDi >= self.wing['TipReduct']*CLw**2/(pi*(self.wing['e'])*self.wing['AR'])]),
                 Re == state['\\rho']*state['V']*self.wing['mac']/state['\\mu'],
 
                 #original Philippe thesis fit

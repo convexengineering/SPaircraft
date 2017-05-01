@@ -84,7 +84,8 @@ def getb777300ERsubs():
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'AR': 8.455,
             'f_{wingfuel}': 0.62,
-            '\\tau_{max_w}': 0.14208,
+            '\\tau_{max_w}': 0.14446,
+            'TipReduct': 0.945,
 
             # Wing fractional weights
             'FuelFrac': 0.9,
@@ -126,7 +127,7 @@ def getb777300ERsubs():
             'C_{L_{hfcG}}': 0.7,
             '\\Delta x_{CG}': 11.97 * units('ft'),
             'x_{CG_{min}}': 117.31*units('ft'),
-            'SM_{min}': .05,
+            'SM_{min}': .15,
             'f_{HT}': 0.3,
             '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
             'c_{d_{fh}}': 0.0060,
@@ -166,7 +167,7 @@ def getb777300ERsubs():
             'h_f': 43.003,
 
             'Cp_t1': 1257.3,
-            'Cp_t2': 1158.35,
+            'Cp_t2': 1217.9,
             'Cp_c': 1278.5,
 
             'HTR_{f_SUB}': 1-.3**2,

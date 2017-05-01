@@ -9,10 +9,9 @@ def getD82_73engsubs():
         VTsweep = 25.0 #[deg]
         HTsweep = 8.0 #[deg]
         M4a = .2
-        M4a = .2
-        fan = 1.7
-        lpc  = 8./1.7
-        hpc = 30./8.
+        fan = 1.60474
+        lpc  = 4.98
+        hpc = 35./8.
 
         #Percent of velocity loss from BL smeared across entire fan
         BLIVloss = .18
@@ -53,7 +52,6 @@ def getD82_73engsubs():
                 'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
                 'W_{avg. pass_{total}}':215.*units('lbf'),
                 'f_{string}': 0.35,
-
                 'h_{floor}': 5.12*units('in'),
                 'R_{fuse}': 1.715*units('m'),
                 '\\delta R_{fuse}': 0.43*units('m'),
@@ -88,7 +86,7 @@ def getD82_73engsubs():
                 '\\eta': 0.97,
                 '\\rho_0': 1.225*units('kg/m^3'),
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-##                'AR':15.749,
+                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
 
@@ -130,7 +128,7 @@ def getD82_73engsubs():
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
-##                'AR_{ht}': 12.,
+                'AR_{ht}': 12.,
                 '\\lambda_{ht}': 0.3,
                 '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
                 '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
@@ -169,10 +167,10 @@ def getD82_73engsubs():
                 '\pi_{lc_D}': lpc,
 
 ##                '\\alpha_{OD}': 8,
-                '\\alpha_{max}': 8,
+##                '\\alpha_{max}': 8,
 
                 'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
-                'r_{uc}': .05,
+                'r_{uc}': .01,
                 '\\alpha_c': .19036,
                 'T_{t_f}': 435.,
 
@@ -182,9 +180,9 @@ def getD82_73engsubs():
 
                 'h_f': 43.003,
 
-                'Cp_t1': 1253.,
-                'Cp_t2': 1223.,
-                'Cp_c': 1283.,
+                'Cp_t1': 1236.5,
+                'Cp_t2': 1200.4,
+                'Cp_c': 1257.9,
 
                 'HTR_{f_SUB}': 1. - .3 ** 2.,
                 'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,

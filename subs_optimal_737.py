@@ -84,6 +84,7 @@ def get737_optimal_subs():
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'f_{wingfuel}': .35,
             '\\tau_{max_w}': 0.1267,
+            'TipReduct': 0.96,
 
             # Wing fractional weights
             'FuelFrac': 0.9,
