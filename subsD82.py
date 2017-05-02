@@ -5,7 +5,7 @@ def getD82subs():
         """
         returns substitution dic for the D8.2
         """
-        sweep = 26.0  # [deg]
+        sweep = 13.237  # [deg]
         VTsweep = 25.0 #[deg]
         HTsweep = 8.0 #[deg]
         M4a = .2
@@ -16,7 +16,7 @@ def getD82subs():
         #Percent of velocity loss from BL smeared across entire fan
         BLIVloss = .18
         #Min cruise mach number
-        Mcruisemin = 0.8
+        Mcruisemin = 0.72
 
         substitutions = {
                 'N_{land}': 6.,
@@ -87,7 +87,7 @@ def getD82subs():
                 '\\eta': 0.97,
                 '\\rho_0': 1.225*units('kg/m^3'),
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-##                'AR':15.749,
+                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
                 'TipReduct': 1.0,
@@ -130,7 +130,7 @@ def getD82subs():
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
-##                'AR_{ht}': 12.,
+                'AR_{ht}': 12.,
                 '\\lambda_{ht}': 0.3,
                 '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
                 '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
@@ -168,8 +168,8 @@ def getD82subs():
                 '\pi_{hc_D}': hpc,
                 '\pi_{lc_D}': lpc,
 
-                '\\alpha_{OD}': 8,#6.97,
-                '\\alpha_{max}': 8,#6.97,
+                '\\alpha_{OD}': 6.97,
+                '\\alpha_{max}': 6.97,
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,
