@@ -1,7 +1,7 @@
 from gpkit import units
 from numpy import cos, tan, pi
 
-def subs_M08_D8():
+def getM08_D8_eng_wing_subs():
         """
         returns substitution dic for the D8.2
         """
@@ -13,10 +13,8 @@ def subs_M08_D8():
         lpc  = 4.98
         hpc = 35./8.
 
-        #Percent of velocity loss from BL smeared across entire fan
-        BLIVloss = .18
         #Min cruise mach number
-        Mcruisemin = 0.80
+        Mcruisemin = 0.8
 
         substitutions = {
                 'N_{land}': 6.,
@@ -52,7 +50,6 @@ def subs_M08_D8():
                 'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
                 'W_{avg. pass_{total}}':215.*units('lbf'),
                 'f_{string}': 0.35,
-
                 'h_{floor}': 5.12*units('in'),
                 'R_{fuse}': 1.715*units('m'),
                 '\\delta R_{fuse}': 0.43*units('m'),
@@ -89,7 +86,8 @@ def subs_M08_D8():
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
 ##                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
-                '\\tau_{max_w}': 0.14733,
+                '\\tau_{max_w}': 0.15,
+                'f_{wingfuel}': 1,
                 'TipReduct': 1.0,
 
                 # Wing fractional weights
@@ -121,6 +119,7 @@ def subs_M08_D8():
                 'c_{d_{fv}}': 0.0060,
                 'c_{d_{pv}}': 0.0035,
                 'V_{vt_{min}}': 0.06,
+                'y_{eng}': 4.8768*units('m'),
 
                 # HT substitutions
                 '\\alpha_{max,h}': 2.5,
@@ -138,12 +137,12 @@ def subs_M08_D8():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 6.,
-                'f_{pylon}': 0.05,
+                'rSnace': 16.,
+                'f_{pylon}': 0.1,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
-                'r_{vnace}': 0.925,
+                'r_{vnace}': 1.02,
 
                 # Cabin air substitutions in AircraftP
 
@@ -190,13 +189,6 @@ def subs_M08_D8():
                 'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
                 'T_{t_{4.1_{max}}}': 1750.*units('K'),
-
-                #BLI factors
-                #compute the cruise stagnation pressure loss factor given a min
-                #mach number and the BLI velocity loss factor
-                'f_{BLI_P}': (10400. +.2546*1.225*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
-                              (10400. +.2546*1.225*(Mcruisemin*295.)**2),
-                'f_{BLI_V}': 1 - BLIVloss,
         }
 
         return substitutions
