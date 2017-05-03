@@ -21,28 +21,28 @@ from D8_Wing_simple_profile import Wing
 from turbofan.engine_validation import Engine
 from D8_Fuselage import Fuselage
 
-# Import constant relaxation tool
-from relaxed_constants import relaxed_constants, post_process
-
-# Import tool to check solution relative to TASOPT
-from D8_TASOPT_percent_diff import percent_diff
+### Import constant relaxation tool
+##from relaxed_constants import relaxed_constants, post_process
+##
+### Import tool to check solution relative to TASOPT
+##from D8_TASOPT_percent_diff import percent_diff
 
 # Import VSP generation tools
 from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
 
-#import substitution dict files
-from subsD80 import getD80subs
-from subsD82 import getD82subs
-from subsD82_73eng import getD82_73engsubs
-from subsD8_eng_wing import getD8_eng_wing_subs
-from subsD8big import getD8bigsubs
-from subsb737800 import getb737800subs
-from subsb777300ER import getb777300ERsubs
-from subs_optimal_737 import get737_optimal_subs
-from subs_optimal_D8 import get_optimal_D8_subs
-from subs_M08_D8 import subs_M08_D8
-from subs_M08_d8_eng_wing import getM08_D8_eng_wing_subs
-from subsM072737 import getM_M072_737_subs
+###import substitution dict files
+##from subsD80 import getD80subs
+##from subsD82 import getD82subs
+##from subsD82_73eng import getD82_73engsubs
+##from subsD8_eng_wing import getD8_eng_wing_subs
+##from subsD8big import getD8bigsubs
+##from subsb737800 import getb737800subs
+##from subsb777300ER import getb777300ERsubs
+##from subs_optimal_737 import get737_optimal_subs
+##from subs_optimal_D8 import get_optimal_D8_subs
+##from subs_M08_D8 import subs_M08_D8
+##from subs_M08_d8_eng_wing import getM08_D8_eng_wing_subs
+##from subsM072737 import getM_M072_737_subs
 
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
@@ -69,39 +69,39 @@ Other markers:
 -[SPEquality]
 """
 
-genVSP = True
+##genVSP = True
 
-# Only one active at a time
-D80 = False
-D82 = False
-D82_73eng = False
-D8_eng_wing = False
-D8big = False
-b737800 = False
-b777300ER = False
-optimal737 = False
-optimalD8 = False
-M08D8 = False
-M08_D8_eng_wing = False
-M072_737 = True
+### Only one active at a time
+##D80 = False
+##D82 = False
+##D82_73eng = False
+##D8_eng_wing = False
+##D8big = False
+##b737800 = False
+##b777300ER = False
+##optimal737 = False
+##optimalD8 = False
+##M08D8 = False
+##M08_D8_eng_wing = False
+##M072_737 = True
 
-if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8:
-    D8fam = True
-else:
-    D8fam = False
-
-if b737800 or b777300ER or optimal737 or M072_737:
-    conventional = True
-else:
-    conventional = False
+##if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8:
+##    D8fam = True
+##else:
+##    D8fam = False
+##
+##if b737800 or b777300ER or optimal737 or M072_737:
+##    conventional = True
+##else:
+##    conventional = False
 
 #choose multimission or not
-multimission = False
-
-#choose objective type
-manufacturer = False
-operator = False
-fuel = True
+##multimission = False
+##
+###choose objective type
+##manufacturer = False
+##operator = False
+##fuel = True
 
 g = 9.81 * units('m*s**-2')
 
@@ -137,6 +137,9 @@ class Aircraft(Model):
         Vmn = Variable('V_{mn}', 'm/s','Maneuvering speed')
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
         ReserveFraction = Variable('ReserveFraction', '-', 'Fuel Reserve Fraction')
+
+        #fraction of fuel in wings
+        f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
 
         SMmin = Variable('SM_{min}','-', 'Minimum Static Margin')
         dxCG = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
@@ -330,7 +333,7 @@ class Aircraft(Model):
                          1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP]
 
                     # Wing root moment constraint, with wing weight load relief
-                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing+W_ftotal)) * \
+                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing+f_wingfuel*W_ftotal)) * \
                         (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
                                 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
 
@@ -428,7 +431,6 @@ class Aircraft(Model):
 
           #737 and 777 only constraints
         if conventional:
-            f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
             with SignomialsEnabled():
                constraints.extend([
                     # HT root moment
@@ -762,8 +764,82 @@ class Mission(Model):
     Mission superclass, links together all subclasses into an optimization problem
     """
 
-    def setup(self, Nclimb, Ncruise, Nmission = 1, **kwargs):
+    def setup(self, Nclimb, Ncruise, objective, airplane, Nmission = 1):
         # define the number of each flight segment
+        global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
+               optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, conventional, multimission, \
+               manufacturer, operator, fuel
+
+
+        #choose objective type
+        manufacturer = False
+        operator = False
+        fuel = False
+
+        if objective == 'manufacturer':
+            manufacturer = True
+
+        if objective == 'operator':
+            operator = True
+
+        if objective == 'fuel':
+            fuel = True
+
+        # Only one active at a time
+        D80 = False
+        D82 = False
+        D82_73eng = False
+        D8_eng_wing = False
+        D8big = False
+        b737800 = False
+        b777300ER = False
+        optimal737 = False
+        optimalD8 = False
+        M08D8 = False
+        M08_D8_eng_wing = False
+        M072_737 = False
+
+        if airplane == 'D80':
+            D80 = True
+
+        if airplane == 'D82':
+            D82 = True
+
+        if airplane == 'D82_73eng':
+            D82_73eng = True
+
+        if airplane == 'D8_eng_wing':
+            D8_eng_wing = True
+
+        if airplane == 'D8big':
+            D8big = True
+
+        if airplane == 'b737800':
+            b737800 = True
+
+        if airplane == 'b777300ER':
+            b777300ER = True
+
+        if airplane == 'optimal737':
+            optimal737 = True
+
+        if airplane == 'optimalD8':
+            optimalD8 = True
+
+        if airplane == 'M08D8':
+            M08D8 = True
+
+        if airplane == 'M08_D8_eng_wing':
+            M08_D8_eng_wing = True
+
+        if airplane == 'M072_737':
+            M072_737 = True
+
+        #choose multimission or not
+        if Nmission == 1:
+            multimission = False
+        else:
+            multimission = True
 
         if D80 or D82 or optimalD8 or M08D8:
              eng = 3
@@ -788,6 +864,16 @@ class Mission(Model):
         if b777300ER:
              eng = 4
              BLI = False
+
+        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8:
+            D8fam = True
+        else:
+            D8fam = False
+
+        if b737800 or b777300ER or optimal737 or M072_737:
+            conventional = True
+        else:
+            conventional = False
 
         # vectorize
         with Vectorize(Nmission):
