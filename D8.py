@@ -6,12 +6,9 @@ from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, 
 from gpkit.constraints.tight import Tight as TCS
 from gpkit.constraints.bounded import Bounded as BCS
 from gpkit.tools import te_exp_minus1
-from numpy import pi, cos, tan, arctan, arccos
+from numpy import pi
 
 TCS.reltol = 1e-3
-
-# only needed for plotting
-import matplotlib.pyplot as plt
 
 # importing from D8_integration
 from stand_alone_simple_profile import FlightState
@@ -20,9 +17,6 @@ from D8_HT_simple_profile import HorizontalTail
 from D8_Wing_simple_profile import Wing
 from turbofan.engine_validation import Engine
 from D8_Fuselage import Fuselage
-
-# Import VSP generation tools
-from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
 
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
