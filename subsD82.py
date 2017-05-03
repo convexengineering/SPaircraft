@@ -1,3 +1,4 @@
+
 from gpkit import units
 from numpy import cos, tan, pi
 
@@ -62,7 +63,7 @@ def getD82subs():
 
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft'),
-                'L_{total/wing}': 1.179,
+                'L_{total/wing}': 1.195,
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
@@ -90,6 +91,7 @@ def getD82subs():
                 'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
+                'f_{wingfuel}': 1.0,
                 'TipReduct': 1.0,
 
                 # Wing fractional weights
