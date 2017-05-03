@@ -7,6 +7,9 @@ from relaxed_constants import relaxed_constants, post_process
 # Import tool to check solution relative to TASOPT
 from D8_TASOPT_percent_diff import percent_diff
 
+# Import VSP generation tools
+from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
+
 #import substitution dict files
 from subsD80 import getD80subs
 from subsD82 import getD82subs
