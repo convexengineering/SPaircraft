@@ -1200,8 +1200,11 @@ def test():
     fuel = True
 
     #test the TASOPT 737 recreation
+    objective = 'fuel'
+    airplane = 'b737800'
+    Nmission = 1
 
-    m = Mission(Nclimb, Ncruise)
+    m = Mission(Nclimb, Ncruise, objective, airplane, Nmission)
 
     substitutions = getb737800subs()
        
@@ -1217,10 +1220,11 @@ def test():
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
 
     #test the TASOPT 777 recreation
-    b737800 = False
-    b777300ER = True
+    objective = 'fuel'
+    airplane = 'b777300ER'
+    Nmission = 1
 
-    m = Mission(Nclimb, Ncruise)
+    m = Mission(Nclimb, Ncruise, objective, airplane, Nmission)
 
     substitutions = getb777300ERsubs()
        
@@ -1236,10 +1240,11 @@ def test():
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
 
     #test the TASOPT D8.2 recreation
-    b777300ER = False
-    D82 = True
+    objective = 'fuel'
+    airplane = 'D82'
+    Nmission = 1
 
-    m = Mission(Nclimb, Ncruise)
+    m = Mission(Nclimb, Ncruise, objective, airplane, Nmission)
 
 
     substitutions = getD82subs()
