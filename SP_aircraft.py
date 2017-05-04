@@ -30,36 +30,23 @@ from gpkit.constraints.bounded import Bounded as BCS
 from D8 import Mission
 
 if __name__ == '__main__':
+    # User definitions
     Nclimb = 3
     Ncruise = 2
     Nmission = 1
-
-    D80 = False
-    D82 = True
-    D82_73eng = False
-    D8_eng_wing = False
-    D8big = False
-    b737800 = False
-    b777300ER = False
-    optimal737 = False
-    optimalD8 = False
-    M08D8 = False
-    M08_D8_eng_wing = False
-    M072_737 = False
-    
     objective = 'fuel'
-
-    airplane = 'D82'
+    aircraft = 'b737800'
 
     if Nmission == 1:
         multimission = True
     else:
         multimission = False
 
-    m = Mission(Nclimb, Ncruise, objective, airplane, Nmission)
+    # Mission definition
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
 
-
-    if D80:
+    # Aircraft types
+    if aircraft == 'D80':
         print('D80 executing...')
         substitutions = getD80subs()
         if Nmission == 1:
@@ -73,7 +60,7 @@ if __name__ == '__main__':
                 'n_{pax}': [180.],
                 'ReqRng': [3000.],
                 })
-    if D82:
+    if aircraft == 'D82':
         print('D82 executing...')
         substitutions = getD82subs()
         if Nmission == 1:
@@ -87,7 +74,7 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
-    if optimalD8:
+    if aircraft == 'optimalD8':
         print('Optimal D8 executing...')
         substitutions = get_optimal_D8_subs()
         if Nmission == 1:
@@ -101,7 +88,7 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
-    if D82_73eng:
+    if aircraft == 'D82_73eng':
         print('D82_73eng executing...')
         substitutions = getD82_73engsubs()
         if Nmission == 1:
@@ -115,7 +102,7 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
-    if M08D8:
+    if aircraft == 'M08D8':
         print('Mach 0.8 D8 executing...')
         substitutions = subs_M08_D8()
         if Nmission == 1:
@@ -129,7 +116,7 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
-    if M072_737:
+    if aircraft == 'M072_737':
         print('Mach 0.72 737 executing...')
         substitutions = getM_M072_737_subs()
         if Nmission == 1:
@@ -143,7 +130,7 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
-    if D8_eng_wing:
+    if aircraft == 'D8_eng_wing':
         print('D8_eng_wing executing...')
         substitutions = getD8_eng_wing_subs()
         if Nmission == 1:
@@ -157,7 +144,7 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
-    if M08_D8_eng_wing:
+    if aircraft == 'M08_D8_eng_wing':
         print('Mach 0.8 D8_eng_wing executing...')
         substitutions = getM08_D8_eng_wing_subs()
         if Nmission == 1:
@@ -171,7 +158,7 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
-    if D8big:
+    if aircraft == 'D8big':
         print('D8big executing...')
         substitutions = getD8bigsubs()
         if Nmission == 1:
@@ -186,7 +173,7 @@ if __name__ == '__main__':
                 'ReqRng': [6000.],
                 })
 
-    if b737800:
+    if aircraft == 'b737800':
            print('737-800 executing...')
            substitutions = getb737800subs()
            if Nmission == 1:
@@ -200,7 +187,7 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
-    if optimal737:
+    if aircraft == 'optimal737':
            print('Optimal 737 executing...')
            substitutions = get737_optimal_subs()
            if Nmission == 1:
@@ -214,7 +201,7 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
-    if b777300ER:
+    if aircraft == 'b777300ER':
            print('777-300ER executing...')
            substitutions = getb777300ERsubs()
            if Nmission == 1:
@@ -231,16 +218,16 @@ if __name__ == '__main__':
 
     m.substitutions.update(substitutions)
 
-    if D80 or D82:
+    if aircraft in ['D80','D82']:
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
-    if D8big or D82_73eng or D8_eng_wing or optimalD8 or M08D8 or M08_D8_eng_wing:
+    if aircraft in ['D8big', 'D82_73eng', 'D8_eng_wing', 'optimalD8', 'M08D8', 'M08_D8_eng_wing']:
         m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
-    if b737800 or optimal737 or M072_737:
+    if aircraft in ['b737800', 'optimal737', 'M072_737']:
         m = Model(m.cost, BCS(m))
         m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
-    if b777300ER:
+    if aircraft in ['b777300ER']:
         m = Model(m.cost, BCS(m))
         m_relax = relaxed_constants(m, None)
 
@@ -248,18 +235,18 @@ if __name__ == '__main__':
     post_process(sol)
     
     if Nmission == 1:
-         if D82 or D8_eng_wing or optimalD8:
+         if aircraft in ['D82', 'D8_eng_wing', 'optimalD8']:
               percent_diff(sol, 2, Nclimb)
 
-         if b737800 or optimal737:
+         if aircraft in ['b737800','optimal737']:
               percent_diff(sol, 801, Nclimb)
 
-         if b777300ER:
+         if aircraft in ['b777300ER']:
               percent_diff(sol, 777, Nclimb)
     if genVSP:
-        if D80 or D82 or D8big:
+        if aircraft in ['D80', 'D82', 'D8big']:
             genDesFile(sol,False,0,False)
-        if b737800 or b777300ER:
+        if aircraft in ['b737800', 'b777300ER']:
             genDesFile(sol,False,0,True)
         if sweeps:
             genDesFileSweep(sol,n,b737800)
