@@ -31,7 +31,7 @@ def updateOpenVSP(inputDict, i = 0):
         g.truncate()
         g.close()
 
-def genDesFile(sol, swpt = False, i=0, b737800=True):
+def genDesFile(sol, swpt = False, i=0, aircraft = 'D82'):
     if swpt:
         sweep = arccos(sol('\cos(\Lambda)_Mission, Aircraft, Wing, WingNoStruct')[i])*180/np.pi
 
@@ -194,7 +194,7 @@ def genDesFile(sol, swpt = False, i=0, b737800=True):
     }
 
     #Differentiating between b737800 and D8
-    if b737800:
+    if aircraft == 'b737800':
         resultsDict.update({
          # Engine Variables
         'EGCVYPSLWEZ':float((xwing).magnitude), # Engine x location

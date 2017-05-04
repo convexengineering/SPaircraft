@@ -18,6 +18,14 @@ from D8_Wing_simple_profile import Wing
 from turbofan.engine_validation import Engine
 from D8_Fuselage import Fuselage
 
+#import substitution dict files
+from subsD82 import getD82subs
+from subsb737800 import getb737800subs
+from subsb777300ER import getb777300ERsubs
+
+# Import constant relaxation tool
+from relaxed_constants import relaxed_constants, post_process
+
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
 Anderson's Aircraft Performance and Design (eqn 5.85).
@@ -711,17 +719,15 @@ class Mission(Model):
                manufacturer, operator, fuel
 
 
-        #choose objective type
+        # Choose objective type
         manufacturer = False
         operator = False
         fuel = False
 
         if objective == 'manufacturer':
             manufacturer = True
-
         if objective == 'operator':
             operator = True
-
         if objective == 'fuel':
             fuel = True
 
@@ -741,37 +747,26 @@ class Mission(Model):
 
         if airplane == 'D80':
             D80 = True
-
         if airplane == 'D82':
             D82 = True
-
         if airplane == 'D82_73eng':
             D82_73eng = True
-
         if airplane == 'D8_eng_wing':
             D8_eng_wing = True
-
         if airplane == 'D8big':
             D8big = True
-
         if airplane == 'b737800':
             b737800 = True
-
         if airplane == 'b777300ER':
             b777300ER = True
-
         if airplane == 'optimal737':
             optimal737 = True
-
         if airplane == 'optimalD8':
             optimalD8 = True
-
         if airplane == 'M08D8':
             M08D8 = True
-
         if airplane == 'M08_D8_eng_wing':
             M08_D8_eng_wing = True
-
         if airplane == 'M072_737':
             M072_737 = True
 
@@ -820,7 +815,7 @@ class Mission(Model):
              with Vectorize(Nclimb + Ncruise):
                  enginestate = FlightState()
 
-        #True is use xfoil fit tail drag model, False is TASOPT tail drag model
+        # True is use xfoil fit tail drag model, False is TASOPT tail drag model
         if not (optimal737 or optimalD8):
             fitDrag = False
         else:
@@ -1200,8 +1195,11 @@ def test():
     fuel = True
 
     #test the TASOPT 737 recreation
+    objective = 'fuel'
+    airplane = 'b737800'
+    Nmission = 1
 
-    m = Mission(Nclimb, Ncruise)
+    m = Mission(Nclimb, Ncruise, objective, airplane, Nmission)
 
     substitutions = getb737800subs()
        
@@ -1217,10 +1215,11 @@ def test():
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
 
     #test the TASOPT 777 recreation
-    b737800 = False
-    b777300ER = True
+    objective = 'fuel'
+    airplane = 'b777300ER'
+    Nmission = 1
 
-    m = Mission(Nclimb, Ncruise)
+    m = Mission(Nclimb, Ncruise, objective, airplane, Nmission)
 
     substitutions = getb777300ERsubs()
        
@@ -1236,10 +1235,11 @@ def test():
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
 
     #test the TASOPT D8.2 recreation
-    b777300ER = False
-    D82 = True
+    objective = 'fuel'
+    airplane = 'D82'
+    Nmission = 1
 
-    m = Mission(Nclimb, Ncruise)
+    m = Mission(Nclimb, Ncruise, objective, airplane, Nmission)
 
 
     substitutions = getD82subs()
