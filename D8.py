@@ -23,6 +23,9 @@ from subsD82 import getD82subs
 from subsb737800 import getb737800subs
 from subsb777300ER import getb777300ERsubs
 
+# Import constant relaxation tool
+from relaxed_constants import relaxed_constants, post_process
+
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
 Anderson's Aircraft Performance and Design (eqn 5.85).
