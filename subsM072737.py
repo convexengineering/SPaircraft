@@ -1,7 +1,7 @@
 from gpkit import units
 from numpy import cos, tan, pi
 
-def getM_M072_737_subs():
+def get_M072_737_subs():
     """
     returns substitution dic for the a M 0.72 Boeing 737-800 model
     """
