@@ -128,7 +128,7 @@ def getD82subs():
                 '\\alpha_{max,h}': 2.5,
                 'C_{L_{hmax}}': 2.0, # [TAS]
                 'SM_{min}': 0.05,
-                '\\Delta x_{CG}': 6.8*units('ft'),
+                '\\Delta x_{CG}': 6*units('ft'),
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
