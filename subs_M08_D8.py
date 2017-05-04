@@ -91,6 +91,7 @@ def subs_M08_D8():
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
                 'TipReduct': 1.0,
+                'f_{wingfuel}': .35,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,

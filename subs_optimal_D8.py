@@ -54,8 +54,8 @@ def get_optimal_D8_subs():
                 'f_{string}': 0.35,
 
                 'h_{floor}': 5.12*units('in'),
-##                'R_{fuse}': 1.715*units('m'),
-##                '\\delta R_{fuse}': 0.43*units('m'),
+                'R_{fuse}': 1.715*units('m'),
+                '\\delta R_{fuse}': 0.43*units('m'),
                 'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
@@ -91,6 +91,7 @@ def get_optimal_D8_subs():
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
                 'TipReduct': 1.0,
+                'f_{wingfuel}': .35,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,
@@ -168,8 +169,8 @@ def get_optimal_D8_subs():
                 '\pi_{hc_D}': hpc,
                 '\pi_{lc_D}': lpc,
 
-                '\\alpha_{OD}': 6.97,
-                '\\alpha_{max}': 6.97,
+##                '\\alpha_{OD}': 6.97,
+##                '\\alpha_{max}': 6.97,
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,

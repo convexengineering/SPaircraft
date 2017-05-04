@@ -89,6 +89,7 @@ def getM08_D8_eng_wing_subs():
                 '\\tau_{max_w}': 0.15,
                 'f_{wingfuel}': 1,
                 'TipReduct': 1.0,
+                'f_{wingfuel}': .35,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,

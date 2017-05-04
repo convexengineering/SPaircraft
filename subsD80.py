@@ -58,8 +58,6 @@ def getD80subs():
                 'R_{fuse}' : 1.715*units('m'),
                 'w_{db}': 0.93*units('m'),
 
-
-
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft'),
                 'L_{total/wing}': 1.179,
@@ -89,6 +87,8 @@ def getD80subs():
 
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
                 '\\tau_{max_w}': 0.15,
+                'TipReduct': 1.0,
+                'f_{wingfuel}': .35,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,
