@@ -22,11 +22,13 @@ from subs_optimal_737 import get737_optimal_subs
 from subs_optimal_D8 import get_optimal_D8_subs
 from subs_M08_D8 import subs_M08_D8
 from subs_M08_d8_eng_wing import getM08_D8_eng_wing_subs
-from subsM072737 import getM_M072_737_subs
+from subsM072737 import get_M072_737_subs
 
 from gpkit import units, Model
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.constraints.bounded import Bounded as BCS
+
+from D8 import Mission
 
 def run_737800():
     # User definitions
@@ -95,7 +97,7 @@ def run_M072_737():
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
-    substitutions = getb737800subs()
+    substitutions = get_M072_737_subs()
 
     substitutions.update({
 #                'n_{paxx}': 180.,
@@ -124,7 +126,7 @@ def run_D8_eng_wing():
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
-    substitutions = getD82subs()
+    substitutions = getD8_eng_wing_subs()
 
     substitutions.update({
 #                'n_{paxx}': 180.,
@@ -142,11 +144,65 @@ def run_D8_eng_wing():
 
     return sol
 
-def test()
-    run_737800()
+def run_optimal_D8():
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'optimalD8'
 
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
-from D8 import Mission
+    substitutions = get_optimal_D8_subs()
+
+    substitutions.update({
+#                'n_{paxx}': 180.,
+        'ReqRng': 3000.*units('nmi'),
+    })
+
+    m.substitutions.update(substitutions)
+
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 2, Nclimb)
+
+    return sol
+
+def run_optimal_737():
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'optimal737'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get737_optimal_subs()
+
+    substitutions.update({
+#                'n_{paxx}': 180.,
+        'ReqRng': 3000.*units('nmi'),
+    })
+
+    m.substitutions.update(substitutions)
+
+    m = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 801, Nclimb)
+
+    return sol
+
+def test():
+    run_737800()
 
 if __name__ == '__main__':
     # User definitions
@@ -253,20 +309,6 @@ if __name__ == '__main__':
                 substitutions.update({
                  'n_{pax}': [450.],
                 'ReqRng': [6000.],
-                })
-
-    if aircraft == 'optimal737':
-           print('Optimal 737 executing...')
-           substitutions = get737_optimal_subs()
-           if Nmission == 1:
-                substitutions.update({
-##                'n_{pax}': 180.,
-                'ReqRng': 3000.*units('nmi'),
-                })
-           if Nmission != 1:
-                substitutions.update({
-                'n_{pax}': [180.],
-                'ReqRng': [3000.],
                 })
 
     if aircraft == 'b777300ER':
