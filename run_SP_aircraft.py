@@ -24,7 +24,9 @@ from subs_M08_D8 import subs_M08_D8
 from subs_M08_d8_eng_wing import getM08_D8_eng_wing_subs
 from subsM072737 import getM_M072_737_subs
 
-from gpkit import units
+from gpkit import units, Model
+from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
+from gpkit.constraints.bounded import Bounded as BCS
 from D8 import Mission
 
 if __name__ == '__main__':
@@ -76,7 +78,7 @@ if __name__ == '__main__':
         substitutions = getD82subs()
         if Nmission == 1:
                 substitutions.update({
-##                'n_{pax}': 180.,
+               # 'n_{pax}': [180.],
                 'ReqRng': 3000.*units('nmi'),
                 })
         if Nmission != 1:
@@ -189,7 +191,7 @@ if __name__ == '__main__':
            substitutions = getb737800subs()
            if Nmission == 1:
                 substitutions.update({
-##                'n_{pax}': 180.,
+#                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
            if Nmission != 1:
