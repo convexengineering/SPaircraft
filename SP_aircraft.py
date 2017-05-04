@@ -37,6 +37,9 @@ if __name__ == '__main__':
     objective = 'fuel'
     aircraft = 'b737800'
 
+    genVSP = True
+    sweeps = False
+
     if Nmission == 1:
         multimission = True
     else:

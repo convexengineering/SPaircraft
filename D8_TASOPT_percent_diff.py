@@ -4,20 +4,20 @@ Method to compute and print percent differences between SP D8 model and TASOPT
 
 from gpkit.small_scripts import mag
 
-def percent_diff(sol, version, Nclimb):
+def percent_diff(sol,aircraft,Nclimb):
     """
     Method to compute and print percent differences between SP D8 model and TASOPT
 
     INPUTS
     ------
     sol: solution from D8 SP model
-    version: either 0, 1, or 2....corresponds to comparing to the D8.0, D8.1, or D8.2
-    800 compares to TASOPT 737-800
-    801 compares to TASOPT 737-800 w/physics base tail sizing
-    version 777 compares to TASOPT 777-300ER
+    aircraft: string corresponding to different aircraft
+    b737800 compares to TASOPT 737-800
+    optimal737 compares to TASOPT 737-800 w/physics base tail sizing
+    b777300ER compares to TASOPT 777-300ER
     """
 
-    if version == 777:
+    if aircraft == 'b777300ER':
        #weights to compare for TASOPT 777-300ER run
         print "WEIGHT DIFFERENCES"
         print "\n"
@@ -107,7 +107,7 @@ def percent_diff(sol, version, Nclimb):
         # print "\n"
         # print "Weight of VB material: %s "  % compute_diff(mag(sol('W_{vbend}')), 1210.5)
 
-    if version == 800:
+    if aircraft == 'b737800':
        #weights to compare for TASOPT 737-800 run
         print "WEIGHT DIFFERENCES"
         print "\n"
@@ -197,7 +197,7 @@ def percent_diff(sol, version, Nclimb):
         # print "\n"
         # print "Weight of VB material: %s "  % compute_diff(mag(sol('W_{vbend}')), 1210.5)
 
-    if version == 801:
+    if aircraft == 'optimal737':
        #weights to compare for TASOPT 737-800 run...sizing w/out specifying tail volume
         print "WEIGHT DIFFERENCES"
         print "\n"
@@ -287,7 +287,7 @@ def percent_diff(sol, version, Nclimb):
         print "\n"
         print "Weight of VB material: %s "  % compute_diff(mag(sol('W_{vbend}')), 1210.5)
     
-    if version == 2:
+    if aircraft == 'D82':
         #weights to compare for D8.2
         print "WEIGHT DIFFERENCES"
         print "\n"
