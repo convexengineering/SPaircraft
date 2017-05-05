@@ -119,7 +119,7 @@ def getD8_eng_wing_subs():
                 '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
                 'c_{d_{fv}}': 0.0060,
                 'c_{d_{pv}}': 0.0035,
-                'V_{vt_{min}}': 0.06,
+                'V_{vt_{min}}': 0.03,
                 'y_{eng}': 4.8768*units('m'),
 
                 # HT substitutions
@@ -168,8 +168,8 @@ def getD8_eng_wing_subs():
                 '\pi_{hc_D}': hpc,
                 '\pi_{lc_D}': lpc,
 
-                '\\alpha_{OD}': 6.97,
-                '\\alpha_{max}': 6.97,
+##                '\\alpha_{OD}': 6.97,
+                '\\alpha_{max}': 9,#6.97,
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,
@@ -189,7 +189,7 @@ def getD8_eng_wing_subs():
                 'HTR_{f_SUB}': 1.-.3**2.,
                 'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
-                'T_{t_{4.1_{max}}}': 1750.*units('K'),
+                'T_{t_{4.1_{max}}}': 1567.*units('K'),
         }
 
         return substitutions

@@ -169,7 +169,7 @@ def getD82_73engsubs():
                 '\pi_{lc_D}': lpc,
 
 ##                '\\alpha_{OD}': 8,
-##                '\\alpha_{max}': 8,
+                '\\alpha_{max}': 6.97,#8,
 
                 'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
                 'r_{uc}': .01,

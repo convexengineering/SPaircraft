@@ -13,6 +13,8 @@ def get737_optimal_subs():
     lpc  = 8./1.685
     hpc = 30./8.
 
+    Mcruisemin = 0.8
+
     substitutions = {
             'N_{land}': 6.,
             'p_s': 81.*units('cm'),
@@ -157,8 +159,8 @@ def get737_optimal_subs():
             '\pi_{hc_D}': hpc,
             '\pi_{lc_D}': lpc,
 
-            '\\alpha_{OD}': 5.1,
-            '\\alpha_{max}': 5.6958,
+##            '\\alpha_{OD}': 5.1,
+            '\\alpha_{max}': 9,#5.6958,
 
             'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
             'r_{uc}': .05,
@@ -179,13 +181,13 @@ def get737_optimal_subs():
             'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
 
             # Minimum Cruise Mach Number
-            'M_{min}': 0.8,
+            'M_{min}': Mcruisemin,
 
             # engine system subs
             'rSnace': 16.,
             # nacelle drag calc parameter
             'r_{vnace}': 1.02,
-            'T_{t_{4.1_{max}}}': 1833.*units('K'),
+            'T_{t_{4.1_{max}}}': 1613.*units('K'),
     }
 
     return substitutions
