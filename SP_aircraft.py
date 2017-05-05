@@ -243,6 +243,7 @@ if __name__ == '__main__':
 
     genVSP = True
     sweeps = False
+    nsweep = 5
 
     if Nmission == 1:
         multimission = True
@@ -398,9 +399,7 @@ if __name__ == '__main__':
          if aircraft in ['b777300ER']:
               percent_diff(sol, 777, Nclimb)
     if genVSP:
-        if aircraft in ['D80', 'D82', 'D8big']:
-            genDesFile(sol,False,0,aircraft)
-        if aircraft in ['b737800', 'b777300ER']:
-            genDesFile(sol,False,0,aircraft)
         if sweeps:
-            genDesFileSweep(sol,n,b737800)
+            genDesFileSweep(sol,aircraft,nsweep)
+        else:
+            genDesFile(sol,aircraft)

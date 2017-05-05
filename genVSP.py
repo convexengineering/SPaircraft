@@ -31,7 +31,7 @@ def updateOpenVSP(inputDict, i = 0):
         g.truncate()
         g.close()
 
-def genDesFile(sol, swpt = False, i=0, aircraft = 'D82'):
+def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     if swpt:
         sweep = arccos(sol('\cos(\Lambda)_Mission, Aircraft, Wing, WingNoStruct')[i])*180/np.pi
 
@@ -220,5 +220,7 @@ def genDesFile(sol, swpt = False, i=0, aircraft = 'D82'):
     updateOpenVSP(resultsDict,i)
     print('File generation successful!')
 
-
+def genDesFileSweep(sol, aircraft, n):
+    for i in range(0,n):
+        genDesFile(sol,True,i,aircraft)
 
