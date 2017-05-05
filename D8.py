@@ -764,7 +764,7 @@ class Mission(Model):
         if airplane == 'M072_737':
             M072_737 = True
         if airplane == 'D8_noBLI':
-            D8_noBLI = True
+            D8_no_BLI = True
 
         #choose multimission or not
         if Nmission == 1:
@@ -780,7 +780,7 @@ class Mission(Model):
             eng = 3
             BLI = False
              
-        if b737800 or optimal737 or M072_737 or D8_noBLI:
+        if b737800 or optimal737 or M072_737 or D8_no_BLI:
              eng = 1
              BLI = False
 
@@ -796,7 +796,7 @@ class Mission(Model):
              eng = 4
              BLI = False
 
-        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_noBLI:
+        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_no_BLI:
             D8fam = True
         else:
             D8fam = False
@@ -895,7 +895,7 @@ class Mission(Model):
               ])
 
             #Setting fuselage drag and lift, and BLI correction
-            if D8fam and not D8_noBLI:
+            if D8fam and not D8_no_BLI:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/climb['f_{BLI}'] ,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/cruise['f_{BLI}'],
@@ -903,7 +903,7 @@ class Mission(Model):
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
-            if D8_noBLI:
+            if D8_no_BLI:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
