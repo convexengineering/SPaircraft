@@ -23,6 +23,7 @@ from subs_optimal_D8 import get_optimal_D8_subs
 from subs_M08_D8 import subs_M08_D8
 from subs_M08_d8_eng_wing import getM08_D8_eng_wing_subs
 from subsM072737 import get_M072_737_subs
+from subs_D8_no_BLI import get_D8_no_BLI_subs
 
 from gpkit import units, Model
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
@@ -55,7 +56,7 @@ def run_737800():
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
-    percent_diff(sol, 801, Nclimb)
+    percent_diff(sol, aircraft, Nclimb)
 
     return sol
 
@@ -70,6 +71,34 @@ def run_D82():
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
     substitutions = getD82subs()
+
+    substitutions.update({
+#                'n_{paxx}': 180.,
+        'ReqRng': 3000.*units('nmi'),
+    })
+
+    m.substitutions.update(substitutions)
+
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, aircraft, Nclimb)
+
+    return sol
+
+def run_D8_no_BLI():
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'D82'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get_D8_no_BLI_subs()
 
     substitutions.update({
 #                'n_{paxx}': 180.,
