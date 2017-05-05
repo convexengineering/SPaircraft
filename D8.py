@@ -312,6 +312,12 @@ class Aircraft(Model):
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
                 ])
 
+        #constriants for D8 with rear podded engines nad no BLI
+        if D8_noBLI:
+            constraints.extend([
+                self.VT['y_{eng}'] >= self.fuse['R_{fuse}'] + 1*units('ft'),
+            ])
+
         #d8 only constraints
         if D8_eng_wing or M08_D8_eng_wing:
             f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
@@ -708,8 +714,8 @@ class Mission(Model):
     def setup(self, Nclimb, Ncruise, objective, airplane, Nmission = 1):
         # define the number of each flight segment
         global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
-               optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, conventional, multimission, \
-               manufacturer, operator, fuel
+               optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_noBLI, conventional, \
+               multimission, manufacturer, operator, fuel
 
 
         # Choose objective type
