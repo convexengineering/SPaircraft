@@ -256,13 +256,6 @@ class Aircraft(Model):
         if D8fam:
             with SignomialsEnabled():
                 constraints.extend([
-
-                    # VT height constraint (3*engine diameter)
-                    # self.VT['b_{vt}'] >= 3. * self.engine['d_{f}'],
-
-                    # Engine out moment arm
-                    self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}'],
-
                     # HT root moment
                     self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['N_{lift}'] * self.HT['L_{h_{rect}}'] * (
                     self.HT['b_{ht}'] / 4.) \
@@ -312,11 +305,12 @@ class Aircraft(Model):
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
                 ])
 
-        #constriants for D8 with rear podded engines nad no BLI
-        if D8_noBLI:
-            constraints.extend([
-                self.VT['y_{eng}'] >= self.fuse['R_{fuse}'] + 1*units('ft'),
-            ])
+
+        if D8fam and not D8_no_BLI:
+            constraints.extend({self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}']})# Engine out moment arm
+        if D8_no_BLI:
+            constraints.extend({self.VT['y_{eng}'] >= self.fuse['w_{fuse}'] + 0.5*self.engine['d_{f}'] + 1*units('ft')})
+
 
         #d8 only constraints
         if D8_eng_wing or M08_D8_eng_wing:
@@ -713,9 +707,15 @@ class Mission(Model):
 
     def setup(self, Nclimb, Ncruise, objective, airplane, Nmission = 1):
         # define the number of each flight segment
+<<<<<<< HEAD
         global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
                optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_noBLI, conventional, \
                multimission, manufacturer, operator, fuel
+=======
+        global D80, D82, D82_73eng, D8_eng_wing, D8big, D8_no_BLI, b737800, b777300ER, optimal737, \
+               optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, conventional, multimission, \
+               manufacturer, operator, fuel
+>>>>>>> a3cdea10c000538fd3c669ab470f53b2e36a9e8a
 
 
         # Choose objective type
@@ -743,7 +743,7 @@ class Mission(Model):
         M08D8 = False
         M08_D8_eng_wing = False
         M072_737 = False
-        D8_noBLI = False
+        D8_no_BLI = False
 
         if airplane == 'D80':
             D80 = True
@@ -769,8 +769,8 @@ class Mission(Model):
             M08_D8_eng_wing = True
         if airplane == 'M072_737':
             M072_737 = True
-        if airplane == 'D8_noBLI':
-            D8_noBLI = True
+        if airplane == 'D8_no_BLI':
+            D8_no_BLI = True
 
         #choose multimission or not
         if Nmission == 1:
@@ -786,7 +786,7 @@ class Mission(Model):
             eng = 1
             BLI = False
              
-        if b737800 or optimal737 or M072_737 or D8_noBLI:
+        if b737800 or optimal737 or M072_737 or D8_no_BLI:
              eng = 1
              BLI = False
 
@@ -802,7 +802,7 @@ class Mission(Model):
              eng = 4
              BLI = False
 
-        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_noBLI:
+        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_no_BLI:
             D8fam = True
         else:
             D8fam = False
@@ -901,7 +901,7 @@ class Mission(Model):
               ])
 
             #Setting fuselage drag and lift, and BLI correction
-            if D8fam and not D8_noBLI:
+            if D8fam and not D8_no_BLI:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/climb['f_{BLI}'] ,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/cruise['f_{BLI}'],
@@ -909,7 +909,7 @@ class Mission(Model):
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
-            if D8_noBLI:
+            if D8_no_BLI:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,

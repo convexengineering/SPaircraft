@@ -298,10 +298,11 @@ if __name__ == '__main__':
     Ncruise = 2
     Nmission = 1
     objective = 'fuel'
-    aircraft = 'b737800'
+    aircraft = 'D8_no_BLI'
 
     genVSP = True
     sweeps = False
+    nsweep = 5
 
     if Nmission == 1:
         multimission = True
@@ -315,6 +316,21 @@ if __name__ == '__main__':
     if aircraft == 'D80':
         print('D80 executing...')
         substitutions = getD80subs()
+        if Nmission == 1:
+                substitutions.update({
+##                 'n_{pax}': 180.,
+                'ReqRng': 3000.*units('nmi'),
+                })
+
+        if Nmission != 1:
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.],
+                })
+
+    if aircraft == 'D8_no_BLI':
+        print('D8_no_BLI executing...')
+        substitutions = get_D8_no_BLI_subs()
         if Nmission == 1:
                 substitutions.update({
 ##                 'n_{pax}': 180.,
@@ -414,9 +430,24 @@ if __name__ == '__main__':
                 'ReqRng': [6000.],
                 })
 
+    if aircraft == 'b737800':
+        print('b737800 executing...')
+        substitutions = getb737800subs()
+        if Nmission == 1:
+                substitutions.update({
+##                 'n_{pax}': 180.,
+                'ReqRng': 3000.*units('nmi'),
+                })
+
+        if Nmission != 1:
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.],
+                })
+
     m.substitutions.update(substitutions)
 
-    if aircraft in ['D80','D82']:
+    if aircraft in ['D80','D82','D8_no_BLI']:
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
     if aircraft in ['D8big', 'D82_73eng', 'D8_eng_wing', 'optimalD8', 'M08D8', 'M08_D8_eng_wing']:
@@ -442,9 +473,7 @@ if __name__ == '__main__':
          if aircraft in ['b777300ER']:
               percent_diff(sol, 777, Nclimb)
     if genVSP:
-        if aircraft in ['D80', 'D82', 'D8big']:
-            genDesFile(sol,False,0,aircraft)
-        if aircraft in ['b737800', 'b777300ER']:
-            genDesFile(sol,False,0,aircraft)
         if sweeps:
-            genDesFileSweep(sol,n,b737800)
+            genDesFileSweep(sol,aircraft,nsweep)
+        else:
+            genDesFile(sol,aircraft)
