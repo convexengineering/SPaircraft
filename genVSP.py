@@ -221,7 +221,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         resultsDict.update({
             'RJLYSBJAFOT':float(yeng.magnitude), #Engine y location
             'GBGVQARDEVD':float(0.0), # Engine z location
-            'EGCVYPSLWEZ':float(xCGvt.magnitude+0.25*crootvt.magnitude), # Engine x location
+            'EGCVYPSLWEZ':float(xCGvt.magnitude), # Engine x location
         })
 
     updateOpenVSP(resultsDict,i)
