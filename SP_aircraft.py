@@ -88,7 +88,7 @@ def run_D82():
 
     return sol
 
-def run_D8_no_BLI():
+def run_D8_noBLI():
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -239,7 +239,7 @@ if __name__ == '__main__':
     Ncruise = 2
     Nmission = 1
     objective = 'fuel'
-    aircraft = 'b737800'
+    aircraft = 'D8_noBLI'
 
     genVSP = True
     sweeps = False
@@ -257,6 +257,21 @@ if __name__ == '__main__':
     if aircraft == 'D80':
         print('D80 executing...')
         substitutions = getD80subs()
+        if Nmission == 1:
+                substitutions.update({
+##                 'n_{pax}': 180.,
+                'ReqRng': 3000.*units('nmi'),
+                })
+
+        if Nmission != 1:
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.],
+                })
+
+    if aircraft == 'D8_noBLI':
+        print('D8_noBLI executing...')
+        substitutions = get_D8_no_BLI_subs()
         if Nmission == 1:
                 substitutions.update({
 ##                 'n_{pax}': 180.,
@@ -373,7 +388,7 @@ if __name__ == '__main__':
 
     m.substitutions.update(substitutions)
 
-    if aircraft in ['D80','D82']:
+    if aircraft in ['D80','D82','D8_noBLI']:
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
     if aircraft in ['D8big', 'D82_73eng', 'D8_eng_wing', 'optimalD8', 'M08D8', 'M08_D8_eng_wing']:

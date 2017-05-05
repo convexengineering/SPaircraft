@@ -216,6 +216,13 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         'FQDVQTUBLUX':float(hfuse.magnitude),                                # VT z location (0.5 m off the widest point of the fuselage)
         'GWTZZGTPXQU':float(0.),                                             # VT dihedral
         })
+    # Rear mounted non-BLI D8 engines
+    if aircraft in ['D8_noBLI']:
+        resultsDict.update({
+            'RJLYSBJAFOT':float(yeng.magnitude), #Engine y location
+            'GBGVQARDEVD':float(0.0), # Engine z location
+            'EGCVYPSLWEZ':float(xCGvt.magnitude+0.25*crootvt.magnitude), # Engine x location
+        })
 
     updateOpenVSP(resultsDict,i)
     print('File generation successful!')
