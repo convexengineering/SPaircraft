@@ -737,6 +737,7 @@ class Mission(Model):
         M08D8 = False
         M08_D8_eng_wing = False
         M072_737 = False
+        D8_noBLI = False
 
         if airplane == 'D80':
             D80 = True
@@ -762,6 +763,8 @@ class Mission(Model):
             M08_D8_eng_wing = True
         if airplane == 'M072_737':
             M072_737 = True
+        if airplane == 'D8_noBLI':
+            D8_noBLI = True
 
         #choose multimission or not
         if Nmission == 1:
@@ -777,7 +780,7 @@ class Mission(Model):
             eng = 3
             BLI = False
              
-        if b737800 or optimal737 or M072_737:
+        if b737800 or optimal737 or M072_737 or D8_noBLI:
              eng = 1
              BLI = False
 
@@ -793,7 +796,7 @@ class Mission(Model):
              eng = 4
              BLI = False
 
-        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8:
+        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_noBLI:
             D8fam = True
         else:
             D8fam = False
@@ -892,12 +895,20 @@ class Mission(Model):
               ])
 
             #Setting fuselage drag and lift, and BLI correction
-            if D8fam:
+            if D8fam and not D8_noBLI:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/climb['f_{BLI}'] ,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/cruise['f_{BLI}'],
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
+                    CruiseAlt >= 30000. * units('ft'),
+                  ])
+            if D8_noBLI:
+                constraints.extend([
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
+                    climb['f_{BLI}'] == 1.0, #TODO area for improvement
+                    cruise['f_{BLI}'] == 1.0, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
             if D8_eng_wing or M08_D8_eng_wing:

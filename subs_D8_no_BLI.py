@@ -10,12 +10,10 @@ def get_D8_no_BLI_subs():
         VTsweep = 25.0 #[deg]
         HTsweep = 8.0 #[deg]
         M4a = .2
-        fan = 1.60474
-        lpc  = 4.98
-        hpc = 35./8.
+        fan = 1.685
+        lpc  = 8./1.685
+        hpc = 30./8.
 
-        #Percent of velocity loss from BL smeared across entire fan
-        BLIVloss = 0
         #Min cruise mach number
         Mcruisemin = 0.72
 
@@ -55,15 +53,15 @@ def get_D8_no_BLI_subs():
                 'f_{string}': 0.35,
 
                 'h_{floor}': 5.12*units('in'),
-##                'R_{fuse}': 1.715*units('m'),
-##                '\\delta R_{fuse}': 0.43*units('m'),
+                'R_{fuse}': 1.715*units('m'),
+                '\\delta R_{fuse}': 0.43*units('m'),
                 'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
 
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft'),
-                'L_{total/wing}': 1.195,
+                'L_{total/wing}': 1.179,
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
@@ -91,8 +89,8 @@ def get_D8_no_BLI_subs():
 ##                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
-                'f_{wingfuel}': 1.0,
                 'TipReduct': 1.0,
+                'f_{wingfuel}': .35,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,
@@ -128,7 +126,7 @@ def get_D8_no_BLI_subs():
                 '\\alpha_{max,h}': 2.5,
                 'C_{L_{hmax}}': 2.0, # [TAS]
                 'SM_{min}': 0.05,
-                '\\Delta x_{CG}': 6*units('ft'),
+                '\\Delta x_{CG}': 6.8*units('ft'),
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
@@ -140,12 +138,12 @@ def get_D8_no_BLI_subs():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 6.,
+                'rSnace': 16.,
                 'f_{pylon}': 0.05,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
-                'r_{vnace}': 0.925,
+                'r_{vnace}': 1.02,
 
                 # Cabin air substitutions in AircraftP
 
@@ -156,14 +154,14 @@ def get_D8_no_BLI_subs():
                 'M_{min}': Mcruisemin,
 
                 # Engine substitutions
-                '\\pi_{tn}': .995,
+                '\\pi_{tn}': .989,
                 '\pi_{b}': .94,
-                '\pi_{d}': .995,
-                '\pi_{fn}': .985,
+                '\pi_{d}': .998,
+                '\pi_{fn}': .98,
                 'T_{ref}': 288.15,
                 'P_{ref}': 101.325,
-                '\eta_{HPshaft}': .978,
-                '\eta_{LPshaft}': .99,
+                '\eta_{HPshaft}': .99,
+                '\eta_{LPshaft}': .978,
                 'eta_{B}': .985,
 
                 '\pi_{f_D}': fan,
@@ -171,34 +169,27 @@ def get_D8_no_BLI_subs():
                 '\pi_{lc_D}': lpc,
 
 ##                '\\alpha_{OD}': 6.97,
-                '\\alpha_{max}': 6.97,
+                '\\alpha_{max}': 9,#6.97,
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,
-                '\\alpha_c': .16,
+                '\\alpha_c': .19036,
                 'T_{t_f}': 435.,
 
-                'M_{takeoff}': .9556,
+                'M_{takeoff}': .9709,
 
                 'G_f': 1.,
 
                 'h_f': 43.003,
 
-                'Cp_t1': 1236.5,
-                'Cp_t2': 1200.4,
-                'Cp_c': 1257.9,
+                'Cp_t1': 1253.,
+                'Cp_t2': 1223.,
+                'Cp_c': 1283.,
 
                 'HTR_{f_SUB}': 1.-.3**2.,
                 'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
-                'T_{t_{4.1_{max}}}': 1750.*units('K'),
-
-                #BLI factors
-                #compute the cruise stagnation pressure loss factor given a min
-                #mach number and the BLI velocity loss factor
-                'f_{BLI_P}': (10400. +.2546*1.225*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
-                              (10400. +.2546*1.225*(Mcruisemin*295.)**2),
-                'f_{BLI_V}': 1 - BLIVloss,
+                'T_{t_{4.1_{max}}}': 1613.*units('K'),
         }
 
         return substitutions
