@@ -326,6 +326,21 @@ if __name__ == '__main__':
                 'ReqRng': [6000.],
                 })
 
+    if aircraft == 'b737800':
+        print('b737800 executing...')
+        substitutions = getb737800subs()
+        if Nmission == 1:
+                substitutions.update({
+##                 'n_{pax}': 180.,
+                'ReqRng': 3000.*units('nmi'),
+                })
+
+        if Nmission != 1:
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.],
+                })
+
     m.substitutions.update(substitutions)
 
     if aircraft in ['D80','D82']:

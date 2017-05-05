@@ -135,6 +135,7 @@ def genDesFile(sol, swpt = False, i=0, aircraft = 'D82'):
         lnace = sol('l_{nacelle}').to('m')
         yeng = sol('y_{eng}_Mission, Aircraft, VerticalTail, VerticalTailNoStruct').to('m')
 
+    # Creating the default (D82) resultsDict
     resultsDict = {
         # Engine Variables
         'OOWZWGGROQZ':float(lnace.magnitude),    # Engine length (chord)
@@ -192,17 +193,20 @@ def genDesFile(sol, swpt = False, i=0, aircraft = 'D82'):
         'AGOKGLSLBTO':float(sweep), # Wing sweep angle
         'SMCAVCZXJSG':float(+dihedral), # Wing dihedral
     }
+    # if aircraft in ['D8big', 'D82_73eng', 'D8_eng_wing', 'optimalD8', 'M08D8', 'M08_D8_eng_wing']:
 
-    #Differentiating between b737800 and D8
-    if aircraft == 'b737800':
+    # Wing mounted engines
+    if aircraft in ['b737800', 'b777300ER','D8_eng_wing','M08_D8_eng_wing']:
         resultsDict.update({
          # Engine Variables
         'EGCVYPSLWEZ':float((xwing).magnitude), # Engine x location
         'RJLYSBJAFOT':float(yeng.magnitude), #Engine y location
         'GBGVQARDEVD':float(-hfuse.magnitude - 0.2*df.magnitude), # Engine z location
         'HKVDGHIEXRW':float(0.),                                  # Engine up-rotation (degrees)
-        # Floor Variables
-        # Fuselage variables
+        })
+    # Conventional tail
+    if aircraft in ['b737800', 'b777300ER']:
+        resultsDict.update({
         # HT Variables
         'USGQFZQKJWC':float(float(xCGht.magnitude) - crootht.magnitude), # HT x location
         'BLMHVDOLAQJ':float(0.),                                             # HT z location
@@ -211,9 +215,7 @@ def genDesFile(sol, swpt = False, i=0, aircraft = 'D82'):
         'BFZDOVCXTAV':float(0.),                                             # VT y location (as wide as fuselage)
         'FQDVQTUBLUX':float(hfuse.magnitude),                                # VT z location (0.5 m off the widest point of the fuselage)
         'GWTZZGTPXQU':float(0.),                                             # VT dihedral
-        # Wing variables
         })
-    # if D80 or D82:
 
     updateOpenVSP(resultsDict,i)
     print('File generation successful!')
