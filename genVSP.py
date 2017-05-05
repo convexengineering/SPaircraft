@@ -220,8 +220,5 @@ def genDesFile(sol, swpt = False, i=0, aircraft = 'D82'):
     updateOpenVSP(resultsDict,i)
     print('File generation successful!')
 
-def genDesFileSweep(sol, n, b737800=True):
-    for i in range(0,n):
-        genDesFile(sol,True,i,b737800)
 
 
