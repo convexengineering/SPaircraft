@@ -53,8 +53,8 @@ def get_D8_no_BLI_subs():
                 'f_{string}': 0.35,
 
                 'h_{floor}': 5.12*units('in'),
-                'R_{fuse}': 1.715*units('m'),
-                '\\delta R_{fuse}': 0.43*units('m'),
+##                'R_{fuse}': 1.715*units('m'),
+                '\\delta R_{fuse}': 0.0001*units('m'),
                 'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
@@ -169,7 +169,7 @@ def get_D8_no_BLI_subs():
                 '\pi_{lc_D}': lpc,
 
 ##                '\\alpha_{OD}': 6.97,
-                '\\alpha_{max}': 9,#6.97,
+##                '\\alpha_{max}': 5.1,#6.97,
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,
@@ -189,7 +189,7 @@ def get_D8_no_BLI_subs():
                 'HTR_{f_SUB}': 1.-.3**2.,
                 'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
-                'T_{t_{4.1_{max}}}': 1613.*units('K'),
+                'T_{t_{4.1_{max}}}': 1567.*units('K'),
         }
 
         return substitutions

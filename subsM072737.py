@@ -160,7 +160,7 @@ def get_M072_737_subs():
             '\pi_{lc_D}': lpc,
 
 ##            '\\alpha_{OD}': 5.1,
-            '\\alpha_{max}': 9,#5.6958,
+##            '\\alpha_{max}': 5.6958,
 
             'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
             'r_{uc}': .05,
@@ -187,7 +187,7 @@ def get_M072_737_subs():
             'rSnace': 16.,
             # nacelle drag calc parameter
             'r_{vnace}': 1.02,
-            'T_{t_{4.1_{max}}}': 1613.*units('K'),
+            'T_{t_{4.1_{max}}}': 1567.*units('K'),
     }
 
     return substitutions
