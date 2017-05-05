@@ -168,8 +168,8 @@ def getD8_eng_wing_subs():
                 '\pi_{hc_D}': hpc,
                 '\pi_{lc_D}': lpc,
 
-                '\\alpha_{OD}': 6.97,
-                '\\alpha_{max}': 6.97,
+##                '\\alpha_{OD}': 6.97,
+                '\\alpha_{max}': 9,#6.97,
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,
