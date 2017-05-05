@@ -1,30 +1,28 @@
+
 from gpkit import units
 from numpy import cos, tan, pi
 
-def getD8bigsubs():
+def get_D8_no_BLI_subs():
         """
-        returns substitution dic for a 777esque D8
+        returns substitution dic for the D8.2
         """
-
-        sweep = 13.237 #[deg]
+        sweep = 13.237  # [deg]
         VTsweep = 25.0 #[deg]
         HTsweep = 8.0 #[deg]
-        M4a = .1025
-        fan = 1.7
-        lpc  = 4.69
-        hpc = 5.25
+        M4a = .2
+        fan = 1.60474
+        lpc  = 4.98
+        hpc = 35./8.
 
         #Percent of velocity loss from BL smeared across entire fan
-        BLIVloss = 0.18
+        BLIVloss = 0
         #Min cruise mach number
         Mcruisemin = 0.72
 
         substitutions = {
                 'N_{land}': 6.,
                 'p_s': 81.*units('cm'),
-                '\\theta_{db}' : 0.366,
                 'numeng': 2.,
-                'numVT': 2.,
                 'numaisle':2.,
                 'W_{avg. pass}': 180.*units('lbf'),
                 'W_{carry on}': 15.*units('lbf'),
@@ -49,22 +47,23 @@ def getD8bigsubs():
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
                 'V_{mn}': 133.76*units('m/s'),
 
-                # TASOPT Fuselage substitutions
-                'l_{nose}': 29.*units('ft')*1.75,   #1.75 is estimated length increase factor from D8.2
-                'L_{total/wing}': 1.179,
-
                 # Fuselage subs
                 'f_{seat}': 0.1,
                 'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
                 'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
-                'W_{avg. pass_{total}}':230.*units('lbf'),
+                'W_{avg. pass_{total}}':215.*units('lbf'),
                 'f_{string}': 0.35,
-                'h_{floor}': 5 *units('in'),
-##            'R_{fuse}': 1.715*units('m'),
-##            '\\delta R_{fuse}': 0.43*units('m'),
-##                'w_{db}': 0.93*units('m'),
+
+                'h_{floor}': 5.12*units('in'),
+##                'R_{fuse}': 1.715*units('m'),
+##                '\\delta R_{fuse}': 0.43*units('m'),
+                'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
-                'SPR': 12.,
+                'SPR': 8.,
+
+                # TASOPT Fuselage substitutions
+                'l_{nose}': 29.*units('ft'),
+                'L_{total/wing}': 1.195,
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
@@ -76,30 +75,29 @@ def getD8bigsubs():
                 'f_{fadd}': 0.2,  # [TAS]
                 'f_{frame}': 0.25,  # [Philippe]
                 'f_{lugg,1}': 0.4,  # [Philippe]
-                'f_{lugg,2}': 0.4,  # [Philippe]
+                'f_{lugg,2}': 0.1,  # [Philippe]
                 'f_{padd}': 0.35,  # [TAS]
                 'f_{hpesys}': 0.01, # [TAS]
                 'f_{lgmain}':0.03, # [TAS]
                 'f_{lgnose}':0.0075, # [TAS]
 
                 # Wing substitutions
-##                'AR':15.749,
-##                'b_{max}': 200.0 * 0.3048*units('m'),
-                'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
+                'C_{L_{wmax}}': 2.15/(cos(sweep)**2), # [TAS]
                 '\\tan(\\Lambda)': tan(sweep * pi / 180.),
                 '\\cos(\\Lambda)': cos(sweep * pi / 180.),
                 '\\eta': 0.97,
                 '\\rho_0': 1.225*units('kg/m^3'),
-
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-                '\\tau_{max_w}': 0.15,
-                'f_{wingfuel}': .35,
+##                'AR':15.749,
+                'b_{max}': 140.0 * 0.3048*units('m'),
+                '\\tau_{max_w}': 0.14733,
+                'f_{wingfuel}': 1.0,
                 'TipReduct': 1.0,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,
                 'f_{flap}': 0.2,
-                'f_{slat}': 0.0001,
+                'f_{slat}': 0.001,
                 'f_{aileron}': 0.04,
                 'f_{lete}': 0.1,
                 'f_{ribs}': 0.15,
@@ -107,19 +105,20 @@ def getD8bigsubs():
                 'f_{watt}': 0.03,
 
                 # VT substitutions
-                'A_{vt}' : 2.2,
                 'C_{D_{wm}}': 0.5, # [2]
                 'C_{L_{vmax}}': 2.6, # [TAS]
                 'V_1': 70.*units('m/s'),
                 '\\rho_{TO}': 1.225*units('kg/m^3'),
-                '\\tan(\\Lambda_{vt})': tan(VTsweep*pi/180),
                 'c_{l_{vtEO}}': 0.5, # [TAS]
                 'e_v': 0.8,
-                # 'y_{eng}': 4.83*units('m'), # [3]
                 'V_{land}': 72.*units('m/s'),
-                '\\dot{r}_{req}': 0.00001, # 10 deg/s/s yaw rate acceleration
-                'N_{spar}': 1.,
+                '\\dot{r}_{req}': 0.0001, #0.1475 10 deg/s/s yaw rate acceleration
+                'N_{spar}': 1,
                 'f_{VT}': 0.4,
+                'numVT': 2.,
+                'A_{vt}' : 2.2,
+                '\\lambda_{vt}': 0.3,
+                '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
                 '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
                 'c_{d_{fv}}': 0.0060,
                 'c_{d_{pv}}': 0.0035,
@@ -129,18 +128,17 @@ def getD8bigsubs():
                 '\\alpha_{max,h}': 2.5,
                 'C_{L_{hmax}}': 2.0, # [TAS]
                 'SM_{min}': 0.05,
-                '\\Delta x_{CG}': 11.97 * units('ft'),
-                'x_{CG_{min}}' : 117.31*units('ft'),
+                '\\Delta x_{CG}': 6*units('ft'),
+                'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
-                '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
-                'c_{d_{fh}}': 0.0060,
-                'c_{d_{ph}}': 0.0035,
 ##                'AR_{ht}': 12.,
                 '\\lambda_{ht}': 0.3,
                 '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
-                '\\lambda_{vt}': 0.3,
-
+                '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
+                'c_{d_{fh}}': 0.0060,
+                'c_{d_{ph}}': 0.0035,
+                
                 #engine system subs
                 'rSnace': 6.,
                 'f_{pylon}': 0.05,
@@ -152,13 +150,13 @@ def getD8bigsubs():
                 # Cabin air substitutions in AircraftP
 
                 #set the fuel reserve fraction
-                'ReserveFraction': .05,
+                'ReserveFraction': .20,
 
                 # Minimum Cruise Mach Number
                 'M_{min}': Mcruisemin,
 
-                #new engine params
-                '\pi_{tn}': .995,
+                # Engine substitutions
+                '\\pi_{tn}': .995,
                 '\pi_{b}': .94,
                 '\pi_{d}': .995,
                 '\pi_{fn}': .985,
@@ -172,33 +170,29 @@ def getD8bigsubs():
                 '\pi_{hc_D}': hpc,
                 '\pi_{lc_D}': lpc,
 
-##                '\\alpha_{OD}': 8.62,
-                '\\alpha_{max}': 200,     #place holder value not active during analysis
+##                '\\alpha_{OD}': 6.97,
+                '\\alpha_{max}': 6.97,
 
-                'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
-                'r_{uc}': .1,
-                '\\alpha_c': .156,
-                'T_{t_f}': 435,
+                'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
+                'r_{uc}': .01,
+                '\\alpha_c': .16,
+                'T_{t_f}': 435.,
 
-                'M_{takeoff}': .9539,
+                'M_{takeoff}': .9556,
 
-                'G_f': 1,
+                'G_f': 1.,
 
                 'h_f': 43.003,
 
-                'Cp_t1': 1257.3,
-                'Cp_t2': 1158.35,
-                'Cp_c': 1278.5,
+                'Cp_t1': 1236.5,
+                'Cp_t2': 1200.4,
+                'Cp_c': 1257.9,
 
-                'HTR_{f_SUB}': 1-.3**2,
-                'HTR_{lpc_SUB}': 1 - 0.6**2,
+                'HTR_{f_SUB}': 1.-.3**2.,
+                'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
-                # engine system subs
-                'rSnace': 6.,
-                # nacelle drag calc parameter
-                'r_{vnace}': .925,
-                'T_{t_{4.1_{max}}}': 1860.*units('K'),
-                
+                'T_{t_{4.1_{max}}}': 1750.*units('K'),
+
                 #BLI factors
                 #compute the cruise stagnation pressure loss factor given a min
                 #mach number and the BLI velocity loss factor

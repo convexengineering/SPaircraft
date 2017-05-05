@@ -185,7 +185,7 @@ def getb737800subs():
             'rSnace': 16.,
             # nacelle drag calc parameter
             'r_{vnace}': 1.02,
-            'T_{t_{4.1_{max}}}': 1833.*units('K'),
+            'T_{t_{4.1_{max}}}': 1613.*units('K'),
     }
 
     return substitutions
