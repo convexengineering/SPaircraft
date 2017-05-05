@@ -783,7 +783,7 @@ class Mission(Model):
              BLI = True
 
         if D8_eng_wing or M08_D8_eng_wing:
-            eng = 3
+            eng = 1
             BLI = False
              
         if b737800 or optimal737 or M072_737 or D8_noBLI:
@@ -928,7 +928,7 @@ class Mission(Model):
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
                    ])
-            if b737800 or optimal737:
+            if conventional and not b777300ER:
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00801,
