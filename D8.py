@@ -707,16 +707,10 @@ class Mission(Model):
 
     def setup(self, Nclimb, Ncruise, objective, airplane, Nmission = 1):
         # define the number of each flight segment
-<<<<<<< HEAD
+
         global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
                optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_noBLI, conventional, \
                multimission, manufacturer, operator, fuel
-=======
-        global D80, D82, D82_73eng, D8_eng_wing, D8big, D8_no_BLI, b737800, b777300ER, optimal737, \
-               optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, conventional, multimission, \
-               manufacturer, operator, fuel
->>>>>>> a3cdea10c000538fd3c669ab470f53b2e36a9e8a
-
 
         # Choose objective type
         manufacturer = False
