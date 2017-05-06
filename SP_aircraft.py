@@ -96,7 +96,7 @@ def run_D8_no_BLI():
     Ncruise = 2
     Nmission = 1
     objective = 'fuel'
-    aircraft = 'D8_noBLI'
+    aircraft = 'D8_no_BLI'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
