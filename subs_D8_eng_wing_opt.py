@@ -1,8 +1,7 @@
-
 from gpkit import units
 from numpy import cos, tan, pi
 
-def get_D8_no_BLI_subs():
+def get_D8_eng_wing_opt_subs():
         """
         returns substitution dic for the D8.2
         """
@@ -18,7 +17,7 @@ def get_D8_no_BLI_subs():
         Mcruisemin = 0.72
 
         substitutions = {
-                'N_{land}': 6.,
+                 'N_{land}': 6.,
                 'p_s': 81.*units('cm'),
                 'numeng': 2.,
                 'numaisle':2.,
@@ -54,7 +53,7 @@ def get_D8_no_BLI_subs():
 
                 'h_{floor}': 5.12*units('in'),
 ##                'R_{fuse}': 1.715*units('m'),
-                '\\delta R_{fuse}': 0.0001*units('m'),
+##                '\\delta R_{fuse}': 0.0001*units('m'),
                 'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
@@ -169,7 +168,7 @@ def get_D8_no_BLI_subs():
                 '\pi_{lc_D}': lpc,
 
 ##                '\\alpha_{OD}': 6.97,
-##                '\\alpha_{max}': 5.1,#6.97,
+##                '\\alpha_{max}': 5.1,
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,

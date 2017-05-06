@@ -305,10 +305,12 @@ class Aircraft(Model):
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
                 ])
 
+
         if D8fam and not D8_no_BLI:
             constraints.extend({self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}']})# Engine out moment arm
         if D8_no_BLI:
             constraints.extend({self.VT['y_{eng}'] >= self.fuse['w_{fuse}'] + 0.5*self.engine['d_{f}'] + 1*units('ft')})
+
 
         #d8 only constraints
         if D8_eng_wing or M08_D8_eng_wing:
@@ -705,10 +707,10 @@ class Mission(Model):
 
     def setup(self, Nclimb, Ncruise, objective, airplane, Nmission = 1):
         # define the number of each flight segment
-        global D80, D82, D82_73eng, D8_eng_wing, D8big, D8_no_BLI, b737800, b777300ER, optimal737, \
-               optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, conventional, multimission, \
-               manufacturer, operator, fuel
 
+        global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
+               optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_noBLI, conventional, \
+               multimission, manufacturer, operator, fuel
 
         # Choose objective type
         manufacturer = False
@@ -775,7 +777,7 @@ class Mission(Model):
              BLI = True
 
         if D8_eng_wing or M08_D8_eng_wing:
-            eng = 3
+            eng = 1
             BLI = False
              
         if b737800 or optimal737 or M072_737 or D8_no_BLI:
@@ -920,7 +922,7 @@ class Mission(Model):
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
                    ])
-            if b737800 or optimal737:
+            if conventional and not b777300ER:
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00801,

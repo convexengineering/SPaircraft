@@ -18,10 +18,12 @@ from subsD8_eng_wing import getD8_eng_wing_subs
 from subsD8big import getD8bigsubs
 from subsb737800 import getb737800subs
 from subsb777300ER import getb777300ERsubs
+from subs_optimal_737_fixedBPR import get737_optimal_fixedBPR_subs
 from subs_optimal_737 import get737_optimal_subs
 from subs_optimal_D8 import get_optimal_D8_subs
 from subs_M08_D8 import subs_M08_D8
 from subs_M08_d8_eng_wing import getM08_D8_eng_wing_subs
+from subs_D8_eng_wing_opt import get_D8_eng_wing_opt_subs
 from subsM072737 import get_M072_737_subs
 from subs_D8_no_BLI import get_D8_no_BLI_subs
 
@@ -94,7 +96,7 @@ def run_D8_no_BLI():
     Ncruise = 2
     Nmission = 1
     objective = 'fuel'
-    aircraft = 'D82'
+    aircraft = 'D8_noBLI'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
@@ -112,7 +114,7 @@ def run_D8_no_BLI():
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
-    percent_diff(sol, 2, Nclimb)
+    percent_diff(sol, 'D82', Nclimb)
 
     return sol
 
@@ -141,7 +143,7 @@ def run_M072_737():
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
-    percent_diff(sol, 801, Nclimb)
+    percent_diff(sol, 'b737800', Nclimb)
 
     return sol
 
@@ -156,6 +158,34 @@ def run_D8_eng_wing():
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
     substitutions = getD8_eng_wing_subs()
+
+    substitutions.update({
+#                'n_{paxx}': 180.,
+        'ReqRng': 3000.*units('nmi'),
+    })
+
+    m.substitutions.update(substitutions)
+
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 2, Nclimb)
+
+    return sol
+
+def run_D8_eng_wing_opt():
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'D8_eng_wing'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get_D8_eng_wing_opt_subs()
 
     substitutions.update({
 #                'n_{paxx}': 180.,
@@ -197,7 +227,7 @@ def run_optimal_D8():
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
-    percent_diff(sol, 2, Nclimb)
+    percent_diff(sol, 'D82', Nclimb)
 
     return sol
 
@@ -226,7 +256,36 @@ def run_optimal_737():
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
-    percent_diff(sol, 801, Nclimb)
+    percent_diff(sol, 'b737800', Nclimb)
+
+    return sol
+
+def run_optimal_737_fixedBPR():
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'optimal737'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get737_optimal_fixedBPR_subs()
+
+    substitutions.update({
+#                'n_{paxx}': 180.,
+        'ReqRng': 3000.*units('nmi'),
+    })
+
+    m.substitutions.update(substitutions)
+
+    m = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 'b737800', Nclimb)
 
     return sol
 

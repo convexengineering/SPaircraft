@@ -1,7 +1,7 @@
 from gpkit import units
 from numpy import cos, tan, pi
 
-def get737_optimal_subs():
+def get737_optimal_fixedBPR_subs():
     """
     returns substitution dic for the TASOPT Boeing 737-800 model
     """
@@ -160,7 +160,7 @@ def get737_optimal_subs():
             '\pi_{lc_D}': lpc,
 
 ##            '\\alpha_{OD}': 5.1,
-##            '\\alpha_{max}': 5.6958,
+            '\\alpha_{max}': 5.6958,
 
             'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
             'r_{uc}': .05,
