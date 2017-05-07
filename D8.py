@@ -309,7 +309,7 @@ class Aircraft(Model):
         if D8fam and not D8_no_BLI:
             constraints.extend({self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}']})# Engine out moment arm
         if D8_no_BLI:
-            constraints.extend({self.VT['y_{eng}'] >= self.fuse['w_{fuse}'] + 0.5*self.engine['d_{f}'] + 1*units('ft')})
+            constraints.extend({self.VT['y_{eng}'] >= self.fuse['w_{fuse}'] + 0.5*self.engine['d_{f}'] + 3.*units('ft')})
 
 
         #d8 only constraints
