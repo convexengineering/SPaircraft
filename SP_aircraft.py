@@ -14,7 +14,7 @@ from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
 from subsD80 import getD80subs
 from subsD82 import getD82subs
 from subsD82_73eng import getD82_73engsubs
-from subsD8_eng_wing import getD8_eng_wing_subs
+from subs_D8_eng_wing import get_D8_eng_wing_subs
 from subsD8big import getD8bigsubs
 from subsb737800 import getb737800subs
 from subsb777300ER import getb777300ERsubs
@@ -23,7 +23,7 @@ from subs_optimal_737 import get737_optimal_subs
 from subs_optimal_D8 import get_optimal_D8_subs
 from subs_M08_D8 import subs_M08_D8
 from subs_M08_d8_eng_wing import getM08_D8_eng_wing_subs
-from subs_D8_eng_wing_opt import get_D8_eng_wing_opt_subs
+from subs_D8_eng_wing import get_D8_eng_wing_subs
 from subsM072737 import get_M072_737_subs
 from subs_D8_no_BLI import get_D8_no_BLI_subs
 from subs_M08_D8_noBLI import get_subs_M08_D8_noBLI
@@ -176,7 +176,7 @@ def run_D8_eng_wing():
 
     return sol
 
-def run_D8_eng_wing_opt():
+def run_D8_eng_wing():
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -186,7 +186,7 @@ def run_D8_eng_wing_opt():
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
-    substitutions = get_D8_eng_wing_opt_subs()
+    substitutions = get_D8_eng_wing_subs()
 
     substitutions.update({
 #                'n_{paxx}': 180.,
@@ -383,7 +383,7 @@ if __name__ == '__main__':
     Ncruise = 2
     Nmission = 1
     objective = 'fuel'
-    aircraft = 'D8_no_BLI'
+    aircraft = 'D8_eng_wing'
 
     genVSP = True
     sweeps = False
@@ -401,6 +401,21 @@ if __name__ == '__main__':
     if aircraft == 'D80':
         print('D80 executing...')
         substitutions = getD80subs()
+        if Nmission == 1:
+                substitutions.update({
+##                 'n_{pax}': 180.,
+                'ReqRng': 3000.*units('nmi'),
+                })
+
+        if Nmission != 1:
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.],
+                })
+
+    if aircraft == 'D8_eng_wing':
+        print('D8_eng_wing executing...')
+        substitutions = get_D8_eng_wing_subs()
         if Nmission == 1:
                 substitutions.update({
 ##                 'n_{pax}': 180.,

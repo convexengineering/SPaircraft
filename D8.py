@@ -309,7 +309,7 @@ class Aircraft(Model):
         if D8fam and not D8_no_BLI:
             constraints.extend({self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}']})# Engine out moment arm
         if D8_no_BLI:
-            constraints.extend({self.VT['y_{eng}'] >= self.fuse['w_{fuse}'] + 0.5*self.engine['d_{f}'] + 1*units('ft')})
+            constraints.extend({self.VT['y_{eng}'] >= self.fuse['w_{fuse}'] + 0.5*self.engine['d_{f}'] + 3.*units('ft')})
 
 
         #d8 only constraints
@@ -711,6 +711,7 @@ class Mission(Model):
         global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
                optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_no_BLI, conventional, \
                M08D8_noBLI, multimission, manufacturer, operator, fuel
+
 
         # Choose objective type
         manufacturer = False
