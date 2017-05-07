@@ -26,6 +26,7 @@ from subs_M08_d8_eng_wing import getM08_D8_eng_wing_subs
 from subs_D8_eng_wing_opt import get_D8_eng_wing_opt_subs
 from subsM072737 import get_M072_737_subs
 from subs_D8_no_BLI import get_D8_no_BLI_subs
+from subs_M08_D8_noBLI import get_subs_M08_D8_noBLI
 
 from gpkit import units, Model
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
@@ -96,7 +97,7 @@ def run_D8_no_BLI():
     Ncruise = 2
     Nmission = 1
     objective = 'fuel'
-    aircraft = 'D8_noBLI'
+    aircraft = 'D8_no_BLI'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
@@ -289,6 +290,90 @@ def run_optimal_737_fixedBPR():
 
     return sol
 
+def run_M08_D8_eng_wing():
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'M08_D8_eng_wing'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = getM08_D8_eng_wing_subs()
+
+    substitutions.update({
+#                'n_{paxx}': 180.,
+        'ReqRng': 3000.*units('nmi'),
+    })
+
+    m.substitutions.update(substitutions)
+
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 'D82', Nclimb)
+
+    return sol
+
+def run_M08_D8():
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'M08D8'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = subs_M08_D8()
+
+    substitutions.update({
+#                'n_{paxx}': 180.,
+        'ReqRng': 3000.*units('nmi'),
+    })
+
+    m.substitutions.update(substitutions)
+
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 'D82', Nclimb)
+
+    return sol
+
+def run_M08_D8_noBLI():
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'M08D8_noBLI'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get_subs_M08_D8_noBLI()
+
+    substitutions.update({
+#                'n_{paxx}': 180.,
+        'ReqRng': 3000.*units('nmi'),
+    })
+
+    m.substitutions.update(substitutions)
+
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 'D82', Nclimb)
+
+    return sol
+
 def test():
     run_737800()
 
@@ -343,52 +428,10 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
-    if aircraft == 'optimalD8':
-        print('Optimal D8 executing...')
-        substitutions = get_optimal_D8_subs()
-        if Nmission == 1:
-                substitutions.update({
-##                'n_{pax}': 180.,
-                'ReqRng': 3000.*units('nmi'),
-                })
-        if Nmission != 1:
-                substitutions.update({
-                'n_{pax}': [180.],
-                'ReqRng': [3000.],
-                })
 
     if aircraft == 'D82_73eng':
         print('D82_73eng executing...')
         substitutions = getD82_73engsubs()
-        if Nmission == 1:
-                substitutions.update({
-##                'n_{pax}': 180.,
-                'ReqRng': 3000.*units('nmi'),
-                })
-        if Nmission != 1:
-                substitutions.update({
-                'n_{pax}': [180.],
-                'ReqRng': [3000.],
-                })
-
-    if aircraft == 'M08D8':
-        print('Mach 0.8 D8 executing...')
-        substitutions = subs_M08_D8()
-        if Nmission == 1:
-                substitutions.update({
-##                'n_{pax}': 180.,
-                'ReqRng': 3000.*units('nmi'),
-                })
-        if Nmission != 1:
-                substitutions.update({
-                'n_{pax}': [180.],
-                'ReqRng': [3000.],
-                })
-
-
-    if aircraft == 'M08_D8_eng_wing':
-        print('Mach 0.8 D8_eng_wing executing...')
-        substitutions = getM08_D8_eng_wing_subs()
         if Nmission == 1:
                 substitutions.update({
 ##                'n_{pax}': 180.,
