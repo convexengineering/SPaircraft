@@ -328,6 +328,21 @@ if __name__ == '__main__':
                 'ReqRng': [3000.],
                 })
 
+    if aircraft == 'D8_eng_wing':
+        print('D8_eng_wing executing...')
+        substitutions = get_D8_eng_wing_subs()
+        if Nmission == 1:
+                substitutions.update({
+##                 'n_{pax}': 180.,
+                'ReqRng': 3000.*units('nmi'),
+                })
+
+        if Nmission != 1:
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.],
+                })
+
     if aircraft == 'D8_no_BLI':
         print('D8_no_BLI executing...')
         substitutions = get_D8_no_BLI_subs()
