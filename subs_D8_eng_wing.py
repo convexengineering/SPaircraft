@@ -120,6 +120,7 @@ def get_D8_eng_wing_subs():
                 'c_{d_{fv}}': 0.0060,
                 'c_{d_{pv}}': 0.0035,
                 'V_{vt_{min}}': 0.03,
+                'y_{eng}': 4.8768*units('m'),
 
                 # HT substitutions
                 '\\alpha_{max,h}': 2.5,
