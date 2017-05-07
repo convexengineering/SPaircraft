@@ -1,7 +1,7 @@
 from gpkit import units
 from numpy import cos, tan, pi
 
-def get_D8_eng_wing_opt_subs():
+def get_D8_eng_wing_subs():
         """
         returns substitution dic for the D8.2
         """
