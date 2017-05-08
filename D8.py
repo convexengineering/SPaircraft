@@ -95,6 +95,7 @@ class Aircraft(Model):
 
         # Weights
         with Vectorize(Nmissions):
+             PRFC = Variable('PRFC','','Payload-Range Fuel Consumption')
              W_total = Variable('W_{total}', 'lbf', 'Total Aircraft Weight')
              W_dry = Variable('W_{dry}', 'lbf', 'Zero Fuel Aircraft Weight')
              W_ftotal = Variable('W_{f_{total}}', 'lbf', 'Total Fuel Weight')
@@ -858,6 +859,7 @@ class Mission(Model):
                 cruise['W_{buoy}'] >= (cruise['\\rho_{cabin}'])*g*aircraft['V_{cabin}'], # [SP] # - cruise['\\rho']
                 # climb['W_{buoy}'] >= 0.1*units('lbf'),
                 climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
+                aircraft['PRFC'] == aircraft['W_{f_{primary}}']/g*aircraft.engine['h_f']/(ReqRng*aircraft['W_{payload}'])
             ])
             #CG constraints
             if D8fam:

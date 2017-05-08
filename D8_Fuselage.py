@@ -215,6 +215,9 @@ class Fuselage(Model):
         xb = Variable('x_b', 'm', 'x-location of back of wingbox')
         w = Variable('wtc', 0.5, '-', 'Wingbox-width-to-chord ratio')
 
+        # Moments
+        # alphaMf0 = Variable('\\alpha_{Mf0}','-','AoA at which fuselage moment is zero')
+
         constraints = []
         with SignomialsEnabled():
             constraints.extend([
@@ -398,12 +401,16 @@ class FuselagePerformance(Model):
         # FF = Variable('FF', '-', 'Fuselage form factor')
         # phi = Variable('\\phi', '-', 'Upsweep angle')
 
+        # Moments
+        # CMVf = Variable('CMV_{f1}','m^3','Fuselage pitching moment volume dependence')
+        # alphafuse = Variable('\\alpha_{fuse}','-','Fuselage angle of attack')
 
         # BLI surrogate
         fBLI = Variable('f_{BLI}','-','1-fBLI surrogate')
 
         constraints = []
         constraints.extend([
+            # CMVf <= 2*fuse('V_{cabin}')*(alphafuse - fuse('\\alpha_{Mf0}')) #TODO: figure out directionality of inequality
 ##            CDfuse == CDfuse,
 ##            Dfuse == Dfuse,
 ##            Lfuse == Lfuse,

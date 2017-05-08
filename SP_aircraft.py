@@ -331,7 +331,7 @@ def run_M08_D8():
     substitutions = subs_M08_D8()
 
     substitutions.update({
-#                'n_{paxx}': 180.,
+               # 'n_{pax}': 180.,
         'ReqRng': 3000.*units('nmi'),
     })
 
