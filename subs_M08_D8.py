@@ -9,7 +9,7 @@ def subs_M08_D8():
         VTsweep = 25.0 #[deg]
         HTsweep = 25.0 #[deg]
         M4a = .2
-        fan = 1.60474
+        fan = 1.7
         lpc  = 4.98
         hpc = 35./8.
 

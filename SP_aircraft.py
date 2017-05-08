@@ -346,7 +346,7 @@ def run_M08_D8():
 
     return sol
 
-def run_M08_D8_noBLI():
+def run_M08_D8_no_BLI():
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -364,7 +364,7 @@ def run_M08_D8_noBLI():
     })
 
     m.substitutions.update(substitutions)
-
+    m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)

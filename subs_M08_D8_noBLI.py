@@ -137,7 +137,7 @@ def get_subs_M08_D8_noBLI():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 6.,
+                'rSnace': 16.,
                 'f_{pylon}': 0.05,
                 'f_{eadd}': 0.1,
 
