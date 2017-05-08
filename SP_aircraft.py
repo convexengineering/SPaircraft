@@ -352,11 +352,11 @@ def run_M08_D8_no_BLI():
     Ncruise = 2
     Nmission = 1
     objective = 'fuel'
-    aircraft = 'M08D8_noBLI'
+    aircraft = 'M08D8_no_BLI'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
-    substitutions = get_subs_M08_D8_noBLI()
+    substitutions = get_subs_M08_D8_no_BLI()
 
     substitutions.update({
 #                'n_{paxx}': 180.,
@@ -383,7 +383,7 @@ if __name__ == '__main__':
     Ncruise = 2
     Nmission = 1
     objective = 'fuel'
-    aircraft = 'D8_eng_wing'
+    aircraft = 'M08_D8_noBLI'
 
     genVSP = True
     sweeps = False
@@ -508,7 +508,7 @@ if __name__ == '__main__':
     if aircraft in ['D80','D82','D8_no_BLI']:
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
-    if aircraft in ['D8big', 'D82_73eng', 'D8_eng_wing', 'optimalD8', 'M08D8', 'M08_D8_eng_wing']:
+    if aircraft in ['D8big', 'D82_73eng', 'D8_eng_wing', 'optimalD8', 'M08D8', 'M08_D8_eng_wing','M08_D8_noBLI']:
         m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
     if aircraft in ['b737800', 'optimal737', 'M072_737']:
