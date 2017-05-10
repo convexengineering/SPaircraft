@@ -1176,7 +1176,9 @@ class Mission(Model):
         if PRFC:
              # payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT SUB ReqRng OR n_{pax}.
              if not multimission:
-                self.cost = aircraft['PRFC']
+                self.cost = sum(aircraft['PRFC'])
              else:
                 self.cost = sum(aircraft['PRFC'])
+             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
+
 

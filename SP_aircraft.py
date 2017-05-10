@@ -562,6 +562,11 @@ if __name__ == '__main__':
         m = Model(m.cost, BCS(m))
         m_relax = relaxed_constants(m, None)
 
+    if objective == 'PRFC':
+        # PRFC optimization chooses optimal mission for a given configuration
+        # m.substitutions.__delitem__({'n_{pax}'})
+        m.substitutions.__delitem__('ReqRng')
+
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
     
