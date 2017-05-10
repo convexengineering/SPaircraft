@@ -82,7 +82,7 @@ def get_M072_737_subs():
             '\\eta': 0.97,
             '\\rho_0': 1.225*units('kg/m^3'),
 ##            'AR': 10.1,
-            'b_{max}': 117.5 * units('ft'),
+            'b_{max}': 150 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'f_{wingfuel}': .35,
             '\\tau_{max_w}': 0.1267,

@@ -497,7 +497,8 @@ class AircraftP(Model):
             state['V'] >= Vstall,
 
             # Drag calculations
-            self.fuseP['D_{fuse}'] == self.fuseP['f_{BLI}'] * 0.5 * state['\\rho'] * state['V']**2 * self.fuseP['C_{D_{fuse}}'] * aircraft['S'],
+            self.fuseP['D_{fuse}'] == self.fuseP['f_{BLI}'] * 0.5 * state['\\rho'] * state['V']**2 * \
+                                        self.fuseP['C_{D_{fuse}}'] * aircraft['l_{fuse}'] * aircraft['R_{fuse}'] * (state['M']**2/0.8**2),
             D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.aircraft['numVT']*self.VTP['D_{vt}'] + self.HTP['D_{ht}'] + aircraft['numeng'] * Dnace,
             C_D == D/(.5*state['\\rho']*state['V']**2 * self.aircraft.wing['S']),
             LoD == W_avg/D,
@@ -905,24 +906,24 @@ class Mission(Model):
             #Setting fuselage drag and lift, and BLI correction
             if D8fam and not (D8_no_BLI or M08D8_noBLI):
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/climb['f_{BLI}'] ,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/cruise['f_{BLI}'],
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081/climb['f_{BLI}'] ,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081/cruise['f_{BLI}'],
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
             if D8_no_BLI or M08D8_noBLI:
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081/0.91,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081/0.91,
                     climb['f_{BLI}'] == 1.0, #TODO area for improvement
                     cruise['f_{BLI}'] == 1.0, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
             if D8_eng_wing or M08_D8_eng_wing:
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/.91,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/.91,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081/.91,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081/.91,
                     CruiseAlt >= 30000. * units('ft'),
                   ])
             if conventional or D8_eng_wing or M08_D8_eng_wing:
@@ -933,8 +934,8 @@ class Mission(Model):
             if conventional and not b777300ER:
                 constraints.extend([
                     #Setting fuselage drag coefficient
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00801,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00801,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     #Limiting engine diameter for the b737800
 ##                    aircraft['d_{f}'] <= 1.55*units('m'),
                     CruiseAlt >= 35000. * units('ft'),
@@ -942,8 +943,8 @@ class Mission(Model):
             if b777300ER:
                 constraints.extend([
                     #Setting fuselage drag coefficient
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00535,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00535,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663,
                     CruiseAlt >= 31946. * units('ft'),
                 ])
 
