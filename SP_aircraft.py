@@ -21,6 +21,7 @@ from subsb777300ER import getb777300ERsubs
 from subs_optimal_737_fixedBPR import get737_optimal_fixedBPR_subs
 from subs_optimal_737 import get737_optimal_subs
 from subs_optimal_D8 import get_optimal_D8_subs
+from subs_optimal_D8_fixedBPR import get_optimal_D8_fixedBPR_subs
 from subs_M08_D8 import subs_M08_D8
 from subs_M08_d8_eng_wing import getM08_D8_eng_wing_subs
 from subs_D8_eng_wing import get_D8_eng_wing_subs
@@ -33,6 +34,33 @@ from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, 
 from gpkit.constraints.bounded import Bounded as BCS
 
 from D8 import Mission
+
+#import needed for plotting
+import matplotlib.pyplot as plt
+from gpkit.small_scripts import mag
+import numpy as np
+
+def gen_plots(sol):
+    """
+    function to generate plots of interesting values
+    """
+
+    #generate an altitude profile plot
+    rng = []
+    alt = []
+    for i in range(len(sol('RngClimb'))):
+           rng.append(mag(sol('RngClimb')[i][0]))
+    for i in range(len(sol('Rng'))):
+           rng.append(mag(sol('Rng')[i][0]))
+    for i in range(len(sol('hft')['hft_Mission, FlightState, Altitude'])):
+           alt.append(sol('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    rng = np.cumsum(rng)
+    plt.plot(rng, alt)
+    plt.ylabel('Altitude [feet]', fontsize=18)
+    plt.xlabel('Down Range Distnace', fontsize=18)
+    plt.title('Aircraft Altitude Profile')
+#    plt.savefig('M08_D8_wing_profile_drag.pdf', bbox_inches="tight")
+    plt.show()
 
 def run_737800():
     # User definitions
@@ -109,7 +137,7 @@ def run_D8_no_BLI():
     })
 
     m.substitutions.update(substitutions)
-
+    m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
@@ -158,34 +186,6 @@ def run_D8_eng_wing():
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
-    substitutions = getD8_eng_wing_subs()
-
-    substitutions.update({
-#                'n_{paxx}': 180.,
-        'ReqRng': 3000.*units('nmi'),
-    })
-
-    m.substitutions.update(substitutions)
-
-    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
-
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
-    post_process(sol)
-
-    percent_diff(sol, 2, Nclimb)
-
-    return sol
-
-def run_D8_eng_wing():
-    # User definitions
-    Nclimb = 3
-    Ncruise = 2
-    Nmission = 1
-    objective = 'fuel'
-    aircraft = 'D8_eng_wing'
-
-    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
-    
     substitutions = get_D8_eng_wing_subs()
 
     substitutions.update({
@@ -194,7 +194,7 @@ def run_D8_eng_wing():
     })
 
     m.substitutions.update(substitutions)
-
+    m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
@@ -221,6 +221,36 @@ def run_optimal_D8():
         'ReqRng': 3000.*units('nmi'),
     })
 
+    m = Model(m.cost, BCS(m))
+    m.substitutions.update(substitutions)
+
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 'D82', Nclimb)
+
+    return sol
+
+def run_optimal_D8_fixedBPR():
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'optimalD8'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get_optimal_D8_fixedBPR_subs()
+
+    substitutions.update({
+#                'n_{paxx}': 180.,
+        'ReqRng': 3000.*units('nmi'),
+    })
+
+    m = Model(m.cost, BCS(m))
     m.substitutions.update(substitutions)
 
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
@@ -331,12 +361,12 @@ def run_M08_D8():
     substitutions = subs_M08_D8()
 
     substitutions.update({
-               # 'n_{pax}': 180.,
+#                'n_{paxx}': 180.,
         'ReqRng': 3000.*units('nmi'),
     })
 
     m.substitutions.update(substitutions)
-
+    m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
