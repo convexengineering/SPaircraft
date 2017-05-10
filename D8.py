@@ -783,11 +783,11 @@ class Mission(Model):
              eng = 3
              BLI = True
 
-        if D8_eng_wing or D8_no_BLI or M08_D8_eng_wing or optimal737 or M08D8_noBLI or M072_737:
+        if D8_eng_wing or D8_no_BLI or M08_D8_eng_wing or optimal737 or M08D8_noBLI:
             eng = 3
             BLI = False
              
-        if b737800:
+        if b737800 or M072_737:
              eng = 1
              BLI = False
 
@@ -819,10 +819,10 @@ class Mission(Model):
                  enginestate = FlightState()
 
         # True is use xfoil fit tail drag model, False is TASOPT tail drag model
-        if not (optimal737 or optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8):
-            fitDrag = False
-        else:
+        if optimal737 or optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8 or M072_737 or D8_eng_wing or D8_no_BLI:
             fitDrag = True
+        else:
+            fitDrag = False
 
         # build required submodels
         aircraft = Aircraft(Nclimb, Ncruise, enginestate, eng, fitDrag, BLI, Nmission)

@@ -9,9 +9,9 @@ def get737_optimal_fixedBPR_subs():
     VTsweep = 25. #[deg]
     HTsweep = 25. #[deg]
     M4a = .2
-    fan = 1.685
-    lpc  = 8./1.685
-    hpc = 30./8.
+    fan = 1.60474
+    lpc  = 4.98*1.60474/fan
+    hpc = 35./8.
 
     Mcruisemin = 0.8
 
@@ -86,7 +86,7 @@ def get737_optimal_fixedBPR_subs():
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'f_{wingfuel}': .35,
             '\\tau_{max_w}': 0.1267,
-            'TipReduct': 0.96,
+            'TipReduct': 1,
 
             # Wing fractional weights
             'FuelFrac': 0.9,
@@ -114,7 +114,7 @@ def get737_optimal_fixedBPR_subs():
             '\\lambda_{vt}': 0.3,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
-            '\\dot{r}_{req}': 0.001, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
+            '\\dot{r}_{req}': 0.00001, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
             '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
             'c_{d_{fv}}': 0.0060,
             'c_{d_{pv}}': 0.0030,
@@ -130,7 +130,7 @@ def get737_optimal_fixedBPR_subs():
             'C_{L_{hfcG}}': 0.7,
             '\\Delta x_{CG}': 7.68 * units('ft'),
             'x_{CG_{min}}': 56.75 * units('ft'),
-            'SM_{min}': .31,
+            'SM_{min}': .05,
             '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
             'c_{d_{fh}}': 0.0060,
             'c_{d_{ph}}': 0.0030,
@@ -145,29 +145,29 @@ def get737_optimal_fixedBPR_subs():
             'ReserveFraction': .20,
 
             # Engine substitutions
-            '\\pi_{tn}': .989,
+            '\\pi_{tn}': .995,
             '\pi_{b}': .94,
-            '\pi_{d}': .998,
-            '\pi_{fn}': .98,
+            '\pi_{d}': .995,
+            '\pi_{fn}': .985,
             'T_{ref}': 288.15,
             'P_{ref}': 101.325,
-            '\eta_{HPshaft}': .99,
-            '\eta_{LPshaft}': .978,
+            '\eta_{HPshaft}': .978,
+            '\eta_{LPshaft}': .99,
             'eta_{B}': .985,
 
             '\pi_{f_D}': fan,
             '\pi_{hc_D}': hpc,
             '\pi_{lc_D}': lpc,
 
-##            '\\alpha_{OD}': 5.1,
+##                '\\alpha_{OD}': 6.97,
             '\\alpha_{max}': 5.6958,
 
-            'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
-            'r_{uc}': .05,
-            '\\alpha_c': .19036,
+            'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
+            'r_{uc}': .01,
+            '\\alpha_c': .16,
             'T_{t_f}': 435.,
 
-            'M_{takeoff}': .9709,
+            'M_{takeoff}': .9556,
 
             'G_f': 1.,
 

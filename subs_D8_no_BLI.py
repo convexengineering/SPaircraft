@@ -10,9 +10,9 @@ def get_D8_no_BLI_subs():
         VTsweep = 25.0 #[deg]
         HTsweep = 8.0 #[deg]
         M4a = .2
-        fan = 1.685
-        lpc  = 8./1.685
-        hpc = 30./8.
+        fan = 1.60474
+        lpc  = 4.98*1.60474/fan
+        hpc = 35./8.
 
         #Min cruise mach number
         Mcruisemin = 0.72
@@ -54,7 +54,7 @@ def get_D8_no_BLI_subs():
 
                 'h_{floor}': 5.12*units('in'),
 ##                'R_{fuse}': 1.715*units('m'),
-                '\\delta R_{fuse}': 0.0001*units('m'),
+                '\\delta R_{fuse}': 0.43*units('m'),
                 'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
@@ -143,7 +143,7 @@ def get_D8_no_BLI_subs():
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
-                'r_{vnace}': 1.02,
+                'r_{vnace}': 0.925,
 
                 # Cabin air substitutions in AircraftP
 
@@ -154,14 +154,14 @@ def get_D8_no_BLI_subs():
                 'M_{min}': Mcruisemin,
 
                 # Engine substitutions
-                '\\pi_{tn}': .989,
+                '\\pi_{tn}': .995,
                 '\pi_{b}': .94,
-                '\pi_{d}': .998,
-                '\pi_{fn}': .98,
+                '\pi_{d}': .995,
+                '\pi_{fn}': .985,
                 'T_{ref}': 288.15,
                 'P_{ref}': 101.325,
-                '\eta_{HPshaft}': .99,
-                '\eta_{LPshaft}': .978,
+                '\eta_{HPshaft}': .978,
+                '\eta_{LPshaft}': .99,
                 'eta_{B}': .985,
 
                 '\pi_{f_D}': fan,
@@ -169,14 +169,14 @@ def get_D8_no_BLI_subs():
                 '\pi_{lc_D}': lpc,
 
 ##                '\\alpha_{OD}': 6.97,
-##                '\\alpha_{max}': 5.1,#6.97,
+                '\\alpha_{max}': 5.6958,
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,
-                '\\alpha_c': .19036,
+                '\\alpha_c': .16,
                 'T_{t_f}': 435.,
 
-                'M_{takeoff}': .9709,
+                'M_{takeoff}': .9556,
 
                 'G_f': 1.,
 
