@@ -383,7 +383,7 @@ if __name__ == '__main__':
     Ncruise = 2
     Nmission = 1
     objective = 'fuel'
-    aircraft = 'M08_D8_noBLI'
+    aircraft = 'D82'
 
     genVSP = True
     sweeps = False
@@ -401,6 +401,20 @@ if __name__ == '__main__':
     if aircraft == 'D80':
         print('D80 executing...')
         substitutions = getD80subs()
+        if Nmission == 1:
+                substitutions.update({
+##                 'n_{pax}': 180.,
+                'ReqRng': 3000.*units('nmi'),
+                })
+
+        if Nmission != 1:
+                substitutions.update({
+                'n_{pax}': [180.],
+                'ReqRng': [3000.],
+                })
+    if aircraft == 'D82':
+        print('D82 executing...')
+        substitutions = getD82subs()
         if Nmission == 1:
                 substitutions.update({
 ##                 'n_{pax}': 180.,
@@ -523,13 +537,13 @@ if __name__ == '__main__':
     
     if Nmission == 1:
          if aircraft in ['D82', 'D8_eng_wing', 'optimalD8']:
-              percent_diff(sol, 2, Nclimb)
+              percent_diff(sol, aircraft, Nclimb)
 
          if aircraft in ['b737800','optimal737']:
-              percent_diff(sol, 801, Nclimb)
+              percent_diff(sol, aircraft, Nclimb)
 
          if aircraft in ['b777300ER']:
-              percent_diff(sol, 777, Nclimb)
+              percent_diff(sol, aircraft, Nclimb)
     if genVSP:
         if sweeps:
             genDesFileSweep(sol,aircraft,nsweep)

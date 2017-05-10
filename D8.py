@@ -905,24 +905,24 @@ class Mission(Model):
             #Setting fuselage drag and lift, and BLI correction
             if D8fam and not (D8_no_BLI or M08D8_no_BLI):
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/climb['f_{BLI}'] ,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/cruise['f_{BLI}'],
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866*climb['f_{BLI}'] ,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866*cruise['f_{BLI}'],
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
             if D8_no_BLI or M08D8_no_BLI:
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866,
                     climb['f_{BLI}'] == 1.0, #TODO area for improvement
                     cruise['f_{BLI}'] == 1.0, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
             if D8_eng_wing or M08_D8_eng_wing:
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/.91,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/.91,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866,
                     CruiseAlt >= 30000. * units('ft'),
                   ])
             if conventional or D8_eng_wing or M08_D8_eng_wing:
