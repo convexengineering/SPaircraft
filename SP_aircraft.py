@@ -404,6 +404,34 @@ def run_M08_D8_no_BLI():
 
     return sol
 
+def run_777300ER():
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'b777300ER'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = getb777300ERsubs()
+
+    substitutions.update({
+##        'n_{pax}': [450.],
+        'ReqRng': [6000.],
+    })
+
+    m.substitutions.update(substitutions)
+    m = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, aircraft, Nclimb)
+
+    return sol
+
 def test():
     run_737800()
 
@@ -518,20 +546,6 @@ if __name__ == '__main__':
                 'ReqRng': [6000.],
                 })
 
-    if aircraft == 'b737800':
-        print('b737800 executing...')
-        substitutions = getb737800subs()
-        if Nmission == 1:
-                substitutions.update({
-##                 'n_{pax}': 180.,
-                'ReqRng': 3000.*units('nmi'),
-                })
-
-        if Nmission != 1:
-                substitutions.update({
-                'n_{pax}': [180.],
-                'ReqRng': [3000.],
-                })
 
     m.substitutions.update(substitutions)
 
