@@ -67,7 +67,7 @@ wf5 = sol5('W_{f_{total}}')
 
 ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0]
 xtest = [0, 1, 2, 3, 4, 5]
-xlabels = ['Optimized 737-800 M = 0.8', 'Slow to M = 0.72', 'D8 fuselage, Pi tail', 'Rear podded egnines', 'Integrated engines, BLI = D8', 'Optimize Engine']
+xlabels = ['Optimized 737-800 M = 0.8', 'Slow to M = 0.72', 'D8 fuselage, Pi tail', 'Rear podded engines', 'Integrated engines, BLI = D8', 'Optimize engine']
 
 plt.plot(xtest, ytest, "o--")
 plt.xticks(xtest, xlabels,  rotation='vertical')
@@ -77,5 +77,5 @@ plt.grid()
 plt.xlabel('Design Step', fontsize = 20)
 plt.ylabel('$W_{f}/W_{f_0}$', fontsize = 20)
 plt.title('D8 Morphing Chart')
-plt.savefig('D8_standard_killer_cahrt.pdf', bbox_inches="tight")
+plt.savefig('D8_standard_killer_chart.pdf', bbox_inches="tight")
 plt.show()
