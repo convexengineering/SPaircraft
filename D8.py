@@ -783,11 +783,11 @@ class Mission(Model):
              eng = 3
              BLI = True
 
-        if D8_eng_wing or D8_no_BLI or M08_D8_eng_wing or optimal737 or M08D8_noBLI:
+        if D8_eng_wing or D8_no_BLI or M08_D8_eng_wing or optimal737 or M08D8_noBLI or M072_737:
             eng = 3
             BLI = False
              
-        if b737800 or M072_737:
+        if b737800:
              eng = 1
              BLI = False
 
@@ -936,7 +936,7 @@ class Mission(Model):
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00801,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00801,
                     #Limiting engine diameter for the b737800
-                    aircraft['d_{f}'] <= 1.55*units('m'),
+##                    aircraft['d_{f}'] <= 1.55*units('m'),
                     CruiseAlt >= 35000. * units('ft'),
                 ])
             if b777300ER:
@@ -1069,10 +1069,10 @@ class Mission(Model):
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
                   ])
 
-        if optimal737 or M072_737:
-            constraints.extend([
-                aircraft.engine['d_{f}'] <= 1.3924*units('m'),
-                ])
+##        if optimal737 or M072_737:
+##            constraints.extend([
+##                aircraft.engine['d_{f}'] <= 1.3924*units('m'),
+##                ])
 
         M2 = .6
         M25 = .6
