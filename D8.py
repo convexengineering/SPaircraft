@@ -711,7 +711,7 @@ class Mission(Model):
 
         global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
                optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_no_BLI, conventional, \
-               M08D8_noBLI, multimission, manufacturer, operator, fuel
+               M08D8_no_BLI, multimission, manufacturer, operator, fuel
 
 
         # Choose objective type
@@ -737,7 +737,7 @@ class Mission(Model):
         optimal737 = False
         optimalD8 = False
         M08D8 = False
-        M08D8_noBLI = False
+        M08D8_no_BLI = False
         M08_D8_eng_wing = False
         M072_737 = False
         D8_no_BLI = False
@@ -762,8 +762,8 @@ class Mission(Model):
             optimalD8 = True
         if airplane == 'M08D8':
             M08D8 = True
-        if airplane == 'M08D8_noBLI':
-            M08D8_noBLI = True
+        if airplane == 'M08D8_no_BLI':
+            M08D8_no_BLI = True
         if airplane == 'M08_D8_eng_wing':
             M08_D8_eng_wing = True
         if airplane == 'M072_737':
@@ -783,7 +783,7 @@ class Mission(Model):
              eng = 3
              BLI = True
 
-        if D8_eng_wing or M08_D8_eng_wing or optimal737 or M08D8_noBLI:
+        if D8_eng_wing or M08_D8_eng_wing or optimal737 or M08D8_no_BLI:
             eng = 3
             BLI = False
              
@@ -803,7 +803,7 @@ class Mission(Model):
              eng = 4
              BLI = False
 
-        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_no_BLI or M08D8_noBLI:
+        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_no_BLI or M08D8_no_BLI:
             D8fam = True
         else:
             D8fam = False
@@ -819,7 +819,7 @@ class Mission(Model):
                  enginestate = FlightState()
 
         # True is use xfoil fit tail drag model, False is TASOPT tail drag model
-        if not (optimal737 or optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8):
+        if not (optimal737 or optimalD8 or M08_D8_eng_wing or M08D8_no_BLI or M08D8):
             fitDrag = False
         else:
             fitDrag = True
@@ -903,26 +903,26 @@ class Mission(Model):
               ])
 
             #Setting fuselage drag and lift, and BLI correction
-            if D8fam and not (D8_no_BLI or M08D8_noBLI):
+            if D8fam and not (D8_no_BLI or M08D8_no_BLI):
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/climb['f_{BLI}'] ,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/cruise['f_{BLI}'],
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866*climb['f_{BLI}'] ,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866*cruise['f_{BLI}'],
                     climb['f_{BLI}'] == 0.91, #TODO area for improvement
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
-            if D8_no_BLI or M08D8_noBLI:
+            if D8_no_BLI or M08D8_no_BLI:
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/0.91,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866,
                     climb['f_{BLI}'] == 1.0, #TODO area for improvement
                     cruise['f_{BLI}'] == 1.0, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
             if D8_eng_wing or M08_D8_eng_wing:
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866/.91,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866/.91,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00866,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00866,
                     CruiseAlt >= 30000. * units('ft'),
                   ])
             if conventional or D8_eng_wing or M08_D8_eng_wing:

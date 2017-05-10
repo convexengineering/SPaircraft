@@ -217,7 +217,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         'GWTZZGTPXQU':float(0.),                                             # VT dihedral
         })
     # Rear mounted non-BLI D8 engines
-    if aircraft in ['D8_no_BLI']:
+    if aircraft in ['M08_D8_no_BLI', 'D8_no_BLI']:
         resultsDict.update({
             'RJLYSBJAFOT':float(yeng.magnitude), #Engine y location
             'GBGVQARDEVD':float(0.0), # Engine z location
