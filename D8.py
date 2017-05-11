@@ -1020,6 +1020,8 @@ class Mission(Model):
 
                 #compute the total time
 ##                Total_Time >= sum(cruise['thr']) + sum(climb['thr']),
+
+                #number of seats
             ])
 
         # Calculating percent fuel remaining
@@ -1047,31 +1049,16 @@ class Mission(Model):
                 cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
                 ])
 
-        if multimission and not D8big and not b777300ER:
+        if multimission:
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
-                  ])
-        if not multimission and not D8big and not b777300ER:
-             constraints.extend([
-                  aircraft['n_{pax}'] == 180.,
-                  aircraft['n_{seat}'] == aircraft['n_{pax}']
                   ])
 
-        if multimission and (D8big or b777300ER):
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
-
-             constraints.extend([
-                  W_fmissions >= sum(aircraft['W_{f_{total}}']),
-
-                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
-                  ])
-        if not multimission and (D8big or b777300ER):
-             constraints.extend([
-                  aircraft['n_{pax}'] == 450.,
-                  aircraft['n_{seat}'] == aircraft['n_{pax}']
-                  ])
+        if multimission:
+            constraints.extend([aircraft['n_{seat}'] >= aircraft['n_{pax}'][:]])
+        else:
+            constraints.extend([aircraft['n_{seat}'] >= aircraft['n_{pax}']])
 
 ##        if optimal737 or M072_737:
 ##            constraints.extend([
