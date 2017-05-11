@@ -95,7 +95,7 @@ class Aircraft(Model):
 
         # Weights
         with Vectorize(Nmissions):
-             PRFC = Variable('PRFC','-','Payload-Range Fuel Consumption')
+             PRFC = Variable('PRFC','','Payload-Range Fuel Consumption')
              W_total = Variable('W_{total}', 'lbf', 'Total Aircraft Weight')
              W_dry = Variable('W_{dry}', 'lbf', 'Zero Fuel Aircraft Weight')
              W_ftotal = Variable('W_{f_{total}}', 'lbf', 'Total Fuel Weight')
@@ -719,7 +719,6 @@ class Mission(Model):
         manufacturer = False
         operator = False
         fuel = False
-        PRFC = False
 
         if objective == 'manufacturer':
             manufacturer = True
@@ -727,8 +726,6 @@ class Mission(Model):
             operator = True
         if objective == 'fuel':
             fuel = True
-        if objective == 'PRFC':
-            PRFC = True
 
         # Only one active at a time
         D80 = False
@@ -939,15 +936,15 @@ class Mission(Model):
                     #Setting fuselage drag coefficient
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,
-                    #Limiting engine diameter for the b737800
-##                    aircraft['d_{f}'] <= 1.55*units('m'),
                     CruiseAlt >= 35000. * units('ft'),
                 ])
             if b777300ER:
                 constraints.extend([
                     #Setting fuselage drag coefficient
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663,
+                    #additioanl 1.1 factor accounts for mach drag rise model
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft[aircraft['M_{min}']**2/.8**2),
+                    
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft[aircraft['M_{min}']**2/.8**2),
                     CruiseAlt >= 31946. * units('ft'),
                 ])
 
@@ -1160,12 +1157,3 @@ class Mission(Model):
                   self.cost = aircraft['W_{dry}'] + W_fmissions
 
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
-        if PRFC:
-             # payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT SUB ReqRng OR n_{pax}.
-             if not multimission:
-                self.cost = sum(aircraft['PRFC'])
-             else:
-                self.cost = sum(aircraft['PRFC'])
-             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
-
-
