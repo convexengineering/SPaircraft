@@ -942,9 +942,9 @@ class Mission(Model):
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     #additioanl 1.1 factor accounts for mach drag rise model
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft[aircraft['M_{min}']**2/.8**2),
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft['M_{min}']**2/.8**2),
                     
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft[aircraft['M_{min}']**2/.8**2),
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft['M_{min}']**2/.8**2),
                     CruiseAlt >= 31946. * units('ft'),
                 ])
 
