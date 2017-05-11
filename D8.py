@@ -936,15 +936,15 @@ class Mission(Model):
                     #Setting fuselage drag coefficient
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,
-                    #Limiting engine diameter for the b737800
-##                    aircraft['d_{f}'] <= 1.55*units('m'),
                     CruiseAlt >= 35000. * units('ft'),
                 ])
             if b777300ER:
                 constraints.extend([
                     #Setting fuselage drag coefficient
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663,
+                    #additioanl 1.1 factor accounts for mach drag rise model
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663/1.1024999999999996,
+                    
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663/1.1024999999999996,
                     CruiseAlt >= 31946. * units('ft'),
                 ])
 

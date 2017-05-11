@@ -50,7 +50,7 @@ def getb777300ERsubs():
             'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
             'W_{avg. pass_{total}}':230.*units('lbf'),
             'f_{string}': 0.34,
-            'h_{floor}': 5. * units('in'),
+            'h_{floor}': 8. * units('in'),
             'R_{fuse}' : 3.11*units('m'),
             '\\delta_P_{over}': 8.382 * units('psi'),
 
@@ -83,7 +83,7 @@ def getb777300ERsubs():
             'b_{max}': 200 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'AR': 8.455,
-            'f_{wingfuel}': 0.35,
+            'f_{wingfuel}': 0.5,
             '\\tau_{max_w}': 0.14208,
             'TipReduct': 0.955,
 
@@ -127,7 +127,7 @@ def getb777300ERsubs():
             'C_{L_{hfcG}}': 0.7,
             '\\Delta x_{CG}': 11.97 * units('ft'),
             'x_{CG_{min}}': 117.31*units('ft'),
-            'SM_{min}': .15,
+            'SM_{min}': .05,
             'f_{HT}': 0.3,
             '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
             'c_{d_{fh}}': 0.0060,
