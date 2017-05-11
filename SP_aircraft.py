@@ -75,7 +75,7 @@ def run_737800():
     substitutions = getb737800subs()
 
     substitutions.update({
-#                'n_{paxx}': 180.,
+        'n_{pax}': 180.,
         'ReqRng': 3000.*units('nmi'),
     })
 
@@ -448,9 +448,9 @@ if __name__ == '__main__':
     nsweep = 5
 
     if Nmission == 1:
-        multimission = True
-    else:
         multimission = False
+    else:
+        multimission = True
 
     # Mission definition
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
@@ -461,7 +461,7 @@ if __name__ == '__main__':
         substitutions = getD80subs()
         if Nmission == 1:
                 substitutions.update({
-##                 'n_{pax}': 180.,
+                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
 
@@ -476,7 +476,7 @@ if __name__ == '__main__':
         substitutions = get_D8_eng_wing_subs()
         if Nmission == 1:
                 substitutions.update({
-##                 'n_{pax}': 180.,
+                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
 
@@ -491,7 +491,7 @@ if __name__ == '__main__':
         substitutions = get_D8_no_BLI_subs()
         if Nmission == 1:
                 substitutions.update({
-##                 'n_{pax}': 180.,
+                'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
 
@@ -507,7 +507,7 @@ if __name__ == '__main__':
         substitutions = getD82_73engsubs()
         if Nmission == 1:
                 substitutions.update({
-##                'n_{pax}': 180.,
+               'n_{pax}': 180.,
                 'ReqRng': 3000.*units('nmi'),
                 })
         if Nmission != 1:
@@ -521,7 +521,7 @@ if __name__ == '__main__':
         substitutions = getD8bigsubs()
         if Nmission == 1:
                 substitutions.update({
-##                 'n_{pax}': 450.,
+                'n_{pax}': 450.,
                 'ReqRng': 6000.*units('nmi'),
                 })
                 
@@ -536,7 +536,7 @@ if __name__ == '__main__':
            substitutions = getb777300ERsubs()
            if Nmission == 1:
                 substitutions.update({
-##                 'n_{pax}': 180.,
+                'n_{pax}': 450.,
                 'ReqRng': 6000.*units('nmi'),
                 })
 
