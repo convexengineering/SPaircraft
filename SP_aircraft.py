@@ -549,6 +549,12 @@ if __name__ == '__main__':
 
     m.substitutions.update(substitutions)
 
+    if objective == 'PRFC':
+        # PRFC optimization chooses optimal mission for a given configuration
+        # TO RUN: MUST REMOVE EQUATIONS SETTING N_{PAX} IN D8.
+        # m.substitutions.__delitem__('n_{pax}')
+        m.substitutions.__delitem__('ReqRng')
+
     if aircraft in ['D80','D82','D8_no_BLI']:
         # m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])

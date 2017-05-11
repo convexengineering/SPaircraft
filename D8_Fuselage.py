@@ -395,6 +395,7 @@ class FuselagePerformance(Model):
         Dfuse = Variable('D_{fuse}', 'N', 'Fuselage Drag')
         # CLfuse = Variable('C_{L_{fuse}}','-', 'Fuselage Lift Coefficient')
         Lfuse = Variable('L_{fuse}','N','Fuselage Lift')
+        # Refuse = Variable('Re_{fuse}','-','Fuselage Reynolds number')
         # Dfrict = Variable('D_{friction}', 'N', 'Friction drag')
         # Dupswp = Variable('D_{upsweep}', 'N', 'Drag due to fuse upsweep')
         # f = Variable('f', '-', 'Fineness ratio')
@@ -407,9 +408,12 @@ class FuselagePerformance(Model):
 
         # BLI surrogate
         fBLI = Variable('f_{BLI}','-','1-fBLI surrogate')
+        # thetaBLI = Variable('\\theta_{BLI}','m^2','Momentum defect area absorbed by engines')
 
         constraints = []
         constraints.extend([
+            # Refuse == state.atm['\\rho'] * state['V'] * aircraft['l_{fuse}'] / state['\\mu'],
+            #                                                                                     * fuse['l_{fuse}'] / state.atm['\\mu']
             # CMVf <= 2*fuse('V_{cabin}')*(alphafuse - fuse('\\alpha_{Mf0}')) #TODO: figure out directionality of inequality
 ##            CDfuse == CDfuse,
 ##            Dfuse == Dfuse,
