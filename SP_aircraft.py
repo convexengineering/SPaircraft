@@ -527,6 +527,8 @@ def run_D8_big(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'b777300ER', Nclimb)
 
+    return sol
+
 def test():
     run_737800()
 
