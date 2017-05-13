@@ -11,7 +11,7 @@ def get_D8_no_BLI_subs():
         HTsweep = 8.0 #[deg]
         M4a = .2
         fan = 1.60474
-        lpc  = 4.98*1.60474/fan
+        lpc  = 4.98
         hpc = 35./8.
 
         #Min cruise mach number
@@ -138,12 +138,12 @@ def get_D8_no_BLI_subs():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 16.,
-                'f_{pylon}': 0.05,
+                'rSnace': 11.,
+                'f_{pylon}': 0.1,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
-                'r_{vnace}': 0.925,
+                'r_{vnace}': 1.02,
 
                 # Cabin air substitutions in AircraftP
 
@@ -169,7 +169,7 @@ def get_D8_no_BLI_subs():
                 '\pi_{lc_D}': lpc,
 
 ##                '\\alpha_{OD}': 6.97,
-                '\\alpha_{max}': 5.6958,
+##                '\\alpha_{max}': 6.97,
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,
@@ -182,9 +182,9 @@ def get_D8_no_BLI_subs():
 
                 'h_f': 43.003,
 
-                'Cp_t1': 1253.,
-                'Cp_t2': 1223.,
-                'Cp_c': 1283.,
+                'Cp_t1': 1236.5,
+                'Cp_t2': 1200.4,
+                'Cp_c': 1257.9,
 
                 'HTR_{f_SUB}': 1.-.3**2.,
                 'HTR_{lpc_SUB}': 1. - 0.6**2.,

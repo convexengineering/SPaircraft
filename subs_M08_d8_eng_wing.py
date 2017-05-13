@@ -9,9 +9,9 @@ def getM08_D8_eng_wing_subs():
         VTsweep = 25.0 #[deg]
         HTsweep = 25.0 #[deg]
         M4a = .2
-        fan = 1.60474
-        lpc  = 4.98
-        hpc = 35./8.
+        fan = 1.685
+        lpc  = 8./1.685
+        hpc = 30./8.
 
         #Min cruise mach number
         Mcruisemin = 0.8
@@ -189,7 +189,7 @@ def getM08_D8_eng_wing_subs():
                 'HTR_{f_SUB}': 1.-.3**2.,
                 'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
-                'T_{t_{4.1_{max}}}': 1750.*units('K'),
+                'T_{t_{4.1_{max}}}': 1567.*units('K'),
         }
 
         return substitutions

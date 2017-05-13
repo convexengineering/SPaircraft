@@ -173,7 +173,7 @@ def getD8bigsubs():
                 '\pi_{lc_D}': lpc,
 
 ##                '\\alpha_{OD}': 8.62,
-                '\\alpha_{max}': 200,     #place holder value not active during analysis
+##                '\\alpha_{max}': 8.62,     #place holder value not active during analysis
 
                 'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
                 'r_{uc}': .1,

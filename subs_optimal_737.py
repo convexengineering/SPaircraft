@@ -9,9 +9,9 @@ def get737_optimal_subs():
     VTsweep = 25. #[deg]
     HTsweep = 25. #[deg]
     M4a = .2
-    fan = 1.685
-    lpc  = 8./1.685
-    hpc = 30./8.
+    fan = 1.60474
+    lpc  = 4.98
+    hpc = 35./8.
 
     Mcruisemin = 0.8
 
@@ -145,14 +145,14 @@ def get737_optimal_subs():
             'ReserveFraction': .20,
 
             # Engine substitutions
-            '\\pi_{tn}': .989,
+            '\\pi_{tn}': .995,
             '\pi_{b}': .94,
-            '\pi_{d}': .998,
-            '\pi_{fn}': .98,
+            '\pi_{d}': .995,
+            '\pi_{fn}': .985,
             'T_{ref}': 288.15,
             'P_{ref}': 101.325,
-            '\eta_{HPshaft}': .99,
-            '\eta_{LPshaft}': .978,
+            '\eta_{HPshaft}': .978,
+            '\eta_{LPshaft}': .99,
             'eta_{B}': .985,
 
             '\pi_{f_D}': fan,
@@ -162,20 +162,20 @@ def get737_optimal_subs():
 ##            '\\alpha_{OD}': 5.1,
 ##            '\\alpha_{max}': 5.6958,
 
-            'hold_{4a}': 1. + .5 * (1.313 - 1.) * M4a ** 2.,
-            'r_{uc}': .05,
-            '\\alpha_c': .19036,
+            'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
+            'r_{uc}': .01,
+            '\\alpha_c': .16,
             'T_{t_f}': 435.,
 
-            'M_{takeoff}': .9709,
+            'M_{takeoff}': .9556,
 
             'G_f': 1.,
 
             'h_f': 43.003,
 
-            'Cp_t1': 1253.,
-            'Cp_t2': 1223.,
-            'Cp_c': 1283.,
+            'Cp_t1': 1236.5,
+            'Cp_t2': 1200.4,
+            'Cp_c': 1257.9,
 
             'HTR_{f_SUB}': 1. - .3 ** 2.,
             'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
