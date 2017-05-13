@@ -942,9 +942,9 @@ class Mission(Model):
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     #additioanl 1.1 factor accounts for mach drag rise model
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft[aircraft['M_{min}']**2/.8**2),
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft['M_{min}']**2/.8**2),
                     
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft[aircraft['M_{min}']**2/.8**2),
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft['M_{min}']**2/.8**2),
                     CruiseAlt >= 31946. * units('ft'),
                 ])
 
@@ -969,6 +969,11 @@ class Mission(Model):
                  aircraft['ReserveFraction'] * aircraft['W_{f_{primary}}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
             TCS([aircraft['W_{f_{climb}}'] >= sum(climb.climbP.aircraftP['W_{burn}'])]),
             TCS([aircraft['W_{f_{cruise}}'] >= sum(cruise.cruiseP.aircraftP['W_{burn}'])]),
+
+##            aircraft['OPR'][Nclimb] <= 35,
+##            aircraft['\pi_{lc_D}'] <= aircraft['\\pi_{lc}'][Nclimb],
+##            aircraft['\pi_{hc_D}'] <= aircraft['\\pi_{hc}'][Nclimb],
+##            aircraft['\pi_{f_D}'] <= aircraft['\\pi_f'][Nclimb],
             ])
 
         with SignomialsEnabled():
