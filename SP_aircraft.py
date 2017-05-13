@@ -26,6 +26,7 @@ from subs_D8_eng_wing import get_D8_eng_wing_subs
 from subsM072737 import get_M072_737_subs
 from subs_D8_no_BLI import get_D8_no_BLI_subs
 from subs_M08_D8_noBLI import get_subs_M08_D8_noBLI
+from subs_optimal_777300ER import get_optimal_777300ER_subs
 
 from gpkit import units, Model
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
@@ -449,6 +450,44 @@ def run_777300ER():
     post_process(sol)
 
     percent_diff(sol, aircraft, Nclimb)
+
+    return sol
+
+def run_optimal_777(fixedBPR, pRatOpt = False):
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'optimal777'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get_optimal_777300ER_subs()
+
+    substitutions.update({
+##        'n_{pax}': [450.],
+        'ReqRng': [6000.],
+    })
+
+    if fixedBPR:
+        substitutions.update({
+            '\\alpha_{max}': 8.62, 
+        })
+
+    if pRatOpt:
+        del substitutions['\pi_{f_D}']
+        del substitutions['\pi_{lc_D}']
+        del substitutions['\pi_{hc_D}']
+
+    m.substitutions.update(substitutions)
+    m = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 'b777300ER', Nclimb)
 
     return sol
 

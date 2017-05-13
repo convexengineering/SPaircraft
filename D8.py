@@ -712,7 +712,7 @@ class Mission(Model):
 
         global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
                optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_no_BLI, conventional, \
-               M08D8_noBLI, multimission, manufacturer, operator, fuel
+               M08D8_noBLI, optimal777, multimission, manufacturer, operator, fuel
 
 
         # Choose objective type
@@ -737,6 +737,7 @@ class Mission(Model):
         b777300ER = False
         optimal737 = False
         optimalD8 = False
+        optimal777 = False
         M08D8 = False
         M08D8_noBLI = False
         M08_D8_eng_wing = False
@@ -761,6 +762,8 @@ class Mission(Model):
             optimal737 = True
         if airplane == 'optimalD8':
             optimalD8 = True
+        if airplane == 'optimal777':
+            optimal777 = True
         if airplane == 'M08D8':
             M08D8 = True
         if airplane == 'M08D8_noBLI':
@@ -797,10 +800,10 @@ class Mission(Model):
              BLI = True
 
         if D8big:
-             eng = 2
+             eng = 4
              BLI = True
 
-        if b777300ER:
+        if b777300ER or optimal777:
              eng = 4
              BLI = False
 
@@ -809,7 +812,7 @@ class Mission(Model):
         else:
             D8fam = False
 
-        if b737800 or b777300ER or optimal737 or M072_737:
+        if b737800 or b777300ER or optimal737 or M072_737 or optimal777:
             conventional = True
         else:
             conventional = False
@@ -820,7 +823,7 @@ class Mission(Model):
                  enginestate = FlightState()
 
         # True is use xfoil fit tail drag model, False is TASOPT tail drag model
-        if optimal737 or optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8 or M072_737 or D8_eng_wing or D8_no_BLI:
+        if optimal737 or optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8 or M072_737 or D8_eng_wing or D8_no_BLI or D8big or optimal777:
             fitDrag = True
         else:
             fitDrag = False
@@ -931,14 +934,14 @@ class Mission(Model):
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
                    ])
-            if conventional and not b777300ER:
+            if conventional and not (b777300ER or optimal777):
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     CruiseAlt >= 35000. * units('ft'),
                 ])
-            if b777300ER:
+            if b777300ER or optimal777:
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     #additioanl 1.1 factor accounts for mach drag rise model
@@ -1049,19 +1052,19 @@ class Mission(Model):
                 cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
                 ])
 
-        if multimission and not D8big and not b777300ER:
+        if multimission and not D8big and not b777300ER and not optimal777:
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
                   ])
-        if not multimission and not D8big and not b777300ER:
+        if not multimission and not D8big and not b777300ER and not optimal777:
              constraints.extend([
                   aircraft['n_{pax}'] == 180.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
                   ])
 
-        if multimission and (D8big or b777300ER):
+        if multimission and (D8big or b777300ER or optimal777):
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
 
              constraints.extend([
@@ -1069,23 +1072,18 @@ class Mission(Model):
 
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
                   ])
-        if not multimission and (D8big or b777300ER):
+        if not multimission and (D8big or b777300ER or optimal777):
              constraints.extend([
                   aircraft['n_{pax}'] == 450.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
                   ])
-
-##        if optimal737 or M072_737:
-##            constraints.extend([
-##                aircraft.engine['d_{f}'] <= 1.3924*units('m'),
-##                ])
 
         M2 = .6
         M25 = .6
         M4a = .2
         M0 = .5
 
-        if b777300ER:
+        if b777300ER or optimal777:
              M2 = .65
              M25 = .6
              M4a = .2
@@ -1113,7 +1111,7 @@ class Mission(Model):
              M4a = .2
              M0 = .8
 
-        if b777300ER:
+        if b777300ER or optimal777:
              M2 = .65
              M25 = .6
              M4a = .2

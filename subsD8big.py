@@ -17,7 +17,7 @@ def getD8bigsubs():
         #Percent of velocity loss from BL smeared across entire fan
         BLIVloss = 0.18
         #Min cruise mach number
-        Mcruisemin = 0.72
+        Mcruisemin = 0.84
 
         substitutions = {
                 'N_{land}': 6.,
@@ -60,8 +60,8 @@ def getD8bigsubs():
                 'W_{avg. pass_{total}}':230.*units('lbf'),
                 'f_{string}': 0.35,
                 'h_{floor}': 5 *units('in'),
-##            'R_{fuse}': 1.715*units('m'),
-##            '\\delta R_{fuse}': 0.43*units('m'),
+##                'R_{fuse}': 1.715*units('m'),
+                '\\delta R_{fuse}': 0.43*units('m'),
 ##                'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 12.,
@@ -93,7 +93,7 @@ def getD8bigsubs():
 
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
                 '\\tau_{max_w}': 0.15,
-                'f_{wingfuel}': .35,
+                'f_{wingfuel}': .5,
                 'TipReduct': 1.0,
 
                 # Wing fractional weights
@@ -142,12 +142,8 @@ def getD8bigsubs():
                 '\\lambda_{vt}': 0.3,
 
                 #engine system subs
-                'rSnace': 6.,
                 'f_{pylon}': 0.05,
                 'f_{eadd}': 0.1,
-
-                #nacelle drag calc parameter
-                'r_{vnace}': 0.925,
 
                 # Cabin air substitutions in AircraftP
 
@@ -176,7 +172,7 @@ def getD8bigsubs():
 ##                '\\alpha_{max}': 8.62,     #place holder value not active during analysis
 
                 'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
-                'r_{uc}': .1,
+                'r_{uc}': .01,
                 '\\alpha_c': .156,
                 'T_{t_f}': 435,
 
