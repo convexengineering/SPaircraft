@@ -314,7 +314,7 @@ class Aircraft(Model):
 
 
         #d8 only constraints
-        if D8_eng_wing or M08_D8_eng_wing:
+        if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing:
             f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
             with SignomialsEnabled():
                 constraints.extend([
@@ -617,7 +617,7 @@ class ClimbP(Model): # Climb performance constraints
 
         constraints.extend([
             # Excess power for climb
-           TCS([excessP + state['V'] * self.aircraftP['D'] <= state['V']
+            TCS([excessP + state['V'] * self.aircraftP['D'] <= state['V']
                  * aircraft['numeng'] * self.engine['F'][:Nclimb]]),
 
             RC == excessP / self.aircraftP['W_{avg}'],
@@ -712,7 +712,8 @@ class Mission(Model):
 
         global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
                optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_no_BLI, conventional, \
-               M08D8_noBLI, optimal777, multimission, manufacturer, operator, fuel
+               M08D8_noBLI, optimal777, D8big_eng_wing, multimission, manufacturer, operator, fuel, \
+               D8bigfam
 
 
         # Choose objective type
@@ -733,6 +734,7 @@ class Mission(Model):
         D82_73eng = False
         D8_eng_wing = False
         D8big = False
+        D8big_eng_wing = False
         b737800 = False
         b777300ER = False
         optimal737 = False
@@ -743,6 +745,9 @@ class Mission(Model):
         M08_D8_eng_wing = False
         M072_737 = False
         D8_no_BLI = False
+        D8big_no_BLI = False
+        D8big_M072 = False
+        D8big_M08 = False
 
         if airplane == 'D80':
             D80 = True
@@ -754,6 +759,10 @@ class Mission(Model):
             D8_eng_wing = True
         if airplane == 'D8big':
             D8big = True
+        if airplane == 'D8big_no_BLI':
+            D8big_no_BLI = True
+        if airplane == 'D8big_eng_wing':
+            D8big_eng_wing = True
         if airplane == 'b737800':
             b737800 = True
         if airplane == 'b777300ER':
@@ -774,6 +783,13 @@ class Mission(Model):
             M072_737 = True
         if airplane == 'D8_no_BLI':
             D8_no_BLI = True
+        if airplane == 'D8big_M072':
+            D8big = True
+            D8big_M072 = True
+        if airplane == 'D8big_M08':
+            D8big = True
+            D8big_M08 = True
+            
 
         #choose multimission or not
         if Nmission == 1:
@@ -803,14 +819,19 @@ class Mission(Model):
              eng = 4
              BLI = True
 
-        if b777300ER or optimal777:
+        if b777300ER or optimal777 or D8big_eng_wing or D8big_no_BLI:
              eng = 4
              BLI = False
 
-        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_no_BLI or M08D8_noBLI:
+        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_no_BLI or M08D8_noBLI or D8big_no_BLI:
             D8fam = True
         else:
             D8fam = False
+
+        if D8big_eng_wing or D8big_no_BLI or D8big:
+            D8bigfam = True
+        else:
+            D8bigfam = False
 
         if b737800 or b777300ER or optimal737 or M072_737 or optimal777:
             conventional = True
@@ -823,7 +844,8 @@ class Mission(Model):
                  enginestate = FlightState()
 
         # True is use xfoil fit tail drag model, False is TASOPT tail drag model
-        if optimal737 or optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8 or M072_737 or D8_eng_wing or D8_no_BLI or D8big or optimal777:
+        if optimal737 or optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8 or M072_737 or \
+           D8_eng_wing or D8_no_BLI or D8big or optimal777 or D8big_eng_wing or D8big_no_BLI:
             fitDrag = True
         else:
             fitDrag = False
@@ -886,7 +908,7 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['PCFuel'])
                      ]),
               ])
-            if conventional or D8_eng_wing or M08_D8_eng_wing:
+            if conventional or D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
@@ -923,13 +945,13 @@ class Mission(Model):
                     cruise['f_{BLI}'] == 1.0, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
-            if D8_eng_wing or M08_D8_eng_wing:
+            if D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081/.91,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081/.91,
                     CruiseAlt >= 30000. * units('ft'),
                   ])
-            if conventional or D8_eng_wing or M08_D8_eng_wing:
+            if conventional or D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing:
                constraints.extend([
                     climb['f_{BLI}'] == 1.0,
                     cruise['f_{BLI}'] == 1.0,
@@ -1052,19 +1074,19 @@ class Mission(Model):
                 cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
                 ])
 
-        if multimission and not D8big and not b777300ER and not optimal777:
+        if multimission and not D8bigfam and not b777300ER and not optimal777:
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
                   ])
-        if not multimission and not D8big and not b777300ER and not optimal777:
+        if not multimission and not D8bigfam and not b777300ER and not optimal777:
              constraints.extend([
                   aircraft['n_{pax}'] == 180.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
                   ])
 
-        if multimission and (D8big or b777300ER or optimal777):
+        if multimission and (D8bigfam or b777300ER or optimal777):
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
 
              constraints.extend([
@@ -1072,7 +1094,7 @@ class Mission(Model):
 
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
                   ])
-        if not multimission and (D8big or b777300ER or optimal777):
+        if not multimission and (D8bigfam or b777300ER or optimal777):
              constraints.extend([
                   aircraft['n_{pax}'] == 450.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
@@ -1099,19 +1121,19 @@ class Mission(Model):
             TCS([climb['excessP'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
 
-        if D8fam:
+        if D8fam or M072_737 or D8big_M072:
              M2 = .6
              M25 = .6
              M4a = .2
              M0 = .72
              
-        if b737800 or optimal737 or M08_D8_eng_wing or D8_eng_wing or M072_737:
+        if b737800 or optimal737 or M08_D8_eng_wing or D8_eng_wing or D8big_M08:
              M2 = .6
              M25 = .6
              M4a = .2
              M0 = .8
 
-        if b777300ER or optimal777:
+        if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI) and not (D8big_M08 or D8big_M072):
              M2 = .65
              M25 = .6
              M4a = .2
@@ -1127,7 +1149,7 @@ class Mission(Model):
             cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
             ]
 
-        if D8fam or D8_eng_wing or M08_D8_eng_wing:
+        if D8fam or D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing:
              with SignomialsEnabled():
                   engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
