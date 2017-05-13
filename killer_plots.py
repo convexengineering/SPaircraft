@@ -40,10 +40,11 @@ def M_08_killer_plot_max_optimal():
     plt.grid()
     plt.xlabel('Design Step', fontsize = 20)
     plt.ylabel('$W_{f}/W_{f_0}$', fontsize = 20)
-    plt.savefig('D8_M08_morphing_chart_optimal_engines.pdf', bbox_inches="tight")
+    plt.savefig('D8_M08_morphing_chart_max_optimal_engines.pdf', bbox_inches="tight")
     plt.show()
 
 def M_08_killer_plot_optimal():
+    #invalid due to lack of FPR optimization along with BPR
     sol0 = run_optimal_737(False)
     wf0 = sol0('W_{f_{total}}')
 
@@ -87,10 +88,10 @@ def M_08_killer_plot_fixed_BPR():
     sol3 = run_M08_D8(True)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_M08_D8(True)
+    sol4 = run_M08_D8(False)
     wf4 = sol4('W_{f_{total}}')
 
-    sol5 = run_optimal_D8(True)
+    sol5 = run_optimal_D8(False)
     wf5 = sol5('W_{f_{total}}')
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0]
@@ -101,6 +102,7 @@ def M_08_killer_plot_fixed_BPR():
     plt.xticks(xtest, xlabels,  rotation='vertical')
     plt.ylim([0,1.1])
     plt.xlim([-.5, 5.5])
+    plt.grid()
     plt.xlabel('Design Step', fontsize = 20)
     plt.ylabel('$W_{f}/W_{f_0}$', fontsize = 20)
     plt.savefig('D8_M08_morphing_chart_fixed_BPR.pdf', bbox_inches="tight")
@@ -141,6 +143,7 @@ def standard_killer_plot():
     plt.show()
 
 def standard_killer_plot_optimal_engine():
+    #invalid due to lack of FPR optimization along with BPR
     sol0 = run_optimal_737(False, False)
     wf0 = sol0('W_{f_{total}}')
 
