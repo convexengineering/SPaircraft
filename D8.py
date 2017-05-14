@@ -304,6 +304,8 @@ class Aircraft(Model):
                                                (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}']) \
                                                + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+
+                    self.fuse['\\delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
                 ])
 
 
@@ -929,7 +931,7 @@ class Mission(Model):
               ])
 
             #Setting fuselage drag and lift, and BLI correction
-            if D8fam and not (D8_no_BLI or M08D8_noBLI):
+            if D8fam and not (D8_no_BLI or M08D8_noBLI or D8big_no_BLI or D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing):
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081/climb['f_{BLI}'] ,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081/cruise['f_{BLI}'],
@@ -937,7 +939,7 @@ class Mission(Model):
                     cruise['f_{BLI}'] == 0.91, #TODO area for improvement
                     CruiseAlt >= 30000. * units('ft'),
                   ])
-            if D8_no_BLI or M08D8_noBLI:
+            if D8_no_BLI or M08D8_noBLI or D8big_no_BLI:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081/0.91,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081/0.91,
@@ -995,6 +997,7 @@ class Mission(Model):
             TCS([aircraft['W_{f_{climb}}'] >= sum(climb.climbP.aircraftP['W_{burn}'])]),
             TCS([aircraft['W_{f_{cruise}}'] >= sum(cruise.cruiseP.aircraftP['W_{burn}'])]),
 
+            #allow max OPR 42 for 777 class, 35 for others
 ##            aircraft['OPR'][Nclimb] <= 35,
 ##            aircraft['\pi_{lc_D}'] <= aircraft['\\pi_{lc}'][Nclimb],
 ##            aircraft['\pi_{hc_D}'] <= aircraft['\\pi_{hc}'][Nclimb],
