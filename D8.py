@@ -754,6 +754,9 @@ class Mission(Model):
         smallD8 = False
         smallD8_no_BLI = False
         smallD8_eng_wing = False
+        smallD8_M08_eng_wing = False
+        smallD8_M08 = False
+        smallD8_M08_no_BLI = False
 
         if airplane == 'D80':
             D80 = True
@@ -803,6 +806,15 @@ class Mission(Model):
             smallD8_eng_wing = True
         if airplane == 'smallD8_no_BLI':
             smallD8_no_BLI = True
+        if airplane == 'smallD8_M08_no_BLI':
+            smallD8_no_BLI = True
+            smallD8_M08_no_BLI = True
+        if airplane == 'smallD8_M08':
+            smallD8 = True
+            smallD8_M08 = True
+        if airplane == 'smallD8_M08_eng_wing':
+            smallD8_eng_wing = True
+            smallD8_M08_eng_wing = True
         
             
 
@@ -1159,7 +1171,7 @@ class Mission(Model):
              M4a = .2
              M0 = .72
              
-        if b737800 or optimal737 or M08_D8_eng_wing or M08D8_noBLI or D8big_M08 or optimalRJ:
+        if b737800 or optimal737 or M08_D8_eng_wing or M08D8_noBLI or D8big_M08 or optimalRJ or M08D8 or smallD8_M08_eng_wing or smallD8_M08_no_BLI or smallD8_M08:
              M2 = .6
              M25 = .6
              M4a = .2
