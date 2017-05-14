@@ -729,6 +729,8 @@ class Mission(Model):
             operator = True
         if objective == 'fuel':
             fuel = True
+        if objective == 'PRFC':
+            PRFC = True
 
         # Only one active at a time
         D80 = False
@@ -1226,4 +1228,14 @@ class Mission(Model):
              else:
                   self.cost = aircraft['W_{dry}'] + W_fmissions
 
+             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb,
+
+        if PRFC:
+             # payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT SUB ReqRng OR n_{pax}.
+             if not multimission:
+                self.cost = sum(aircraft['PRFC'])
+             else:
+                self.cost = sum(aircraft['PRFC'])
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
+
+
