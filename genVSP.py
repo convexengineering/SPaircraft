@@ -166,7 +166,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         'HPKOTUWYSIY':float(2*wfuse.magnitude), # Fuselage width
 
         # HT Variables
-        'USGQFZQKJWC':float(float(xCGht.magnitude) - 0.5*crootht.magnitude - 1.0*tanvt*bvt.magnitude), # HT x location
+        'USGQFZQKJWC':float(float(xCGvt.magnitude) - 0.5*crootvt.magnitude + 1.0*tanvt*bvt.magnitude), # HT x location
         'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),                                             # HT z location
         'IFZAMYYJPRP':float(arctan(tanht)*180/pi),                                                             # HT sweep
         'CHYQUCYJMPS':float(bht.magnitude*0.5),                                               # HT half-span
