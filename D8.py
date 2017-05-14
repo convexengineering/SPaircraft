@@ -715,7 +715,7 @@ class Mission(Model):
         global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
                optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_no_BLI, conventional, \
                M08D8_noBLI, optimal777, D8big_eng_wing, multimission, manufacturer, operator, fuel, \
-               D8bigfam
+               D8bigfam, optimalRJ, RJfam
 
 
         # Choose objective type
@@ -750,6 +750,7 @@ class Mission(Model):
         D8big_no_BLI = False
         D8big_M072 = False
         D8big_M08 = False
+        optimalRJ = False
 
         if airplane == 'D80':
             D80 = True
@@ -791,6 +792,8 @@ class Mission(Model):
         if airplane == 'D8big_M08':
             D8big = True
             D8big_M08 = True
+        if airplane == 'optimalRJ':
+            optimalRJ = True
             
 
         #choose multimission or not
@@ -805,7 +808,8 @@ class Mission(Model):
              eng = 3
              BLI = True
 
-        if D8_eng_wing or D8_no_BLI or M08_D8_eng_wing or optimal737 or M08D8_noBLI or M072_737:
+        if D8_eng_wing or D8_no_BLI or M08_D8_eng_wing or optimal737 or M08D8_noBLI or M072_737 \
+           or optimalRJ:
             eng = 3
             BLI = False
              
@@ -835,7 +839,12 @@ class Mission(Model):
         else:
             D8bigfam = False
 
-        if b737800 or b777300ER or optimal737 or M072_737 or optimal777:
+        if optimalRJ:
+            RJfam = True
+        else:
+            RJfam = False
+
+        if b737800 or b777300ER or optimal737 or M072_737 or optimal777 or RJfam:
             conventional = True
         else:
             conventional = False
@@ -847,7 +856,7 @@ class Mission(Model):
 
         # True is use xfoil fit tail drag model, False is TASOPT tail drag model
         if optimal737 or optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8 or M072_737 or \
-           D8_eng_wing or D8_no_BLI or D8big or optimal777 or D8big_eng_wing or D8big_no_BLI:
+           D8_eng_wing or D8_no_BLI or D8big or optimal777 or D8big_eng_wing or D8big_no_BLI or RJfam:
             fitDrag = True
         else:
             fitDrag = False
@@ -1077,13 +1086,13 @@ class Mission(Model):
                 cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
                 ])
 
-        if multimission and not D8bigfam and not b777300ER and not optimal777:
+        if multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam:
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
                   ])
-        if not multimission and not D8bigfam and not b777300ER and not optimal777:
+        if not multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam:
              constraints.extend([
                   aircraft['n_{pax}'] == 180.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
@@ -1100,6 +1109,20 @@ class Mission(Model):
         if not multimission and (D8bigfam or b777300ER or optimal777):
              constraints.extend([
                   aircraft['n_{pax}'] == 450.,
+                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  ])
+
+        if multimission and RJfam:
+             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
+
+             constraints.extend([
+                  W_fmissions >= sum(aircraft['W_{f_{total}}']),
+
+                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
+                  ])
+        if not multimission and RJfam:
+             constraints.extend([
+                  aircraft['n_{pax}'] == 90.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
                   ])
 
@@ -1130,7 +1153,7 @@ class Mission(Model):
              M4a = .2
              M0 = .72
              
-        if b737800 or optimal737 or M08_D8_eng_wing or D8_eng_wing or D8big_M08:
+        if b737800 or optimal737 or M08_D8_eng_wing or M08D8_noBLI or D8big_M08 or RJfam:
              M2 = .6
              M25 = .6
              M4a = .2

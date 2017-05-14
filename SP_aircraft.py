@@ -31,6 +31,7 @@ from subs_M08_D8_big import getD8big_M08_subs
 from subs_M072_D8_big import getD8big_M072_subs
 from subs_D8big_eng_wing import getD8big_eng_wing_subs
 from subs_D8big_noBLI import getD8big_noBLI_subs
+from subs_optimal_RJ import get_optimal_RJ_subs
 
 from gpkit import units, Model
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
@@ -683,6 +684,44 @@ def run_D8_big_M08(fixedBPR, pRatOpt = False):
     post_process(sol)
 
     percent_diff(sol, 'b777300ER', Nclimb)
+
+    return sol
+
+def run_optimal_RJ(fixedBPR, pRatOpt = False):
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'optimalRJ'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get_optimal_RJ_subs()
+
+    substitutions.update({
+##        'n_{pax}': [90.],
+        'ReqRng': [1500.],
+    })
+
+    if fixedBPR:
+        substitutions.update({
+            '\\alpha_{max}': 5.6958, 
+        })
+
+    if pRatOpt:
+        del substitutions['\pi_{f_D}']
+        del substitutions['\pi_{lc_D}']
+        del substitutions['\pi_{hc_D}']
+
+    m.substitutions.update(substitutions)
+    m = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 'b737800', Nclimb)
 
     return sol
 
