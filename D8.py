@@ -308,6 +308,8 @@ class Aircraft(Model):
                     self.fuse['\\delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
                 ])
 
+        if M08_D8_eng_wing:
+            constraints.extend([self.fuse['\\delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75])
 
         if D8fam and not D8_no_BLI:
             constraints.extend({self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}']})# Engine out moment arm
