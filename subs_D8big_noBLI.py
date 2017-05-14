@@ -6,9 +6,9 @@ def getD8big_noBLI_subs():
         returns substitution dic for a 777esque D8
         """
 
-        sweep = 13.237 #[deg]
-        VTsweep = 25.0 #[deg]
-        HTsweep = 8.0 #[deg]
+        sweep = 32.583 # [deg]
+        VTsweep = 28. #[deg]
+        HTsweep = 33. #[deg]
         M4a = .1025
         fan = 1.7
         lpc  = 4.69
@@ -59,7 +59,7 @@ def getD8big_noBLI_subs():
                 'f_{string}': 0.35,
                 'h_{floor}': 5 *units('in'),
 ##                'R_{fuse}': 1.715*units('m'),
-                '\\delta R_{fuse}': 0.43*units('m'),
+##                '\\delta R_{fuse}': 0.43*units('m'),
 ##                'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 12.,

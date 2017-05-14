@@ -53,7 +53,7 @@ def get_optimal_777300ER_subs():
             'W_{avg. pass_{total}}':230.*units('lbf'),
             'f_{string}': 0.34,
             'h_{floor}': 8. * units('in'),
-##            'R_{fuse}' : 3.11*units('m'),
+            'R_{fuse}' : 3.11*units('m'),
             '\\delta_P_{over}': 8.382 * units('psi'),
 
             # fuselage subs that make fuse circular
@@ -84,7 +84,7 @@ def get_optimal_777300ER_subs():
             '\\rho_0': 1.225*units('kg/m^3'),
             'b_{max}': 200 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-##            'AR': 8.455,
+            'AR': 8.455,
             'f_{wingfuel}': 0.5,
             '\\tau_{max_w}': 0.14208,
             'TipReduct': 1,
@@ -122,7 +122,7 @@ def get_optimal_777300ER_subs():
 
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
-##            'AR_{ht}': 4.8,
+            'AR_{ht}': 4.8,
             '\\lambda_{ht}': 0.32,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
             'C_{L_{hmax}}': 1.5,  # [TAS]

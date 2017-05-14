@@ -61,7 +61,7 @@ def getD8big_M072_subs():
                 'f_{string}': 0.35,
                 'h_{floor}': 5 *units('in'),
 ##                'R_{fuse}': 1.715*units('m'),
-                '\\delta R_{fuse}': 0.43*units('m'),
+##                '\\delta R_{fuse}': 0.43*units('m'),
 ##                'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 12.,
