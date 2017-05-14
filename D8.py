@@ -308,11 +308,13 @@ class Aircraft(Model):
                     self.fuse['\\delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
                 ])
 
+        if M08_D8_eng_wing:
+            constraints.extend([self.fuse['\\delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75])
 
         if D8fam and not D8_no_BLI:
             constraints.extend({self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}']})# Engine out moment arm
         if D8_no_BLI:
-            constraints.extend({self.VT['y_{eng}'] >= self.fuse['w_{fuse}'] + 0.5*self.engine['d_{f}'] + 3.*units('ft')})
+            constraints.extend({self.VT['y_{eng}'] >= self.fuse['w_{fuse}'] + 0.5*self.engine['d_{f}'] + 1.*units('ft')})
 
 
         #d8 only constraints
@@ -717,11 +719,11 @@ class Mission(Model):
                M08D8_noBLI, optimal777, D8big_eng_wing, multimission, manufacturer, operator, fuel, \
                D8bigfam, optimalRJ, RJfam, smallD8, smallD8_no_BLI, smallD8_eng_wing
 
-
         # Choose objective type
         manufacturer = False
         operator = False
         fuel = False
+        PRFC = False
 
         if objective == 'manufacturer':
             manufacturer = True
@@ -729,6 +731,8 @@ class Mission(Model):
             operator = True
         if objective == 'fuel':
             fuel = True
+        if objective == 'PRFC':
+            PRFC = True
 
         # Only one active at a time
         D80 = False
@@ -1238,4 +1242,14 @@ class Mission(Model):
              else:
                   self.cost = aircraft['W_{dry}'] + W_fmissions
 
+             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb,
+
+        if PRFC:
+             # payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT NEED TO SUB ReqRng OR n_{pax}.
+             if not multimission:
+                self.cost = sum(aircraft['PRFC'])
+             else:
+                self.cost = sum(aircraft['PRFC'])
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
+
+

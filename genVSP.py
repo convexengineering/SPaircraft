@@ -166,7 +166,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         'HPKOTUWYSIY':float(2*wfuse.magnitude), # Fuselage width
 
         # HT Variables
-        'USGQFZQKJWC':float(float(xCGht.magnitude) - 0.5*crootht.magnitude - 1.0*tanvt*bvt.magnitude), # HT x location
+        'USGQFZQKJWC':float(float(xCGvt.magnitude) - 0.5*crootvt.magnitude + 1.0*tanvt*bvt.magnitude - wfuse.magnitude*tanht), # HT x location
         'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),                                             # HT z location
         'IFZAMYYJPRP':float(arctan(tanht)*180/pi),                                                             # HT sweep
         'CHYQUCYJMPS':float(bht.magnitude*0.5),                                               # HT half-span
@@ -196,16 +196,16 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     # if aircraft in ['D8big', 'D82_73eng', 'D8_eng_wing', 'optimalD8', 'M08D8', 'M08_D8_eng_wing']:
 
     # Wing mounted engines
-    if aircraft in ['b737800', 'b777300ER','D8_eng_wing','M08_D8_eng_wing']:
+    if aircraft in ['b737800', 'b777300ER','D8_eng_wing','M08_D8_eng_wing','optimal737']:
         resultsDict.update({
          # Engine Variables
-        'EGCVYPSLWEZ':float((xwing).magnitude), # Engine x location
+        'EGCVYPSLWEZ':float((xwing).magnitude - 0.25*croot.magnitude + yeng.magnitude*tan(sweep*pi/180)), # Engine x location
         'RJLYSBJAFOT':float(yeng.magnitude), #Engine y location
         'GBGVQARDEVD':float(-hfuse.magnitude - 0.2*df.magnitude), # Engine z location
         'HKVDGHIEXRW':float(0.),                                  # Engine up-rotation (degrees)
         })
     # Conventional tail
-    if aircraft in ['b737800', 'b777300ER']:
+    if aircraft in ['b737800', 'b777300ER','optimal737']:
         resultsDict.update({
         # HT Variables
         'USGQFZQKJWC':float(float(xCGht.magnitude) - crootht.magnitude), # HT x location
