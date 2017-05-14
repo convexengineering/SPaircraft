@@ -717,11 +717,11 @@ class Mission(Model):
                M08D8_noBLI, optimal777, D8big_eng_wing, multimission, manufacturer, operator, fuel, \
                D8bigfam, optimalRJ, RJfam, smallD8, smallD8_no_BLI, smallD8_eng_wing
 
-
         # Choose objective type
         manufacturer = False
         operator = False
         fuel = False
+        PRFC = False
 
         if objective == 'manufacturer':
             manufacturer = True
@@ -1231,7 +1231,7 @@ class Mission(Model):
              return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb,
 
         if PRFC:
-             # payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT SUB ReqRng OR n_{pax}.
+             # payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT NEED TO SUB ReqRng OR n_{pax}.
              if not multimission:
                 self.cost = sum(aircraft['PRFC'])
              else:
