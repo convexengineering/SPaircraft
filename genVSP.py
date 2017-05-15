@@ -208,8 +208,10 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     if aircraft in ['b737800', 'b777300ER','optimal737','optimal777','optimalRJ']:
         resultsDict.update({
         # HT Variables
-        'USGQFZQKJWC':float(float(xCGht.magnitude) - crootht.magnitude), # HT x location
+        'USGQFZQKJWC':float(float(xCGht.magnitude) - crootht.magnitude),     # HT x location
         'BLMHVDOLAQJ':float(0.),                                             # HT z location
+        'CHYQUCYJMPS':float(bht.magnitude*0.5 + wfuse.magnitude),            # HT half-span
+
         # VT variables
         'LLYTEYDPDID':float(xCGvt.magnitude - 0.5*crootvt.magnitude),        # VT x location (LE location)
         'BFZDOVCXTAV':float(0.),                                             # VT y location (as wide as fuselage)
