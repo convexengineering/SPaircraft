@@ -196,7 +196,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     # if aircraft in ['D8big', 'D82_73eng', 'D8_eng_wing', 'optimalD8', 'M08D8', 'M08_D8_eng_wing']:
 
     # Wing mounted engines
-    if aircraft in ['b737800', 'b777300ER','D8_eng_wing','M08_D8_eng_wing','optimal737']:
+    if aircraft in ['b737800', 'b777300ER','D8_eng_wing','M08_D8_eng_wing','optimal737','optimal777','optimalRJ']:
         resultsDict.update({
          # Engine Variables
         'EGCVYPSLWEZ':float((xwing).magnitude - 0.25*croot.magnitude + yeng.magnitude*tan(sweep*pi/180)), # Engine x location
@@ -205,7 +205,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         'HKVDGHIEXRW':float(0.),                                  # Engine up-rotation (degrees)
         })
     # Conventional tail
-    if aircraft in ['b737800', 'b777300ER','optimal737']:
+    if aircraft in ['b737800', 'b777300ER','optimal737','optimal777','optimalRJ']:
         resultsDict.update({
         # HT Variables
         'USGQFZQKJWC':float(float(xCGht.magnitude) - crootht.magnitude), # HT x location
