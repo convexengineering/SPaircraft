@@ -467,6 +467,9 @@ class HorizontalTail(Model):
         WHT = Variable('W_{HT_system}', 'N', 'HT System Weight')
         fHT = Variable('f_{HT}' ,'-', 'Rudder etc. fractional weight')
 
+        #margin and sensitivity
+        CHT = Variable('C_{HT}', 1, '-', 'HT Weight Margin and Sensitivity Factor')
+
         #variables only used for the TASOPT tail drag formulation
         cdfh = Variable('c_{d_{fh}}', '-', 'VT friction drag coefficient')
         cdph = Variable('c_{d_{ph}}', '-', 'VT pressure drag coefficient')
@@ -478,7 +481,7 @@ class HorizontalTail(Model):
                 self.wb['L_{h_{rect}}'] >= self.wb['L_{h_{max}}']/2.*self.HTns['c_{tip_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'],
                 self.wb['L_{h_{tri}}'] >= self.wb['L_{h_{max}}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'], #[SP]
 
-                WHT >= self.wb['W_{struct}'] + self.wb['W_{struct}']  * fHT,
+                WHT >= CHT*(self.wb['W_{struct}'] + self.wb['W_{struct}']  * fHT),
             ])
 
         return self.HTns, self.wb, constraints

@@ -1242,7 +1242,7 @@ class Mission(Model):
              else:
                   self.cost = aircraft['W_{dry}'] + W_fmissions
 
-             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb,
+             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
 
         if PRFC:
              # payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT NEED TO SUB ReqRng OR n_{pax}.

@@ -252,6 +252,9 @@ class VerticalTail(Model):
         WVT = Variable('W_{VT_system}', 'N', 'Total VT System Weight')
         fVT = Variable('f_{VT}', '-', 'VT Fractional Weight')
 
+        #Margin and Sensitivity
+        CVT = Variable('C_{VT}', 1, '-', 'VT Weight Margin and Sensitivity')
+
         #variables only used for the TASOPT tail drag formulation
         cdfv = Variable('c_{d_{fv}}', '-', 'VT friction drag coefficient')
         cdpv = Variable('c_{d_{pv}}', '-', 'VT pressure drag coefficient')
@@ -259,7 +262,7 @@ class VerticalTail(Model):
 
         constraints = [
             self.vtns['\\lambda_{vt}'] == self.wb['taper'],
-            WVT >= self.wb['W_{struct}'] + self.wb['W_{struct}'] * fVT,
+            WVT >= CVT*(self.wb['W_{struct}'] + self.wb['W_{struct}'] * fVT),
             ]
 
         return self.vtns, self.wb, constraints

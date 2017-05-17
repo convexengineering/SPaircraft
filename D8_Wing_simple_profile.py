@@ -226,6 +226,8 @@ class Wing(Model):
 
         Wwing = Variable('W_{wing_system}', 'N', 'Total Wing Weight')
 
+        Cwing = Variable('C_{wing}', 1, '-', 'Wing Weight Margin and Sensitivity Factor')
+
         dxACwing = Variable('\\Delta x_{AC_{wing}}','m','Wing Aerodynamic Center Shift')
         # w.r.t. the quarter chord of the root of the wing.
 
@@ -237,7 +239,7 @@ class Wing(Model):
             constraints.extend([
             self.wns['\\lambda'] == self.wb['taper'],
 
-            TCS([Wwing >= self.wb['W_{struct}'] + self.wb['W_{struct}']*(self.wns['f_{flap}'] + \
+            TCS([Wwing >= Cwing * self.wb['W_{struct}'] + self.wb['W_{struct}']*(self.wns['f_{flap}'] + \
                     self.wns['f_{slat}'] + self.wns['f_{aileron}'] + self.wns['f_{lete}'] + self.wns['f_{ribs}'] + \
                     self.wns['f_{spoiler}'] + self.wns['f_{watt}'])]),
             TCS([dxACwing >= (1/12.*self.wns['A_{tri}'] + 1/4.*self.wns['A_{rect}'])/self.wns['S'] \

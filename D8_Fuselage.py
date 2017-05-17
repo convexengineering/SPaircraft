@@ -215,6 +215,9 @@ class Fuselage(Model):
         xb = Variable('x_b', 'm', 'x-location of back of wingbox')
         w = Variable('wtc', 0.5, '-', 'Wingbox-width-to-chord ratio')
 
+        #weight margin and sensitivity
+        Cfuse = Variable('C_{fuse}', 1, '-', 'Fuselage Weight Margin and Sensitivity')
+
         # Moments
         # alphaMf0 = Variable('\\alpha_{Mf0}','-','AoA at which fuselage moment is zero')
 
@@ -371,8 +374,8 @@ class Fuselage(Model):
 
                 Wskin >= rhoskin * g * (Vcyl + Vnose + Vbulk),
                 Wshell >= Wskin * (1 + fstring + ffadd + fframe) + Wdb,
-                Wfuse >= Wshell + Wfloor + Winsul + \
-                    Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend + Wvbend,
+                Wfuse >= Cfuse*(Wshell + Wfloor + Winsul + \
+                    Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend + Wvbend),
             ])
 
         return constraints
