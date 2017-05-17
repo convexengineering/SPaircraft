@@ -141,6 +141,8 @@ class Aircraft(Model):
         Weadd = Variable('W_{eadd}', 'lbf', 'Additional Engine System Weight')
         Wengsys = Variable('W_{engsys}', 'lbf', 'Total Engine System Weight')
         rvnace = Variable('r_{vnace}', '-', 'Incoming Nacelle Velocity Ratio')
+
+        Ceng = Variable('C_{engsys}', 1, '-', 'Engine System Weight Margin/Sens Factor')
      
         constraints = []
         with SignomialsEnabled():
@@ -250,7 +252,7 @@ class Aircraft(Model):
                                 + (2.5+ 0.0363*self.engine['d_{f}']/units('in'))*Aexh + 1.9*Acorecowl)*units('lbf/ft^2'),
                             Weadd == feadd * self.engine['W_{engine}']]),
                             TCS([Wpylon >= (Wnace + Weadd + self.engine['W_{engine}']) * fpylon]),
-                            TCS([Wengsys >= Wpylon + Wnace + Weadd + self.engine['W_{engine}']]),
+                            TCS([Wengsys >= Ceng*(Wpylon + Wnace + Weadd + self.engine['W_{engine}'])]),
                             ])
 
         #d8 only constraints
