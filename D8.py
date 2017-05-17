@@ -114,6 +114,8 @@ class Aircraft(Model):
         Wmisc   = Variable('W_{misc}','lbf','Sum of Miscellaneous Weights')
         Wlgnose = Variable('W_{lgnose}','lbf','Nose Landing Gear Weight')
         Wlgmain = Variable('W_{lgmain}','lbf','Main Landing Gear Weight')
+        Wlg = Variable('W_{lg}', 'lbf', 'Total Landing Gear Weight')
+        Clg = Variable('C_{lg}', 1, '-', 'Landing Gear Weight Margin/Sens Factor')
         Whpesys = Variable('W_{hpesys}','lbf','Power Systems Weight')
         #
         flgnose = Variable('f_{lgnose}','-','Nose Landing Gear Weight Fraction')
@@ -175,9 +177,10 @@ class Aircraft(Model):
                             WVT == self.VT['W_{VT_system}'],
 
                             # LG and Power Systems weights
-                            Wmisc >= Wlgnose + Wlgmain + Whpesys,
+                            Wmisc >= Wlg + Whpesys,
                             Wlgnose == flgnose*W_total,
                             Wlgmain == flgmain*W_total,
+                            Wlg >= Clg*(Wlgnose + Wlgmain),
                             Whpesys == fhpesys*W_total,
 
                             # LG and Power System locations
