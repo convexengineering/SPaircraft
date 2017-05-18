@@ -16,6 +16,95 @@ def percent_diff(sol,aircraft,Nclimb):
     optimal737 compares to TASOPT 737-800 w/physics base tail sizing
     b777300ER compares to TASOPT 777-300ER
     """
+    if aircraft == 'D12':
+       #weights to compare for TASOPT 777-300ER run
+        print "WEIGHT DIFFERENCES"
+        print "\n"
+        print "Total Fuel Weight Percent Diff: %s" % compute_diff(mag(sol('W_{f_{total}}').to('lbf')), 152030.4)
+        print "\n"
+        print "Total Aircraft Weight Percent Diff: %s" % compute_diff(mag(sol('W_{total}').to('lbf')), 528633.7)
+        print "\n"
+        print "Engine Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{engsys}').to('lbf')), 35537.6)
+        print "\n"
+        print "Fuselage Weight Percent Diff: %s" % compute_diff(mag(sol('W_{fuse}').to('lbf')), 107426.3)
+        print "\n"
+        print "Payload Weight Percent Diff: %s" % compute_diff(mag(sol('W_{payload}').to('lbf')), 115046.0)
+        print "\n"
+        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{VT}').to('lbf')), 2368.3)
+        print "\n"
+        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{HT}').to('lbf')), 9058.3)
+        print "\n"
+        print "Wing Weight Percent Diff: %s" % compute_diff(mag(sol('W_{wing}').to('lbf')), 91144.3)
+
+        #wing value to compare
+        print "\n\n\n"
+        print "WING DIFFERENCES"
+        print "\n"
+        print "Wing Span Percent Diff: %s" % compute_diff(mag(sol('b').to('ft')), 199.748)
+##        print "\n"
+##        print "Wing Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR')), 10.1)
+        print "\n"
+        print "Wing Area Percent Diff: %s" % compute_diff(mag(sol('S').to('ft^2')), 3989.93)
+        
+
+        #HT values to compare
+        print "\n\n\n"
+        print "HORIZONTAL TAIL DIFFERENCES"
+##        print "\n"
+##        print "HT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR_{ht}')), 6)
+        print "\n"
+        print "HT Area Percent Diff: %s" % compute_diff(mag(sol('S_{ht}').to('ft^2')), 689.07  )
+##        print "\n"
+##        print "HT Volume Coefficient Percent Diff: %s" % compute_diff(mag(sol('V_{h}')), 1.450) 
+        
+
+        #VT values to compare
+        print "\n\n\n"
+        print "VERTICAL TAIL DIFFERENCES"
+        print "\n"
+##        print "VT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('A_{vt}')), 2.0)
+        print "\n"
+        print "VT Span Percent Diff: %s" % compute_diff(mag(sol('b_{vt}').to('ft')), 21.36)
+        print "\n"
+        print "VT Area Percent Diff: %s" % compute_diff(mag(sol('S_{vt}').to('ft^2')), 456.15)
+##        print "\n"
+##        print "VT Volume Coefficient Percent Diff: %s" % compute_diff(mag(sol('V_{vt}')), .1)
+
+
+        #drag values to compare
+        print "\n\n\n"
+        print "CRUISE SEGMENT 1 DRAG DIFFERENCES"
+        print "\n"
+        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.02428)
+        print "\n"
+        # print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 17.252)
+        # print "\n"
+        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.00062)
+        print "\n"
+        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission, CruiseSegment, CruiseP, AircraftP, HorizontalTailPerformance'][0]), 0.00154*sol('S')/sol('S_{ht}'))
+        print "\n"
+        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission, CruiseSegment, CruiseP, AircraftP, FuselagePerformance'][0]), 0.00521)
+        print "\n"
+        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission, CruiseSegment, CruiseP, AircraftP, VerticalTailPerformance'][0]), 0.00093*sol('S')/sol('S_{vt}'))
+        print "\n"
+        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]), 0.00899)
+        print "\n"
+        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]), 0.00723)
+        
+        #crusie TSFC
+        print "\n\n\n"
+        print "CRUISE SEGMENT 1 TSFC DIFFERENCES"
+        print "\n"
+        print "Initial Cruise TSFC Percent Diff: %s" % compute_diff(mag(sol('TSFC')[Nclimb]), 0.54649)
+        
+
+        #Fuselage values to compare
+        print "\n\n\n"
+        print "FUSELAGE DIFFERENCES"
+        print "\n"
+        # print "Weight of HB material: %s "  % compute_diff(mag(sol('W_{hbend}')), 2021.3)
+        # print "\n"
+        # print "Weight of VB material: %s "  % compute_diff(mag(sol('W_{vbend}')), 1210.5)
 
     if aircraft == 'b777300ER':
        #weights to compare for TASOPT 777-300ER run
