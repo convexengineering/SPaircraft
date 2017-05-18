@@ -43,6 +43,7 @@ from subs_small_M08_D8_eng_wing  import get_small_M08_D8_eng_wing_subs
 from gpkit import units, Model
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.constraints.bounded import Bounded as BCS
+from subs_D12  import get_D12_subs
 
 from D8 import Mission
 
@@ -121,6 +122,44 @@ def run_D82():
 
     m.substitutions.update(substitutions)
 
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, aircraft, Nclimb)
+
+    return sol
+
+def run_D12(fixedBPR, pRatOpt = False):
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    objective = 'fuel'
+    aircraft = 'D12'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get_D12_subs()
+
+    substitutions.update({
+#                'n_{paxx}': 500.,
+        'ReqRng': 5600.*units('nmi'),
+    })
+
+    if fixedBPR:
+        substitutions.update({
+            '\\alpha_{max}': 8.009,
+        })
+
+    if pRatOpt:
+        del substitutions['\pi_{f_D}']
+        del substitutions['\pi_{lc_D}']
+        del substitutions['\pi_{hc_D}']
+
+    m.substitutions.update(substitutions)
+    m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
