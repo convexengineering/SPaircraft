@@ -410,7 +410,7 @@ class FuselagePerformance(Model):
         # alphafuse = Variable('\\alpha_{fuse}','-','Fuselage angle of attack')
 
         # BLI surrogate
-        fBLI = Variable('f_{BLI}','-','1-fBLI surrogate')
+##        fBLI = Variable('f_{BLI}','-','1-fBLI surrogate')
         # thetaBLI = Variable('\\theta_{BLI}','m^2','Momentum defect area absorbed by engines')
 
         constraints = []

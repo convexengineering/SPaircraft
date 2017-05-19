@@ -4,6 +4,9 @@ Script to run the SP aircraft model
 # Import constant relaxation tool
 from relaxed_constants import relaxed_constants, post_process
 
+#import file for calcualting values after solution
+from post_compute import post_compute
+
 # Import tool to check solution relative to TASOPT
 from D8_TASOPT_percent_diff import percent_diff
 
@@ -97,9 +100,10 @@ def run_737800():
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
-    post_process(sol)
 
     percent_diff(sol, aircraft, Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -128,6 +132,8 @@ def run_D82():
     post_process(sol)
 
     percent_diff(sol, aircraft, Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -167,6 +173,8 @@ def run_D12(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, aircraft, Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_D8_no_BLI(fixedBPR, pRatOpt = False):
@@ -204,6 +212,8 @@ def run_D8_no_BLI(fixedBPR, pRatOpt = False):
     post_process(sol)
 
     percent_diff(sol, 'D82', Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -244,6 +254,8 @@ def run_M072_737(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'b737800', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_D8_eng_wing(fixedBPR, pRatOpt = False):
@@ -281,6 +293,8 @@ def run_D8_eng_wing(fixedBPR, pRatOpt = False):
     post_process(sol)
 
     percent_diff(sol, 2, Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -321,6 +335,8 @@ def run_optimal_D8(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'D82', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_optimal_737(fixedBPR, pRatOpt = False):
@@ -360,6 +376,8 @@ def run_optimal_737(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'b737800', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_M08_D8_eng_wing(fixedBPR, pRatOpt = False):
@@ -397,6 +415,8 @@ def run_M08_D8_eng_wing(fixedBPR, pRatOpt = False):
     post_process(sol)
 
     percent_diff(sol, 'D82', Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -436,6 +456,8 @@ def run_M08_D8(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'D82', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_M08_D8_no_BLI(fixedBPR, pRatOpt = False):
@@ -474,6 +496,8 @@ def run_M08_D8_no_BLI(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'D82', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_777300ER():
@@ -501,6 +525,8 @@ def run_777300ER():
     post_process(sol)
 
     percent_diff(sol, aircraft, Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -540,6 +566,8 @@ def run_optimal_777(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'b777300ER', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_D8_big(fixedBPR, pRatOpt = False):
@@ -577,6 +605,8 @@ def run_D8_big(fixedBPR, pRatOpt = False):
     post_process(sol)
 
     percent_diff(sol, 'b777300ER', Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -616,6 +646,8 @@ def run_D8_big_no_BLI(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'b777300ER', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_D8_big_eng_wing(fixedBPR, pRatOpt = False):
@@ -653,6 +685,8 @@ def run_D8_big_eng_wing(fixedBPR, pRatOpt = False):
     post_process(sol)
 
     percent_diff(sol, 'b777300ER', Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -693,6 +727,8 @@ def run_D8_big_M072(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'b777300ER', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_D8_big_M08(fixedBPR, pRatOpt = False):
@@ -730,6 +766,8 @@ def run_D8_big_M08(fixedBPR, pRatOpt = False):
     post_process(sol)
 
     percent_diff(sol, 'b777300ER', Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -769,6 +807,8 @@ def run_optimal_RJ(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'b737800', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_M072_optimal_RJ(fixedBPR, pRatOpt = False):
@@ -807,6 +847,8 @@ def run_M072_optimal_RJ(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'b737800', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_small_D8(fixedBPR, pRatOpt = False):
@@ -844,6 +886,8 @@ def run_small_D8(fixedBPR, pRatOpt = False):
     post_process(sol)
 
     percent_diff(sol, 'b737800', Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -921,6 +965,8 @@ def run_small_D8_eng_wing(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'b737800', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_small_M08_D8_eng_wing(fixedBPR, pRatOpt = False):
@@ -958,6 +1004,8 @@ def run_small_M08_D8_eng_wing(fixedBPR, pRatOpt = False):
     post_process(sol)
 
     percent_diff(sol, 'b737800', Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -997,6 +1045,8 @@ def run_small_D8_no_BLI(fixedBPR, pRatOpt = False):
 
     percent_diff(sol, 'b737800', Nclimb)
 
+    post_compute(sol, Nclimb)
+
     return sol
 
 def run_small_M08_D8_no_BLI(fixedBPR, pRatOpt = False):
@@ -1034,6 +1084,8 @@ def run_small_M08_D8_no_BLI(fixedBPR, pRatOpt = False):
     post_process(sol)
 
     percent_diff(sol, 'b737800', Nclimb)
+
+    post_compute(sol, Nclimb)
 
     return sol
 

@@ -43,6 +43,9 @@ def getb777300ERsubs():
             'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
             'V_{mn}': 133.76*units('m/s'),
 
+            #BLI drag reduction factor
+            'D_{reduct}': 1,
+
             # Fuselage subs
             'l_{nose}': 40*units('ft'),
             'f_{seat}': 0.1,

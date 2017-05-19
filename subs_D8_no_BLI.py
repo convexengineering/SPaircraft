@@ -45,6 +45,9 @@ def get_D8_no_BLI_subs():
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
                 'V_{mn}': 133.76*units('m/s'),
 
+                #BLI drag reduction factor
+                'D_{reduct}': 1-(fBLI*wake_benefit*wake_percent),
+
                 # Fuselage subs
                 'f_{seat}': 0.1,
                 'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead

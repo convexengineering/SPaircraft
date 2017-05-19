@@ -14,9 +14,13 @@ def get_small_M08_D8_subs():
         hpc = 35./8.
 
         #Percent of velocity loss from BL smeared across entire fan
-        BLIVloss = .18
+        BLIVloss = 0.088197
         #Min cruise mach number
         Mcruisemin = 0.72
+
+        fBLI = 0.4
+        wake_benefit = 0.02
+        wake_percent = 0.33
 
         substitutions = {
                 'N_{land}': 6.,
@@ -45,6 +49,9 @@ def get_small_M08_D8_subs():
                 'W\'\'_{insul}': 22.,  # [TAS]
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
                 'V_{mn}': 133.76*units('m/s'),
+
+                #BLI drag reduction factor
+                'D_{reduct}': 1-(fBLI*wake_benefit*wake_percent),
 
                 # Fuselage subs
                 'f_{seat}': 0.1,

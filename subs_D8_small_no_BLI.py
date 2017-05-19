@@ -43,6 +43,9 @@ def get_small_D8_no_BLI_subs():
                 'W\'\'_{insul}': 22.,  # [TAS]
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
                 'V_{mn}': 133.76*units('m/s'),
+                
+                #BLI drag reduction factor
+                'D_{reduct}': 1-(fBLI*wake_benefit*wake_percent),
 
                 # Fuselage subs
                 'f_{seat}': 0.1,

@@ -15,9 +15,13 @@ def getD82subs():
         hpc = 35./8.
 
         #Percent of velocity loss from BL smeared across entire fan
-        BLIVloss = .18
+        BLIVloss = 0.088197
         #Min cruise mach number
         Mcruisemin = 0.72
+
+        fBLI = 0.4
+        wake_benefit = 0.02
+        wake_percent = 0.33
 
         substitutions = {
                 'N_{land}': 6.,
@@ -47,6 +51,9 @@ def getD82subs():
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
                 'V_{mn}': 133.76*units('m/s'),
 
+                #BLI drag reduction factor
+                'D_{reduct}': 1-(fBLI*wake_benefit*wake_percent),
+
                 # Fuselage subs
                 'f_{seat}': 0.1,
                 'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
@@ -56,7 +63,7 @@ def getD82subs():
 
                 'h_{floor}': 5.12*units('in'),
                 'R_{fuse}': 1.715*units('m'),
-                '\\delta R_{fuse}': 0.43*units('m'),
+##                '\\delta R_{fuse}': 0.43*units('m'),
                 'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
@@ -91,7 +98,7 @@ def getD82subs():
                 'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
-                'f_{wingfuel}': 1.0,
+                'f_{wingfuel}': 1,
                 'TipReduct': 1.0,
 
                 # Wing fractional weights

@@ -15,9 +15,13 @@ def getD8bigsubs():
         hpc = 5.25
 
         #Percent of velocity loss from BL smeared across entire fan
-        BLIVloss = 0.18
+        BLIVloss = 0.088197
         #Min cruise mach number
         Mcruisemin = 0.84
+
+        fBLI = 0.4
+        wake_benefit = 0.02
+        wake_percent = 0.33
 
         substitutions = {
                 'N_{land}': 6.,
@@ -48,6 +52,9 @@ def getD8bigsubs():
                 'W\'\'_{insul}': 22.,  # [TAS]
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
                 'V_{mn}': 133.76*units('m/s'),
+
+                #BLI drag reduction factor
+                'D_{reduct}': 1-(fBLI*wake_benefit*wake_percent),
 
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft')*1.75,   #1.75 is estimated length increase factor from D8.2
