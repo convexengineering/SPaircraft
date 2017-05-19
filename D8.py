@@ -977,28 +977,18 @@ class Mission(Model):
               ])
 
             #Setting fuselage drag and lift, and BLI correction
-            if D8fam and not (D12 or D8_no_BLI or M08D8_noBLI or D8big_no_BLI or D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing or smallD8_no_BLI or smallD8_eng_wing):
+            if D8fam and not (D12 or D8big_no_BLI or D8big_eng_wing):
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081,
 
                     aircraft['D_{reduct}'] == 0.99736,#climb['f_{BLI}']*aircraft['D_{wakefraction}']*aircraft['BLI_{wakebenefit}'],
                   ])
-            if D12:
+            if D12 or D8big or D8big_no_BLI or D8big_eng_wing:
                 constraints.extend([
                         climb.climbP.fuseP['C_{D_{fuse}}'] ==  0.0167620/((.83**2/.8**2)) ,
                         cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.0167620/((.83**2/.8**2)),
                       ])
-            if D8_no_BLI or M08D8_noBLI or D8big_no_BLI or smallD8_no_BLI:
-                constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081,
-                  ])
-            if D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing or smallD8_eng_wing:
-                constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081,
-                  ])
             if conventional and not (b777300ER or optimal777):
                 constraints.extend([
                     #Setting fuselage drag coefficient
