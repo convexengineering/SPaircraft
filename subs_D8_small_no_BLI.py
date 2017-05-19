@@ -140,12 +140,12 @@ def get_small_D8_no_BLI_subs():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 6.,
+                'rSnace': 16.,
                 'f_{pylon}': 0.05,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
-                'r_{vnace}': 0.925,
+                'r_{vnace}': 1.02,
 
                 # Cabin air substitutions in AircraftP
 

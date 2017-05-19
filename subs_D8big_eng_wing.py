@@ -191,9 +191,9 @@ def getD8big_eng_wing_subs():
                 'HTR_{lpc_SUB}': 1 - 0.6**2,
 
                 # engine system subs
-                'rSnace': 6.,
+                'rSnace': 16.,
                 # nacelle drag calc parameter
-                'r_{vnace}': .925,
+                'r_{vnace}': 1.02,
                 'T_{t_{4.1_{max}}}': 1860.*units('K'),
         }
 

@@ -141,7 +141,7 @@ def get_D8_no_BLI_subs():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 11.,
+                'rSnace': 16.,
                 'f_{pylon}': 0.1,
                 'f_{eadd}': 0.1,
 
