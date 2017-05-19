@@ -47,6 +47,9 @@ def getD8big_eng_wing_subs():
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
                 'V_{mn}': 133.76*units('m/s'),
 
+                #BLI drag reduction factor
+                'D_{reduct}': 1,
+
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft')*1.75,   #1.75 is estimated length increase factor from D8.2
                 'L_{total/wing}': 1.179,
@@ -66,8 +69,8 @@ def getD8big_eng_wing_subs():
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
-                'f_{lgmain}':0.03, # [TAS]
-                'f_{lgnose}':0.0075, # [TAS]
+                'f_{lgmain}':0.044, # [TAS]
+                'f_{lgnose}':0.011, # [TAS]
                 'f_{pylon}': 0.10,
 
                 # Fractional weights

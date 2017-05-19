@@ -44,6 +44,9 @@ def get_small_D8_eng_wing_subs():
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
                 'V_{mn}': 133.76*units('m/s'),
 
+                #BLI drag reduction factor
+                'D_{reduct}': 1,
+
                 # Fuselage subs
                 'f_{seat}': 0.1,
                 'W\'_{seat}': 1.,  # Seat weight determined by weight fraction instead
@@ -64,8 +67,8 @@ def get_small_D8_eng_wing_subs():
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
-                'f_{lgmain}':0.03, # [TAS]
-                'f_{lgnose}':0.0075, # [TAS]
+                'f_{lgmain}':0.044, # [TAS]
+                'f_{lgnose}':0.011, # [TAS]
                 'f_{pylon}': 0.10,
 
                 # Fractional weights

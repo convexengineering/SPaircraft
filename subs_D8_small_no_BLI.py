@@ -45,7 +45,7 @@ def get_small_D8_no_BLI_subs():
                 'V_{mn}': 133.76*units('m/s'),
                 
                 #BLI drag reduction factor
-                'D_{reduct}': 1-(fBLI*wake_benefit*wake_percent),
+                'D_{reduct}': 1,
 
                 # Fuselage subs
                 'f_{seat}': 0.1,

@@ -19,7 +19,7 @@ def get_small_M08_D8_subs():
         Mcruisemin = 0.72
 
         fBLI = 0.4
-        wake_benefit = 0.02
+        wake_benefit = 0.1
         wake_percent = 0.33
 
         substitutions = {
@@ -51,7 +51,7 @@ def get_small_M08_D8_subs():
                 'V_{mn}': 133.76*units('m/s'),
 
                 #BLI drag reduction factor
-                'D_{reduct}': 1-(fBLI*wake_benefit*wake_percent),
+                'D_{reduct}': 1-((1-fBLI)*wake_benefit*wake_percent),
 
                 # Fuselage subs
                 'f_{seat}': 0.1,

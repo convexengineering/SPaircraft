@@ -20,7 +20,7 @@ def getD82subs():
         Mcruisemin = 0.72
 
         fBLI = 0.4
-        wake_benefit = 0.02
+        wake_benefit = 0.1
         wake_percent = 0.33
 
         substitutions = {
@@ -52,7 +52,7 @@ def getD82subs():
                 'V_{mn}': 133.76*units('m/s'),
 
                 #BLI drag reduction factor
-                'D_{reduct}': 1-(fBLI*wake_benefit*wake_percent),
+                'D_{reduct}': 1-((1-fBLI)*wake_benefit*wake_percent),
 
                 # Fuselage subs
                 'f_{seat}': 0.1,
@@ -98,7 +98,7 @@ def getD82subs():
                 'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
-                'f_{wingfuel}': 1,
+                'f_{wingfuel}': 1.0,
                 'TipReduct': 1.0,
 
                 # Wing fractional weights

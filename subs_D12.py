@@ -20,7 +20,7 @@ def get_D12_subs():
         Mcruisemin = 0.83
 
         fBLI = 0.4
-        wake_benefit = 0.02
+        wake_benefit = 0.1
         wake_percent = 0.33
 
         substitutions = {
@@ -54,7 +54,7 @@ def get_D12_subs():
                 'V_{mn}': 133.76*units('m/s'),
 
                 #BLI drag reduction factor
-                'D_{reduct}': 1-(fBLI*wake_benefit*wake_percent),
+                'D_{reduct}': 1-((1-fBLI)*wake_benefit*wake_percent),
 
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft')*1.75,   #1.75 is estimated length increase factor from D8.2

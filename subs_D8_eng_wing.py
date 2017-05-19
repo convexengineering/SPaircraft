@@ -45,7 +45,7 @@ def get_D8_eng_wing_subs():
                 'V_{mn}': 133.76*units('m/s'),
 
                 #BLI drag reduction factor
-                'D_{reduct}': 1-(fBLI*wake_benefit*wake_percent),
+                'D_{reduct}': 1,
 
                 # Fuselage subs
                 'f_{seat}': 0.1,
@@ -67,8 +67,8 @@ def get_D8_eng_wing_subs():
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
-                'f_{lgmain}':0.03, # [TAS]
-                'f_{lgnose}':0.0075, # [TAS]
+                'f_{lgmain}': 0.044, # [TAS]
+                'f_{lgnose}': 0.011, # [TAS]
                 'f_{pylon}': 0.10,
 
                 # Fractional weights
