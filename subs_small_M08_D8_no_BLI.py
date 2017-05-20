@@ -9,9 +9,9 @@ def get_small_M08_D8_no_BLI_subs():
         VTsweep = 25. #[deg]
         HTsweep = 25. #[deg]
         M4a = .2
-        fan = 1.60474
-        lpc  = 4.98
-        hpc = 35./8.
+        fan = 1.5
+        lpc  = 6./fan
+        hpc = 30./6.
 
         #Min cruise mach number
         Mcruisemin = 0.8

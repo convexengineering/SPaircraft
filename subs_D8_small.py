@@ -9,7 +9,7 @@ def get_small_D8_subs():
         VTsweep = 25.0 #[deg]
         HTsweep = 8.0 #[deg]
         M4a = .2
-        fan = 1.7
+        fan = 1.5
         lpc  = 6./fan
         hpc = 30./6.
 

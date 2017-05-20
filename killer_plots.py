@@ -25,6 +25,10 @@ from SP_aircraft import run_small_D8
 from SP_aircraft import run_small_M08_D8_eng_wing
 from SP_aircraft import run_small_M08_D8_no_BLI
 from SP_aircraft import run_small_M08_D8
+from SP_aircraft import run_M072_optimal_777
+from SP_aircraft import run_M08_optimal_777
+from SP_aircraft import run_M072_D8_big_eng_wing
+from SP_aircraft import run_M072_D8_big_no_BLI
 
 def RJ_M08_killer_plot_standard():
     sol0 = run_optimal_RJ(True)
@@ -103,7 +107,7 @@ def RJ_M08_killer_plot_standard():
 
     plt.plot(xtest, VT_sens, "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
-    plt.ylim([0,0.06])
+    plt.ylim([0,0.15])
     plt.xlim([-.5, 5.5])
     plt.grid()
     plt.xlabel('Design Step', fontsize = 20)
@@ -125,7 +129,7 @@ def RJ_M08_killer_plot_standard():
 
     plt.plot(xtest, engine_sens, "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
-    plt.ylim([0,0.25])
+    plt.ylim([0,0.3])
     plt.xlim([-.5, 5.5])
     plt.grid()
     plt.xlabel('Design Step', fontsize = 20)
@@ -385,22 +389,22 @@ def 777_killer_plot_standard():
     sol0 = run_optimal_777(True)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_D8_big_eng_wing(True)
+    sol1 = run_M08_optimal_777(True)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_D8_big_no_BLI(True)
+    sol2 = run_M072_optimal_777(True)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_D8_big(True)
+    sol3 = run_M072_D8_big_eng_wing(True)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_D8_big(False)
+    sol4 = run_M072_D8_big_no_BLI(True)
     wf4 = sol4('W_{f_{total}}')
 
-    sol5 = run_D8_big_M08(False)
+    sol5 = run_D8_big_M072(True)
     wf5 = sol5('W_{f_{total}}')
 
-    sol6 = run_D8_big_M072(False)
+    sol6 = run_D8_big_M072(False, True)
     wf6 = sol6('W_{f_{total}}')
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
@@ -430,7 +434,7 @@ def 777_killer_plot_standard():
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0, wf6/wf0]
     xtest = [0, 1, 2, 3, 4, 5, 6]
-    xlabels = ['Optimized 777-300ER M = 0.84', 'D8 Fuselage, Pi Tail', 'Rear Podded Engines', 'Integrated Engines, BLI', 'Optimize BPR', 'Slow to M = 0.8','Slow to M = 0.72']
+    xlabels = ['Optimized 777-300ER M = 0.84', 'Slow to M = 0.8','Slow to M = 0.72', 'D8 Fuselage, Pi Tail', 'Rear Podded Engines', 'Integrated Engines, BLI', 'Optimize Engine']
 
     plt.plot(xtest, ytest, "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
@@ -508,6 +512,135 @@ def 777_killer_plot_standard():
     plt.ylabel('Sensitivity to Landing Gear Weight', fontsize = 20)
     plt.title('Landing Gear Weight Sensitivity Morphing Chart')
     plt.savefig('Morphing_Chart_Figs/D8_777_morphing_chart_lg_sens.pdf', bbox_inches="tight")
+    plt.show()
+
+def 777_killer_plot_reordered():
+    sol0 = run_optimal_777(True)
+    wf0 = sol0('W_{f_{total}}')
+
+    sol1 = run_D8_big_eng_wing(True)
+    wf1 = sol1('W_{f_{total}}')
+
+    sol2 = run_D8_big_no_BLI(True)
+    wf2 = sol2('W_{f_{total}}')
+
+    sol3 = run_D8_big(True)
+    wf3 = sol3('W_{f_{total}}')
+
+    sol4 = run_D8_big(False)
+    wf4 = sol4('W_{f_{total}}')
+
+    sol5 = run_D8_big_M08(False)
+    wf5 = sol5('W_{f_{total}}')
+
+    sol6 = run_D8_big_M072(False)
+    wf6 = sol6('W_{f_{total}}')
+
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
+                 sol6['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
+                 sol6['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
+                 sol6['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
+                 sol6['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
+                 sol6['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
+                 sol6['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+
+    ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0, wf6/wf0]
+    xtest = [0, 1, 2, 3, 4, 5, 6]
+    xlabels = ['Optimized 777-300ER M = 0.84', 'D8 Fuselage, Pi Tail', 'Rear Podded Engines', 'Integrated Engines, BLI', 'Optimize BPR', 'Slow to M = 0.8','Slow to M = 0.72']
+
+    plt.plot(xtest, ytest, "o--")
+    plt.xticks(xtest, xlabels,  rotation='vertical')
+    plt.ylim([0,1.1])
+    plt.xlim([-.5, 6.5])
+    plt.grid()
+    plt.xlabel('Design Step', fontsize = 20)
+    plt.ylabel('$W_{f}/W_{f_0}$', fontsize = 20)
+    plt.title('777 Class D8 Morphing Chart')
+    plt.savefig('Morphing_Chart_Figs/D8_777_morphing_chart_reordered.pdf', bbox_inches="tight")
+    plt.show()
+
+
+    plt.plot(xtest, wing_sens, "o--")
+    plt.xticks(xtest, xlabels,  rotation='vertical')
+    plt.ylim([0,1.5])
+    plt.xlim([-.5, 6.5])
+    plt.grid()
+    plt.xlabel('Design Step', fontsize = 20)
+    plt.ylabel('Sensitivity to Wing Weight', fontsize = 20)
+    plt.title('Wing Weight Sensitivity Morphing Chart')
+    plt.savefig('Morphing_Chart_Figs/D8_777_morphing_chart_reordered_wing_sens.pdf', bbox_inches="tight")
+    plt.show()
+
+    plt.plot(xtest, HT_sens, "o--")
+    plt.xticks(xtest, xlabels,  rotation='vertical')
+    plt.ylim([0,0.08])
+    plt.xlim([-.5, 6.5])
+    plt.grid()
+    plt.xlabel('Design Step', fontsize = 20)
+    plt.ylabel('Sensitivity to Horizontal Tail Weight', fontsize = 20)
+    plt.title('Horizontal Tail Weight Sensitivity Morphing Chart')
+    plt.savefig('Morphing_Chart_Figs/D8_777_morphing_chart_reordered_HT_sens.pdf', bbox_inches="tight")
+    plt.show()
+
+    plt.plot(xtest, VT_sens, "o--")
+    plt.xticks(xtest, xlabels,  rotation='vertical')
+    plt.ylim([0,0.7])
+    plt.xlim([-.5, 6.5])
+    plt.grid()
+    plt.xlabel('Design Step', fontsize = 20)
+    plt.ylabel('Sensitivity to Vertical Tail Weight', fontsize = 20)
+    plt.title('Vertical Tail Weight Sensitivity Morphing Chart')
+    plt.savefig('Morphing_Chart_Figs/D8_777_morphing_chart_reordered_VT_sens.pdf', bbox_inches="tight")
+    plt.show()
+
+    plt.plot(xtest, fuse_sens, "o--")
+    plt.xticks(xtest, xlabels,  rotation='vertical')
+    plt.ylim([0,1])
+    plt.xlim([-.5, 6.5])
+    plt.grid()
+    plt.xlabel('Design Step', fontsize = 20)
+    plt.ylabel('Sensitivity to Fuselage Weight', fontsize = 20)
+    plt.title('Fuselage Weight Sensitivity Morphing Chart')
+    plt.savefig('Morphing_Chart_Figs/D8_777_morphing_chart_reordered_fuse_sens.pdf', bbox_inches="tight")
+    plt.show()
+
+    plt.plot(xtest, engine_sens, "o--")
+    plt.xticks(xtest, xlabels,  rotation='vertical')
+    plt.ylim([0,.6])
+    plt.xlim([-.5, 6.5])
+    plt.grid()
+    plt.xlabel('Design Step', fontsize = 20)
+    plt.ylabel('Sensitivity to Engine Weight', fontsize = 20)
+    plt.title('Engine Weight Sensitivity Morphing Chart')
+    plt.savefig('Morphing_Chart_Figs/D8_777_morphing_chart_reordered_engine_sens.pdf', bbox_inches="tight")
+    plt.show()
+
+    plt.plot(xtest, lg_sens, "o--")
+    plt.xticks(xtest, xlabels,  rotation='vertical')
+    plt.ylim([0,0.15])
+    plt.xlim([-.5, 6.5])
+    plt.grid()
+    plt.xlabel('Design Step', fontsize = 20)
+    plt.ylabel('Sensitivity to Landing Gear Weight', fontsize = 20)
+    plt.title('Landing Gear Weight Sensitivity Morphing Chart')
+    plt.savefig('Morphing_Chart_Figs/D8_777_morphing_chart_reordered_lg_sens.pdf', bbox_inches="tight")
     plt.show()
 
 def 777_killer_plot_max_optimal():

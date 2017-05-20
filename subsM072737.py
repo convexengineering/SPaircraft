@@ -120,7 +120,7 @@ def get_M072_737_subs():
             '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
             'c_{d_{fv}}': 0.0060,
             'c_{d_{pv}}': 0.0030,
-            'V_{vt_{min}}': 0.1,
+            'V_{vt_{min}}': 0.06,
             
             # HT substitutions
             '\\alpha_{max,h}': 2.5,

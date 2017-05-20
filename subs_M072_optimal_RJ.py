@@ -9,7 +9,7 @@ def get_M072_optimal_RJ_subs():
     VTsweep = 25.0 #[deg]
     HTsweep = 8.0 #[deg]
     M4a = .2
-    fan = 1.7
+    fan = 1.5
     lpc  = 6./fan
     hpc = 30./6.
 
@@ -111,7 +111,7 @@ def get_M072_optimal_RJ_subs():
             'V_{land}': 72.*units('m/s'),
             'N_{spar}': 1.,
             'f_{VT}': 0.4,
-            'y_{eng}': 4.8768*units('m'),
+            'y_{eng}': 11*units('ft'),
             'numVT': 1.,
             'A_{vt}': 2.,
             '\\lambda_{vt}': 0.3,

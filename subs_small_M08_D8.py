@@ -9,14 +9,14 @@ def get_small_M08_D8_subs():
         VTsweep = 25. #[deg]
         HTsweep = 25. #[deg]
         M4a = .2
-        fan = 1.60474
-        lpc  = 4.98
-        hpc = 35./8.
+        fan = 1.5
+        lpc  = 6./fan
+        hpc = 30./6.
 
         #Percent of velocity loss from BL smeared across entire fan
         BLIVloss = 0.088197
         #Min cruise mach number
-        Mcruisemin = 0.72
+        Mcruisemin = 0.8
 
         fBLI = 0.4
         wake_benefit = 0.1
@@ -146,12 +146,12 @@ def get_small_M08_D8_subs():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 16.,
+                'rSnace': 6.,
                 'f_{pylon}': 0.05,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
-                'r_{vnace}': 1.02,
+                'r_{vnace}': .925,
 
                 # Cabin air substitutions in AircraftP
 

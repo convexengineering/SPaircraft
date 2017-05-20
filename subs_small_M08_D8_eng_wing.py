@@ -9,12 +9,12 @@ def get_small_M08_D8_eng_wing_subs():
         VTsweep = 25. #[deg]
         HTsweep = 25. #[deg]
         M4a = .2
-        fan = 1.60474
-        lpc  = 4.98
-        hpc = 35./8.
+        fan = 1.5
+        lpc  = 6./fan
+        hpc = 30./6.
 
         #Min cruise mach number
-        Mcruisemin = 0.72
+        Mcruisemin = 0.8
 
         substitutions = {
                 'N_{land}': 6.,
@@ -122,7 +122,8 @@ def get_small_M08_D8_eng_wing_subs():
                 '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
                 'c_{d_{fv}}': 0.0060,
                 'c_{d_{pv}}': 0.0035,
-                'V_{vt_{min}}': 0.03,
+                'V_{vt_{min}}': 0.06,
+                'y_{eng}': 11*units('ft'),
 
                 # HT substitutions
                 '\\alpha_{max,h}': 2.5,

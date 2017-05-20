@@ -9,7 +9,7 @@ def get_optimal_RJ_subs():
     VTsweep = 25. #[deg]
     HTsweep = 25. #[deg]
     M4a = .2
-    fan = 1.7
+    fan = 1.5
     lpc  = 6./fan
     hpc = 30./6.
 
@@ -111,8 +111,7 @@ def get_optimal_RJ_subs():
             'V_{land}': 72.*units('m/s'),
             'N_{spar}': 1.,
             'f_{VT}': 0.4,
-            'y_{eng}': 4.8768*units('m'),
-            'numVT': 1.,
+            'y_{eng}': 11*units('ft'),
             'A_{vt}': 2.,
             '\\lambda_{vt}': 0.3,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep

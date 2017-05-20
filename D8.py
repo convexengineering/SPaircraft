@@ -772,6 +772,11 @@ class Mission(Model):
         smallD8_M08 = False
         smallD8_M08_no_BLI = False
         D12 = False
+        optimal777_M08 = False
+        optimal777_M072 = False
+        D8big_M072 = False
+        D8big_eng_wing_M072 = False
+        D8big_no_BLI_M072 = False
 
         if airplane == 'D80':
             D80 = True
@@ -787,6 +792,15 @@ class Mission(Model):
             D8big_no_BLI = True
         if airplane == 'D8big_eng_wing':
             D8big_eng_wing = True
+        if airplane == 'D8big_M072':
+            D8big = True
+            D8big_M072 = True
+        if airplane == 'D8big_no_BLI_M072':
+            D8big_no_BLI = True
+            D8big_no_BLI_M072 = True
+        if airplane == 'D8big_eng_wing_M072':
+            D8big_eng_wing = True
+            D8big_eng_wing_M072 = True
         if airplane == 'b737800':
             b737800 = True
         if airplane == 'b777300ER':
@@ -797,6 +811,12 @@ class Mission(Model):
             optimalD8 = True
         if airplane == 'optimal777':
             optimal777 = True
+        if airplane == 'optimal777_M08':
+            optimal777 = True
+            optimal777_M08 = True
+        if airplane == 'optimal777_M072':
+            optimal777 = True
+            optimal777_M072 = True
         if airplane == 'M08D8':
             M08D8 = True
         if airplane == 'M08D8_noBLI':
@@ -1180,20 +1200,21 @@ class Mission(Model):
             #climb rate constraints
             TCS([climb['excessP'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['numeng'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
-
-        if D8fam or M072_737 or D8big_M072 or D8_eng_wing or smallD8_eng_wing:
+    
+        if D8fam or M072_737 or D8big_M072 or D8_eng_wing or smallD8_eng_wing or optimal777_M072 or D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072:
              M2 = .6
              M25 = .6
              M4a = .2
              M0 = .72
-             
-        if b737800 or optimal737 or M08_D8_eng_wing or M08D8_noBLI or D8big_M08 or optimalRJ or M08D8 or smallD8_M08_eng_wing or smallD8_M08_no_BLI or smallD8_M08:
+
+        if D8_no_BLI or D8big_M08 or optimalRJ or M08D8 or smallD8_M08_eng_wing or smallD8_M08_no_BLI or smallD8_M08 or optimal777_M08:
              M2 = .6
              M25 = .6
              M4a = .2
              M0 = .8
 
-        if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI) and not (D8big_M08 or D8big_M072):
+        if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
+                                                                                         D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072):
              M2 = .65
              M25 = .6
              M4a = .2
@@ -1215,7 +1236,7 @@ class Mission(Model):
             cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
             ]
 
-        if D8fam or D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing or smallD8_eng_wing:
+        if not conventional:
              with SignomialsEnabled():
                   engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),

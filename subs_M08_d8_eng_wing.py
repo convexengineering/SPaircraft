@@ -122,7 +122,7 @@ def getM08_D8_eng_wing_subs():
                 '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
                 'c_{d_{fv}}': 0.0060,
                 'c_{d_{pv}}': 0.0035,
-                'V_{vt_{min}}': 0.06,
+                'V_{vt_{min}}': 0.1,
                 'y_{eng}': 4.8768*units('m'),
 
                 # HT substitutions
