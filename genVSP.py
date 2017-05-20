@@ -139,9 +139,9 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     resultsDict = {
         # Engine Variables
         'OOWZWGGROQZ':float(lnace.magnitude),    # Engine length (chord)
-        'TTRJCLVSWWP':float(df.magnitude),       # Engine height
+        'TTRJCLVSWWP':float(df.magnitude + 0.1625/2.*lnace.magnitude),       # Engine height
         'YUWFYBTYKTL':float(0.1625),             # Engine airfoil thickness/chord
-        'TVQVWMMVRYB':float(df.magnitude),       # Engine width
+        'TVQVWMMVRYB':float(df.magnitude + 0.1625/2.*lnace.magnitude),       # Engine width
         'EGCVYPSLWEZ':float(xCGvt.magnitude+0.25*crootvt.magnitude),    # Engine x location
         'RJLYSBJAFOT':float(0.5*wfuse.magnitude),     #Engine y location
         'GBGVQARDEVD':float(hfuse.magnitude - (df/5.).magnitude), # Engine z location
