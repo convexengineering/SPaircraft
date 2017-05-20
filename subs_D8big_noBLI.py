@@ -143,7 +143,7 @@ def getD8big_noBLI_subs():
                 '\\lambda_{vt}': 0.3,
 
                 #engine system subs
-                'f_{pylon}': 0.05,
+                'f_{pylon}': 0.12,
                 'f_{eadd}': 0.1,
 
                 # Cabin air substitutions in AircraftP

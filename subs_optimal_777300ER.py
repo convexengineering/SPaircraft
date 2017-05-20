@@ -139,7 +139,7 @@ def get_optimal_777300ER_subs():
             'c_{d_{ph}}': 0.0035,
 
             #engine system subs
-            'f_{pylon}': 0.05,
+            'f_{pylon}': 0.1,
             'f_{eadd}': 0.1,
 
             #new engine params

@@ -77,7 +77,7 @@ def get_D12_subs():
                 'f_{hpesys}': 0.01, # [TAS]
                 'f_{lgmain}':0.03, # [TAS]
                 'f_{lgnose}':0.0075, # [TAS]
-                'f_{pylon}': 0.10,
+                'f_{pylon}': 0.05,
 
                 # Fractional weights
                 'f_{fadd}': 0.2,  # [TAS]

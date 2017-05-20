@@ -141,7 +141,7 @@ def get_subs_M08_D8_noBLI():
                 
                 #engine system subs
                 'rSnace': 16.,
-                'f_{pylon}': 0.05,
+                'f_{pylon}': 0.12,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
