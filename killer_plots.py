@@ -446,7 +446,7 @@ def 777_killer_plot_standard():
 
     plt.plot(xtest, wing_sens, "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
-    plt.ylim([0,0.5])
+    plt.ylim([0,1.5])
     plt.xlim([-.5, 6.5])
     plt.grid()
     plt.xlabel('Design Step', fontsize = 20)

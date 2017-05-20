@@ -218,6 +218,9 @@ class Fuselage(Model):
         #weight margin and sensitivity
         Cfuse = Variable('C_{fuse}', 1, '-', 'Fuselage Weight Margin and Sensitivity')
 
+        #fuselage drag reference mach
+        MfuseD = Variable('M_{fuseD}', '-', 'Fuselage Drag Reference Mach')
+
         # Moments
         # alphaMf0 = Variable('\\alpha_{Mf0}','-','AoA at which fuselage moment is zero')
 

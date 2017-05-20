@@ -9,7 +9,7 @@ def get_optimal_777300ER_subs():
     sweep = 32.583 # [deg]
     VTsweep = 28. #[deg]
     HTsweep = 33. #[deg]
-    M4a = .1025
+    M4a = .2
     fan = 1.5958
     lpc  = 5.0
     hpc = 5.25
@@ -87,7 +87,7 @@ def get_optimal_777300ER_subs():
             '\\rho_0': 1.225*units('kg/m^3'),
             'b_{max}': 200 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-            'AR': 8.455,
+##            'AR': 8.455,
             'f_{wingfuel}': 0.5,
             '\\tau_{max_w}': 0.14208,
             'TipReduct': 1,
@@ -125,7 +125,7 @@ def get_optimal_777300ER_subs():
 
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
-            'AR_{ht}': 4.8,
+##            'AR_{ht}': 4.8,
             '\\lambda_{ht}': 0.32,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
             'C_{L_{hmax}}': 1.5,  # [TAS]

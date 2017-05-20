@@ -512,7 +512,7 @@ class AircraftP(Model):
 
             # Drag calculations
             self.fuseP['D_{fuse}'] == 0.5 * state['\\rho'] * state['V']**2 * \
-                                        self.fuseP['C_{D_{fuse}}'] * aircraft['l_{fuse}'] * aircraft['R_{fuse}'] * (state['M']**2/0.8**2),
+                                        self.fuseP['C_{D_{fuse}}'] * aircraft['l_{fuse}'] * aircraft['R_{fuse}'] * (state['M']**2/aircraft.fuse['M_{fuseD}']**2),
             D >= aircraft['D_{reduct}'] * (self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.aircraft['numVT']*self.VTP['D_{vt}'] + self.HTP['D_{ht}'] + aircraft['numeng'] * Dnace),
             C_D == D/(.5*state['\\rho']*state['V']**2 * self.aircraft.wing['S']),
             LoD == W_avg/D,
@@ -977,29 +977,35 @@ class Mission(Model):
               ])
 
             #Setting fuselage drag and lift, and BLI correction
-            if D8fam or smallD8_eng_wing or D8_eng_wing or M08_D8_eng_wing and not (D12 or D8big_no_BLI or D8big_eng_wing or D8big):
+            if optimalD8 or D80 or D82 or D82_73eng or M08D8 or D8_no_BLI or M08D8_noBLI or smallD8 or smallD8_no_BLI or D8_eng_wing or smallD8_eng_wing \
+               or M08_D8_eng_wing:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081,
+                    aircraft.fuse['M_{fuseD}'] == 0.72,
                   ])
-            if D12 or D8big or D8big_no_BLI or D8big_eng_wing:
+
+            if D12 or D8big_eng_wing or D8big_no_BLI or D8big:
                 constraints.extend([
-                        climb.climbP.fuseP['C_{D_{fuse}}'] ==  0.0167620/((.83**2/.8**2)) ,
-                        cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.0167620/((.83**2/.8**2)),
+                        climb.climbP.fuseP['C_{D_{fuse}}'] == 0.0167620,
+                        cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.0167620,
+                        aircraft.fuse['M_{fuseD}'] == 0.83,
                       ])
             if conventional and not (b777300ER or optimal777):
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,
+                    aircraft.fuse['M_{fuseD}'] == 0.80,
                 ])
             if b777300ER or optimal777:
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     #additioanl 1.1 factor accounts for mach drag rise model
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft['M_{min}']**2/.8**2),
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663,
                     
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663/(aircraft['M_{min}']**2/.8**2),
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663,
+                    aircraft.fuse['M_{fuseD}'] == 0.84,
                 ])
 
         constraints.extend([

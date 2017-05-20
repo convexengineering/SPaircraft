@@ -69,8 +69,8 @@ def getD8big_noBLI_subs():
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
-                'f_{lgmain}':0.03, # [TAS]
-                'f_{lgnose}':0.0075, # [TAS]
+                'f_{lgmain}':0.04, # [TAS]
+                'f_{lgnose}':0.01, # [TAS]
                 'f_{pylon}': 0.10,
 
                 # Fractional weights
