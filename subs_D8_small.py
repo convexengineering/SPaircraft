@@ -9,9 +9,9 @@ def get_small_D8_subs():
         VTsweep = 25.0 #[deg]
         HTsweep = 8.0 #[deg]
         M4a = .2
-        fan = 1.60474
-        lpc  = 4.98
-        hpc = 35./8.
+        fan = 1.7
+        lpc  = 6./fan
+        hpc = 30./6.
 
         #Percent of velocity loss from BL smeared across entire fan
         BLIVloss = 0.088197
