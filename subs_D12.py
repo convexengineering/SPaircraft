@@ -15,12 +15,12 @@ def get_D12_subs():
         hpc = 48./(fan*lpc)
 
         #Percent of velocity loss from BL smeared across entire fan
-        BLIVloss = 0.088197
+        BLIVloss = 0.072712
         #Min cruise mach number
         Mcruisemin = 0.83
 
         fBLI = 0.4
-        wake_benefit = 0.1
+        wake_benefit = 0.08
         wake_percent = 0.33
 
         substitutions = {
@@ -206,8 +206,8 @@ def get_D12_subs():
                 #BLI factors
                 #compute the cruise stagnation pressure loss factor given a min
                 #mach number and the BLI velocity loss factor
-                'f_{BLI_P}': (10400. +.2546*1.225*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
-                              (10400. +.2546*1.225*(Mcruisemin*295.)**2),
+                'f_{BLI_P}': (18753.9 +.5*0.301559*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
+                              (18753.9 +.5*0.301559*(Mcruisemin*295.)**2),
                 'f_{BLI_V}': 1 - BLIVloss,
         }
 

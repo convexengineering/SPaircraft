@@ -70,7 +70,6 @@ def get_D8_no_BLI_subs():
                 'f_{hpesys}': 0.01, # [TAS]
                 'f_{lgmain}':0.03, # [TAS]
                 'f_{lgnose}':0.0075, # [TAS]
-                'f_{pylon}': 0.10,
 
                 # Fractional weights
                 'f_{fadd}': 0.2,  # [TAS]
@@ -142,7 +141,7 @@ def get_D8_no_BLI_subs():
                 
                 #engine system subs
                 'rSnace': 16.,
-                'f_{pylon}': 0.1,
+                'f_{pylon}': 0.12,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter

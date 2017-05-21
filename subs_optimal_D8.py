@@ -14,12 +14,12 @@ def get_optimal_D8_subs():
         hpc = 35./8.
 
         #Percent of velocity loss from BL smeared across entire fan
-        BLIVloss = 0.088197
+        BLIVloss = 0.072712
         #Min cruise mach number
         Mcruisemin = 0.72
 
         fBLI = 0.4
-        wake_benefit = 0.1
+        wake_benefit = 0.08
         wake_percent = 0.33
 
         substitutions = {
@@ -75,7 +75,6 @@ def get_optimal_D8_subs():
                 'f_{hpesys}': 0.01, # [TAS]
                 'f_{lgmain}':0.03, # [TAS]
                 'f_{lgnose}':0.0075, # [TAS]
-                'f_{pylon}': 0.10,
 
                 # Fractional weights
                 'f_{fadd}': 0.2,  # [TAS]
@@ -146,7 +145,7 @@ def get_optimal_D8_subs():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 6.,
+                'rSnace': 8.,
                 'f_{pylon}': 0.05,
                 'f_{eadd}': 0.1,
 
@@ -202,8 +201,8 @@ def get_optimal_D8_subs():
                 #BLI factors
                 #compute the cruise stagnation pressure loss factor given a min
                 #mach number and the BLI velocity loss factor
-                'f_{BLI_P}': (10400. +.2546*1.225*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
-                              (10400. +.2546*1.225*(Mcruisemin*295.)**2),
+                'f_{BLI_P}': (18753.9 +.5*0.301559*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
+                              (18753.9 +.5*0.301559*(Mcruisemin*295.)**2),
                 'f_{BLI_V}': 1 - BLIVloss,
         }
 
