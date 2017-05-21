@@ -268,7 +268,7 @@ def RJ_killer_plot_standard():
     plt.savefig('Morphing_Chart_Figs/RJ_standard_killer_chart_lg_sens.pdf', bbox_inches="tight")
     plt.show()
 
-def RJ_killer_plot_max_optimal_engines():
+def RJ_killer_plot_max_opt_eng():
     #TURN ON THE RIGHT CONSTRIANTS INSIDE D8.py
     sol0 = run_optimal_RJ(False, True)
     wf0 = sol0('W_{f_{total}}')
@@ -643,7 +643,7 @@ def b777_killer_plot_reordered():
     plt.savefig('Morphing_Chart_Figs/D8_777_morphing_chart_reordered_lg_sens.pdf', bbox_inches="tight")
     plt.show()
 
-def b777_killer_plot_max_optimal():
+def b777_killer_plot_max_opt_eng():
     #TURN ON THE RIGHT CONSTRIANTS INSIDE D8.py
     sol0 = run_optimal_777(False, True)
     wf0 = sol0('W_{f_{total}}')
@@ -763,7 +763,7 @@ def b777_killer_plot_max_optimal():
     plt.savefig('Morphing_Chart_Figs/D8_777_morphing_chart_max_opt_eng_lg_sens.pdf', bbox_inches="tight")
     plt.show()
 
-def M_08_killer_plot_max_optimal():
+def M_08_killer_plot_max_opt_eng():
     #TURN ON THE RIGHT CONSTRIANTS INSIDE D8.py
     sol0 = run_optimal_737(False, True)
     wf0 = sol0('W_{f_{total}}')
@@ -1293,7 +1293,7 @@ def standard_killer_plot_optimal_engine():
     plt.savefig('Morphing_Chart_Figs/D8_standard_killer_chart_optimal_engines.pdf', bbox_inches="tight")
     plt.show()
 
-def standard_killer_plot_max_optimal_engine():
+def standard_killer_plot_max_opt_eng():
     #TURN ON THE RIGHT CONSTRIANTS INSIDE D8.py
     sol0 = run_optimal_737(False, True)
     wf0 = sol0('W_{f_{total}}')
