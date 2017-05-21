@@ -946,6 +946,21 @@ class Mission(Model):
         # make overall constraints
         constraints = []
 
+        if RJfam:
+            OPRmax = 30
+        elif D8bigfam or optimal777 or b777300ER or D12:
+            OPRmax = 42
+        else:
+            OPRmax = 35
+
+        constraints.extend([
+                    #allow max OPR 42 for 777 class, 35 for others
+            aircraft['OPR'][Nclimb] <= OPRmax,
+##            aircraft['\pi_{lc_D}'] <= aircraft['\\pi_{lc}'][Nclimb],
+##            aircraft['\pi_{hc_D}'] <= aircraft['\\pi_{hc}'][Nclimb],
+##            aircraft['\pi_{f_D}'] <= aircraft['\\pi_f'][Nclimb],
+            ])
+
         with SignomialsEnabled():
             # Buoyancy weight #TODO relax the equality
             # SignomialEquality(W_buoy,(rhocabin - state['\\rho'])*g*aircraft['V_{cabin}']),  #[SP] #[SPEquality]
@@ -1049,12 +1064,6 @@ class Mission(Model):
                  aircraft['ReserveFraction'] * aircraft['W_{f_{primary}}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
             TCS([aircraft['W_{f_{climb}}'] >= sum(climb.climbP.aircraftP['W_{burn}'])]),
             TCS([aircraft['W_{f_{cruise}}'] >= sum(cruise.cruiseP.aircraftP['W_{burn}'])]),
-
-            #allow max OPR 42 for 777 class, 35 for others
-##            aircraft['OPR'][Nclimb] <= 35,
-##            aircraft['\pi_{lc_D}'] <= aircraft['\\pi_{lc}'][Nclimb],
-##            aircraft['\pi_{hc_D}'] <= aircraft['\\pi_{hc}'][Nclimb],
-##            aircraft['\pi_{f_D}'] <= aircraft['\\pi_f'][Nclimb],
             ])
 
         with SignomialsEnabled():

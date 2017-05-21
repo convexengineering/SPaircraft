@@ -165,8 +165,8 @@ def run_D12(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -205,8 +205,8 @@ def run_D8_no_BLI(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -245,8 +245,8 @@ def run_M072_737(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
 
@@ -286,8 +286,8 @@ def run_D8_eng_wing(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -326,8 +326,8 @@ def run_optimal_D8(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m = Model(m.cost, BCS(m))
     m.substitutions.update(substitutions)
@@ -367,8 +367,8 @@ def run_optimal_737(fixedBPR, pRatOpt = False):
         
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
 
@@ -408,8 +408,8 @@ def run_M08_D8_eng_wing(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
 
@@ -448,8 +448,8 @@ def run_M08_D8(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
         
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -488,8 +488,8 @@ def run_M08_D8_no_BLI(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
         
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -558,8 +558,8 @@ def run_optimal_777(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -598,8 +598,8 @@ def run_M08_optimal_777(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -638,8 +638,8 @@ def run_M072_optimal_777(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -678,8 +678,8 @@ def run_D8_big(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
         
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -718,8 +718,8 @@ def run_D8_big_no_BLI(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
         
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -758,8 +758,8 @@ def run_M072_D8_big_no_BLI(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
         
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -798,8 +798,8 @@ def run_D8_big_eng_wing(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
         
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -838,8 +838,8 @@ def run_M072_D8_big_eng_wing(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
         
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -879,8 +879,8 @@ def run_D8_big_M072(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
         
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -919,8 +919,8 @@ def run_D8_big_M08(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
         
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -959,8 +959,8 @@ def run_optimal_RJ(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -999,8 +999,8 @@ def run_M072_optimal_RJ(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -1039,8 +1039,8 @@ def run_small_D8(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -1079,8 +1079,8 @@ def run_small_M08_D8(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -1117,8 +1117,8 @@ def run_small_D8_eng_wing(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -1157,8 +1157,8 @@ def run_small_M08_D8_eng_wing(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -1197,8 +1197,8 @@ def run_small_D8_no_BLI(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
@@ -1237,8 +1237,8 @@ def run_small_M08_D8_no_BLI(fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-        del substitutions['\pi_{lc_D}']
-        del substitutions['\pi_{hc_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
