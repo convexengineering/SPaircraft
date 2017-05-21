@@ -1026,12 +1026,19 @@ class Mission(Model):
                         cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.0167620,
                         aircraft.fuse['M_{fuseD}'] == 0.83,
                       ])
-            if conventional and not (b777300ER or optimal777):
+            if conventional and not (b777300ER or optimal777 or M072_737):
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     aircraft.fuse['M_{fuseD}'] == 0.80,
+                ])
+            if M072_737:
+                constraints.extend([
+                    #Setting fuselage drag coefficient
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.0129077,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.0129077,
+                    aircraft.fuse['M_{fuseD}'] == 0.72,
                 ])
             if b777300ER or optimal777:
                 constraints.extend([

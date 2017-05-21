@@ -45,7 +45,7 @@ def get_M072_737_subs():
             'D_{reduct}': 1,
 
             # TASOPT Fuselage substitutions
-            'L_{total/wing}': 1.127,
+            'L_{total/wing}': 1.118,
             'l_{nose}':20.*units('ft'),
             'numaisle': 1.,
             'SPR': 6.,
@@ -84,7 +84,7 @@ def get_M072_737_subs():
             '\\eta': 0.97,
             '\\rho_0': 1.225*units('kg/m^3'),
 ##            'AR': 10.1,
-            'b_{max}': 150 * units('ft'),
+            'b_{max}': 117.5 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'f_{wingfuel}': .35,
             '\\tau_{max_w}': 0.1267,
@@ -120,7 +120,7 @@ def get_M072_737_subs():
             '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
             'c_{d_{fv}}': 0.0060,
             'c_{d_{pv}}': 0.0030,
-            'V_{vt_{min}}': 0.1,
+            'V_{vt_{min}}': 0.05,
             
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
