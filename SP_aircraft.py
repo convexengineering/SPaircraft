@@ -143,14 +143,19 @@ def gen_777_plots(sol):
     """
 
     #generate an altitude profile plot
+    tasrng = [0, 15.6, 33.24, 60.40, 107.98, 107.98, 5850.37, 5850.37, 5887.82, 5925.28, 5962.74, 6000]
+    tasalt = [0, 7994.2, 15988.5, 23982.8, 31977.0, 31977.0, 39723.4, 39723.4, 31282.2, 21847.9, 11420.5, 0]
+
     rng = []
     alt = []
+
     for i in range(len(sol('RngClimb'))):
            rng.append(mag(sol('RngClimb')[i][0]))
     for i in range(len(sol('Rng'))):
            rng.append(mag(sol('Rng')[i][0]))
     for i in range(len(sol('hft')['hft_Mission, FlightState, Altitude'])):
            alt.append(sol('hft')['hft_Mission, FlightState, Altitude'][i][0])
+
     rng = np.cumsum(rng)
     plt.plot(rng, alt)
     plt.plot(tasrng, tasalt)
