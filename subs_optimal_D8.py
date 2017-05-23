@@ -69,12 +69,13 @@ def get_optimal_D8_subs():
 
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft'),
-                'L_{total/wing}': 1.179,
+                'L_{total/wing}': 1.195,
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
                 'f_{lgmain}':0.03, # [TAS]
                 'f_{lgnose}':0.0075, # [TAS]
+                'f_{pylon}': 0.10,
 
                 # Fractional weights
                 'f_{fadd}': 0.2,  # [TAS]
@@ -96,8 +97,8 @@ def get_optimal_D8_subs():
 ##                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
+                'f_{wingfuel}': 1.0,
                 'TipReduct': 1.0,
-                'f_{wingfuel}': .35,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,
@@ -117,7 +118,7 @@ def get_optimal_D8_subs():
                 'c_{l_{vtEO}}': 0.5, # [TAS]
                 'e_v': 0.8,
                 'V_{land}': 72.*units('m/s'),
-                '\\dot{r}_{req}': 0.0001, #0.1475 10 deg/s/s yaw rate acceleration
+                '\\dot{r}_{req}': 0.00001, #0.1475 10 deg/s/s yaw rate acceleration
                 'N_{spar}': 1,
                 'f_{VT}': 0.4,
                 'numVT': 2.,
@@ -133,7 +134,7 @@ def get_optimal_D8_subs():
                 '\\alpha_{max,h}': 2.5,
                 'C_{L_{hmax}}': 2.0, # [TAS]
                 'SM_{min}': 0.05,
-                '\\Delta x_{CG}': 6.8*units('ft'),
+                '\\Delta x_{CG}': 6*units('ft'),
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
@@ -145,7 +146,7 @@ def get_optimal_D8_subs():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 8.,
+                'rSnace': 6.,
                 'f_{pylon}': 0.05,
                 'f_{eadd}': 0.1,
 

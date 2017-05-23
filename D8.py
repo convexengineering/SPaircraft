@@ -1252,7 +1252,7 @@ class Mission(Model):
             cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['numeng'] * aircraft.engine['F_{spec}'][Nclimb:],
             ]
 
-        if BLI or M072_737:
+        if BLI or M072_737 or b737800 or b777300ER or optimal737 or D8_eng_wing or D8_no_BLI:
              with SignomialsEnabled():
                   engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
@@ -1260,10 +1260,9 @@ class Mission(Model):
                   enginecruise.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
                        ])
-
         else:
              engineclimb.extend([
-                  aircraft.engine.engineP['c1'][:Nclimb] <= 1. + 0.5*(.401)*0.6**2.,
+                  aircraft.engine.engineP['c1'][:Nclimb] <= 1. + 0.5*(.401)*0.54592**2.,
                   ])
              enginecruise.extend([
                   aircraft.engine.engineP['c1'][Nclimb:] <= 1. + 0.5*(.401)*0.8**2.,

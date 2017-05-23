@@ -5,7 +5,7 @@ def get_M072_737_subs():
     """
     returns substitution dic for the a M 0.72 Boeing 737-800 model
     """
-    sweep = 13.327 # [deg]
+    sweep = 11.1 # [deg]
     VTsweep = 25. #[deg]
     HTsweep = 8. #[deg]
     M4a = .2
@@ -45,7 +45,7 @@ def get_M072_737_subs():
             'D_{reduct}': 1,
 
             # TASOPT Fuselage substitutions
-            'L_{total/wing}': 1.118,
+            'L_{total/wing}': 1.127,
             'l_{nose}':20.*units('ft'),
             'numaisle': 1.,
             'SPR': 6.,
@@ -65,7 +65,6 @@ def get_M072_737_subs():
             'f_{hpesys}': 0.01, # [TAS]
             'f_{lgmain}':0.044, # [TAS]
             'f_{lgnose}':0.011, # [TAS]
-            'f_{pylon}': 0.10,
 
             # Fractional weights
             'f_{fadd}': 0.2,  # [TAS]
@@ -74,8 +73,6 @@ def get_M072_737_subs():
             'f_{lugg,2}': 0.1,  # [Philippe]
             'f_{padd}': 0.35,  # [TAS]
             'f_{hpesys}': 0.01, # [TAS]
-            'f_{lgmain}':0.03, # [TAS]
-            'f_{lgnose}':0.0075, # [TAS]
 
             # Wing substitutions
             'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
@@ -86,9 +83,9 @@ def get_M072_737_subs():
 ##            'AR': 10.1,
             'b_{max}': 117.5 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-            'f_{wingfuel}': .35,
+            'f_{wingfuel}': .5,  #.35 may be a better answer
             '\\tau_{max_w}': 0.1267,
-            'TipReduct': 1.0,
+            'TipReduct': 1,
 
             # Wing fractional weights
             'FuelFrac': 0.9,
@@ -116,7 +113,7 @@ def get_M072_737_subs():
             '\\lambda_{vt}': 0.3,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
-            '\\dot{r}_{req}': 0.00001, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
+            '\\dot{r}_{req}': 0.0001, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
             '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
             'c_{d_{fv}}': 0.0060,
             'c_{d_{pv}}': 0.0030,
@@ -161,8 +158,8 @@ def get_M072_737_subs():
             '\pi_{hc_D}': hpc,
             '\pi_{lc_D}': lpc,
 
-##                '\\alpha_{OD}': 6.97,
-##            '\\alpha_{max}': 5.6958,
+##            '\\alpha_{OD}': 6.97,
+##            '\\alpha_{max}': 6.97,
 
             'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
             'r_{uc}': .01,

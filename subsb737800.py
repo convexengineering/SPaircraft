@@ -53,7 +53,7 @@ def getb737800subs():
             'W_{avg. pass_{total}}':215.*units('lbf'),
             'f_{string}': 0.35,
             'h_{floor}': 5. * units('in'),
-            # 'R_{fuse}' : 1.715*units('m'),
+            'R_{fuse}' : 1.715*units('m'),
             '\\delta_P_{over}': 8.382 * units('psi'),
             # fuselage subs that make fuse circular
             '\\delta R_{fuse}': 0.0001 * units('m'),
@@ -72,8 +72,6 @@ def getb737800subs():
             'f_{lugg,2}': 0.1,  # [Philippe]
             'f_{padd}': 0.35,  # [TAS]
             'f_{hpesys}': 0.01, # [TAS]
-            'f_{lgmain}':0.03, # [TAS]
-            'f_{lgnose}':0.0075, # [TAS]
 
             # Wing substitutions
             'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
@@ -86,7 +84,7 @@ def getb737800subs():
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'f_{wingfuel}': .7,  #.35 may be a better answer
             '\\tau_{max_w}': 0.1267,
-            'TipReduct': 0.96,
+            'TipReduct': 1,
 
             # Wing fractional weights
             'FuelFrac': 0.9,

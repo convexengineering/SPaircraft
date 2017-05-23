@@ -42,7 +42,6 @@ def get737_optimal_subs():
             'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
             'V_{mn}': 133.76*units('m/s'),
 
-            #BLI drag reduction factor
             'D_{reduct}': 1,
 
             # TASOPT Fuselage substitutions
@@ -66,7 +65,6 @@ def get737_optimal_subs():
             'f_{hpesys}': 0.01, # [TAS]
             'f_{lgmain}':0.044, # [TAS]
             'f_{lgnose}':0.011, # [TAS]
-            'f_{pylon}': 0.10,
 
             # Fractional weights
             'f_{fadd}': 0.2,  # [TAS]
@@ -75,8 +73,6 @@ def get737_optimal_subs():
             'f_{lugg,2}': 0.1,  # [Philippe]
             'f_{padd}': 0.35,  # [TAS]
             'f_{hpesys}': 0.01, # [TAS]
-            'f_{lgmain}':0.03, # [TAS]
-            'f_{lgnose}':0.0075, # [TAS]
 
             # Wing substitutions
             'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
@@ -87,7 +83,7 @@ def get737_optimal_subs():
 ##            'AR': 10.1,
             'b_{max}': 117.5 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-            'f_{wingfuel}': .35,
+            'f_{wingfuel}': .5,  #.35 may be a better answer
             '\\tau_{max_w}': 0.1267,
             'TipReduct': 1,
 
@@ -117,11 +113,11 @@ def get737_optimal_subs():
             '\\lambda_{vt}': 0.3,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
-            '\\dot{r}_{req}': 0.001, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
+            '\\dot{r}_{req}': 0.0001, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
             '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
             'c_{d_{fv}}': 0.0060,
             'c_{d_{pv}}': 0.0030,
-            'V_{vt_{min}}': 0.03,
+            'V_{vt_{min}}': 0.1,
             
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
@@ -162,8 +158,8 @@ def get737_optimal_subs():
             '\pi_{hc_D}': hpc,
             '\pi_{lc_D}': lpc,
 
-##            '\\alpha_{OD}': 5.1,
-##            '\\alpha_{max}': 5.6958,
+##            '\\alpha_{OD}': 6.97,
+##            '\\alpha_{max}': 6.97,
 
             'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
             'r_{uc}': .01,

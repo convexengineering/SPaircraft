@@ -14,7 +14,6 @@ def get_D8_no_BLI_subs():
         lpc  = 4.98
         hpc = 35./8.
 
-        #Min cruise mach number
         Mcruisemin = 0.72
 
         substitutions = {
@@ -45,7 +44,6 @@ def get_D8_no_BLI_subs():
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
                 'V_{mn}': 133.76*units('m/s'),
 
-                #BLI drag reduction factor
                 'D_{reduct}': 1,
 
                 # Fuselage subs
@@ -64,7 +62,7 @@ def get_D8_no_BLI_subs():
 
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft'),
-                'L_{total/wing}': 1.179,
+                'L_{total/wing}': 1.195,
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
@@ -78,8 +76,6 @@ def get_D8_no_BLI_subs():
                 'f_{lugg,2}': 0.1,  # [Philippe]
                 'f_{padd}': 0.35,  # [TAS]
                 'f_{hpesys}': 0.01, # [TAS]
-                'f_{lgmain}':0.03, # [TAS]
-                'f_{lgnose}':0.0075, # [TAS]
 
                 # Wing substitutions
                 'C_{L_{wmax}}': 2.15/(cos(sweep)**2), # [TAS]
@@ -91,8 +87,8 @@ def get_D8_no_BLI_subs():
 ##                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
+                'f_{wingfuel}': 1.0,
                 'TipReduct': 1.0,
-                'f_{wingfuel}': .35,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,
@@ -112,7 +108,7 @@ def get_D8_no_BLI_subs():
                 'c_{l_{vtEO}}': 0.5, # [TAS]
                 'e_v': 0.8,
                 'V_{land}': 72.*units('m/s'),
-                '\\dot{r}_{req}': 0.0001, #0.1475 10 deg/s/s yaw rate acceleration
+                '\\dot{r}_{req}': 0.00001, #0.1475 10 deg/s/s yaw rate acceleration
                 'N_{spar}': 1,
                 'f_{VT}': 0.4,
                 'numVT': 2.,
@@ -128,7 +124,7 @@ def get_D8_no_BLI_subs():
                 '\\alpha_{max,h}': 2.5,
                 'C_{L_{hmax}}': 2.0, # [TAS]
                 'SM_{min}': 0.05,
-                '\\Delta x_{CG}': 6.8*units('ft'),
+                '\\Delta x_{CG}': 6*units('ft'),
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
@@ -141,11 +137,11 @@ def get_D8_no_BLI_subs():
                 
                 #engine system subs
                 'rSnace': 16.,
-                'f_{pylon}': 0.12,
+                'f_{pylon}': 0.11,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
-                'r_{vnace}': 1.02,
+                'r_{vnace}': 1.0,
 
                 # Cabin air substitutions in AircraftP
 
@@ -192,6 +188,8 @@ def get_D8_no_BLI_subs():
                 'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
                 'T_{t_{4.1_{max}}}': 1567.*units('K'),
+
         }
 
         return substitutions
+

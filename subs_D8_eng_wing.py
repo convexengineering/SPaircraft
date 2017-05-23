@@ -10,14 +10,13 @@ def get_D8_eng_wing_subs():
         HTsweep = 8.0 #[deg]
         M4a = .2
         fan = 1.60474
-        lpc  = 4.98*1.60474/fan
+        lpc  = 4.98
         hpc = 35./8.
 
-        #Min cruise mach number
         Mcruisemin = 0.72
 
         substitutions = {
-                 'N_{land}': 6.,
+                'N_{land}': 6.,
                 'p_s': 81.*units('cm'),
                 'numeng': 2.,
                 'numaisle':2.,
@@ -44,7 +43,6 @@ def get_D8_eng_wing_subs():
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
                 'V_{mn}': 133.76*units('m/s'),
 
-                #BLI drag reduction factor
                 'D_{reduct}': 1,
 
                 # Fuselage subs
@@ -56,20 +54,19 @@ def get_D8_eng_wing_subs():
 
                 'h_{floor}': 5.12*units('in'),
 ##                'R_{fuse}': 1.715*units('m'),
-               '\\delta R_{fuse}': 0.43*units('m'),
+##                '\\delta R_{fuse}': 0.43*units('m'),
                 'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
 
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft'),
-                'L_{total/wing}': 1.179,
+                'L_{total/wing}': 1.195,
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
-                'f_{lgmain}': 0.044, # [TAS]
-                'f_{lgnose}': 0.011, # [TAS]
-                'f_{pylon}': 0.10,
+                'f_{lgmain}':0.044, # [TAS]
+                'f_{lgnose}':0.011, # [TAS]
 
                 # Fractional weights
                 'f_{fadd}': 0.2,  # [TAS]
@@ -78,8 +75,6 @@ def get_D8_eng_wing_subs():
                 'f_{lugg,2}': 0.1,  # [Philippe]
                 'f_{padd}': 0.35,  # [TAS]
                 'f_{hpesys}': 0.01, # [TAS]
-                'f_{lgmain}':0.03, # [TAS]
-                'f_{lgnose}':0.0075, # [TAS]
 
                 # Wing substitutions
                 'C_{L_{wmax}}': 2.15/(cos(sweep)**2), # [TAS]
@@ -91,8 +86,8 @@ def get_D8_eng_wing_subs():
 ##                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
+                'f_{wingfuel}': 1.0,
                 'TipReduct': 1.0,
-                'f_{wingfuel}': .35,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,
@@ -112,7 +107,7 @@ def get_D8_eng_wing_subs():
                 'c_{l_{vtEO}}': 0.5, # [TAS]
                 'e_v': 0.8,
                 'V_{land}': 72.*units('m/s'),
-                '\\dot{r}_{req}': 0.0001, #0.1475 10 deg/s/s yaw rate acceleration
+                '\\dot{r}_{req}': 0.00001, #0.1475 10 deg/s/s yaw rate acceleration
                 'N_{spar}': 1,
                 'f_{VT}': 0.4,
                 'numVT': 2.,
@@ -129,8 +124,8 @@ def get_D8_eng_wing_subs():
                 '\\alpha_{max,h}': 2.5,
                 'C_{L_{hmax}}': 2.0, # [TAS]
                 'SM_{min}': 0.05,
-                '\\Delta x_{CG}': 7.68*units('ft'),
-                'x_{CG_{min}}' : 56.75*units('ft'),
+                '\\Delta x_{CG}': 6*units('ft'),
+                'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
 ##                'AR_{ht}': 12.,
@@ -142,7 +137,7 @@ def get_D8_eng_wing_subs():
                 
                 #engine system subs
                 'rSnace': 16.,
-                'f_{pylon}': 0.12,
+                'f_{pylon}': 0.1,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
@@ -172,7 +167,7 @@ def get_D8_eng_wing_subs():
                 '\pi_{lc_D}': lpc,
 
 ##                '\\alpha_{OD}': 6.97,
-##                '\\alpha_{max}': 5.6958,
+##                '\\alpha_{max}': 6.97,
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,
@@ -184,7 +179,7 @@ def get_D8_eng_wing_subs():
                 'G_f': 1.,
 
                 'h_f': 43.003,
-                 
+
                 'Cp_t1': 1236.5,
                 'Cp_t2': 1200.4,
                 'Cp_c': 1257.9,
@@ -193,6 +188,7 @@ def get_D8_eng_wing_subs():
                 'HTR_{lpc_SUB}': 1. - 0.6**2.,
 
                 'T_{t_{4.1_{max}}}': 1567.*units('K'),
+
         }
 
         return substitutions
