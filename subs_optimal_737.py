@@ -133,7 +133,7 @@ def get737_optimal_subs():
             'C_{L_{hfcG}}': 0.7,
             '\\Delta x_{CG}': 7.68 * units('ft'),
             'x_{CG_{min}}': 56.75 * units('ft'),
-            'SM_{min}': .05,
+            'SM_{min}': .15,
             '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
             'c_{d_{fh}}': 0.0060,
             'c_{d_{ph}}': 0.0030,
