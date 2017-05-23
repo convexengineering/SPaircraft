@@ -81,6 +81,86 @@ def gen_plots(sol):
 #    plt.savefig('M08_D8_wing_profile_drag.pdf', bbox_inches="tight")
     plt.show()
 
+def gen_D82_plots(sol):
+    """
+    function to generate plots of interesting values
+    """
+
+    #generate an altitude profile plot
+    rng = []
+    alt = []
+    for i in range(len(sol('RngClimb'))):
+           rng.append(mag(sol('RngClimb')[i][0]))
+    for i in range(len(sol('Rng'))):
+           rng.append(mag(sol('Rng')[i][0]))
+    for i in range(len(sol('hft')['hft_Mission, FlightState, Altitude'])):
+           alt.append(sol('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    rng = np.cumsum(rng)
+
+    tasrng = [0, 11.51, 27.36, 52.64, 103.28, 103.28, 2825.41, 2825.41, 2869.08, 2912.76, 2956.43, 3000]
+    tasalt = [0, 9619.5, 19239.0, 28858.5, 38478.0, 38478.0, 41681.3, 41681.3, 32129.3, 21998.5, 11288.7, 0]
+    
+    plt.plot(rng, alt)
+    plt.plot(tasrng, tasalt)
+    plt.legend(['SP Model', 'TASOPT'], loc=4)
+    plt.ylabel('Altitude [feet]', fontsize=18)
+    plt.xlabel('Down Range Distnace', fontsize=18)
+    plt.title('D8 Altitude Profile')
+    plt.savefig('D8_alttidue_profile.pdf', bbox_inches="tight")
+    plt.show()
+
+def gen_737_plots(sol):
+    """
+    function to generate plots of interesting values
+    """
+
+    #generate an altitude profile plot
+    tasrng = [0, 13.68, 31.34, 59.96, 115.05, 115.05, 2875.38, 2875.38, 2906.56, 2937.74, 2968.92, 3000]
+    tasalt = [0, 8750, 17500, 26250, 35000, 35000, 39677.3, 39677.3, 29758., 19838.6, 9919.3, 0]
+
+    rng = []
+    alt = []
+
+    for i in range(len(sol('RngClimb'))):
+           rng.append(mag(sol('RngClimb')[i][0]))
+    for i in range(len(sol('Rng'))):
+           rng.append(mag(sol('Rng')[i][0]))
+    for i in range(len(sol('hft')['hft_Mission, FlightState, Altitude'])):
+           alt.append(sol('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    rng = np.cumsum(rng)
+    plt.plot(rng, alt)
+    plt.plot(tasrng, tasalt)
+    plt.legend(['SP Model', 'TASOPT'], loc=4)
+    plt.ylabel('Altitude [feet]', fontsize=18)
+    plt.xlabel('Down Range Distnace', fontsize=18)
+    plt.title('737 Altitude Profile')
+    plt.savefig('737_alttidue_profile.pdf', bbox_inches="tight")
+    plt.show()
+    
+def gen_777_plots(sol):
+    """
+    function to generate plots of interesting values
+    """
+
+    #generate an altitude profile plot
+    rng = []
+    alt = []
+    for i in range(len(sol('RngClimb'))):
+           rng.append(mag(sol('RngClimb')[i][0]))
+    for i in range(len(sol('Rng'))):
+           rng.append(mag(sol('Rng')[i][0]))
+    for i in range(len(sol('hft')['hft_Mission, FlightState, Altitude'])):
+           alt.append(sol('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    rng = np.cumsum(rng)
+    plt.plot(rng, alt)
+    plt.plot(tasrng, tasalt)
+    plt.legend(['SP Model', 'TASOPT'], loc=4)
+    plt.ylabel('Altitude [feet]', fontsize=18)
+    plt.xlabel('Down Range Distnace', fontsize=18)
+    plt.title('777 Altitude Profile')
+    plt.savefig('777_alttidue_profile.pdf', bbox_inches="tight")
+    plt.show()
+
 def run_737800():
     # User definitions
     Nclimb = 3
@@ -296,7 +376,7 @@ def run_D8_eng_wing(fixedBPR, pRatOpt = False):
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
-    percent_diff(sol, 2, Nclimb)
+    percent_diff(sol, 'b737800', Nclimb)
 
     post_compute(sol, Nclimb)
 
