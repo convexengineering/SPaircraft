@@ -1253,7 +1253,6 @@ class Mission(Model):
             ]
 
         if BLI or M072_737:
-             print "test"
              with SignomialsEnabled():
                   engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
@@ -1263,7 +1262,6 @@ class Mission(Model):
                        ])
 
         else:
-             print "fuck"
              engineclimb.extend([
                   aircraft.engine.engineP['c1'][:Nclimb] <= 1. + 0.5*(.401)*0.6**2.,
                   ])
