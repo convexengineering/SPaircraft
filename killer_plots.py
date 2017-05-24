@@ -634,7 +634,7 @@ def b777_killer_plot_reordered():
 
     plt.plot(xtest, lg_sens, "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
-    plt.ylim([0,0.15])
+    plt.ylim([0,0.11])
     plt.xlim([-.5, 6.5])
     plt.grid()
     plt.xlabel('Design Step', fontsize = 20)
@@ -1153,6 +1153,9 @@ def standard_killer_plot():
     lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
                  sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
                  sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    Mmin_sens = [sol0['sensitivities']['constants']['M_{min}_Mission, Aircraft'], sol1['sensitivities']['constants']['M_{min}_Mission, Aircraft'], \
+             sol2['sensitivities']['constants']['M_{min}_Mission, Aircraft'], sol3['sensitivities']['constants']['M_{min}_Mission, Aircraft'], \
+             sol4['sensitivities']['constants']['M_{min}_Mission, Aircraft'], sol5['sensitivities']['constants']['M_{min}_Mission, Aircraft']]
 
 
 
@@ -1168,10 +1171,10 @@ def standard_killer_plot():
     plt.xlim([-.5, 6.5])
     plt.grid()
     plt.xlabel('Design Step', fontsize = 20)
-    plt.ylabel('$W_{f}/W_{f_0}$', fontsize = 20)
+    plt.ylabel('$W_{\rm{f}}/W_{\rm{f_0}$', fontsize = 20)
     plt.title('D8 Morphing Chart')
     plt.legend(['SP Model', 'TASOPT', 'NASA'], loc=3)
-    plt.savefig('Morphing_Chart_Figs/D8_standard_killer_chart.pdf', bbox_inches="tight")
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart.pdf', bbox_inches="tight")
     plt.show(), plt.close()
 
     xtest = [0, 1, 2, 3, 4, 5]
@@ -1184,7 +1187,7 @@ def standard_killer_plot():
     plt.xlabel('Design Step', fontsize = 20)
     plt.ylabel('Sensitivity to Wing Weight', fontsize = 20)
     plt.title('Wing Weight Sensitivity Morphing Chart')
-    plt.savefig('Morphing_Chart_Figs/D8_standard_killer_chart_wing_sens.pdf', bbox_inches="tight")
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_wing_sens.pdf', bbox_inches="tight")
     plt.show(), plt.close()
 
     plt.plot(xtest, HT_sens, "o--")
@@ -1195,7 +1198,7 @@ def standard_killer_plot():
     plt.xlabel('Design Step', fontsize = 20)
     plt.ylabel('Sensitivity to Horizontal Tail Weight', fontsize = 20)
     plt.title('Horizontal Tail Weight Sensitivity Morphing Chart')
-    plt.savefig('Morphing_Chart_Figs/D8_standard_killer_chart_HT_sens.pdf', bbox_inches="tight")
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_HT_sens.pdf', bbox_inches="tight")
     plt.show(), plt.close()
 
     plt.plot(xtest, VT_sens, "o--")
@@ -1206,7 +1209,7 @@ def standard_killer_plot():
     plt.xlabel('Design Step', fontsize = 20)
     plt.ylabel('Sensitivity to Vertical Tail Weight', fontsize = 20)
     plt.title('Vertical Tail Weight Sensitivity Morphing Chart')
-    plt.savefig('Morphing_Chart_Figs/D8_standard_killer_chart_VT_sens.pdf', bbox_inches="tight")
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_VT_sens.pdf', bbox_inches="tight")
     plt.show(), plt.close()
 
     plt.plot(xtest, fuse_sens, "o--")
@@ -1217,7 +1220,7 @@ def standard_killer_plot():
     plt.xlabel('Design Step', fontsize = 20)
     plt.ylabel('Sensitivity to Fuselage Weight', fontsize = 20)
     plt.title('Fuselage Weight Sensitivity Morphing Chart')
-    plt.savefig('Morphing_Chart_Figs/D8_standard_killer_chart_fuse_sens.pdf', bbox_inches="tight")
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_fuse_sens.pdf', bbox_inches="tight")
     plt.show(), plt.close(), plt.close()
 
     plt.plot(xtest, engine_sens, "o--")
@@ -1228,18 +1231,29 @@ def standard_killer_plot():
     plt.xlabel('Design Step', fontsize = 20)
     plt.ylabel('Sensitivity to Engine Weight', fontsize = 20)
     plt.title('Engine Weight Sensitivity Morphing Chart')
-    plt.savefig('Morphing_Chart_Figs/D8_standard_killer_chart_engine_sens.pdf', bbox_inches="tight")
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_engine_sens.pdf', bbox_inches="tight")
     plt.show, plt.close()
 
     plt.plot(xtest, lg_sens, "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
-    plt.ylim([0,0.07])
+    plt.ylim([0,0.12])
     plt.xlim([-.5, 5.5])
     plt.grid()
     plt.xlabel('Design Step', fontsize = 20)
     plt.ylabel('Sensitivity to Landing Gear Weight', fontsize = 20)
     plt.title('Landing Gear Weight Sensitivity Morphing Chart')
-    plt.savefig('Morphing_Chart_Figs/D8_standard_killer_chart_lg_sens.pdf', bbox_inches="tight")
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_lg_sens.pdf', bbox_inches="tight")
+    plt.show(), plt.close(),
+
+    plt.plot(xtest, Mmin_sens, "o--")
+    plt.xticks(xtest, xlabels,  rotation='vertical')
+    plt.ylim([0,0.12])
+    plt.xlim([-.5, 5.5])
+    plt.grid()
+    plt.xlabel('Design Step', fontsize = 20)
+    plt.ylabel('Sensitivity to Minimum Cruise Mach Number', fontsize = 20)
+    plt.title('Minimum Cruise Mach Number Sensitivity Morphing Chart')
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_Mmin_sens.pdf', bbox_inches="tight")
     plt.show(), plt.close(),
 
 def standard_killer_plot_optimal_engine():
