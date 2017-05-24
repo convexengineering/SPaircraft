@@ -1261,13 +1261,13 @@ def standard_killer_plot():
 
     plt.plot(xtest, CrTt41_sens, "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
-    plt.ylim([0, 1.1])
+    plt.ylim([-1, 0.1])
     plt.xlim([-.5, 5.5])
     plt.grid()
     plt.xlabel('Design Step', fontsize = 20)
-    plt.ylabel('Sensitivity to Max Cruise $T_{t_{\mathrm{4.1}}$')
-    plt.title('ax Cruise $T_{t_{\mathrm{4.1}}$ Sensitivity Morphing Chart')
-    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_Mmin_sens.pdf', bbox_inches="tight")
+    plt.ylabel('Sensitivity to Max Cruise $T_{t_{4.1}}$')
+    plt.title('Max Cruise $T_{t_{4.1}}$ Sensitivity Morphing Chart')
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_CrTt41max_sens.pdf', bbox_inches="tight")
     plt.show(), plt.close(),
 
 def standard_killer_plot_optimal_engine():
