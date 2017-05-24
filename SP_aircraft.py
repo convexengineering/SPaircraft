@@ -419,7 +419,7 @@ def run_M072_737(fixedBPR, pRatOpt = False):
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
-    percent_diff(sol, 'b737800', Nclimb)
+    percent_diff(sol, aircraft, Nclimb)
 
     post_compute(sol, Nclimb)
 
@@ -500,9 +500,9 @@ def run_optimal_D8(fixedBPR, pRatOpt = False):
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
-    percent_diff(sol, 'D82', Nclimb)
+##    percent_diff(sol, 'D82', Nclimb)
 
-    post_compute(sol, Nclimb)
+##    post_compute(sol, Nclimb)
 
     return sol
 
