@@ -33,7 +33,7 @@ def updateOpenVSP(inputDict, i = 0):
 
 def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     if swpt:
-        sweep = arccos(sol('\cos(\Lambda)_Mission, Aircraft, Wing, WingNoStruct')[i])*180/np.pi
+        sweep = arccos(sol('\cos(\Lambda)_Mission/Aircraft/Wing/WingNoStruct')[i])*180/np.pi
 
         # Wing descriptors
         b = sol('b')[i].to('m')
@@ -44,8 +44,8 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         dihedral = 7.
 
         # Fuselage descriptors
-        hfloor = sol('h_{floor}_Mission, Aircraft, Fuselage')[i].to('m')
-        lnose = sol('l_{nose}_Mission, Aircraft, Fuselage')[i].to('m')
+        hfloor = sol('h_{floor}_Mission/Aircraft/Fuselage')[i].to('m')
+        lnose = sol('l_{nose}_Mission/Aircraft/Fuselage')[i].to('m')
         lshell = sol('l_{shell}')[i].to('m')
         lcone = sol('l_{cone}')[i].to('m')
         lfloor = sol('l_{floor}')[i].to('m')
@@ -53,8 +53,8 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         hfuse = sol('h_{fuse}')[i].to('m')
         wfuse = sol('w_{fuse}')[i].to('m')
         wfloor = sol('w_{floor}')[i].to('m')
-        wdb = sol('w_{db}_Mission, Aircraft, Fuselage')[i].to('m')
-        Rfuse = sol('R_{fuse}_Mission, Aircraft, Fuselage')[i].to('m')
+        wdb = sol('w_{db}_Mission/Aircraft/Fuselage')[i].to('m')
+        Rfuse = sol('R_{fuse}_Mission/Aircraft/Fuselage')[i].to('m')
 
         # Horizontal Tail descriptors
         xCGht = sol('x_{CG_{ht}}')[i].to('m')
@@ -63,7 +63,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         bht = sol('b_{ht}')[i].to('m')
         xCGht = sol('x_{CG_{ht}}')[i]
         lht = sol('l_{ht}')[i].to('m')
-        tanht = sol('\\tan(\Lambda_{ht})_Mission, Aircraft, HorizontalTail, HorizontalTailNoStruct')[i]
+        tanht = sol('\\tan(\Lambda_{ht})_Mission/Aircraft/HorizontalTail/HorizontalTailNoStruct')[i]
 
         # Vertical Tail descriptors
         xCGvt = sol('x_{CG_{vt}}')[i].to('m')
@@ -75,18 +75,18 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         ctipvt = sol('c_{tip_{vt}}')[i].to('m')
         # dxleadvt = sol('\\Delta x_{lead_v}')[i].to('m')
         # dxtrailvt = sol('\\Delta x_{trail_v}')[i].to('m')
-        tanvt = sol('\\tan(\Lambda_{vt})_Mission, Aircraft, VerticalTail, VerticalTailNoStruct')[i]
+        tanvt = sol('\\tan(\Lambda_{vt})_Mission/Aircraft/VerticalTail/VerticalTailNoStruct')[i]
 
         # Engine descriptors
-        df = sol('d_{f}_Mission, Aircraft, Engine')[i].to('m') # Engine frontal area
+        df = sol('d_{f}_Mission/Aircraft/Engine')[i].to('m') # Engine frontal area
         lnace = sol('l_{nacelle}')[i].to('m')
-        yeng = sol('y_{eng}_Mission, Aircraft, VerticalTail, VerticalTailNoStruct')[i].to('m')
+        yeng = sol('y_{eng}_Mission/Aircraft/VerticalTail/VerticalTailNoStruct')[i].to('m')
 
         # Things to integrate later
         # n_{rows}
         # wingbox (x_b) (x_f)
     else:
-        sweep = arccos(sol('\cos(\Lambda)_Mission, Aircraft, Wing, WingNoStruct'))*180/np.pi
+        sweep = arccos(sol('\cos(\Lambda)_Mission/Aircraft/Wing/WingNoStruct'))*180/np.pi
 
         # Wing descriptors
         b = sol('b').to('m')
@@ -97,8 +97,8 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         dihedral = 7.
 
         # Fuselage descriptors
-        hfloor = sol('h_{floor}_Mission, Aircraft, Fuselage').to('m')
-        lnose = sol('l_{nose}_Mission, Aircraft, Fuselage').to('m')
+        hfloor = sol('h_{floor}_Mission/Aircraft/Fuselage').to('m')
+        lnose = sol('l_{nose}_Mission/Aircraft/Fuselage').to('m')
         lshell = sol('l_{shell}').to('m')
         lcone = sol('l_{cone}').to('m')
         lfloor = sol('l_{floor}').to('m')
@@ -106,8 +106,8 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         hfuse = sol('h_{fuse}').to('m')
         wfuse = sol('w_{fuse}').to('m')
         wfloor = sol('w_{floor}').to('m')
-        wdb = sol('w_{db}_Mission, Aircraft, Fuselage').to('m')
-        Rfuse = sol('R_{fuse}_Mission, Aircraft, Fuselage').to('m')
+        wdb = sol('w_{db}_Mission/Aircraft/Fuselage').to('m')
+        Rfuse = sol('R_{fuse}_Mission/Aircraft/Fuselage').to('m')
 
         # Horizontal Tail descriptors
         xCGht = sol('x_{CG_{ht}}').to('m')
@@ -116,7 +116,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         bht = sol('b_{ht}').to('m')
         xCGht = sol('x_{CG_{ht}}')
         lht = sol('l_{ht}').to('m')
-        tanht = sol('\\tan(\Lambda_{ht})_Mission, Aircraft, HorizontalTail, HorizontalTailNoStruct')
+        tanht = sol('\\tan(\Lambda_{ht})_Mission/Aircraft/HorizontalTail/HorizontalTailNoStruct')
 
         # Vertical Tail descriptors
         xCGvt = sol('x_{CG_{vt}}').to('m')
@@ -128,12 +128,12 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         ctipvt = sol('c_{tip_{vt}}').to('m')
         # dxleadvt = sol('\\Delta x_{lead_v}').to('m')
         # dxtrailvt = sol('\\Delta x_{trail_v}').to('m')
-        tanvt = sol('\\tan(\Lambda_{vt})_Mission, Aircraft, VerticalTail, VerticalTailNoStruct')
+        tanvt = sol('\\tan(\Lambda_{vt})_Mission/Aircraft/VerticalTail/VerticalTailNoStruct')
 
         # Engine descriptors
-        df = sol('d_{f}_Mission, Aircraft, Engine').to('m') # Engine frontal area
+        df = sol('d_{f}_Mission/Aircraft/Engine').to('m') # Engine frontal area
         lnace = sol('l_{nacelle}').to('m')
-        yeng = sol('y_{eng}_Mission, Aircraft, VerticalTail, VerticalTailNoStruct').to('m')
+        yeng = sol('y_{eng}_Mission/Aircraft/VerticalTail/VerticalTailNoStruct').to('m')
 
     # Creating the default (D82) resultsDict
     resultsDict = {
@@ -232,4 +232,3 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
 def genDesFileSweep(sol, aircraft, n):
     for i in range(0,n):
         genDesFile(sol,True,i,aircraft)
-
