@@ -949,7 +949,7 @@ class Mission(Model):
 
         max_climb_time = Variable('MaxClimbTime', 'min', 'Total Time in Climb')
         max_climb_distance = Variable('MaxClimbDistance', 'nautical_miles', 'Climb Distance')
-        CruiseTt41max = Variable('CruiseTt41max', 1125, 'K', 'Max Cruise Turbine Inlet Temp')
+        CruiseTt41max = Variable('CruiseTt41max', 'K', 'Max Cruise Turbine Inlet Temp')
 
         # make overall constraints
         constraints = []
