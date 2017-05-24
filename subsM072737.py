@@ -187,6 +187,8 @@ def get_M072_737_subs():
             # nacelle drag calc parameter
             'r_{vnace}': 1.02,
             'T_{t_{4.1_{max}}}': 1567.*units('K'),
+
+            'CruiseTt41max': 1125*units('K'),
     }
 
     return substitutions
