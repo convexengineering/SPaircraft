@@ -53,24 +53,24 @@ def RJ_M08_killer_plot_standard():
     xtest = [0, 1, 2, 3, 4, 5]
     xlabels = ['Optimized RJ M = 0.8', 'D8 fuselage, Pi tail', 'Rear podded engines', 'Integrated engines, BLI = D8', 'Slow to M = 0.72',  'Optimize Engine']
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
 
     plt.plot(xtest, ytest, "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
@@ -168,24 +168,24 @@ def RJ_killer_plot_standard():
     sol5 = run_small_D8(False, True)
     wf5 = sol5('W_{f_{total}}')
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0]
     xtest = [0, 1, 2, 3, 4, 5]
@@ -285,24 +285,24 @@ def RJ_killer_plot_max_opt_eng():
     sol4 = run_small_D8(False, True)
     wf4 = sol4('W_{f_{total}}')
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0]
     xtest = [0, 1, 2, 3, 4]
@@ -407,30 +407,30 @@ def b777_killer_plot_standard():
     sol6 = run_D8_big_M072(False, True)
     wf6 = sol6('W_{f_{total}}')
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol6['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol6['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol6['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol6['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol6['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol6['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol6['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol6['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol6['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol6['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol6['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol6['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0, wf6/wf0]
     xtest = [0, 1, 2, 3, 4, 5, 6]
@@ -536,30 +536,30 @@ def b777_killer_plot_reordered():
     sol6 = run_D8_big_M072(False)
     wf6 = sol6('W_{f_{total}}')
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol6['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol6['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol6['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol6['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol6['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol6['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol6['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol6['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol6['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol6['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol6['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol6['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0, wf6/wf0]
     xtest = [0, 1, 2, 3, 4, 5, 6]
@@ -663,24 +663,24 @@ def b777_killer_plot_max_opt_eng():
     sol5 = run_D8_big_M072(False, True)
     wf5 = sol5('W_{f_{total}}')
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0]
     xtest = [0, 1, 2, 3, 4, 5]
@@ -780,24 +780,24 @@ def M_08_killer_plot_max_opt_eng():
     sol4 = run_optimal_D8(False, True)
     wf4 = sol4('W_{f_{total}}')
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0]
     xtest = [0, 1, 2, 3, 4]
@@ -897,24 +897,24 @@ def M_08_killer_plot_optimal():
     sol4 = run_optimal_D8(False)
     wf4 = sol4('W_{f_{total}}')
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0]
     xtest = [0, 1, 2, 3, 4]
@@ -1016,24 +1016,24 @@ def M_08_killer_plot_fixed_BPR():
     sol5 = run_optimal_D8(False)
     wf5 = sol5('W_{f_{total}}')
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0]
     xtest = [0, 1, 2, 3, 4, 5]
@@ -1135,27 +1135,30 @@ def standard_killer_plot():
     sol5 = run_optimal_D8(False, True)
     wf5 = sol5('W_{f_{total}}')
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
-    Mmin_sens = [sol0['sensitivities']['constants']['M_{min}_Mission, Aircraft'], sol1['sensitivities']['constants']['M_{min}_Mission, Aircraft'], \
-             sol2['sensitivities']['constants']['M_{min}_Mission, Aircraft'], sol3['sensitivities']['constants']['M_{min}_Mission, Aircraft'], \
-             sol4['sensitivities']['constants']['M_{min}_Mission, Aircraft'], sol5['sensitivities']['constants']['M_{min}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
+    Mmin_sens = [sol0['sensitivities']['constants']['M_{min}_Mission/Aircraft'], sol1['sensitivities']['constants']['M_{min}_Mission/Aircraft'], \
+             sol2['sensitivities']['constants']['M_{min}_Mission/Aircraft'], sol3['sensitivities']['constants']['M_{min}_Mission/Aircraft'], \
+             sol4['sensitivities']['constants']['M_{min}_Mission/Aircraft'], sol5['sensitivities']['constants']['M_{min}_Mission/Aircraft']]
+    CrTt41_sens = [sol0['sensitivities']['constants']['CruiseTt41max_Mission'], sol1['sensitivities']['constants']['CruiseTt41max_Mission'], \
+             sol2['sensitivities']['constants']['CruiseTt41max_Mission'], sol3['sensitivities']['constants']['CruiseTt41max_Mission'], \
+             sol4['sensitivities']['constants']['CruiseTt41max_Mission'], sol5['sensitivities']['constants']['CruiseTt41max_Mission']]
 
 
 
@@ -1171,7 +1174,7 @@ def standard_killer_plot():
     plt.xlim([-.5, 6.5])
     plt.grid()
     plt.xlabel('Design Step', fontsize = 20)
-    plt.ylabel('$W_{\rm{f}}/W_{\rm{f_0}$', fontsize = 20)
+    plt.ylabel('$W_{\mathrm{f}}/W_{\mathrm{f}_\mathrm{0}}$', fontsize = 20)
     plt.title('D8 Morphing Chart')
     plt.legend(['SP Model', 'TASOPT', 'NASA'], loc=3)
     plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart.pdf', bbox_inches="tight")
@@ -1247,12 +1250,23 @@ def standard_killer_plot():
 
     plt.plot(xtest, Mmin_sens, "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
-    plt.ylim([0,0.12])
+    plt.ylim([0, 1.1])
     plt.xlim([-.5, 5.5])
     plt.grid()
     plt.xlabel('Design Step', fontsize = 20)
-    plt.ylabel('Sensitivity to Minimum Cruise Mach Number', fontsize = 20)
+    plt.ylabel('Sensitivity to Minimum Cruise Mach Number')
     plt.title('Minimum Cruise Mach Number Sensitivity Morphing Chart')
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_Mmin_sens.pdf', bbox_inches="tight")
+    plt.show(), plt.close(),
+
+    plt.plot(xtest, CrTt41_sens, "o--")
+    plt.xticks(xtest, xlabels,  rotation='vertical')
+    plt.ylim([0, 1.1])
+    plt.xlim([-.5, 5.5])
+    plt.grid()
+    plt.xlabel('Design Step', fontsize = 20)
+    plt.ylabel('Sensitivity to Max Cruise $T_{t_{\mathrm{4.1}}$')
+    plt.title('ax Cruise $T_{t_{\mathrm{4.1}}$ Sensitivity Morphing Chart')
     plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_Mmin_sens.pdf', bbox_inches="tight")
     plt.show(), plt.close(),
 
@@ -1273,24 +1287,24 @@ def standard_killer_plot_optimal_engine():
     sol4 = run_optimal_D8(False, False)
     wf4 = sol4('W_{f_{total}}')
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0]
     xtest = [0, 1, 2, 3, 4]
@@ -1324,24 +1338,24 @@ def standard_killer_plot_max_opt_eng():
     sol4 = run_optimal_D8(False, True)
     wf4 = sol4('W_{f_{total}}')
 
-    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol2['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission, Aircraft, Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission, Aircraft, HorizontalTail']]
-    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol2['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission, Aircraft, VerticalTail']]
-    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol2['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission, Aircraft, Fuselage']]
-    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission, Aircraft']]
-    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol2['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission, Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{lg}_Mission, Aircraft']]
+    wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
+    fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+    engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
+                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0]
     xtest = [0, 1, 2, 3, 4]
