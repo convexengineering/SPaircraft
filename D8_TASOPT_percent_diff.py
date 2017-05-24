@@ -16,6 +16,97 @@ def percent_diff(sol,aircraft,Nclimb):
     optimal737 compares to TASOPT 737-800 w/physics base tail sizing
     b777300ER compares to TASOPT 777-300ER
     """
+    if aircraft == 'M072_737':
+       #weights to compare for TASOPT 777-300ER run
+        print "WEIGHT DIFFERENCES"
+        print "\n"
+        print "Total Fuel Weight Percent Diff: %s" % compute_diff(mag(sol('W_{f_{total}}').to('lbf')), 40530.2)
+        print "\n"
+        print "Total Aircraft Weight Percent Diff: %s" % compute_diff(mag(sol('W_{total}').to('lbf')), 155258.4)
+        print "\n"
+        print "Engine Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{engsys}').to('lbf')), 11601.5)
+        print "\n"
+        print "Fuselage Weight Percent Diff: %s" % compute_diff(mag(sol('W_{fuse}').to('lbf')), 35360.9)
+        print "\n"
+        print "Payload Weight Percent Diff: %s" % compute_diff(mag(sol('W_{payload}').to('lbf')), 115046.0)
+        print "\n"
+        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{VT}').to('lbf')), 1383.8)
+        print "\n"
+        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{HT}').to('lbf')), 1424.0)
+        print "\n"
+        print "Wing Weight Percent Diff: %s" % compute_diff(mag(sol('W_{wing}').to('lbf')), 16150.7)
+
+        #wing value to compare
+        print "\n\n\n"
+        print "WING DIFFERENCES"
+        print "\n"
+        print "Wing Span Percent Diff: %s" % compute_diff(mag(sol('b').to('ft')), 118.500)
+##        print "\n"
+##        print "Wing Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR')), 10.1)
+        print "\n"
+        print "Wing Area Percent Diff: %s" % compute_diff(mag(sol('S').to('ft^2')), 1208.24)
+        
+
+        #HT values to compare
+        print "\n\n\n"
+        print "HORIZONTAL TAIL DIFFERENCES"
+##        print "\n"
+##        print "HT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('AR_{ht}')), 6)
+        print "\n"
+        print "HT Area Percent Diff: %s" % compute_diff(mag(sol('S_{ht}').to('ft^2')), 367.39)
+##        print "\n"
+##        print "HT Volume Coefficient Percent Diff: %s" % compute_diff(mag(sol('V_{h}')), 1.450) 
+        
+
+        #VT values to compare
+        print "\n\n\n"
+        print "VERTICAL TAIL DIFFERENCES"
+        print "\n"
+##        print "VT Aspect Ratio Percent Diff: %s" % compute_diff(mag(sol('A_{vt}')), 2.0)
+        print "\n"
+        print "VT Span Percent Diff: %s" % compute_diff(mag(sol('b_{vt}').to('ft')), 22.50)
+        print "\n"
+        print "VT Area Percent Diff: %s" % compute_diff(mag(sol('S_{vt}').to('ft^2')), 253.03)
+##        print "\n"
+##        print "VT Volume Coefficient Percent Diff: %s" % compute_diff(mag(sol('V_{vt}')), .1)
+
+
+        #drag values to compare
+        print "\n\n\n"
+        print "CRUISE SEGMENT 1 DRAG DIFFERENCES"
+        print "\n"
+        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 0.03581)
+        print "\n"
+        # print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 17.252)
+        # print "\n"
+        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 0.00181)
+        print "\n"
+        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission/CruiseSegment/CruiseP/AircraftP/HorizontalTailPerformance'][0]), 0.00154*sol('S')/sol('S_{ht}'))
+        print "\n"
+        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission/CruiseSegment/CruiseP/AircraftP/FuselagePerformance'][0]), 0.00234)
+        print "\n"
+        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission/CruiseSegment/CruiseP/AircraftP/VerticalTailPerformance'][0]), 0.00157*sol('S')/sol('S_{vt}'))
+        print "\n"
+        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.01242)
+        print "\n"
+        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]),0.00915)
+        
+        #crusie TSFC
+        print "\n\n\n"
+        print "CRUISE SEGMENT 1 TSFC DIFFERENCES"
+        print "\n"
+        print "Initial Cruise TSFC Percent Diff: %s" % compute_diff(mag(sol('TSFC')[Nclimb]), 0.58399)
+        
+
+        #Fuselage values to compare
+        print "\n\n\n"
+        print "FUSELAGE DIFFERENCES"
+        print "\n"
+        # print "Weight of HB material: %s "  % compute_diff(mag(sol('W_{hbend}')), 2021.3)
+        # print "\n"
+        # print "Weight of VB material: %s "  % compute_diff(mag(sol('W_{vbend}')), 1210.5)
+
+
     if aircraft == 'D12':
        #weights to compare for TASOPT 777-300ER run
         print "WEIGHT DIFFERENCES"
@@ -75,21 +166,21 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n\n\n"
         print "CRUISE SEGMENT 1 DRAG DIFFERENCES"
         print "\n"
-        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.02428)
+        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 0.02428)
         print "\n"
-        # print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 17.252)
+        # print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 17.252)
         # print "\n"
-        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.00062)
+        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 0.00062)
         print "\n"
-        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission, CruiseSegment, CruiseP, AircraftP, HorizontalTailPerformance'][0]), 0.00154*sol('S')/sol('S_{ht}'))
+        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission/CruiseSegment/CruiseP/AircraftP/HorizontalTailPerformance'][0]), 0.00154*sol('S')/sol('S_{ht}'))
         print "\n"
-        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission, CruiseSegment, CruiseP, AircraftP, FuselagePerformance'][0]), 0.00521)
+        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission/CruiseSegment/CruiseP/AircraftP/FuselagePerformance'][0]), 0.00521)
         print "\n"
-        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission, CruiseSegment, CruiseP, AircraftP, VerticalTailPerformance'][0]), 0.00093*sol('S')/sol('S_{vt}'))
+        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission/CruiseSegment/CruiseP/AircraftP/VerticalTailPerformance'][0]), 0.00093*sol('S')/sol('S_{vt}'))
         print "\n"
-        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]), 0.00899)
+        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.00899)
         print "\n"
-        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]), 0.00723)
+        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.00723)
         
         #crusie TSFC
         print "\n\n\n"
@@ -165,21 +256,21 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n\n\n"
         print "CRUISE SEGMENT 1 DRAG DIFFERENCES"
         print "\n"
-        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.02539)
+        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 0.02539)
         print "\n"
-        # print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 17.252)
+        # print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 17.252)
         # print "\n"
-        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.00151)
+        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 0.00151)
         print "\n"
-        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission, CruiseSegment, CruiseP, AircraftP, HorizontalTailPerformance'][0]), 0.00126*sol('S')/sol('S_{ht}'))
+        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission/CruiseSegment/CruiseP/AircraftP/HorizontalTailPerformance'][0]), 0.00126*sol('S')/sol('S_{ht}'))
         print "\n"
-        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission, CruiseSegment, CruiseP, AircraftP, FuselagePerformance'][0]), 0.00532)
+        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission/CruiseSegment/CruiseP/AircraftP/FuselagePerformance'][0]), 0.00532)
         print "\n"
-        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission, CruiseSegment, CruiseP, AircraftP, VerticalTailPerformance'][0]), 0.00093*sol('S')/sol('S_{vt}'))
+        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission/CruiseSegment/CruiseP/AircraftP/VerticalTailPerformance'][0]), 0.00093*sol('S')/sol('S_{vt}'))
         print "\n"
-        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]), 0.00942)
+        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.00942)
         print "\n"
-        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]), 0.00695)
+        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.00695)
         
         #crusie TSFC
         print "\n\n\n"
@@ -255,21 +346,21 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n\n\n"
         print "CRUISE SEGMENT 1 DRAG DIFFERENCES"
         print "\n"
-        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.03304)
+        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 0.03304)
         print "\n"
-        # print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 17.252)
+        # print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 17.252)
         # print "\n"
-        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.00191)
+        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 0.00191)
         print "\n"
-        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission, CruiseSegment, CruiseP, AircraftP, HorizontalTailPerformance'][0]), 0.00239*sol('S')/sol('S_{ht}'))
+        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission/CruiseSegment/CruiseP/AircraftP/HorizontalTailPerformance'][0]), 0.00239*sol('S')/sol('S_{ht}'))
         print "\n"
-        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission, CruiseSegment, CruiseP, AircraftP, FuselagePerformance'][0]), 0.00762)
+        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission/CruiseSegment/CruiseP/AircraftP/FuselagePerformance'][0]), 0.00762)
         print "\n"
-        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission, CruiseSegment, CruiseP, AircraftP, VerticalTailPerformance'][0]), 0.00163*sol('S')/sol('S_{vt}'))
+        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission/CruiseSegment/CruiseP/AircraftP/VerticalTailPerformance'][0]), 0.00163*sol('S')/sol('S_{vt}'))
         print "\n"
-        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]), 0.01117)
+        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.01117)
         print "\n"
-        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]), 0.00833)
+        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.00833)
         
         #crusie TSFC
         print "\n\n\n"
@@ -345,21 +436,21 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n\n\n"
         print "CRUISE SEGMENT 1 DRAG DIFFERENCES"
         print "\n"
-        print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 17.252)
+        print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 17.252)
         print "\n"
-        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.03292)
+        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 0.03292)
         print "\n"
-        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission, CruiseSegment, CruiseP, AircraftP'][0]),0.00191)
+        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission/CruiseSegment/CruiseP/AircraftP'][0]),0.00191)
         print "\n"
-        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission, CruiseSegment, CruiseP, AircraftP, HorizontalTailPerformance'][0]), 0.00175*sol('S')/sol('S_{ht}'))
+        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission/CruiseSegment/CruiseP/AircraftP/HorizontalTailPerformance'][0]), 0.00175*sol('S')/sol('S_{ht}'))
         print "\n"
-        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission, CruiseSegment, CruiseP, AircraftP, FuselagePerformance'][0]), 0.00801)
+        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission/CruiseSegment/CruiseP/AircraftP/FuselagePerformance'][0]), 0.00801)
         print "\n"
-        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission, CruiseSegment, CruiseP, AircraftP, VerticalTailPerformance'][0]), 0.00153*sol('S')/sol('S_{vt}'))
+        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission/CruiseSegment/CruiseP/AircraftP/VerticalTailPerformance'][0]), 0.00153*sol('S')/sol('S_{vt}'))
         print "\n"
-        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]), 0.01112)
+        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.01112)
         print "\n"
-        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]), 0.00861)
+        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.00861)
         
         #crusie TSFC
         print "\n\n\n"
@@ -435,20 +526,20 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n\n\n"
         print "CRUISE SEGMENT 1 DRAG DIFFERENCES"
         print "\n"
-        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.03212)
+        print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')['C_D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 0.03212)
         print "\n"
-        print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 21.477)
+        print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')['L/D_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 21.477)
         print "\n"
-        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission, CruiseSegment, CruiseP, AircraftP'][0]), 0.00054)
+        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')['C_{d_nacelle}_Mission/CruiseSegment/CruiseP/AircraftP'][0]), 0.00054)
         print "\n"
-        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission, CruiseSegment, CruiseP, AircraftP, HorizontalTailPerformance'][0]), 0.00227*sol('S')/sol('S_{ht}'))
+        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')['C_{D_h}_Mission/CruiseSegment/CruiseP/AircraftP/HorizontalTailPerformance'][0]), 0.00227*sol('S')/sol('S_{ht}'))
         print "\n"
-        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission, CruiseSegment, CruiseP, AircraftP, FuselagePerformance'][0]), 0.00866)
+        print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')['C_{D_{fuse}}_Mission/CruiseSegment/CruiseP/AircraftP/FuselagePerformance'][0]), 0.00866)
         print "\n"
-        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission, CruiseSegment, CruiseP, AircraftP, VerticalTailPerformance'][0]), 0.00089*sol('S')/sol('S_{vt}'))
+        print "VT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{vis}}')['C_{D_{vis}}_Mission/CruiseSegment/CruiseP/AircraftP/VerticalTailPerformance'][0]), 0.00089*sol('S')/sol('S_{vt}'))
         print "\n"
-        print "Wing Cd percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]),0.00947)
-        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission, CruiseSegment, CruiseP, AircraftP, WingPerformance'][0]), 0.01063)
+        print "Wing Cd percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]),0.00947)
+        print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.01063)
         
         #crusie TSFC
         print "\n\n\n"
