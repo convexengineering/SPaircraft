@@ -937,11 +937,18 @@ class Mission(Model):
              with Vectorize(Nmission):
                   CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
                   ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
+##                  Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
+                  climb_time = Variable('ClimbTime', 'min', 'Total Time in Climb')
+                  climb_distance = Variable('ClimbDistance', 'nautical_miles', 'Climb Distance')
         else:
           CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
           ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
+##          Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
+          climb_time = Variable('ClimbTime', 'min', 'Total Time in Climb')
+          climb_distance = Variable('ClimbDistance', 'nautical_miles', 'Climb Distance')
 
-        # Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
+        max_climb_time = Variable('MaxClimbTime', 'min', 'Total Time in Climb')
+        max_climb_distance = Variable('MaxClimbDistance', 'nautical_miles', 'Climb Distance')
 
         # make overall constraints
         constraints = []
@@ -1121,6 +1128,12 @@ class Mission(Model):
 
                 #compute the total time
 ##                Total_Time >= sum(cruise['thr']) + sum(climb['thr']),
+
+                #compute the climb in time
+                climb_time >= sum(climb['thr']),
+                climb_distance >= sum(cruise['Rng']),
+                climb_time <= max_climb_time,
+                climb_distance <= max_climb_distance,
             ])
 
         # Calculating percent fuel remaining
