@@ -949,6 +949,7 @@ class Mission(Model):
 
         max_climb_time = Variable('MaxClimbTime', 'min', 'Total Time in Climb')
         max_climb_distance = Variable('MaxClimbDistance', 'nautical_miles', 'Climb Distance')
+        CruiseTt41max = Variable('CruiseTt41max', 1125, 'K', 'Max Cruise Turbine Inlet Temp')
 
         # make overall constraints
         constraints = []
@@ -1134,7 +1135,10 @@ class Mission(Model):
                 climb_distance >= sum(cruise['Rng']),
                 climb_time <= max_climb_time,
                 climb_distance <= max_climb_distance,
-            ])
+
+                #set the max allowed cruise Tt4.1
+                aircraft['T_{t_{4.1}}'][Nclimb:] <= CruiseTt41max,
+                ])
 
         # Calculating percent fuel remaining
         with SignomialsEnabled():
