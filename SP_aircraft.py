@@ -71,8 +71,8 @@ def gen_plots(sol):
            rng.append(mag(sol('RngClimb')[i][0]))
     for i in range(len(sol('Rng'))):
            rng.append(mag(sol('Rng')[i][0]))
-    for i in range(len(sol('hft')['hft_Mission, FlightState, Altitude'])):
-           alt.append(sol('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
+           alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     rng = np.cumsum(rng)
     plt.plot(rng, alt)
     plt.ylabel('Altitude [feet]', fontsize=18)
@@ -93,8 +93,8 @@ def gen_D82_plots(sol):
            rng.append(mag(sol('RngClimb')[i][0]))
     for i in range(len(sol('Rng'))):
            rng.append(mag(sol('Rng')[i][0]))
-    for i in range(len(sol('hft')['hft_Mission, FlightState, Altitude'])):
-           alt.append(sol('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
+           alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     rng = np.cumsum(rng)
 
     tasrng = [0, 11.51, 27.36, 52.64, 103.28, 103.28, 2825.41, 2825.41, 2869.08, 2912.76, 2956.43, 3000]
@@ -121,8 +121,8 @@ def gen_D8_737_plots(solD8, sol737):
            rngD8.append(mag(solD8('RngClimb')[i][0]))
     for i in range(len(solD8('Rng'))):
            rngD8.append(mag(solD8('Rng')[i][0]))
-    for i in range(len(solD8('hft')['hft_Mission, FlightState, Altitude'])):
-           altD8.append(solD8('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    for i in range(len(solD8('hft')['hft_Mission/FlightState/Altitude'])):
+           altD8.append(mag(solD8('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     rngD8 = np.cumsum(rngD8)
 
     rng73 = []
@@ -131,8 +131,8 @@ def gen_D8_737_plots(solD8, sol737):
            rng73.append(mag(sol737('RngClimb')[i][0]))
     for i in range(len(sol737('Rng'))):
            rng73.append(mag(sol737('Rng')[i][0]))
-    for i in range(len(sol737('hft')['hft_Mission, FlightState, Altitude'])):
-           alt73.append(sol737('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    for i in range(len(sol737('hft')['hft_Mission/FlightState/Altitude'])):
+           alt73.append(mag(sol737('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     rng73 = np.cumsum(rng73)
 
     tasrngD8 = [0, 11.51, 27.36, 52.64, 103.28, 103.28, 2825.41, 2825.41, 2869.08, 2912.76, 2956.43, 3000]
@@ -164,8 +164,8 @@ def gen_D8_D8_no_BLI_plots(solD8, solno_BLI):
            rngD8.append(mag(solD8('RngClimb')[i][0]))
     for i in range(len(solD8('Rng'))):
            rngD8.append(mag(solD8('Rng')[i][0]))
-    for i in range(len(solD8('hft')['hft_Mission, FlightState, Altitude'])):
-           altD8.append(solD8('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    for i in range(len(solD8('hft')['hft_Mission/FlightState/Altitude'])):
+           altD8.append(mag(solD8('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     rngD8 = np.cumsum(rngD8)
 
     rngno_BLI = []
@@ -174,8 +174,8 @@ def gen_D8_D8_no_BLI_plots(solD8, solno_BLI):
            rngno_BLI.append(mag(solno_BLI('RngClimb')[i][0]))
     for i in range(len(solno_BLI('Rng'))):
            rngno_BLI.append(mag(solno_BLI('Rng')[i][0]))
-    for i in range(len(solno_BLI('hft')['hft_Mission, FlightState, Altitude'])):
-           altno_BLI.append(solno_BLI('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    for i in range(len(solno_BLI('hft')['hft_Mission/FlightState/Altitude'])):
+           altno_BLI.append(mag(solno_BLI('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     rngno_BLI = np.cumsum(rngno_BLI)
 
     plt.plot(rngD8, altD8)
@@ -203,8 +203,8 @@ def gen_737_plots(sol):
            rng.append(mag(sol('RngClimb')[i][0]))
     for i in range(len(sol('Rng'))):
            rng.append(mag(sol('Rng')[i][0]))
-    for i in range(len(sol('hft')['hft_Mission, FlightState, Altitude'])):
-           alt.append(sol('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
+           alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     rng = np.cumsum(rng)
     plt.plot(rng, alt)
     plt.plot(tasrng, tasalt)
@@ -231,8 +231,8 @@ def gen_777_plots(sol):
            rng.append(mag(sol('RngClimb')[i][0]))
     for i in range(len(sol('Rng'))):
            rng.append(mag(sol('Rng')[i][0]))
-    for i in range(len(sol('hft')['hft_Mission, FlightState, Altitude'])):
-           alt.append(sol('hft')['hft_Mission, FlightState, Altitude'][i][0])
+    for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
+           alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     
     rng = np.cumsum(rng)
     plt.plot(rng, alt)
@@ -550,7 +550,7 @@ def run_optimal_737(fixedBPR, pRatOpt = False):
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=1, iteration_limit=200, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
     percent_diff(sol, 'b737800', Nclimb)
