@@ -497,12 +497,12 @@ def run_optimal_D8(fixedBPR, pRatOpt = False):
 
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, skipsweepfailures=True)
     post_process(sol)
 
-##    percent_diff(sol, 'D82', Nclimb)
+    percent_diff(sol, 'D82', Nclimb)
 
-##    post_compute(sol, Nclimb)
+    post_compute(sol, Nclimb)
 
     return sol
 
@@ -510,7 +510,7 @@ def run_optimal_737(fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 1
+    Nmission = 3
     objective = 'fuel'
     aircraft = 'optimal737'
 
@@ -518,10 +518,16 @@ def run_optimal_737(fixedBPR, pRatOpt = False):
     
     substitutions = get737_optimal_subs()
 
-    substitutions.update({
-#                'n_{paxx}': 180.,
-        'ReqRng': 3000.*units('nmi'),
-    })
+    if Nmission == 3:
+        substitutions.update({
+            'ReqRng': [3000.*units('nmi'),3000.*units('nmi'),3000.*units('nmi')],
+            'n_{pax}': [180., 160., 120.],
+        })
+    else:
+        substitutions.update({
+#            'n_{paxx}': 180.,
+            'ReqRng': 3000.*units('nmi'),
+        })        
 
     if fixedBPR:
         substitutions.update({
@@ -538,7 +544,7 @@ def run_optimal_737(fixedBPR, pRatOpt = False):
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=1, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
     percent_diff(sol, 'b737800', Nclimb)
