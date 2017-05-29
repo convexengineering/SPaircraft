@@ -469,7 +469,7 @@ def run_optimal_D8(fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 1
+    Nmission = 3
     objective = 'fuel'
     aircraft = 'optimalD8'
 
@@ -477,10 +477,16 @@ def run_optimal_D8(fixedBPR, pRatOpt = False):
     
     substitutions = get_optimal_D8_subs()
 
-    substitutions.update({
-#                'n_{paxx}': 180.,
-        'ReqRng': 3000.*units('nmi'),
-    })
+    if Nmission == 3:
+        substitutions.update({
+            'ReqRng': [3000.*units('nmi'), 2000.*units('nmi'), 1000.*units('nmi')],
+            'n_{pax}': [180., 180., 180.],
+        })
+    else:
+        substitutions.update({
+#            'n_{paxx}': 180.,
+            'ReqRng': 3000.*units('nmi'),
+        }) 
 
     if fixedBPR:
         substitutions.update({
