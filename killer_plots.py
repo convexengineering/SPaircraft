@@ -1169,6 +1169,7 @@ def standard_killer_plot():
     plt.plot(xtest, ytest, "o--")
     plt.plot([0, 1, 2, 3, 4, 5, 6], [1, .88, .81, .82, .67, .66, .63], "o--")
     plt.plot([0, 1, 2, 3, 6], [1, .868, .871, .865, .602], "o--")
+    plt.plot([0, 1, 2, 3, 4, 5, 6], [1, 41129/43843, 38402/43843, 37180/43843, 32987/43843, 32383/43843, 29753/43843])
     plt.xticks(xtest, xlabels,  rotation='vertical')
     plt.ylim([0,1.1])
     plt.xlim([-.5, 6.5])
@@ -1176,7 +1177,7 @@ def standard_killer_plot():
     plt.xlabel('Design Step', fontsize = 20)
     plt.ylabel('$W_{\mathrm{f}}/W_{\mathrm{f}_\mathrm{0}}$', fontsize = 20)
     plt.title('D8 Morphing Chart')
-    plt.legend(['SP Model', 'TASOPT', 'NASA'], loc=3)
+    plt.legend(['SP Model', 'TASOPT', 'NASA', 'Aurora'], loc=3)
     plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart.pdf', bbox_inches="tight")
     plt.show(), plt.close()
 
