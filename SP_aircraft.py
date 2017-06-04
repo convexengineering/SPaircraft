@@ -292,7 +292,7 @@ def run_D82():
     })
 
     m.substitutions.update(substitutions)
-
+    m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
@@ -469,7 +469,7 @@ def run_optimal_D8(fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 3
+    Nmission = 1
     objective = 'fuel'
     aircraft = 'optimalD8'
 
@@ -516,7 +516,7 @@ def run_optimal_737(fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 3
+    Nmission = 1
     objective = 'fuel'
     aircraft = 'optimal737'
 
@@ -693,7 +693,7 @@ def run_777300ER():
 
     substitutions.update({
 ##        'n_{pax}': [450.],
-        'ReqRng': [6000.],
+        'ReqRng': 6000.*units('nmi'),
     })
 
     m.substitutions.update(substitutions)

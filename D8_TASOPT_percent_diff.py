@@ -291,7 +291,7 @@ def percent_diff(sol,aircraft,Nclimb):
        #weights to compare for TASOPT 737-800 run
         print "WEIGHT DIFFERENCES"
         print "\n"
-        print "Total Fuel Weight Percent Diff: %s" % compute_diff(mag(sol('W_{f_{total}}').to('lbf')), 47487.3)
+        print "Total Fuel Weight Percent Diff: %s" % compute_diff(mag(sol('W_{f_{total}}').to('lbf')), 45057.0)
         print "\n"
         print "Total Aircraft Weight Percent Diff: %s" % compute_diff(mag(sol('W_{total}').to('lbf')), 174979.1)
         print "\n"

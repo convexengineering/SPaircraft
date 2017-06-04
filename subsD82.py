@@ -62,7 +62,7 @@ def getD82subs():
                 'f_{string}': 0.35,
 
                 'h_{floor}': 5.12*units('in'),
-                'R_{fuse}': 1.715*units('m'),
+##                'R_{fuse}': 1.715*units('m'),
 ##                '\\delta R_{fuse}': 0.43*units('m'),
                 'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
@@ -93,7 +93,7 @@ def getD82subs():
                 '\\eta': 0.97,
                 '\\rho_0': 1.225*units('kg/m^3'),
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-                'AR':15.749,
+##                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
                 'f_{wingfuel}': 1.0,
@@ -137,7 +137,7 @@ def getD82subs():
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
-                'AR_{ht}': 12.,
+##                'AR_{ht}': 12.,
                 '\\lambda_{ht}': 0.3,
                 '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
                 '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
@@ -175,7 +175,7 @@ def getD82subs():
                 '\pi_{hc_D}': hpc,
                 '\pi_{lc_D}': lpc,
 
-                '\\alpha_{OD}': 6.97,
+##                '\\alpha_{OD}': 6.97,
                 '\\alpha_{max}': 6.97,
 
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
@@ -204,6 +204,9 @@ def getD82subs():
                 'f_{BLI_P}': (18753.9 +.5*0.301559*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
                               (18753.9 +.5*0.301559*(Mcruisemin*295.)**2),
                 'f_{BLI_V}': 1 - BLIVloss,
+
+##            'MaxClimbTime': 20*units('min'),
+##            'MaxClimbDistance': 180*units('nautical_miles')
         }
 
         return substitutions
