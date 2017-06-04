@@ -510,7 +510,7 @@ class WingBox(Model):
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
                        # Assumes lift per unit span proportional to local chord
-                       numspar*Mr >= Lmax*AR*p/24,
+                       Mr >= Lmax*AR*p/24,
 
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
@@ -522,7 +522,7 @@ class WingBox(Model):
 
                        # Shear web sizing
                        # Assumes all shear loads are carried by web and rh=0.75
-                       12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear*numspar),
+                       12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam^2)
                        # nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # PHILIPPE'S FIT
@@ -533,7 +533,7 @@ class WingBox(Model):
                        Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
 
                        # Total wing weight using an additional weight fraction
-                       Wstruct >= 0.5*(Wweb + Wcap),
+                       Wstruct >= numspar*0.5*(Wweb + Wcap),
                        ]
         
         return constraints
