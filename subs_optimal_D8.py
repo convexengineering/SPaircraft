@@ -1,5 +1,6 @@
 from gpkit import units
 from numpy import cos, tan, pi
+import numpy as np
 
 def get_optimal_D8_subs():
         """
@@ -119,7 +120,7 @@ def get_optimal_D8_subs():
                 'e_v': 0.8,
                 'V_{land}': 72.*units('m/s'),
                 '\\dot{r}_{req}': 0.00001, #0.1475 10 deg/s/s yaw rate acceleration
-                'N_{spar}': 1,
+                'N_{spar}': 3.,
                 'f_{VT}': 0.4,
                 'numVT': 2.,
                 'A_{vt}' : 2.2,
@@ -207,6 +208,9 @@ def get_optimal_D8_subs():
                 'f_{BLI_P}': (18753.9 +.5*0.301559*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
                               (18753.9 +.5*0.301559*(Mcruisemin*295.)**2),
                 'f_{BLI_V}': 1 - BLIVloss,
+
+##            'MaxClimbTime': 25*units('min'),
+##            'MaxClimbDistance': 300*units('nautical_miles')
         }
 
         return substitutions
