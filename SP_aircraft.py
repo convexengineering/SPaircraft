@@ -1436,7 +1436,7 @@ if __name__ == '__main__':
     Nclimb = 3
     Ncruise = 2
     Nmission = 1
-    objective = 'PRFC'
+    objective = 'fuel'
     aircraft = 'D8_eng_wing'
 
     genVSP = True
