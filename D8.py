@@ -12,7 +12,7 @@ TCS.reltol = 1e-3
 
 # importing from D8_integration
 from stand_alone_simple_profile import FlightState
-from TASOPT_VT_yaw_rate_and_EO_simple_profile import VerticalTail
+from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail
 from D8_HT_simple_profile import HorizontalTail
 from D8_Wing_simple_profile import Wing
 from turbofan.engine_validation import Engine
