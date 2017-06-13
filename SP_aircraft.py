@@ -26,7 +26,7 @@ from subs_optimal_D8 import get_optimal_D8_subs
 from subs_M08_D8 import subs_M08_D8
 from subs_M08_d8_eng_wing import getM08_D8_eng_wing_subs
 from subs_D8_eng_wing import get_D8_eng_wing_subs
-from subsM072737 import get_M072_737_subs
+from subs_M072_737 import get_M072_737_subs
 from subs_D8_no_BLI import get_D8_no_BLI_subs
 from subs_M08_D8_noBLI import get_subs_M08_D8_noBLI
 from subs_optimal_777300ER import get_optimal_777300ER_subs
@@ -76,7 +76,7 @@ def gen_plots(sol):
     rng = np.cumsum(rng)
     plt.plot(rng, alt)
     plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace', fontsize=18)
+    plt.xlabel('Down Range Distance', fontsize=18)
     plt.title('Aircraft Altitude Profile')
 #    plt.savefig('M08_D8_wing_profile_drag.pdf', bbox_inches="tight")
     plt.show()
@@ -104,9 +104,9 @@ def gen_D82_plots(sol):
     plt.plot(tasrng, tasalt)
     plt.legend(['SP Model', 'TASOPT'], loc=4)
     plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace [nm]', fontsize=18)
+    plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('D8 Altitude Profile')
-    plt.savefig('D8_alttidue_profile.pdf', bbox_inches="tight")
+    plt.savefig('D8_altitude_profile.pdf', bbox_inches="tight")
     plt.show()
 
 def gen_D8_737_plots(solD8, sol737):
@@ -147,9 +147,9 @@ def gen_D8_737_plots(solD8, sol737):
     plt.plot(tasrng73, tasalt73)
     plt.legend(['D8 SP Model', 'D8 TASOPT', '737 SP Model', '737 TASOPT'], loc=4)
     plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace [nm]', fontsize=18)
+    plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('737 and D8 Altitude Profile')
-    plt.savefig('737_D8_alttidue_profile.pdf', bbox_inches="tight")
+    plt.savefig('737_D8_altitude_profile.pdf', bbox_inches="tight")
     plt.show()
 
 def gen_D8_D8_no_BLI_plots(solD8, solno_BLI):
@@ -182,9 +182,9 @@ def gen_D8_D8_no_BLI_plots(solD8, solno_BLI):
     plt.plot(rngno_BLI, altno_BLI)
     plt.legend(['D8', 'D8 w/out BLI (rear podded engines)'], loc=4)
     plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace [nm]', fontsize=18)
+    plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('D8 Altitude Profile with and without BLI')
-    plt.savefig('D8_D8_no_BLI_alttidue_profile.pdf', bbox_inches="tight")
+    plt.savefig('D8_D8_no_BLI_altitude_profile.pdf', bbox_inches="tight")
     plt.show()
 
 def gen_737_plots(sol):
@@ -210,9 +210,9 @@ def gen_737_plots(sol):
     plt.plot(tasrng, tasalt)
     plt.legend(['SP Model', 'TASOPT'], loc=4)
     plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace [nm]', fontsize=18)
+    plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('737 Altitude Profile')
-    plt.savefig('737_alttidue_profile.pdf', bbox_inches="tight")
+    plt.savefig('737_altitude_profile.pdf', bbox_inches="tight")
     plt.show()
     
 def gen_777_plots(sol):
@@ -239,9 +239,9 @@ def gen_777_plots(sol):
     plt.plot(tasrng, tasalt)
     plt.legend(['SP Model', 'TASOPT'], loc=4)
     plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace [nm]', fontsize=18)
+    plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('777 Altitude Profile')
-    plt.savefig('777_alttidue_profile.pdf', bbox_inches="tight")
+    plt.savefig('777_altitude_profile.pdf', bbox_inches="tight")
     plt.show()
 
 def run_737800():
@@ -479,8 +479,8 @@ def run_optimal_D8(fixedBPR, pRatOpt = False):
 
     if Nmission == 3:
         substitutions.update({
-            'ReqRng': [3000.*units('nmi'), 2000.*units('nmi'), 1000.*units('nmi')],
-            'n_{pax}': [180., 180., 180.],
+            'ReqRng': [2000.*units('nmi'), 3000.*units('nmi'), 1000.*units('nmi')],
+            'n_{pax}': [180., 150., 180.],
         })
     else:
         substitutions.update({
