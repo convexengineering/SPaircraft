@@ -318,9 +318,6 @@ class Aircraft(Model):
                     self.fuse['\\delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
                 ])
 
-        if M08_D8_eng_wing:
-            constraints.extend([self.fuse['\\delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75])
-
         if D8fam and not D8_no_BLI:
             constraints.extend({self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}']})# Engine out moment arm
         if D8_no_BLI:
@@ -383,6 +380,8 @@ class Aircraft(Model):
                                                (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}']) \
                                                + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+
+                    self.fuse['\\delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
                 ])
 
           #737 and 777 only constraints
@@ -1104,7 +1103,7 @@ class Mission(Model):
                 aircraft['numeng'] * aircraft.engine['F'][Nclimb:] >= cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'],
 
                 # Thrust constraint
-                aircraft.VT['T_e'] == 1.2 * climb.climbP.engine['F'][0],
+                aircraft.VT['T_e'] == 1.8 * climb.climbP.engine['F'][0],
 
                 # Set the range for each cruise segment, doesn't take credit for
                 # All cruise segments cover the same range
