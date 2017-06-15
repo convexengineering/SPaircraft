@@ -75,8 +75,8 @@ def gen_plots(sol):
            alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     rng = np.cumsum(rng)
     plt.plot(rng, alt)
-    plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace', fontsize=18)
+    plt.ylabel('Altitude [ft]', fontsize=18)
+    plt.xlabel('Down Range Distance', fontsize=18)
     plt.title('Aircraft Altitude Profile')
 #    plt.savefig('M08_D8_wing_profile_drag.pdf', bbox_inches="tight")
     plt.show()
@@ -87,8 +87,8 @@ def gen_D82_plots(sol):
     """
 
     #generate an altitude profile plot
-    rng = []
-    alt = []
+    rng = [0]
+    alt = [0]
     for i in range(len(sol('RngClimb'))):
            rng.append(mag(sol('RngClimb')[i][0]))
     for i in range(len(sol('Rng'))):
@@ -103,8 +103,8 @@ def gen_D82_plots(sol):
     plt.plot(rng, alt)
     plt.plot(tasrng, tasalt)
     plt.legend(['SP Model', 'TASOPT'], loc=4)
-    plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace [nm]', fontsize=18)
+    plt.ylabel('Altitude [ft]', fontsize=18)
+    plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('D8 Altitude Profile')
     plt.savefig('D8_alttidue_profile.pdf', bbox_inches="tight")
     plt.show()
@@ -146,8 +146,8 @@ def gen_D8_737_plots(solD8, sol737):
     plt.plot(rng73, alt73)
     plt.plot(tasrng73, tasalt73)
     plt.legend(['D8 SP Model', 'D8 TASOPT', '737 SP Model', '737 TASOPT'], loc=4)
-    plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace [nm]', fontsize=18)
+    plt.ylabel('Altitude [ft]', fontsize=18)
+    plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('737 and D8 Altitude Profile')
     plt.savefig('737_D8_alttidue_profile.pdf', bbox_inches="tight")
     plt.show()
@@ -181,8 +181,8 @@ def gen_D8_D8_no_BLI_plots(solD8, solno_BLI):
     plt.plot(rngD8, altD8)
     plt.plot(rngno_BLI, altno_BLI)
     plt.legend(['D8', 'D8 w/out BLI (rear podded engines)'], loc=4)
-    plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace [nm]', fontsize=18)
+    plt.ylabel('Altitude [ft]', fontsize=18)
+    plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('D8 Altitude Profile with and without BLI')
     plt.savefig('D8_D8_no_BLI_alttidue_profile.pdf', bbox_inches="tight")
     plt.show()
@@ -196,8 +196,8 @@ def gen_737_plots(sol):
     tasrng = [0, 13.68, 31.34, 59.96, 115.05, 115.05, 2875.38, 2875.38, 2906.56, 2937.74, 2968.92, 3000]
     tasalt = [0, 8750, 17500, 26250, 35000, 35000, 39677.3, 39677.3, 29758., 19838.6, 9919.3, 0]
 
-    rng = []
-    alt = []
+    rng = [0]
+    alt = [0]
 
     for i in range(len(sol('RngClimb'))):
            rng.append(mag(sol('RngClimb')[i][0]))
@@ -209,8 +209,8 @@ def gen_737_plots(sol):
     plt.plot(rng, alt)
     plt.plot(tasrng, tasalt)
     plt.legend(['SP Model', 'TASOPT'], loc=4)
-    plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace [nm]', fontsize=18)
+    plt.ylabel('Altitude [ft]', fontsize=18)
+    plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('737 Altitude Profile')
     plt.savefig('737_alttidue_profile.pdf', bbox_inches="tight")
     plt.show()
@@ -238,8 +238,8 @@ def gen_777_plots(sol):
     plt.plot(rng, alt)
     plt.plot(tasrng, tasalt)
     plt.legend(['SP Model', 'TASOPT'], loc=4)
-    plt.ylabel('Altitude [feet]', fontsize=18)
-    plt.xlabel('Down Range Distnace [nm]', fontsize=18)
+    plt.ylabel('Altitude [ft]', fontsize=18)
+    plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('777 Altitude Profile')
     plt.savefig('777_alttidue_profile.pdf', bbox_inches="tight")
     plt.show()
@@ -551,11 +551,11 @@ def run_optimal_737(fixedBPR, pRatOpt = False):
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
-    post_process(sol)
+##    post_process(sol)
 
-    percent_diff(sol, 'b737800', Nclimb)
+##    percent_diff(sol, 'b737800', Nclimb)
 
-    post_compute(sol, Nclimb)
+##    post_compute(sol, Nclimb)
 
     return sol
 
@@ -723,7 +723,7 @@ def run_optimal_777(fixedBPR, pRatOpt = False):
 
     substitutions.update({
 ##        'n_{pax}': [450.],
-        'ReqRng': [6000.],
+        'ReqRng': 6000.,
     })
 
     if fixedBPR:

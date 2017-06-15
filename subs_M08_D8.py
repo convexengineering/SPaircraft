@@ -69,7 +69,7 @@ def subs_M08_D8():
 
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft'),
-                'L_{total/wing}': 1.179,
+                'L_{total/wing}': 1.195,
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
@@ -97,8 +97,8 @@ def subs_M08_D8():
 ##                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
+                'f_{wingfuel}': 1.0,
                 'TipReduct': 1.0,
-                'f_{wingfuel}': .35,
 
                 # Wing fractional weights
                 'FuelFrac': 0.9,
@@ -118,8 +118,8 @@ def subs_M08_D8():
                 'c_{l_{vtEO}}': 0.5, # [TAS]
                 'e_v': 0.8,
                 'V_{land}': 72.*units('m/s'),
-                '\\dot{r}_{req}': 0.0001, #0.1475 10 deg/s/s yaw rate acceleration
-                'N_{spar}': 1,
+                '\\dot{r}_{req}': 0.00001, #0.1475 10 deg/s/s yaw rate acceleration
+                'N_{spar}': 3.,
                 'f_{VT}': 0.4,
                 'numVT': 2.,
                 'A_{vt}' : 2.2,
@@ -134,7 +134,7 @@ def subs_M08_D8():
                 '\\alpha_{max,h}': 2.5,
                 'C_{L_{hmax}}': 2.0, # [TAS]
                 'SM_{min}': 0.05,
-                '\\Delta x_{CG}': 6.8*units('ft'),
+                '\\Delta x_{CG}': 6*units('ft'),
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
                 'f_{HT}': 0.3,
@@ -186,7 +186,7 @@ def subs_M08_D8():
 
                 'M_{takeoff}': .9556,
 
-                'G_f': 1.,
+                'G_f': 3.21,
 
                 'h_f': 43.003,
 
@@ -199,12 +199,17 @@ def subs_M08_D8():
 
                 'T_{t_{4.1_{max}}}': 1567.*units('K'),
 
+                'CruiseTt41max': 1125*units('K'),
+
                 #BLI factors
                 #compute the cruise stagnation pressure loss factor given a min
                 #mach number and the BLI velocity loss factor
                 'f_{BLI_P}': (18753.9 +.5*0.301559*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
                               (18753.9 +.5*0.301559*(Mcruisemin*295.)**2),
                 'f_{BLI_V}': 1 - BLIVloss,
+
+##            'MaxClimbTime': 24*units('min'),
+##            'MaxClimbDistance': 300*units('nautical_miles')
         }
 
         return substitutions

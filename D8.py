@@ -943,7 +943,7 @@ class Mission(Model):
         else:
           CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
           ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
-##          Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
+          Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
           climb_time = Variable('ClimbTime', 'min', 'Total Time in Climb')
           climb_distance = Variable('ClimbDistance', 'nautical_miles', 'Climb Distance')
 
@@ -1128,7 +1128,7 @@ class Mission(Model):
                 climb['\\theta'][-1] >= 0.015, #higher than 0.015 radian climb gradient
 
                 #compute the total time
-##                Total_Time >= sum(cruise['thr']) + sum(climb['thr']),
+                Total_Time >= sum(cruise['thr']) + sum(climb['thr']),
 
                 #compute the climb in time
                 climb_time >= sum(climb['thr']),
