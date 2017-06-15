@@ -119,7 +119,7 @@ def get_optimal_D8_subs():
                 'c_{l_{vtEO}}': 0.5, # [TAS]
                 'e_v': 0.8,
                 'V_{land}': 72.*units('m/s'),
-                '\\dot{r}_{req}': 0.00001, #0.1475 10 deg/s/s yaw rate acceleration
+                '\\dot{r}_{req}': 0.1475, #10 deg/s/s yaw rate acceleration
                 'N_{spar}': 3.,
                 'f_{VT}': 0.4,
                 'numVT': 2.,
@@ -129,7 +129,7 @@ def get_optimal_D8_subs():
                 '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
                 'c_{d_{fv}}': 0.0060,
                 'c_{d_{pv}}': 0.0035,
-                'V_{vt_{min}}': 0.03,
+                'V_{vt_{min}}': 0.001,#0.03,
 
                 # HT substitutions
                 '\\alpha_{max,h}': 2.5,

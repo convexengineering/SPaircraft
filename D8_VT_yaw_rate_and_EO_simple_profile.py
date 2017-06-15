@@ -10,13 +10,12 @@ from gpkit.small_scripts import mag
 from simple_ac_imports_no_engine import Wing, Fuselage, Engine, CruiseP, ClimbP, FlightState, CruiseSegment, ClimbSegment
 
 """
-Models requird to minimze the aircraft total fuel weight. Rate of climb equation taken from John
+Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
 Anderson's Aircraft Performance and Design (eqn 5.85).
 Inputs
 -----
-- Number of passtengers
-- Passegner weight [N]
-- Fusealge area per passenger (recommended to use 1 m^2 based on research) [m^2]
+- Number of passengers
+- Passenger weight [N]
 - Engine weight [N]
 - Number of engines
 - Required mission range [nm]
@@ -76,7 +75,7 @@ class AircraftP(Model):
         self.wingP = aircraft.wing.dynamic(state)
         self.fuseP = aircraft.fuse.dynamic(state)
         self.engineP = aircraft.engine.dynamic(state)
-        self.VTP = aircraft.VT.dynamic(aircraft.fuse, state)
+        self.VTP = aircraft.VT.dynamic(state)
 
         self.Pmodels = [self.wingP, self.fuseP, self.engineP, self.VTP]
 
@@ -242,6 +241,7 @@ class VerticalTail(Model):
     5: http://www.digitaldutch.com/atmoscalc
     6: Engineering toolbox
     7: Boeing.com
+
     """
     def setup(self, **kwargs):
         self.vtns = VerticalTailNoStruct()
@@ -251,18 +251,26 @@ class VerticalTail(Model):
         WVT = Variable('W_{VT_system}', 'N', 'Total VT System Weight')
         fVT = Variable('f_{VT}', '-', 'VT Fractional Weight')
 
+        #Margin and Sensitivity
+        CVT = Variable('C_{VT}', 1, '-', 'VT Weight Margin and Sensitivity')
+
+        #variables only used for the TASOPT tail drag formulation
+        cdfv = Variable('c_{d_{fv}}', '-', 'VT friction drag coefficient')
+        cdpv = Variable('c_{d_{pv}}', '-', 'VT pressure drag coefficient')
+        coslamcube = Variable('\\cos(\\Lambda_{vt})^3', '-', 'Cosine of tail sweep cubed')
+
         constraints = [
             self.vtns['\\lambda_{vt}'] == self.wb['taper'],
-            WVT >= self.wb['W_{struct}'] + self.wb['W_{struct}'] * fVT,
-                       ]
+            WVT >= CVT*(self.wb['W_{struct}'] + self.wb['W_{struct}'] * fVT),
+            ]
 
         return self.vtns, self.wb, constraints
 
-    def dynamic(self, fuse, state):
+    def dynamic(self, state, fitDrag):
         """"
         creates a horizontal tail performance model
         """
-        return VerticalTailPerformance(self, fuse, state)
+        return VerticalTailPerformance(self, state, fitDrag)
 
 class VerticalTailNoStruct(Model):
     """
@@ -289,17 +297,17 @@ class VerticalTailNoStruct(Model):
         clvtEO   = Variable('c_{l_{vtEO}}', '-',
                             'Sectional lift force coefficient (engine out)')
         LvtEO    = Variable('L_{vtEO}', 'N', 'Vertical tail lift in engine out')
-        Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area (half)')
+        Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area')
         V1     = Variable('V_1', 'm/s', 'Minimum takeoff velocity')
-        Vne    = Variable('V_{ne}', 144, 'm/s', 'Never exceed velocity')
-        bvt    = Variable('b_{vt}', 'm', 'Vertical tail half span')
+        Vne    = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
+        bvt    = Variable('b_{vt}', 'm', 'Vertical tail span')
         cma    = Variable('\\bar{c}_{vt}', 'm', 'Vertical tail mean aero chord')
         croot  = Variable('c_{root_{vt}}', 'm', 'Vertical tail root chord')
         ctip   = Variable('c_{tip_{vt}}', 'm', 'Vertical tail tip chord')
-        dxlead = Variable('\\Delta x_{lead_v}', 'm',
-                          'Distance from CG to vertical tail leading edge')
-        dxtrail= Variable('\\Delta x_{trail_v}', 'm',
-                          'Distance from CG to vertical tail trailing edge')
+        # dxlead = Variable('\\Delta x_{lead_v}', 'm',
+        #                   'Distance from CG to vertical tail leading edge')
+        # dxtrail= Variable('\\Delta x_{trail_v}', 'm',
+        #                   'Distance from CG to vertical tail trailing edge')
         e      = Variable('e_v', '-', 'Span efficiency of vertical tail')
         lvt    = Variable('l_{vt}', 'm', 'Vertical tail moment arm')
         mu0    = Variable('\\mu_0', 1.8E-5, 'N*s/m^2', 'Dynamic viscosity (SL)')
@@ -317,6 +325,7 @@ class VerticalTailNoStruct(Model):
         zmac   = Variable('z_{\\bar{c}_{vt}}', 'm',
                           'Vertical location of mean aerodynamic chord')
         Vvt = Variable('V_{vt}', '-', 'Vertical Tail Volume Coefficient')
+        Vvtmin = Variable('V_{vt_{min}}', '-', 'Minimum Vertical Tail Volume Coefficient')
 
         #engine values
         Te     = Variable('T_e', 'N', 'Thrust per engine at takeoff')
@@ -336,13 +345,6 @@ class VerticalTailNoStruct(Model):
                #constraint tail Cl at flare
                 CLvyaw == .85*CLvmax,
 
-                #meet yaw rate constraint at flare
-                2*.5*rho0*Vland**2*Svt*lvt*CLvyaw >= rreq*Iz,
-                
-                2*LvtEO*lvt >= Te*y_eng + Dwm*y_eng,
-                # Force moment balance for one engine out condition
-                # TASOPT 2.0 p45
-
                 LvtEO == 0.5*rho0*V1**2*Svt*CLvtEO,
                 # Vertical tail force (y-direction) for engine out
 
@@ -354,12 +356,10 @@ class VerticalTailNoStruct(Model):
                 Svt <= bvt*(croot + ctip)/2, # [SP]
                 # Tail geometry relationship
 
-                TCS([dxtrail >= croot + dxlead]),
+                # TCS([dxtrail >= croot + dxlead]),
                 # Tail geometry constraint
 
-                
                 # Fuselage length constrains the tail trailing edge
-
                 TCS([p >= 1 + 2*taper]),
                 TCS([2*q >= 1 + p]),
                 zmac == (bvt/3)*q/p,
@@ -371,9 +371,11 @@ class VerticalTailNoStruct(Model):
                 Lvmax == 0.5*rho0*Vne**2*Svt*CLvmax,
                 #compute the max force
 
-                taper >= 0.27,
                 # TODO: Constrain taper by tip Reynolds number
-                # source: b737.org.uk
+                taper >= 0.25,
+                
+                #Enforce a minimum vertical tail volume
+                Vvt >= Vvtmin,
                 ])
 
         return constraints
@@ -381,9 +383,12 @@ class VerticalTailNoStruct(Model):
 class VerticalTailPerformance(Model):
     """
     Vertical tail perofrmance model
+
+    ARGUMENTS
+    ---------
+    fitDrag: True = use Martin's tail drag fits, False = use the TASOPT tail drag model
     """
-    def setup(self, vt, fuse, state):
-        self.fuse = fuse
+    def setup(self, vt, state, fitDrag):
         self.vt = vt
 
         #define new variables
@@ -393,7 +398,6 @@ class VerticalTailPerformance(Model):
         #                   'Sectional lift force coefficient')
         Dvt    = Variable('D_{vt}', 'N', 'Vertical tail viscous drag, cruise')
         Rec    = Variable('Re_{vt}', '-', 'Vertical tail reynolds number, cruise')
-        # Vinf   = Variable('V_{\\infty}', 'm/s', 'Cruise velocity')
         CDvis  = Variable('C_{D_{vis}}', '-', 'Viscous drag coefficient')
 
         #constraints
@@ -409,19 +413,37 @@ class VerticalTailPerformance(Model):
             # Valid because tail is untwisted and uncambered
             # (lift curve slope passes through origin)
 
-            .5*Dvt >= 0.5*state['\\rho']*state['V']**2*self.vt['S_{vt}']*CDvis,
-            CDvis**0.125 >= 0.19*(self.vt['\\tau_{vt}'])**0.0075 *(Rec)**0.0017
-                        + 1.83e+04*(self.vt['\\tau_{vt}'])**3.54*(Rec)**-0.494
-                        + 0.118*(self.vt['\\tau_{vt}'])**0.0082 *(Rec)**0.00165
-                        + 0.198*(self.vt['\\tau_{vt}'])**0.00774*(Rec)**0.00168,
+            Dvt >= 0.5*state['\\rho']*state['V']**2*self.vt['S_{vt}']*CDvis,
+
+            # Cruise Reynolds number
+            Rec == state.atm['\\rho']*state['V']*self.vt['\\bar{c}_{vt}']/state.atm['\\mu'],
+            ])
+
+        if fitDrag:
+            constraints.extend([
+                #Martin's TASOPT tail fit
+                CDvis**0.119892 >= 0.0693931 * (Rec/1000)**-0.0021665 * (self.vt['\\tau_{vt}']*100)**0.104391 * (state['M'])**-0.0177484
+                            + 0.273439 * (Rec/1000)**-0.0017356 * (self.vt['\\tau_{vt}']*100)**-0.164667 * (state['M'])**0.0233832
+                            + 0.000150403 * (Rec/1000)**-0.186771 * (self.vt['\\tau_{vt}']*100)**1.52706 * (state['M'])**3.89794
+                            + 0.27215 * (Rec/1000)**-0.00170564 * (self.vt['\\tau_{vt}']*100)**-0.175197 * (state['M'])**0.0242146
+                            + 0.0608952 * (Rec/1000)**-0.00195729 * (self.vt['\\tau_{vt}']*100)**0.227082 * (state['M'])**-0.0439115,
+
+                        #Martin's NACA fit
+##            CDvis**1.5846 >= 0.000195006 * (Rec)**-0.508965 * (self.vt['\\tau_{vt}']*100)**1.62106 * (state['M'])**0.670788
+##                        + 9.25066e+18 * (Rec)**-0.544817 * (self.vt['\\tau_{vt}']*100)**1.94003 * (state['M'])**240.136
+##                        + 2.23515e-05 * (Rec)**0.223161 * (self.vt['\\tau_{vt}']*100)**0.0338899 * (state['M'])**0.0210705,
+
+            #Philippe thesis fit
             # Vertical tail viscous drag in cruise
             # Data fit from Xfoil
-
-            Rec == state.atm['\\rho']*state['V']*self.vt['\\bar{c}_{vt}']/state.atm['\\mu'],
-            # Cruise Reynolds number
-
-
+##            CDvis**0.125 >= 0.19*(self.vt['\\tau_{vt}'])**0.0075 *(Rec)**0.0017
+##                        + 1.83e+04*(self.vt['\\tau_{vt}'])**3.54*(Rec)**-0.494
+##                        + 0.118*(self.vt['\\tau_{vt}'])**0.0082 *(Rec)**0.00165
+##                        + 0.198*(self.vt['\\tau_{vt}'])**0.00774*(Rec)**0.00168,
             ])
+        else:
+            None
+            #drag constraints found in aircraftP
 
         return constraints
 class WingBox(Model):
@@ -445,10 +467,8 @@ class WingBox(Model):
 
         # Constants
         taper = Variable('taper', '-', 'Taper ratio')
-        fwadd  = Variable('f_{w,add}', 0.4, '-',
-                          'Wing added weight fraction') # TASOPT code (737.tas)
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
-        Nlift  = Variable('N_{lift}', 2.0, '-', 'Wing loading multiplier')
+        Nlift  = Variable('N_{lift}', 3.0, '-', 'Wing loading multiplier')
         rh     = Variable('r_h', 0.75, '-',
                           'Fractional wing thickness at spar web')
         rhocap = Variable('\\rho_{cap}', 2700, 'kg/m^3',
@@ -462,6 +482,7 @@ class WingBox(Model):
         w      = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
+        AR   = Variable('A_{vt_{struct}}', '-', 'Vertical tail aspect ratio used in structural model')
 
         numspar = Variable('N_{spar}', '-', 'Number of Spars in Each VT Carrying Stress in 1 in 20 Case')
 
@@ -470,30 +491,25 @@ class WingBox(Model):
         if isinstance(surface, VerticalTailNoStruct):
             #factors of 2 required since the VT is only half span and the wing model
             #is for a full span wing
-            AR = 2*surface['A_{vt}']
+##            AR = 2*surface['A_{vt}']
             b = 2*surface['b_{vt}']
             S = 2*surface['S_{vt}']
             p = surface['p_{vt}']
             q = surface['q_{vt}']
             tau = surface['\\tau_{vt}']
-            Lmax = 2*surface['L_{v_{max}}']
+            Lmax = surface['L_{v_{max}}']
             taper = surface['\\lambda_{vt}']
 
         constraints = [
-                       # Aspect ratio definition
-                       AR == b**2/S,
-
-                       # Defining taper dummy variables
-                       TCS([p >= 1 + 2*taper]),
-                       TCS([2*q >= 1 + p]),
-
                        # Upper bound on maximum thickness
-                       tau <= 0.15,
+                       tau <= 0.14,
+
+                       AR == b**2/S,
 
                        # Root moment calculation (see Hoburg 2014)
                        # Depends on a given load the wing must support, Lmax
                        # Assumes lift per unit span proportional to local chord
-                       numspar*Mr >= Lmax*AR*p/24,
+                       Mr >= Lmax*AR*p/24,
 
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
@@ -505,18 +521,18 @@ class WingBox(Model):
 
                        # Shear web sizing
                        # Assumes all shear loads are carried by web and rh=0.75
-                       12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear*numspar),
+                       12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
 
-                       # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam)
-                       nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # PHILIPPE'S FIT
-                       #  (nu/1.09074074)**.166 >= 0.205*(p/1.7)**0.772 + 0.795*(p/1.7)**-0.125, # BERK'S FIT
+                       # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam^2)
+                       # nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # PHILIPPE'S FIT
+                       (nu/1.09074074)**.166 >= 0.205*(p/1.7)**0.772 + 0.795*(p/1.7)**-0.125, # BERK'S FIT
 
                        # Weight of spar caps and shear webs
                        Wcap >= 8*rhocap*g*w*tcap*S**1.5*nu/(3*AR**0.5),
                        Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
 
                        # Total wing weight using an additional weight fraction
-                       Wstruct/3 >= (1 + fwadd)*(Wweb + Wcap),
+                       Wstruct >= numspar*0.5*(Wweb + Wcap),
                        ]
         
         return constraints
