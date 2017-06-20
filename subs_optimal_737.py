@@ -1,5 +1,6 @@
 from gpkit import units
 from numpy import cos, tan, pi
+import numpy as np
 
 def get737_optimal_subs():
     """
@@ -186,11 +187,11 @@ def get737_optimal_subs():
             'rSnace': 16.,
             # nacelle drag calc parameter
             'r_{vnace}': 1.02,
-            'T_{t_{4.1_{max}}}': 1567.*units('K'),
+            'T_{t_{4.1_{max}}}': 1567.*units('K'),#('sweep', np.linspace(1200, 1600, 10)),
 
             'CruiseTt41max': 1125*units('K'),
 
-##            'MaxClimbTime': 23*units('min'),
+            'MaxClimbTime': 23*units('min'),
 ##            'MaxClimbDistance': 180*units('nautical_miles')           
     }
 
