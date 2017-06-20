@@ -3,20 +3,20 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to STACD's documentation!
-=================================
+Welcome to STACD!
+=================
 
-Contents:
+.. figure:: PRFCD8-1.png
+   :width: 250 px
 
-.. toctree::
-   :maxdepth: 2
+    Signomial Transonic AirCraft Design is a signomial programming compatible transonic aircraft conceptual design optimization tool.
+    It is of similar level of fidelity as TASOPT, and can perform the single- and multi-mission optimization of many
+    different configurations of aircraft.
 
-
-
-Indices and tables
+Table of contents:
 ==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+    .. toctree::
+        :maxdepth: 2
+        STACD101
+        Installation
+        Debugging
