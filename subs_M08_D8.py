@@ -119,7 +119,7 @@ def subs_M08_D8():
                 'e_v': 0.8,
                 'V_{land}': 72.*units('m/s'),
                 '\\dot{r}_{req}': 0.00001, #0.1475 10 deg/s/s yaw rate acceleration
-                'N_{spar}': 3.,
+                'N_{spar}': 1.,
                 'f_{VT}': 0.4,
                 'numVT': 2.,
                 'A_{vt}' : 2.2,
@@ -186,7 +186,7 @@ def subs_M08_D8():
 
                 'M_{takeoff}': .9556,
 
-                'G_f': 3.21,
+                'G_f': 1.,#3.21,
 
                 'h_f': 43.003,
 

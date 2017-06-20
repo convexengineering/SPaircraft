@@ -191,7 +191,7 @@ def get737_optimal_subs():
 
             'CruiseTt41max': 1125*units('K'),
 
-            'MaxClimbTime': 23*units('min'),
+            # 'MaxClimbTime': 23*units('min'),
 ##            'MaxClimbDistance': 180*units('nautical_miles')           
     }
 
