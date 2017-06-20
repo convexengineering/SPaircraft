@@ -1056,9 +1056,9 @@ class Mission(Model):
             if M072_737:
                 constraints.extend([
                     #Setting fuselage drag coefficient
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.0129077,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.0129077,
-                    aircraft.fuse['M_{fuseD}'] == 0.72,
+                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,#0.0129077,
+                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,#0.0129077,
+                    aircraft.fuse['M_{fuseD}'] == 0.80, #0.72,
                 ])
             if b777300ER or optimal777:
                 constraints.extend([

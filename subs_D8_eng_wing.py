@@ -3,7 +3,7 @@ from numpy import cos, tan, pi
 
 def get_D8_eng_wing_subs():
         """
-        returns substitution dic for the D8.2
+        returns substitution dic for the D8 with wing-podded engines
         """
         sweep = 13.237  # [deg]
         VTsweep = 25.0 #[deg]

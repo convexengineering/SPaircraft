@@ -4,7 +4,7 @@ from numpy import cos, tan, pi
 
 def get_D8_no_BLI_subs():
         """
-        returns substitution dic for the D8.2
+        returns substitution dic for the rear-engined D8 with no BLI
         """
         sweep = 13.237  # [deg]
         VTsweep = 25.0 #[deg]

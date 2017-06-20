@@ -764,7 +764,7 @@ def b777_killer_plot_max_opt_eng():
     plt.show(), plt.close()
 
 def M_08_killer_plot_max_opt_eng():
-    #TURN ON THE RIGHT CONSTRIANTS INSIDE D8.py
+    #TURN ON THE RIGHT CONSTRAINTS INSIDE D8.py
     sol0 = run_optimal_737(False, True)
     wf0 = sol0('W_{f_{total}}')
 
