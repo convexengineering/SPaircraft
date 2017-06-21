@@ -19,4 +19,5 @@ Table of contents:
         :maxdepth: 2
         STACD101
         Installation
+        availModels
         Debugging
