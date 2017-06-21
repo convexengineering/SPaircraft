@@ -1,19 +1,19 @@
 """
 Script to run the SP aircraft model
 """
-# Import constant relaxation tool
+
+# GPkit tools
+from gpkit import units, Model
+from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
+from gpkit.constraints.bounded import Bounded as BCS
+
+# Constant relaxation heuristic for SP solve
 from relaxed_constants import relaxed_constants, post_process
 
-#import file for calcualting values after solution
-from post_compute import post_compute
+# Mission model
+from D8 import Mission
 
-# Import tool to check solution relative to TASOPT
-from D8_TASOPT_percent_diff import percent_diff
-
-# Import VSP generation tools
-from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
-
-#import substitution dict files
+# Substitution dictionaries for different aircraft
 from subsD80 import getD80subs
 from subsD82 import getD82subs
 from subsD82_73eng import getD82_73engsubs
@@ -46,18 +46,21 @@ from subs_M072_D8big_eng_wing import getD8big_M072_eng_wing_subs
 from subs_M072_D8big_no_BLI import getD8big_M072_noBLI_subs
 from subs_M072_optimal_777 import get_optimal_777300ER_M072_subs
 from subs_M08_optimal_777 import get_optimal_777300ER_M08_subs
-
-from gpkit import units, Model
-from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
-from gpkit.constraints.bounded import Bounded as BCS
 from subs_D12  import get_D12_subs
 
-from D8 import Mission
-
-#import needed for plotting
+# Plotting tools
 import matplotlib.pyplot as plt
 from gpkit.small_scripts import mag
 import numpy as np
+
+# File for calculating values after solution
+from post_compute import post_compute
+
+# Solution check tool relative to TASOPT
+from D8_TASOPT_percent_diff import percent_diff
+
+# VSP visualization tools
+from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
 
 def gen_plots(sol):
     """
