@@ -19,10 +19,12 @@ It is of similar level of fidelity as TASOPT, and can perform the single- and mu
 different configurations of aircraft.
 
 Table of contents:
-------------------
+==================
     .. toctree::
         :maxdepth: 2
+
         STACD101
         Installation
         availModels
+        subModels
         Debugging
