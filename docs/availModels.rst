@@ -5,7 +5,7 @@ Available Models
 Aircraft Families
 =================
 
-We define the range and passenger payload requirements for the families of aircraft we have designed using STACD.
+We define the range and passenger payload requirements for the families of aircraft we have designed using SPaircraft.
 
 RJ
 --
@@ -19,7 +19,7 @@ B737
 Aircraft Configurations
 =======================
 
-We define the different aircraft configurations that we can optimize using STACD.
+We define the different aircraft configurations that we can optimize using SPaircraft.
 
 Tube-tail-wing
 --------------

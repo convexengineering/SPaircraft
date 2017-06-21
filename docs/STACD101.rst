@@ -1,4 +1,4 @@
-STACD 101
+SPaircraft 101
 *********
 
 Model hierarchy

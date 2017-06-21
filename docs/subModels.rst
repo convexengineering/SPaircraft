@@ -1,3 +1,3 @@
-SP Aircraft Submodels
+SPaircraft Submodels
 *********************
 

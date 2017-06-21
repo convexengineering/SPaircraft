@@ -1,4 +1,4 @@
-Installing STACD
+Installing SPaircraft
 ****************
 
 Dependencies
@@ -10,18 +10,18 @@ To be able to use our SP aircraft models, you will need the following software i
 
 Install GPkit
 -------------
-The instructions for installing GPkit can be found _'here <http://gpkit.readthedocs.io/en/latest/installation.html>'__.
+The instructions for installing GPkit can be found 'here<http://gpkit.readthedocs.io/en/latest/installation.html>'_.
 
 Clone + install the hoburg/turbofan repository
 ----------------------------------------------
-To install ''turbofan'', clone _'the repository <https://github.com/hoburg/turbofan>'__ into your directory of choice.
+To install ''turbofan'', clone 'the repository<https://github.com/hoburg/turbofan>'_ into your directory of choice.
 
 Using a console, go into the directory one level above the repository, and type in the following command:
 ''pip install turbofan -e''
 
 Your local version of ''turbofan'' will be ready to go.
 
-Clone STACD
+Clone SPaircraft
 -----------
-To install STACD, simply clone _'the repository <https://github.com/hoburg/d8>'__ into your directory of choice.
+To install SPaircraft, simply clone 'the repository<https://github.com/hoburg/d8>'_ into your directory of choice.
 
