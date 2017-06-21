@@ -23,7 +23,7 @@ To install `turbofan`, clone `hoburg/turbofan`_ into your directory of choice.
 
 Using a console, go into the directory one level above the repository, and type in the following command::
 
-    pip install turbofan
+    pip install turbofan -e
 Your local version of `turbofan` will be ready to go.
 
 Clone SPaircraft

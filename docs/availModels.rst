@@ -9,18 +9,21 @@ We define the range and passenger payload requirements for the families of aircr
 
 RJ
 --
--Range: 1500 nmi
--Passengers: 90
+
+- Range: 1500 nmi
+- Passengers: 90
 
 B737
 ----
--Range: 3000 nmi
--Passengers: 180
+
+- Range: 3000 nmi
+- Passengers: 180
 
 777
 ---
--Range: 6000 nmi
--Passengers: 450
+
+- Range: 6000 nmi
+- Passengers: 450
 
 Aircraft Configurations
 =======================
