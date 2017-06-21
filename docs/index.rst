@@ -3,12 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to STACD!
+Welcome to STACD documentation!
 =================
 
-|picD8| -- |picRJ|
+|picD8| |picRJ|
 
-.. |picD8| image:: PRFCD8-1.png
+.. |picD8| image:: D82-1.png
     :width: 45%
 
 .. |picRJ| image:: optimalRJ-1.png
@@ -19,7 +19,7 @@ It is of similar level of fidelity as TASOPT, and can perform the single- and mu
 different configurations of aircraft.
 
 Table of contents:
-==================
+------------------
     .. toctree::
         :maxdepth: 2
         STACD101
