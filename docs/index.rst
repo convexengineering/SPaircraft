@@ -14,7 +14,7 @@ Welcome to SPaircraft documentation!
 .. |picRJ| image:: optimalRJ-1.png
     :width: 45%
 
-Signomial Transonic AirCraft Design is a signomial programming compatible transonic aircraft conceptual design optimization tool.
+SPaircraft is a signomial programming compatible transonic aircraft conceptual design optimization tool.
 It is of similar level of fidelity as TASOPT, and can perform the single- and multi-mission optimization of many
 different configurations of aircraft.
 
