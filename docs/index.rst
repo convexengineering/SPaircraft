@@ -6,12 +6,17 @@
 Welcome to STACD!
 =================
 
-.. figure:: PRFCD8-1.png
-   :width: 250 px
+|picD8| -- |picRJ|
 
-    Signomial Transonic AirCraft Design is a signomial programming compatible transonic aircraft conceptual design optimization tool.
-    It is of similar level of fidelity as TASOPT, and can perform the single- and multi-mission optimization of many
-    different configurations of aircraft.
+.. |picD8| image:: PRFCD8-1.png
+    :width: 45%
+
+.. |picRJ| image:: optimalRJ-1.png
+    :width: 45%
+
+Signomial Transonic AirCraft Design is a signomial programming compatible transonic aircraft conceptual design optimization tool.
+It is of similar level of fidelity as TASOPT, and can perform the single- and multi-mission optimization of many
+different configurations of aircraft.
 
 Table of contents:
 ==================
