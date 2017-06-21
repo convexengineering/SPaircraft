@@ -1,5 +1,5 @@
 Installing SPaircraft
-****************
+*********************
 
 Dependencies
 ------------
@@ -22,6 +22,6 @@ Using a console, go into the directory one level above the repository, and type 
 Your local version of ''turbofan'' will be ready to go.
 
 Clone SPaircraft
------------
+----------------
 To install SPaircraft, simply clone 'the repository<https://github.com/hoburg/d8>'_ into your directory of choice.
 
