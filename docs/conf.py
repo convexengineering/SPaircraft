@@ -61,7 +61,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'STACD'
-copyright = u'2017, Berk Ozturk, Martin York'
+copyright = u'2017, Berk Ozturk and Martin York'
 author = u'Berk Ozturk, Martin York'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -122,7 +122,14 @@ todo_include_todos = True
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
+import os
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 html_theme = 'alabaster'
+
+if not on_rtd:  # only import and set the theme if we're building docs locally
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -267,7 +274,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (master_doc, 'stacd', u'STACD Documentation',
-     [author], 1)
+     [u'MIT Department of Aeronautics and Astronautics'], 1)
 ]
 
 # If true, show URL addresses after external links.
