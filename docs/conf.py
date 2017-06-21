@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# STACD documentation build configuration file, created by
+# SPaircraft documentation build configuration file, created by
 # sphinx-quickstart on Sat May 06 14:21:15 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -60,7 +60,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'STACD'
+project = u'SPaircraft'
 copyright = u'2017, Berk Ozturk and Martin York'
 author = u'Berk Ozturk, Martin York'
 
@@ -221,7 +221,7 @@ html_static_path = ['_static']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'STACDdoc'
+htmlhelp_basename = 'SPaircraftdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -243,7 +243,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'STACD.tex', u'STACD Documentation',
+  (master_doc, 'SPaircraft.tex', u'SPaircraft Documentation',
    u'Berk Ozturk, Martin York', 'manual'),
 ]
 
@@ -273,7 +273,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'stacd', u'STACD Documentation',
+    (master_doc, 'SPaircraft', u'SPaircraft Documentation',
      [u'MIT Department of Aeronautics and Astronautics'], 1)
 ]
 
@@ -287,8 +287,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'STACD', u'STACD Documentation',
-   author, 'STACD', 'One line description of project.',
+  (master_doc, 'SPaircraft', u'SPaircraft Documentation',
+   author, 'SPaircraft', 'One line description of project.',
    'Miscellaneous'),
 ]
 
