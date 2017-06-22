@@ -1095,7 +1095,8 @@ class Mission(Model):
 
         with SignomialsEnabled():
             constraints.extend([
-                CruiseAlt >= 35000. * units('ft'),
+                # WARNING: Arbitrary cruise altitude constraint
+                CruiseAlt >= 25000. * units('ft'),
                 
                 # Altitude constraints
                 climb['hft'][-1] >= CruiseAlt,
