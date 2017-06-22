@@ -1159,7 +1159,9 @@ def standard_killer_plot():
     CrTt41_sens = [sol0['sensitivities']['constants']['CruiseTt41max_Mission'], sol1['sensitivities']['constants']['CruiseTt41max_Mission'], \
              sol2['sensitivities']['constants']['CruiseTt41max_Mission'], sol3['sensitivities']['constants']['CruiseTt41max_Mission'], \
              sol4['sensitivities']['constants']['CruiseTt41max_Mission'], sol5['sensitivities']['constants']['CruiseTt41max_Mission']]
-
+    CruiseAlt = [sol0('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude,sol1('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude,
+                 sol2('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude,sol3('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude,
+                 sol4('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude,sol5('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude]
 
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0, wf5/wf0]
@@ -1182,6 +1184,16 @@ def standard_killer_plot():
     plt.show(), plt.close()
 
     xtest = [0, 1, 2, 3, 4, 5]
+
+    plt.plot(xtest, CruiseAlt, "o--")
+    plt.xticks(xtest, xlabels,  rotation='vertical')
+    plt.xlim([-.5, 6.5])
+    plt.grid()
+    plt.xlabel('Design Step', fontsize = 20)
+    plt.ylabel('Cruise Altitude (ft)', fontsize = 20)
+    plt.title('Cruise Altitude Morphing Chart')
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart_CruiseAlt.pdf', bbox_inches="tight")
+    plt.show(), plt.close()
 
     plt.plot(xtest, wing_sens, "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
