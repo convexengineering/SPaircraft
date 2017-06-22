@@ -62,8 +62,6 @@ def get_optimal_D8_subs():
                 'f_{string}': 0.35,
 
                 'h_{floor}': 5.12*units('in'),
-##                'R_{fuse}': 1.715*units('m'),
-##                '\\delta R_{fuse}': 0.43*units('m'),
                 'w_{db}': 0.93*units('m'),
                 '\\delta_P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
@@ -76,7 +74,6 @@ def get_optimal_D8_subs():
                 'f_{hpesys}': 0.01, # [TAS]
                 'f_{lgmain}':0.03, # [TAS]
                 'f_{lgnose}':0.0075, # [TAS]
-                'f_{pylon}': 0.10,
 
                 # Fractional weights
                 'f_{fadd}': 0.2,  # [TAS]
@@ -84,9 +81,6 @@ def get_optimal_D8_subs():
                 'f_{lugg,1}': 0.4,  # [Philippe]
                 'f_{lugg,2}': 0.1,  # [Philippe]
                 'f_{padd}': 0.35,  # [TAS]
-                'f_{hpesys}': 0.01, # [TAS]
-                'f_{lgmain}':0.03, # [TAS]
-                'f_{lgnose}':0.0075, # [TAS]
 
                 # Wing substitutions
                 'C_{L_{wmax}}': 2.15/(cos(sweep)**2), # [TAS]
@@ -129,7 +123,7 @@ def get_optimal_D8_subs():
                 '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
                 'c_{d_{fv}}': 0.0060,
                 'c_{d_{pv}}': 0.0035,
-                'V_{vt_{min}}': 0.001,#0.03,
+                'V_{vt_{min}}': 0.001, #0.03,
 
                 # HT substitutions
                 '\\alpha_{max,h}': 2.5,

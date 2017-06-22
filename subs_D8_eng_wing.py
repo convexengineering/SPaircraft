@@ -74,7 +74,6 @@ def get_D8_eng_wing_subs():
                 'f_{lugg,1}': 0.4,  # [Philippe]
                 'f_{lugg,2}': 0.1,  # [Philippe]
                 'f_{padd}': 0.35,  # [TAS]
-                'f_{hpesys}': 0.01, # [TAS]
 
                 # Wing substitutions
                 'C_{L_{wmax}}': 2.15/(cos(sweep)**2), # [TAS]
@@ -108,7 +107,7 @@ def get_D8_eng_wing_subs():
                 'e_v': 0.8,
                 'V_{land}': 72.*units('m/s'),
                 '\\dot{r}_{req}': 0.00001, #0.1475 10 deg/s/s yaw rate acceleration
-                'N_{spar}': 1,
+                'N_{spar}': 1.,
                 'f_{VT}': 0.4,
                 'numVT': 2.,
                 'A_{vt}' : 2.2,
