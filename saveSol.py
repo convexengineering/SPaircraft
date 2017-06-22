@@ -2,6 +2,13 @@ from gpkit import Model, Variable
 import numpy as np
 from numpy import tan, cos, pi, arctan, arccos
 import gpkit
+import sys
+
+def genSolOut(sol,i = 0):
+    f = open('sols/sol' + str(i) + '.out','w')
+    sys.stdout = f
+    print sol.table()
+    f.close()
 
 def updateOpenVSP(inputDict, i = 0):
     filenameOpen = 'VSP/design.des'

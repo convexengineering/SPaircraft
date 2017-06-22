@@ -60,7 +60,7 @@ from post_compute import post_compute
 from D8_TASOPT_percent_diff import percent_diff
 
 # VSP visualization tools
-from genVSP import updateOpenVSP, genDesFile, genDesFileSweep
+from saveSol import updateOpenVSP, genDesFile, genDesFileSweep
 
 def gen_plots(sol):
     """
