@@ -1,6 +1,9 @@
 # only needed for plotting
 import matplotlib.pyplot as plt
 
+# Solution saving
+from saveSol import genSolOut
+
 from SP_aircraft import run_737800
 from SP_aircraft import run_D82
 from SP_aircraft import run_M072_737
@@ -1119,22 +1122,27 @@ def M_08_killer_plot_fixed_BPR():
 def standard_killer_plot():
     sol0 = run_optimal_737(True)
     wf0 = sol0('W_{f_{total}}')
-
+    genSolOut(sol0,0)
 
     sol1 = run_M072_737(True)
     wf1 = sol1('W_{f_{total}}')
+    genSolOut(sol1,1)
 
     sol2 = run_D8_eng_wing(True)
     wf2 = sol2('W_{f_{total}}')
+    genSolOut(sol2,2)
 
     sol3 = run_D8_no_BLI(True)
     wf3 = sol3('W_{f_{total}}')
+    genSolOut(sol3,3)
 
     sol4 = run_optimal_D8(True)
     wf4 = sol4('W_{f_{total}}')
+    genSolOut(sol4,4)
 
     sol5 = run_optimal_D8(False, True)
     wf5 = sol5('W_{f_{total}}')
+    genSolOut(sol5,5)
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
