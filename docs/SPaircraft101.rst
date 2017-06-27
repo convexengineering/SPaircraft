@@ -92,13 +92,43 @@ To generate a .des file for the D8.2 aircraft, type this into the console::
     genDesFile(sol,'D82')
 
 This modifies the design0.des file within the **VSP**  directory. To load this design, click **File**, and select **Run Script...**.
-In the pop-up, select **reload.vspscript** and voila! You have generated the OML of the D8.2. aircraft.
+In the pop-up, select **reload.vspscript** and voila! You have generated the OML of the D8.2 aircraft.
+
+Static vs. Performance Models
+=============================
+
+|picModelArchitecture|
+
+.. |picModelArchitecture| image:: modelArchitecture.pdf
+    :width: 45%
+
+To allow for multipoint aircraft optimization over multiple flight segments, missions, or loading cases,
+two models are created for each aircraft component - a **static** and a **performance** model.
+The static model contains all variables and constraints that do not change between operating points,
+such as component weights and dimensions. Performance models contain all constraints and variables that change between operating points,
+such as air speeds, lift coefficients, and fuel quantities. To simulate multiple aircraft missions,
+the performance models and the static variables that change between missions (eg. number of passengers and fuel weight)
+are vectorized. When a model is vectorized, all the variables it contains become vectors, with each element corresponding
+to a different operating point. Figure 1 provides a visual representation of static and performance models.
 
 Model hierarchy
 ===============
 
+|picModelHierarchy|
+
+.. |picModelHierarchy| image:: modelHierarchy.png
+    :width: 45%
+
+The SP formulation develops implements a hierarchy in optimization parameter and variable definitions,
+due to the serial nature of software engineering tools. This hierarchy is shown in Figure 2, where each higher level in the framework
+inherits the variables, parameters, and constraints in the layers below.
+
 Single-mission optimization
 ===========================
 
+Under construction...
+
 Multi-mission optimization
 ==========================
+
+Under construction...
