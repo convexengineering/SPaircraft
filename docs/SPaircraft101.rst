@@ -77,9 +77,7 @@ To be able to use this functionality, the users needs to download and install th
 Once OpenVSP is successfully installed, the .vsp3 files in the **VSP** directory will be recognized and accessible. Clicking any of these will
 open up the OpenVSP interface, which looks similar to this:
 
-|picVSPdemo1|
-
-.. |picVSPdemo1| image:: openVSPdemo1.PNG
+.. image:: openVSPdemo1.PNG
     :width: 45%
 
 As an example, to be able to visualize the optimized D8.2 aircraft within our solution **sol**, we import the following functions in the Python console::
@@ -98,9 +96,7 @@ In the pop-up, select **reload.vspscript** and voila! You have generated the OML
 Static vs. Performance Models
 =============================
 
-|picModelArchitecture|
-
-.. |picModelArchitecture| image:: modelArchitecture.pdf
+.. image:: modelArchitecture.pdf
     :width: 45%
 
 To allow for multipoint aircraft optimization over multiple flight segments, missions, or loading cases,
@@ -115,9 +111,7 @@ to a different operating point. Figure 1 provides a visual representation of sta
 Model hierarchy
 ===============
 
-|picModelHierarchy|
-
-.. |picModelHierarchy| image:: modelHierarchy.PNG
+.. image:: modelHierarchy.PNG
     :width: 45%
 
 The SP formulation develops implements a hierarchy in optimization parameter and variable definitions,
