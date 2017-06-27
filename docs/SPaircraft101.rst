@@ -51,14 +51,14 @@ We can update our model **m** with the substitutions::
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
 
-We use Bounded (BCS) in SPaircraft to make sure that the models are stable even if not all variables are well-constrained.
+We use **Bounded** (BCS) in SPaircraft to make sure that the models are stable even if not all variables are well-constrained.
 Users are warned about unbounded variables at the end of the solve.
 
 We implement the relaxed constants heuristic to solve the SP::
 
     m_relax = relaxed_constants(m, None)
 
-And now we solve, and print the results::
+Now we solve, and print the results::
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     print sol.table()
@@ -79,7 +79,7 @@ open up the OpenVSP interface, which looks similar to this:
 
 |picVSPdemo1|
 
-.. |picVSPdemo1| image:: openVSPdemo1.png
+.. |picVSPdemo1| image:: openVSPdemo1.PNG
     :width: 45%
 
 As an example, to be able to visualize the optimized D8.2 aircraft within our solution **sol**, we import the following functions in the Python console::
@@ -117,7 +117,7 @@ Model hierarchy
 
 |picModelHierarchy|
 
-.. |picModelHierarchy| image:: modelHierarchy.png
+.. |picModelHierarchy| image:: modelHierarchy.PNG
     :width: 45%
 
 The SP formulation develops implements a hierarchy in optimization parameter and variable definitions,
