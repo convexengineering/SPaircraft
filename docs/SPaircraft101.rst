@@ -5,14 +5,15 @@ These instructions will help you run SPaircraft for the first time!
 
 SP_aircraft.py - set of aircraft models
 =======================================
-`SP_aircraft.py` contains a set of methods that are used to optimize different aircraft configurations.
+**SP_aircraft.py** contains a set of methods that are used to optimize different aircraft configurations.
 
 The process to create and run one of these models is general. The following definitions are required:
-- `Nclimb`, number of climb segments
-- `Ncruise`, number of cruise segments
-- `Nmission`, number of missions to simulate
-- `objective`, which is a string designating the objective function
-- `aircraft`, which is a string designating the type of aircraft
+
+- **Nclimb**, number of climb segments
+- **Ncruise**, number of cruise segments
+- **Nmission**, number of missions to simulate
+- **objective**, which is a string designating the objective function
+- **aircraft**, which is a string designating the type of aircraft
 
 The following imports are also required::
 
@@ -27,7 +28,7 @@ The following imports are also required::
     from relaxed_constants import relaxed_constants, post_process
 
     # Mission model
-    from D8 import Mission``
+    from D8 import Mission
 For the demonstration, we define these as::
 
     Nclimb = 3
@@ -45,7 +46,7 @@ Since we are optimizing a D8.2 aircraft, we need to import the appropriate param
 And we need to specify a mission range::
 
     substitutions.update({'ReqRng': 3000.*units('nmi')})
-We can update our model `m` with the substitutions::
+We can update our model **m** with the substitutions::
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, BCS(m))
