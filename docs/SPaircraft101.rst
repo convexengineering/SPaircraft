@@ -112,7 +112,7 @@ Model hierarchy
 ===============
 
 .. image:: modelHierarchy.PNG
-    :width: 45%
+    :width: 90%
 
 The SP formulation develops implements a hierarchy in optimization parameter and variable definitions,
 due to the serial nature of software engineering tools. This hierarchy is shown in Figure 2, where each higher level in the framework

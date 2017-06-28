@@ -6,29 +6,24 @@ Under construction...
 Fuselage
 ========
 
-List of variables
------------------
+Please see the :ref:`fuselage` page for more details.
 
 Wing
 ====
 
-List of variables
------------------
+Please see the :ref:`wing` page for more details.
 
 Engine
 ======
 
-List of variables
------------------
+Please see the :ref:`engine` page for more details.
 
 Horizontal Tail
 ===============
 
-List of variables
------------------
+Please see the :ref:`ht` page for more details.
 
 Vertical Tail
 =============
 
-List of variables
------------------
+Please see the :ref:`vt` page for more details.

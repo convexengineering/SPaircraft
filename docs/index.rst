@@ -28,3 +28,8 @@ Table of contents:
         availModels
         subModels
         Debugging
+        fuselage
+        wing
+        engine
+        ht
+        vt
