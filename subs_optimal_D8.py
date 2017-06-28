@@ -114,7 +114,7 @@ def get_optimal_D8_subs():
                 'e_v': 0.8,
                 'V_{land}': 72.*units('m/s'),
                 '\\dot{r}_{req}': 0.1475, #10 deg/s/s yaw rate acceleration
-                'N_{spar}': 3.,
+                'N_{spar}': 1.,
                 'f_{VT}': 0.4,
                 'numVT': 2.,
                 'A_{vt}' : 2.2,

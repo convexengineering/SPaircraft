@@ -492,12 +492,12 @@ class WingBox(Model):
             #factors of 2 required since the VT is only half span and the wing model
             #is for a full span wing
 ##            AR = 2*surface['A_{vt}']
-            b = 2*surface['b_{vt}']
-            S = 2*surface['S_{vt}']
+            b = 2.*surface['b_{vt}']
+            S = 2.*surface['S_{vt}']
             p = surface['p_{vt}']
             q = surface['q_{vt}']
             tau = surface['\\tau_{vt}']
-            Lmax = surface['L_{v_{max}}']
+            Lmax = 2.*surface['L_{v_{max}}']
             taper = surface['\\lambda_{vt}']
 
         constraints = [
@@ -532,6 +532,7 @@ class WingBox(Model):
                        Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
 
                        # Total wing weight using an additional weight fraction
+                       # Note the factor of 0.5 since a vertical tail is half-span of a full wing
                        Wstruct >= numspar*0.5*(Wweb + Wcap),
                        ]
         

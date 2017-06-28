@@ -213,16 +213,12 @@ class Aircraft(Model):
                             self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
                             self.fuse['x_{tail}'] == self.VT['x_{CG_{vt}}'],
                             TCS([self.HT['V_{ht}'] == self.HT['S_{ht}']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
-                            # self.HT['V_{ht}'] >= 0.4,
 
                             # HT Max Loading
                             TCS([self.HT['L_{h_{max}}'] >= 0.5*rhoTO*Vmn**2*self.HT['S_{ht}']*self.HT['C_{L_{hmax}}']]),
 
                             # Tail weight
                             self.fuse['W_{tail}'] >= numVT*WVT + WHT + self.fuse['W_{cone}'],
-
-                            # VT root chord constraint #TODO find better constraint
-                            # self.VT['c_{root_{vt}}'] <= 1.5*self.fuse['l_{cone}'],
 
                             # VT volume coefficient
                             self.VT['V_{vt}'] == numVT*self.VT['S_{vt}'] * self.VT['l_{vt}']/(self.wing['S']*self.wing['b']),
@@ -284,8 +280,7 @@ class Aircraft(Model):
 
                     # Pin VT joint moment constraint #TODO may be problematic, should check
                     SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4. - self.fuse['w_{fuse}']),
-                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6.)),
-                    # [SP] #[SPEquality]
+                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6.)), # [SP] #[SPEquality]
 
                     # HT/VT joint constraint
                     self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
@@ -323,8 +318,7 @@ class Aircraft(Model):
         if D8_no_BLI:
             constraints.extend({self.VT['y_{eng}'] >= self.fuse['w_{fuse}'] + 0.5*self.engine['d_{f}'] + 1.*units('ft')})
 
-
-        #d8 only constraints
+        # Wing-engined D8 constraints
         if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing or smallD8_eng_wing:
             f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
             with SignomialsEnabled():
@@ -338,10 +332,6 @@ class Aircraft(Model):
                     + self.HT['N_{lift}'] * self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - self.HT['N_{lift}'] *
                     self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
 
-                    # constraint to lower bound M_r w.r.t. a conventional tail config (0.25*M_r of conventional)
-                    # self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
-                    #      1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP]
-
                     # Wing root moment constraint, with wing and engine weight load relief
                     TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}']*(Wwing+f_wingfuel*W_ftotal)) * \
                         (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
@@ -351,8 +341,7 @@ class Aircraft(Model):
 
                     # Pin VT joint moment constraint #TODO may be problematic, should check
                     SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4. - self.fuse['w_{fuse}']),
-                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6.)),
-                    # [SP] #[SPEquality]
+                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6.)), # [SP] #[SPEquality]
 
                     # HT/VT joint constraint
                     self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
@@ -389,7 +378,6 @@ class Aircraft(Model):
             with SignomialsEnabled():
                constraints.extend([
                     # HT root moment
-                    # TCS([self.HT['M_r'] >= self.HT['L_{h_{max}}']*self.HT['AR_{ht}']*self.HT['p_{ht}']/24]),
                     TCS([self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
                          1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']]),
 
@@ -537,13 +525,10 @@ class AircraftP(Model):
             t == thours,
 
             #VTP constraints
-            # TCS([aircraft.fuse['l_{fuse}'] >= aircraft.VT['\\Delta x_{trail_v}'] + xCG]),
-            # TCS([aircraft.VT['x_{CG_{vt}}'] <= xCG + (aircraft.VT['\\Delta x_{lead_v}']+aircraft.VT['\\Delta x_{trail_v}'])/2.]),
             aircraft.VT['x_{CG_{vt}}'] + 0.5*aircraft.VT['c_{root_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Drag of a windmilling engine (VT sizing)
             TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2.*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
-
 
             # Aircraft trim conditions
             TCS([xAC/aircraft.wing['mac'] <= xCG/aircraft.wing['mac'] + \
@@ -623,11 +608,8 @@ class ClimbP(Model): # Climb performance constraints
             'dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
         RngClimb = Variable('RngClimb', 'nautical_miles',
                             'Down Range Covered in Each Climb Segment')
-        # thetaminTOC = Variable('\\theta_{min,TOC}',0.015,'-','Minimum Climb Gradient at Top of Climb')
 
-        # constraints
         constraints = []
-
         constraints.extend([
             # Excess power for climb
             TCS([excessP + state['V'] * self.aircraftP['D'] <= state['V']
