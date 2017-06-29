@@ -20,7 +20,7 @@ def getD80subs():
 
         substitutions = {
                 # 'V_{stall}'   : 120,
-                '\\delta_P_{over}': 12.*units('psi'),
+                '\\Delta P_{over}': 12.*units('psi'),
                 'N_{land}': 6.,
                 'SPR': 8.,
                 'p_s': 81.*units('cm'),

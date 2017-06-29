@@ -68,9 +68,9 @@ def get_D12_subs():
                 'f_{string}': 0.35,
                 'h_{floor}': 5 *units('in'),
                 'R_{fuse}': 2.1*units('m'),
-##                '\\delta R_{fuse}': 0.43*units('m'),
+##                '\\Delta R_{fuse}': 0.43*units('m'),
                 'w_{db}': 1.5*units('m'),
-                '\\delta_P_{over}': 8.382 * units('psi'),
+                '\\Delta P_{over}': 8.382 * units('psi'),
                 'SPR': 12.,
 
                 # Power system and landing gear subs

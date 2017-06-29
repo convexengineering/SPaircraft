@@ -63,7 +63,7 @@ def get_optimal_D8_subs():
 
                 'h_{floor}': 5.12*units('in'),
                 'w_{db}': 0.93*units('m'),
-                '\\delta_P_{over}': 8.382 * units('psi'),
+                '\\Delta P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
 
                 # TASOPT Fuselage substitutions

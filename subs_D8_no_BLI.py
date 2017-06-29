@@ -55,9 +55,9 @@ def get_D8_no_BLI_subs():
 
                 'h_{floor}': 5.12*units('in'),
 ##                'R_{fuse}': 1.715*units('m'),
-##                '\\delta R_{fuse}': 0.43*units('m'),
+##                '\\Delta R_{fuse}': 0.43*units('m'),
                 'w_{db}': 0.93*units('m'),
-                '\\delta_P_{over}': 8.382 * units('psi'),
+                '\\Delta P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
 
                 # TASOPT Fuselage substitutions

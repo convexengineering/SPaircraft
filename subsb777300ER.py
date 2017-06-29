@@ -55,10 +55,10 @@ def getb777300ERsubs():
             'f_{string}': 0.34,
             'h_{floor}': 8. * units('in'),
             'R_{fuse}' : 3.11*units('m'),
-            '\\delta_P_{over}': 8.382 * units('psi'),
+            '\\Delta P_{over}': 8.382 * units('psi'),
 
             # fuselage subs that make fuse circular
-            '\\delta R_{fuse}': 0.00001 * units('m'),
+            '\\Delta R_{fuse}': 0.00001 * units('m'),
             '\\theta_{db}': 0.00001,
 
             # TASOPT Fuselage substitutions

@@ -234,7 +234,7 @@ class Aircraft(Model):
                             # TASOPT 2.0 p45
 
                             # Vertical bending material coefficient (VT aero loads)
-                            self.fuse['B1v'] == self.fuse['r_{M_v}']*numVT*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
+                            self.fuse['B_{1v}'] == self.fuse['r_{M_v}']*numVT*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
 
                             # Moment of inertia around z-axis
                             # SignomialEquality(self.VT['I_{z}'], Izwing + Iztail + Izfuse),
@@ -301,16 +301,16 @@ class Aircraft(Model):
                     self.fuse['M_{floor}'] == 9. / 256. * self.fuse['P_{floor}'] * self.fuse['w_{floor}'],
 
                     # Horizontal tail aero+landing loads constants A1h
-                    self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
+                    self.fuse['A_{1h_{Land}}'] >= (self.fuse['N_{land}'] * \
                                                 (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}'])) / \
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{bend}']),
 
-                    self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
+                    self.fuse['A_{1h_{MLF}}'] >= (self.fuse['N_{lift}'] * \
                                                (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}']) \
                                                + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
-                    self.fuse['\\delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
+                    self.fuse['\\Delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
                 ])
 
         if D8fam and not D8_no_BLI:
@@ -361,16 +361,16 @@ class Aircraft(Model):
                     self.fuse['M_{floor}'] == 9. / 256. * self.fuse['P_{floor}'] * self.fuse['w_{floor}'],
 
                     # Horizontal tail aero+landing loads constants A1h
-                    self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
+                    self.fuse['A_{1h_{Land}}'] >= (self.fuse['N_{land}'] * \
                                                 (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}'])) / \
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{bend}']),
 
-                    self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
+                    self.fuse['A_{1h_{MLF}}'] >= (self.fuse['N_{lift}'] * \
                                                (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}']) \
                                                + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
-                    self.fuse['\\delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
+                    self.fuse['\\Delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
                 ])
 
           #737 and 777 only constraints
@@ -404,11 +404,11 @@ class Aircraft(Model):
                                         self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
 
                     # Horizontal tail aero+landing loads constants A1h
-                    self.fuse['A1h_{Land}'] >= (self.fuse['N_{land}'] * \
+                    self.fuse['A_{1h_{Land}}'] >= (self.fuse['N_{land}'] * \
                                 (self.fuse['W_{tail}'] + self.fuse['W_{apu}'])) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{bend}']),
 
-                    self.fuse['A1h_{MLF}'] >= (self.fuse['N_{lift}'] * \
+                    self.fuse['A_{1h_{MLF}}'] >= (self.fuse['N_{lift}'] * \
                                 (self.fuse['W_{tail}'] + self.fuse['W_{apu}']) \
                                 + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),

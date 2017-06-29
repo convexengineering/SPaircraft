@@ -14,7 +14,7 @@ class Fuselage(Model):
 
     def setup(self, Nmissions, **kwargs):
         g = Variable('g',9.81,'m*s^-2','Acceleration due to gravity')
-        dPover = Variable('\\delta_P_{over}', 'psi', 'Cabin overpressure')
+        dPover = Variable('\\Delta P_{over}', 'psi', 'Cabin overpressure')
         with Vectorize(Nmissions):
             npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
@@ -33,7 +33,7 @@ class Fuselage(Model):
         hdb = Variable('h_{db}', 'm', 'Web half-height')
         hfloor = Variable('h_{floor}', 'm', 'Floor beam height')
         hfuse = Variable('h_{fuse}', 'm', 'Fuselage height')
-        dRfuse = Variable('\\delta R_{fuse}','m','Fuselage extension height')
+        dRfuse = Variable('\\Delta R_{fuse}','m','Fuselage extension height')
         Rfuse = Variable('R_{fuse}', 'm', 'Fuselage radius')
         tdb = Variable('t_{db}', 'm', 'Web thickness')
         thetadb = Variable('\\theta_{db}', '-', 'DB fuselage joining angle')
@@ -91,12 +91,12 @@ class Fuselage(Model):
         A0h = Variable('A0h', 'm^2', 'Horizontal bending area constant A0h')
 
         # (tail impact + aero loading)
-        A1hLand = Variable('A1h_{Land}', 'm', 'Horizontal bending area constant A1h (landing case)')
-        A1hMLF = Variable('A1h_{MLF}', 'm', 'Horizontal bending area constant A1h (max aero load case)')
+        A1hLand = Variable('A_{1h_{Land}}', 'm', 'Horizontal bending area constant A1h (landing case)')
+        A1hMLF = Variable('A_{1h_{MLF}}', 'm', 'Horizontal bending area constant A1h (max aero load case)')
 
         # (fuselage impact)
-        A2hLand = Variable('A2h_{Land}', '-', 'Horizontal bending area constant A2h (landing case)')
-        A2hMLF = Variable('A2h_{MLF}', '-', 'Horizontal bending area constant A2h (max aero load case)')
+        A2hLand = Variable('A_{2h_{Land}}', '-', 'Horizontal bending area constant A2h (landing case)')
+        A2hMLF = Variable('A_{2h_{MLF}}', '-', 'Horizontal bending area constant A2h (max aero load case)')
 
         AhbendbLand = Variable('A_{hbendb_{Land}}', 'm^2','Horizontal bending area at rear wingbox (landing case)')
         AhbendbMLF = Variable('A_{hbendb_{MLF}}', 'm^2','Horizontal bending area at rear wingbox (max aero load case)')
@@ -104,14 +104,14 @@ class Fuselage(Model):
         AhbendfLand = Variable('A_{hbendf_{Land}}', 'm^2', 'Horizontal bending area at front wingbox (landing case)')
         AhbendfMLF = Variable('A_{hbendf_{MLF}}', 'm^2', 'Horizontal bending area at front wingbox (max aero load case)')
 
-        Avbendb = Variable('A_{vbendb}', 'm^2', 'Vertical bending material area at rear wingbox')
+        Avbendb = Variable('A_{vbend_{b}}', 'm^2', 'Vertical bending material area at rear wingbox')
 
-        B0v           = Variable('B0v','m^2','Vertical bending area constant B0') #(shell inertia contribution)
-        B1v         = Variable('B1v','m','Vertical bending area constant B1')
+        B0v           = Variable('B_{0v}','m^2','Vertical bending area constant B0') #(shell inertia contribution)
+        B1v         = Variable('B_{1v}','m','Vertical bending area constant B1')
         # #(vertical tail bending load)
-        Ihshell = Variable('I_{hshell}', 'm^4',
+        Ihshell = Variable('I_{h_{shell}}', 'm^4',
                            'Shell horizontal bending inertia')
-        Ivshell      = Variable('I_{vshell}','m^4','Shell vertical bending inertia')
+        Ivshell      = Variable('I_{v_{shell}}','m^4','Shell vertical bending inertia')
         rMh = Variable('r_{M_h}', .4, '-','Horizontal inertial relief factor')  # [TAS]
         rMv = Variable('r_{M_v}', .7, '-','Vertical inertial relief factor')  # [TAS]
         sigbend = Variable('\\sigma_{bend}', 'N/m^2',
@@ -122,13 +122,13 @@ class Fuselage(Model):
         Vhbend = Variable('V_{hbend}', 'm^3',
                           'Horizontal bending material volume')
 
-        Vhbendb = Variable('V_{hbendb}', 'm^3', 'Horizontal bending material volume b')  # back fuselage
-        Vhbendc = Variable('V_{hbendc}', 'm^3', 'Horizontal bending material volume c') # center fuselage
-        Vhbendf = Variable('V_{hbendf}', 'm^3','Horizontal bending material volume f') # front fuselage
+        Vhbendb = Variable('V_{hbend_{b}}', 'm^3', 'Horizontal bending material volume b')  # back fuselage
+        Vhbendc = Variable('V_{hbend_{c}}', 'm^3', 'Horizontal bending material volume c') # center fuselage
+        Vhbendf = Variable('V_{hbend_{f}}', 'm^3','Horizontal bending material volume f') # front fuselage
 
         Vvbend       = Variable('V_{vbend}','m^3','Vertical bending material volume')
-        Vvbendb      = Variable('V_{vbendb}','m^3','Vertical bending material volume b') #back fuselage
-        Vvbendc      = Variable('V_{vbendc}','m^3','Vertical bending material volume c') #center fuselage
+        Vvbendb      = Variable('V_{vbend_{b}}','m^3','Vertical bending material volume b') #back fuselage
+        Vvbendc      = Variable('V_{vbend_{c}}','m^3','Vertical bending material volume c') #center fuselage
 
         Whbend = Variable('W_{hbend}', 'lbf','Horizontal bending material weight')
         Wvbend = Variable('W_{vbend}','lbf','Vertical bending material weight')
