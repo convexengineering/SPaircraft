@@ -208,7 +208,7 @@ class Fuselage(Model):
         xshell1 = Variable('x_{shell1}', 'm', 'Start of cylinder section')
         xshell2 = Variable('x_{shell2}', 'm', 'End of cylinder section')
         xtail = Variable('x_{tail}', 'm', 'x-location of tail')
-        xwing = Variable('x_{wing}', 'm', 'x-location of wing')
+        xwing = Variable('x_{wing}', 'm', 'x-location of wing c/4')
 
         # Wingbox variables
         xf = Variable('x_f', 'm', 'x-location of front of wingbox')

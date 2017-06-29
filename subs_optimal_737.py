@@ -189,7 +189,7 @@ def get737_optimal_subs():
             'r_{v_{nacelle}}': 1.02,
             'T_{t_{4.1_{max}}}': 1567.*units('K'),#('sweep', np.linspace(1200, 1600, 10)),
 
-            'CruiseTt41max': 1125*units('K'),
+            'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
 
 ##          'MaxClimbTime': 23*units('min'),
 ##          'MaxClimbDistance': 180*units('nautical_miles')

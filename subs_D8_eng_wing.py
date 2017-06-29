@@ -188,7 +188,7 @@ def get_D8_eng_wing_subs():
 
                 'T_{t_{4.1_{max}}}': 1567.*units('K'),
 
-                'CruiseTt41max': 1125*units('K'),
+                'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
         }
 
         return substitutions

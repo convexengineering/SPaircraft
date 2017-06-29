@@ -460,7 +460,7 @@ class AircraftP(Model):
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
         xNP = Variable('x_{NP}','m','Neutral Point of Aircraft')
         SM = Variable('SM','-','Stability Margin of Aircraft')
-        PCFuel = Variable('PCFuel','-','Percent Fuel Remaining (end of segment)')
+        PCFuel = Variable('F_{fuel}','-','Percent Fuel Remaining (end of segment)')
 
         # Buoyancy weight variables
         Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
@@ -475,7 +475,7 @@ class AircraftP(Model):
         Vnace = Variable('V_{nacelle}', 'm/s', 'Incoming Nacelle Flow Velocity')
         V2 = Variable('V_2', 'm/s', 'Interior Nacelle Flow Velcoity')
         Vnacrat = Variable('V_{nacelle_ratio}', '-', 'Vnle/Vinf')
-        rvnsurf = Variable('rvnsurf', '-', 'Intermediate Nacelle Drag Parameter')
+        rvnsurf = Variable('r_{v_{nsurf}}', '-', 'Intermediate Nacelle Drag Parameter')
         Cfnace = Variable('C_{f_nacelle}', '-', 'Nacelle Drag Coefficient')
         Renace = Variable('R_{e_nacelle}', '-', 'Nacelle Reynolds Number')
         Cfturb = Variable('C_{f_nacelle}', '-', 'Turbulent Nacelle Skin Friction Coefficient')
@@ -942,17 +942,17 @@ class Mission(Model):
 
         max_climb_time = Variable('MaxClimbTime', 'min', 'Total Time in Climb')
         max_climb_distance = Variable('MaxClimbDistance', 'nautical_miles', 'Climb Distance')
-        CruiseTt41max = Variable('CruiseTt41max', 'K', 'Max Cruise Turbine Inlet Temp')
+        CruiseTt41max = Variable('T_{t_{4.1_{max-Cruise}}}', 'K', 'Max Cruise Turbine Inlet Temp')
 
         # make overall constraints
         constraints = []
 
         if RJfam:
-            OPRmax = 30
+            OPRmax = 30.
         elif D8bigfam or optimal777 or b777300ER or D12:
-            OPRmax = 42
+            OPRmax = 42.
         else:
-            OPRmax = 35
+            OPRmax = 35.
 
         constraints.extend([
                     #allow max OPR 42 for 777 class, 35 for others
@@ -980,8 +980,8 @@ class Mission(Model):
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['n_{eng}']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (climb['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
-                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['PCFuel']) \
+                    + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
+                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
                     ]),
 ##               cruise['x_{CG}'][0] <= climb['x_{CG}'],
                 TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
@@ -989,8 +989,8 @@ class Mission(Model):
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['n_{eng}']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (cruise['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
-                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['PCFuel'])
+                    + (cruise['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
+                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                      ]),
               ])
             if conventional or D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing or smallD8_eng_wing:
@@ -1000,16 +1000,16 @@ class Mission(Model):
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (climb['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
-                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['PCFuel']) \
+                    + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
+                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
                     + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
                 TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (cruise['PCFuel']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
-                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['PCFuel'])
+                    + (cruise['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
+                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                     + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
               ])
 
@@ -1140,15 +1140,15 @@ class Mission(Model):
         with SignomialsEnabled():
             for i in range(0,Nclimb):
                 constraints.extend([
-                    TCS([climb['PCFuel'][i] >= (sum(climb['W_{burn}'][i+1:]) + \
+                    TCS([climb['F_{fuel}'][i] >= (sum(climb['W_{burn}'][i+1:]) + \
                                                              aircraft['W_{f_{cruise}}'])/aircraft['W_{f_{primary}}']]) ,
-                    climb['PCFuel'] <= 1.0, #just in case, TODO remove later
+                    climb['F_{fuel}'] <= 1.0, #just in case, TODO remove later
                 ])
             for i in range(0,Ncruise):
                 constraints.extend([
-                    TCS([cruise['PCFuel'][i] >= (sum(cruise['W_{burn}'][i+1:]) + \
+                    TCS([cruise['F_{fuel}'][i] >= (sum(cruise['W_{burn}'][i+1:]) + \
                                 0.0000001*aircraft['W_{f_{primary}}'])/aircraft['W_{f_{primary}}']]),
-                    cruise['PCFuel'] <= 1.0, #just in case, TODO remove later
+                    cruise['F_{fuel}'] <= 1.0, #just in case, TODO remove later
                     ])
 
         with SignomialsEnabled():

@@ -194,7 +194,7 @@ def get_optimal_D8_subs():
 
                 'T_{t_{4.1_{max}}}': 1567.*units('K'),
 
-                'CruiseTt41max': 1125*units('K'),
+                'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
 
                 #BLI factors
                 #compute the cruise stagnation pressure loss factor given a min

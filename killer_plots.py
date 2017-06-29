@@ -1165,9 +1165,9 @@ def standard_killer_plot():
     Mmin_sens = [sol0['sensitivities']['constants']['M_{min}_Mission/Aircraft'], sol1['sensitivities']['constants']['M_{min}_Mission/Aircraft'], \
              sol2['sensitivities']['constants']['M_{min}_Mission/Aircraft'], sol3['sensitivities']['constants']['M_{min}_Mission/Aircraft'], \
              sol4['sensitivities']['constants']['M_{min}_Mission/Aircraft'], sol5['sensitivities']['constants']['M_{min}_Mission/Aircraft']]
-    CrTt41_sens = [sol0['sensitivities']['constants']['CruiseTt41max_Mission'], sol1['sensitivities']['constants']['CruiseTt41max_Mission'], \
-             sol2['sensitivities']['constants']['CruiseTt41max_Mission'], sol3['sensitivities']['constants']['CruiseTt41max_Mission'], \
-             sol4['sensitivities']['constants']['CruiseTt41max_Mission'], sol5['sensitivities']['constants']['CruiseTt41max_Mission']]
+    CrTt41_sens = [sol0['sensitivities']['constants']['T_{t_{4.1_{max-Cruise}}}_Mission'], sol1['sensitivities']['constants']['T_{t_{4.1_{max-Cruise}}}_Mission'], \
+             sol2['sensitivities']['constants']['T_{t_{4.1_{max-Cruise}}}_Mission'], sol3['sensitivities']['constants']['T_{t_{4.1_{max-Cruise}}}_Mission'], \
+             sol4['sensitivities']['constants']['T_{t_{4.1_{max-Cruise}}}_Mission'], sol5['sensitivities']['constants']['T_{t_{4.1_{max-Cruise}}}_Mission']]
     CruiseAltBegin = [sol0('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude,sol1('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude,
                  sol2('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude,sol3('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude,
                  sol4('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude,sol5('h_Mission/CruiseSegment/FlightState/Altitude')[0].to('ft').magnitude]
