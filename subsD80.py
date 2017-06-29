@@ -25,9 +25,9 @@ def getD80subs():
                 'SPR': 8.,
                 'p_s': 81.*units('cm'),
                 # 'CruiseAlt': 30000.*units('ft'),
-                'numeng': 2.,
-                'numVT': 2.,
-                'numaisle':2.,
+                'n_{eng}': 2.,
+                'n_{VT}': 2.,
+                'n_{aisle}':2.,
                 'W_{avg. pass}': 180.*units('lbf'),
                 'W_{carry on}': 15.*units('lbf'),
                 'W_{checked}':40.*units('lbf'),
@@ -143,12 +143,12 @@ def getD80subs():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 6.,
+                'r_{S_{nacelle}}': 6.,
                 'f_{pylon}': 0.05,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
-                'r_{vnace}': 0.925,
+                'r_{v_{nacelle}}': 0.925,
 
                 # Cabin air substitutions in AircraftP
 

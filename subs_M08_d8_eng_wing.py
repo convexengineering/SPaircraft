@@ -19,8 +19,8 @@ def getM08_D8_eng_wing_subs():
         substitutions = {
                 'N_{land}': 6.,
                 'p_s': 81.*units('cm'),
-                'numeng': 2.,
-                'numaisle':2.,
+                'n_{eng}': 2.,
+                'n_{aisle}':2.,
                 'W_{avg. pass}': 180.*units('lbf'),
                 'W_{carry on}': 15.*units('lbf'),
                 'W_{checked}':40.*units('lbf'),
@@ -115,7 +115,7 @@ def getM08_D8_eng_wing_subs():
                 '\\dot{r}_{req}': 0.0001, #0.1475 10 deg/s/s yaw rate acceleration
                 'N_{spar}': 1,
                 'f_{VT}': 0.4,
-                'numVT': 2.,
+                'n_{VT}': 2.,
                 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
                 '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
@@ -141,12 +141,12 @@ def getM08_D8_eng_wing_subs():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 16.,
+                'r_{S_{nacelle}}': 16.,
                 'f_{pylon}': 0.1,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
-                'r_{vnace}': 1.02,
+                'r_{v_{nacelle}}': 1.02,
 
                 # Cabin air substitutions in AircraftP
 

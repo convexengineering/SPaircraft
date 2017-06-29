@@ -27,9 +27,9 @@ def getD8big_M08_subs():
                 'N_{land}': 6.,
                 'p_s': 81.*units('cm'),
                 '\\theta_{db}' : 0.366,
-                'numeng': 2.,
-                'numVT': 2.,
-                'numaisle':2.,
+                'n_{eng}': 2.,
+                'n_{VT}': 2.,
+                'n_{aisle}':2.,
                 'W_{avg. pass}': 180.*units('lbf'),
                 'W_{carry on}': 15.*units('lbf'),
                 'W_{checked}':40.*units('lbf'),
@@ -197,9 +197,9 @@ def getD8big_M08_subs():
                 'HTR_{lpc_SUB}': 1 - 0.6**2,
 
                 # engine system subs
-                'rSnace': 6.,
+                'r_{S_{nacelle}}': 6.,
                 # nacelle drag calc parameter
-                'r_{vnace}': .925,
+                'r_{v_{nacelle}}': .925,
                 'T_{t_{4.1_{max}}}': 1860.*units('K'),
                 
                 #BLI factors

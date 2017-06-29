@@ -16,7 +16,7 @@ def getb737800subs():
     substitutions = {
             'N_{land}': 6.,
             'p_s': 81.*units('cm'),
-            'numeng': 2.,
+            'n_{eng}': 2.,
             'W_{avg. pass}': 180.*units('lbf'),
             'W_{carry on}': 15.*units('lbf'),
             'W_{checked}':40.*units('lbf'),
@@ -45,7 +45,7 @@ def getb737800subs():
             # TASOPT Fuselage substitutions
             'L_{total/wing}': 1.127,
             'l_{nose}':20.*units('ft'),
-            'numaisle': 1.,
+            'n_{aisle}': 1.,
             'SPR': 6.,
             'f_{seat}': 0.1,
             'W\'_{seat}': 1. * units('N'),  # Seat weight determined by weight fraction instead
@@ -107,7 +107,7 @@ def getb737800subs():
             'N_{spar}': 1.,
             'f_{VT}': 0.4,
             'y_{eng}': 4.8768*units('m'),
-            'numVT': 1.,
+            'n_{VT}': 1.,
             'A_{vt}': 2.,
             '\\lambda_{vt}': 0.3,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
@@ -182,9 +182,9 @@ def getb737800subs():
             'M_{min}': 0.8,
 
             # engine system subs
-            'rSnace': 16.,
+            'r_{S_{nacelle}}': 16.,
             # nacelle drag calc parameter
-            'r_{vnace}': 1.02,
+            'r_{v_{nacelle}}': 1.02,
             'T_{t_{4.1_{max}}}': 1613.*units('K'),
     }
 

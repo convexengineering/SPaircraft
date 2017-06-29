@@ -20,8 +20,8 @@ def get_optimal_777300ER_M08_subs():
             'N_{land}': 6.,
             'SPR': 10.,
             'p_s': 81.*units('cm'),
-            'numeng': 2.,
-            'numaisle':2.,
+            'n_{eng}': 2.,
+            'n_{aisle}':2.,
             'W_{avg. pass}': 180.*units('lbf'),
             'W_{carry on}': 15.*units('lbf'),
             'W_{checked}':40.*units('lbf'),
@@ -112,7 +112,7 @@ def get_optimal_777300ER_M08_subs():
             'V_{land}': 72.*units('m/s'),
             '\\dot{r}_{req}': 0.000001, # 10 deg/s/s yaw rate acceleration
             'y_{eng}': 32*units('ft'),
-            'numVT': 1.,
+            'n_{VT}': 1.,
             'A_{vt}': 2.35,
             '\\lambda_{vt}': 0.25,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
@@ -182,9 +182,9 @@ def get_optimal_777300ER_M08_subs():
             'M_{min}': Mcruisemin,
 
             # engine system subs
-            'rSnace': 12.,
+            'r_{S_{nacelle}}': 12.,
             # nacelle drag calc parameter
-            'r_{vnace}': 1.02,
+            'r_{v_{nacelle}}': 1.02,
             'T_{t_{4.1_{max}}}': 1860.*units('K'),
             'ReserveFraction': .05,
     }

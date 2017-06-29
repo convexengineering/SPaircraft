@@ -25,8 +25,8 @@ def getD82_73engsubs():
         substitutions = {
                 'N_{land}': 6.,
                 'p_s': 81.*units('cm'),
-                'numeng': 2.,
-                'numaisle':2.,
+                'n_{eng}': 2.,
+                'n_{aisle}':2.,
                 'W_{avg. pass}': 180.*units('lbf'),
                 'W_{carry on}': 15.*units('lbf'),
                 'W_{checked}':40.*units('lbf'),
@@ -119,7 +119,7 @@ def getD82_73engsubs():
                 '\\dot{r}_{req}': 0.0001, #0.1475 10 deg/s/s yaw rate acceleration
                 'N_{spar}': 1,
                 'f_{VT}': 0.4,
-                'numVT': 2.,
+                'n_{VT}': 2.,
                 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
                 '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
@@ -144,12 +144,12 @@ def getD82_73engsubs():
                 'c_{d_{ph}}': 0.0035,
                 
                 #engine system subs
-                'rSnace': 6.,
+                'r_{S_{nacelle}}': 6.,
                 'f_{pylon}': 0.05,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
-                'r_{vnace}': 0.925,
+                'r_{v_{nacelle}}': 0.925,
 
                 # Cabin air substitutions in AircraftP
 
