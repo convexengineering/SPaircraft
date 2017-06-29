@@ -480,7 +480,6 @@ class HorizontalTail(Model):
             constraints.append([
                 self.wb['L_{h_{rect}}'] >= self.wb['L_{h_{max}}']/2.*self.HTns['c_{tip_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'],
                 self.wb['L_{h_{tri}}'] >= self.wb['L_{h_{max}}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'], #[SP]
-
                 WHT >= CHT*(self.wb['W_{struct}'] + self.wb['W_{struct}']  * fHT),
             ])
 
@@ -536,6 +535,10 @@ class WingBox(Model):
         # for root bending sizing.
         Lhtri = Variable('L_{h_{tri}}','N','Triangular HT load')
         Lhrect = Variable('L_{h_{rect}}','N','Rectangular HT load')
+        Lhtriout = Variable('L_{h_{tri_{out}}}','N','Triangular HT load outboard')
+        Lhrectout = Variable('L_{h_{rect_{out}}}','N','Rectangular HT load outboard')
+        Mrout = Variable('M_{r_{out}}','N','Wing moment at pin joint ')
+        #Lshear = Variable('L_{shear}','N','Maximum shear load')
         
         objective = Wstruct
 
@@ -567,6 +570,7 @@ class WingBox(Model):
 
                        # Shear web sizing
                        # Assumes all shear loads are carried by web and rh=0.75
+                       # 12 >= AR*Lshear*Nlift*q**2/(tau*S*tweb*sigmaxshear),
                        12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam)

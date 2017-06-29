@@ -269,6 +269,20 @@ class Aircraft(Model):
                     + self.HT['N_{lift}'] * self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - self.HT['N_{lift}'] *
                     self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
 
+                    # HT joint moment
+                    # self.HT['M_{r_{out}}']*self.HT['c_{attach}'] >=
+                    #     0.5*(0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}'])**2 / (0.5*self.HT['b_{ht}']) * self.HT['L_{h_{rect}}'] + \
+                    #     1./3.*(0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}'])**2
+
+                    # Triangular HT lift outboard of pi-tail pin joint
+                    self.wb['L_{h_{tri_{out}}}'] >= 2.*self.wb['L_{h_{tri}}'] * \
+                                (0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}']) / self.fuse['w_{fuse}']**2, # [SP]
+
+                    # Rectangular HT lift outboard of pi-tail pin joint
+                    self.wb['L_{h_{rect_{out}}}'] >= self.wb['L_{h_{rect}}'] * \
+                            (0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}']) / (0.5*self.HT['b_{ht}']), # [SP]
+
+
                     # constraint to lower bound M_r w.r.t. a conventional tail config (0.25*M_r of conventional)
                     self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
                          1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP]
@@ -277,6 +291,8 @@ class Aircraft(Model):
                     TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing+f_wingfuel*W_ftotal)) * \
                         (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
                                 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
+
+                    #self.HT['L_{shear}'] == 0.5*self.HT['L_{h_{max}}'],
 
                     # Pin VT joint moment constraint #TODO may be problematic, should check
                     SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4. - self.fuse['w_{fuse}']),
