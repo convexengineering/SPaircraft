@@ -539,7 +539,7 @@ class WingBox(Model):
         Lhtriout = Variable('L_{h_{tri_{out}}}','N','Triangular HT load outboard')
         Lhrectout = Variable('L_{h_{rect_{out}}}','N','Rectangular HT load outboard')
         Mrout = Variable('M_{r_{out}}','N','Wing moment at pin joint ')
-        #Lshear = Variable('L_{shear}','N','Maximum shear load')
+        Lshear = Variable('L_{shear}','N','Maximum shear load (at pin joint)')
         
         objective = Wstruct
 
