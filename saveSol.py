@@ -4,9 +4,9 @@ from numpy import tan, cos, pi, arctan, arccos
 import gpkit
 import sys
 
-def genSolOut(sol,i = 0):
+def genSolOut(soltable,i = 0):
     f = open('sols/sol' + str(i) + '.out','w')
-    f.write(sol.table())
+    f.write(soltable)
     f.close()
 
 def updateOpenVSP(inputDict, i = 0):

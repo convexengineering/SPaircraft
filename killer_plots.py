@@ -1122,27 +1122,27 @@ def M_08_killer_plot_fixed_BPR():
 def standard_killer_plot():
     sol0 = run_optimal_737(True)
     wf0 = sol0('W_{f_{total}}')
-    genSolOut(sol0,0)
+    genSolOut(sol0.table(),0)
 
     sol1 = run_M072_737(True)
     wf1 = sol1('W_{f_{total}}')
-    genSolOut(sol1,1)
+    genSolOut(sol1.table(),1)
 
     sol2 = run_D8_eng_wing(True)
     wf2 = sol2('W_{f_{total}}')
-    genSolOut(sol2,2)
+    genSolOut(sol2.table(),2)
 
     sol3 = run_D8_no_BLI(True)
     wf3 = sol3('W_{f_{total}}')
-    genSolOut(sol3,3)
+    genSolOut(sol3.table(),3)
 
     sol4 = run_optimal_D8(True)
     wf4 = sol4('W_{f_{total}}')
-    genSolOut(sol4,4)
+    genSolOut(sol4.table(),4)
 
     sol5 = run_optimal_D8(False, True)
     wf5 = sol5('W_{f_{total}}')
-    genSolOut(sol5,5)
+    genSolOut(sol5.table(),5)
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
