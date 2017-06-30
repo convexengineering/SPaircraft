@@ -263,11 +263,6 @@ class Aircraft(Model):
         if D8fam:
             with SignomialsEnabled():
                 constraints.extend([
-                    # Wing root moment constraint, with wing weight load relief
-                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing+f_wingfuel*W_ftotal)) * \
-                        (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
-                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
-
                     # Moment of inertia
                     Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing) / (self.wing['S'] * g) * \
                     self.wing['c_{root}'] * self.wing['b'] ** 3. * (1. / 12. - (1. - self.wing['\\lambda']) / 16.),
@@ -332,6 +327,14 @@ class Aircraft(Model):
                 ])
 
         # Rear-engined aircraft constraints
+        if D8fam:
+            with SignomialsEnabled():
+                constraints.extend([
+                    # Wing root moment constraint, with wing weight + fuel load relief
+                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing+f_wingfuel*W_ftotal)) * \
+                        (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
+                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
+                ])
 
         ### FUSELAGE CONSTRAINTS
 
