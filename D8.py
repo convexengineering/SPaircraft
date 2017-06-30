@@ -170,7 +170,7 @@ class Aircraft(Model):
                             TCS([W_fprimary >= W_fclimb + W_fcruise]),
 
                             # Load factor matching
-                            self.fuse['N_{lift}'] == self.wing['N_{lift}'],
+                            self.fuse['N_{lift}'] == self.wing['N_{lift}'], # To make sure that the loads factors match.
                             Ltow*self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
 
                             # Wing fuel constraints
@@ -267,26 +267,24 @@ class Aircraft(Model):
                     self.HT['b_{ht_{out}}'] >= 0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}'], # [SP]
 
                     # HT center moment
-                    self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['N_{lift}'] * self.HT['L_{h_{rect}}'] * (
-                    self.HT['b_{ht}'] / 4.) \
-                    + self.HT['N_{lift}'] * self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - self.HT['N_{lift}'] *
+                    self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['L_{h_{rect}}'] * (
+                    self.HT['b_{ht}'] / 4.) + self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - \
                     self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
 
                     # Triangular HT lift outboard
-                    self.wb['L_{h_{tri_{out}}}'] >= self.wb['L_{h_{tri}}'] * \
+                    self.HT['L_{h_{tri_{out}}}'] >= self.HT['L_{h_{tri}}'] * \
                                 self.HT['b_{ht_{out}}']**2 / self.fuse['w_{fuse}']**2,
 
                     # Rectangular HT lift outboard
-                    self.wb['L_{h_{rect_{out}}}'] >= self.wb['L_{h_{rect}}'] * \
+                    self.HT['L_{h_{rect_{out}}}'] >= self.HT['L_{h_{rect}}'] * \
                             self.HT['b_{ht_{out}}'] / self.fuse['w_{fuse}'],
 
                     # HT joint moment
-                    self.HT['M_{r_{out}}']*self.HT['c_{attach}'] >= self.wb['L_{h_{rect_{out}}}'] * (0.5*self.HT['b_{ht_{out}}']) + \
-                                                                    self.wb['L_{h_{tri_{out}}}'] * (1./3.*self.HT['b_{ht_{out}}']),
+                    self.HT['M_{r_{out}}']*self.HT['c_{attach}'] >= self.HT['L_{h_{rect_{out}}}'] * (0.5*self.HT['b_{ht_{out}}']) + \
+                                                                    self.HT['L_{h_{tri_{out}}}'] * (1./3.*self.HT['b_{ht_{out}}']),
 
                     # HT joint max shear
-                    self.HT['L_{shear}'] >= self.wb['L_{h_{rect_{out}}}'] + self.wb['L_{h_{tri_{out}}}'],
-                    self.HT['L_{shear}'] >= 0.5*(self.wb['L_{h_{rect}}'] + self.wb['L_{h_{tri}}']), # necessarily
+                    self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
 
                     # constraint to lower bound M_r w.r.t. a conventional tail config (0.25*M_r of conventional)
                     self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
@@ -348,9 +346,8 @@ class Aircraft(Model):
                     # self.VT['b_{vt}'] >= 3. * self.engine['d_{f}'],
 
                     # HT root moment
-                    self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['N_{lift}'] * self.HT['L_{h_{rect}}'] * (
-                    self.HT['b_{ht}'] / 4.) \
-                    + self.HT['N_{lift}'] * self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - self.HT['N_{lift}'] *
+                    self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['L_{h_{rect}}'] * (
+                    self.HT['b_{ht}'] / 4.) + self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - \
                     self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
 
                     # Wing root moment constraint, with wing and engine weight load relief
