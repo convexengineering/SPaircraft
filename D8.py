@@ -263,47 +263,10 @@ class Aircraft(Model):
         if D8fam:
             with SignomialsEnabled():
                 constraints.extend([
-                    # HT outboard half-span
-                    self.HT['b_{ht_{out}}'] >= 0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}'], # [SP]
-
-                    # HT center moment
-                    self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['L_{h_{rect}}'] * (
-                    self.HT['b_{ht}'] / 4.) + self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - \
-                    self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
-
-                    # Triangular HT lift outboard
-                    self.HT['L_{h_{tri_{out}}}'] >= self.HT['L_{h_{tri}}'] * \
-                                self.HT['b_{ht_{out}}']**2 / self.fuse['w_{fuse}']**2,
-
-                    # Rectangular HT lift outboard
-                    self.HT['L_{h_{rect_{out}}}'] >= self.HT['L_{h_{rect}}'] * \
-                            self.HT['b_{ht_{out}}'] / self.fuse['w_{fuse}'],
-
-                    # HT joint moment
-                    self.HT['M_{r_{out}}']*self.HT['c_{attach}'] >= self.HT['L_{h_{rect_{out}}}'] * (0.5*self.HT['b_{ht_{out}}']) + \
-                                                                    self.HT['L_{h_{tri_{out}}}'] * (1./3.*self.HT['b_{ht_{out}}']),
-
-                    # HT joint max shear
-                    self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
-
-                    # constraint to lower bound M_r w.r.t. a conventional tail config (0.25*M_r of conventional)
-                    self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
-                         1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP]
-
                     # Wing root moment constraint, with wing weight load relief
                     TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing+f_wingfuel*W_ftotal)) * \
                         (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
                                 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
-
-                    #self.HT['L_{shear}'] == 0.5*self.HT['L_{h_{max}}'],
-
-                    # Pin VT joint moment constraint #TODO may be problematic, should check
-                    SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4. - self.fuse['w_{fuse}']),
-                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6.)), # [SP] #[SPEquality]
-
-                    # HT/VT joint constraint
-                    self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
-                    self.HT['c_{attach}'],
 
                     # Moment of inertia
                     Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing) / (self.wing['S'] * g) * \
@@ -342,28 +305,12 @@ class Aircraft(Model):
             f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
             with SignomialsEnabled():
                 constraints.extend([
-                    # VT height constraint (3*engine diameter)
-                    # self.VT['b_{vt}'] >= 3. * self.engine['d_{f}'],
-
-                    # HT root moment
-                    self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['L_{h_{rect}}'] * (
-                    self.HT['b_{ht}'] / 4.) + self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - \
-                    self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
 
                     # Wing root moment constraint, with wing and engine weight load relief
                     TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}']*(Wwing+f_wingfuel*W_ftotal)) * \
                         (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
                                 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) - \
                                         self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
- 
-
-                    # Pin VT joint moment constraint #TODO may be problematic, should check
-                    SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4. - self.fuse['w_{fuse}']),
-                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6.)), # [SP] #[SPEquality]
-
-                    # HT/VT joint constraint
-                    self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
-                    self.HT['c_{attach}'],
 
                     # Moment of inertia
                     Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
@@ -389,6 +336,49 @@ class Aircraft(Model):
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
                     self.fuse['\\Delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
+                ])
+
+        # Pi HT constraints:
+        if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing or smallD8_eng_wing or D8fam:
+            with SignomialsEnabled():
+                constraints.extend([
+
+                    #self.HT['L_{shear}'] == 0.5*self.HT['L_{h_{max}}'],
+
+                    # Pin VT joint moment constraint #TODO may be problematic, should check
+                    SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4. - self.fuse['w_{fuse}']),
+                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6.)), # [SP] #[SPEquality]
+
+                    # HT outboard half-span
+                    self.HT['b_{ht_{out}}'] >= 0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}'], # [SP]
+
+                    # Triangular HT lift outboard
+                    self.HT['L_{h_{tri_{out}}}'] >= self.HT['L_{h_{tri}}'] * \
+                                self.HT['b_{ht_{out}}']**2 / self.fuse['w_{fuse}']**2,
+
+                    # Rectangular HT lift outboard
+                    self.HT['L_{h_{rect_{out}}}'] >= self.HT['L_{h_{rect}}'] * \
+                            self.HT['b_{ht_{out}}'] / self.fuse['w_{fuse}'],
+
+                    # HT center moment
+                    self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['L_{h_{rect}}'] * (
+                    self.HT['b_{ht}'] / 4.) + self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - \
+                    self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
+
+                    # HT joint moment
+                    self.HT['M_{r_{out}}']*self.HT['c_{attach}'] >= self.HT['L_{h_{rect_{out}}}'] * (0.5*self.HT['b_{ht_{out}}']) + \
+                                                                    self.HT['L_{h_{tri_{out}}}'] * (1./3.*self.HT['b_{ht_{out}}']),
+
+                    # HT joint shear (max shear)
+                    self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
+
+                    # constraint to lower bound M_r w.r.t. a conventional tail config (0.25*M_r of conventional)
+                    self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
+                         1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP] TODO: Remove when good HT structural model is ready.
+
+                    # HT/VT joint constraint
+                    self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
+                    self.HT['c_{attach}'],
                 ])
 
           #737 and 777 only constraints
