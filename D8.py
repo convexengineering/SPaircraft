@@ -278,10 +278,6 @@ class Aircraft(Model):
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}']) / self.fuse['l_{fuse}'] * \
                     (self.fuse['x_{wing}'] ** 3. + self.VT['l_{vt}'] ** 3.) / (3. * g),
 
-                    # Floor loading
-                    self.fuse['S_{floor}'] == (5. / 16.) * self.fuse['P_{floor}'],
-                    self.fuse['M_{floor}'] == 9. / 256. * self.fuse['P_{floor}'] * self.fuse['w_{floor}'],
-
                     # Horizontal tail aero+landing loads constants A1h
                     self.fuse['A_{1h_{Land}}'] >= (self.fuse['N_{land}'] * \
                                                 (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}'])) / \
@@ -291,8 +287,6 @@ class Aircraft(Model):
                                                (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}']) \
                                                + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
-
-                    self.fuse['\\Delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
                 ])
 
         if D8fam and not D8_no_BLI:
@@ -302,7 +296,6 @@ class Aircraft(Model):
 
         # Wing-engined D8 constraints
         if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing or smallD8_eng_wing:
-            f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
             with SignomialsEnabled():
                 constraints.extend([
                     # Moment of inertia
@@ -313,12 +306,6 @@ class Aircraft(Model):
                             #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
                                     (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
-
-                    # Floor loading
-                    self.fuse['S_{floor}'] == (5. / 16.) * self.fuse['P_{floor}'],
-                    self.fuse['M_{floor}'] == 9. / 256. * self.fuse['P_{floor}'] * self.fuse['w_{floor}'],
-
-                    self.fuse['\\Delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
                 ])
 
         ### ENGINE LOCATION RELATED CONSTRAINTS
@@ -348,6 +335,24 @@ class Aircraft(Model):
 
         ### FUSELAGE CONSTRAINTS
 
+        # Double-bubble
+        if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing or smallD8_eng_wing or D8fam:
+            with SignomialsEnabled():
+                constraints.extend([
+                    # Floor loading
+                    self.fuse['S_{floor}'] == (5. / 16.) * self.fuse['P_{floor}'],
+                    self.fuse['M_{floor}'] == 9. / 256. * self.fuse['P_{floor}'] * self.fuse['w_{floor}'],
+                    self.fuse['\\Delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
+                ])
+        # Tube
+        if conventional:
+            with SignomialsEnabled():
+                constraints.extend([
+                   # Floor loading
+                    self.fuse['S_{floor}'] == 1./2. * self.fuse['P_{floor}'],
+                    self.fuse['M_{floor}'] == 1./4. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
+                ])
+
         ### VERTICAL TAIL CONSTRAINTS
 
         ### HORIZONTAL TAIL CONSTRAINTS
@@ -355,9 +360,6 @@ class Aircraft(Model):
         if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing or smallD8_eng_wing or D8fam:
             with SignomialsEnabled():
                 constraints.extend([
-
-                    #self.HT['L_{shear}'] == 0.5*self.HT['L_{h_{max}}'],
-
                     # Pin VT joint moment constraint #TODO may be problematic, should check
                     SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4. - self.fuse['w_{fuse}']),
                                       self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6.)), # [SP] #[SPEquality]
@@ -416,10 +418,6 @@ class Aircraft(Model):
                             #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
                                     (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
-
-                   # Floor loading
-                    self.fuse['S_{floor}'] == 1./2. * self.fuse['P_{floor}'],
-                    self.fuse['M_{floor}'] == 1./4. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
                     ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
