@@ -981,9 +981,33 @@ class Mission(Model):
                 climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
                 aircraft['PRFC'] == aircraft['W_{f_{primary}}']/g*aircraft.engine['h_f']/(ReqRng*aircraft['W_{payload}'])
             ])
-            #CG constraints
-            if D8fam:
-                constraints.extend([
+
+        ### CG CONSTRAINTS
+
+        # Wing-engined aircraft CG constraints
+        if conventional or D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing or smallD8_eng_wing:
+            constraints.extend([
+                TCS([climb['x_{CG}']*climb['W_{end}'] >=
+                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
+                    + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
+                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
+                    + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
+                TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
+                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                    + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
+                    + (cruise['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
+                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
+                    + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
+              ])
+
+        # Rear-engined aircraft CG constraints
+        if D8fam:
+            constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
@@ -1002,25 +1026,7 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                      ]),
               ])
-            if conventional or D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing or smallD8_eng_wing:
-                constraints.extend([
-                TCS([climb['x_{CG}']*climb['W_{end}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
-                    + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
-                    + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
-                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
-                    + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
-                TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
-                    + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
-                    + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (cruise['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
-                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
-                    + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
-              ])
+
 
             #Setting fuselage drag and lift, and BLI correction
             if optimalD8 or D80 or D82 or D82_73eng or M08D8 or D8_no_BLI or M08D8_noBLI or smallD8 or smallD8_no_BLI or D8_eng_wing or smallD8_eng_wing \
