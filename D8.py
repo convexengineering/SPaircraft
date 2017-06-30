@@ -380,18 +380,21 @@ class Aircraft(Model):
                     self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
                     self.HT['c_{attach}'],
                 ])
+        # Conventional HT constraints
+        if conventional:
+            with SignomialsEnabled():
+                constraints.extend([
+                    # HT root moment
+                    TCS([self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
+                         1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']]),
+                    # HT joint constraint
+                    self.HT['c_{attach}'] == self.HT['c_{root_{ht}}'],
+                ])
 
           #737 and 777 only constraints
         if conventional:
             with SignomialsEnabled():
                constraints.extend([
-                    # HT root moment
-                    TCS([self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
-                         1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']]),
-
-                    # HT joint constraint
-                   self.HT['c_{attach}'] == self.HT['c_{root_{ht}}'],
-
                    # Moment of inertia
                     Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
                                     (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
