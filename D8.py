@@ -305,13 +305,6 @@ class Aircraft(Model):
             f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
             with SignomialsEnabled():
                 constraints.extend([
-
-                    # Wing root moment constraint, with wing and engine weight load relief
-                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}']*(Wwing+f_wingfuel*W_ftotal)) * \
-                        (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
-                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) - \
-                                        self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
-
                     # Moment of inertia
                     Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
                                     (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
@@ -325,19 +318,39 @@ class Aircraft(Model):
                     self.fuse['S_{floor}'] == (5. / 16.) * self.fuse['P_{floor}'],
                     self.fuse['M_{floor}'] == 9. / 256. * self.fuse['P_{floor}'] * self.fuse['w_{floor}'],
 
-                    # Horizontal tail aero+landing loads constants A1h
-                    self.fuse['A_{1h_{Land}}'] >= (self.fuse['N_{land}'] * \
-                                                (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}'])) / \
-                                                (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{bend}']),
-
-                    self.fuse['A_{1h_{MLF}}'] >= (self.fuse['N_{lift}'] * \
-                                               (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}']) \
-                                               + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
-                                                (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
-
                     self.fuse['\\Delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
                 ])
 
+        ### ENGINE LOCATION RELATED CONSTRAINTS
+
+        # Wing-engined aircraft constraints
+        if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing or smallD8_eng_wing or conventional:
+            with SignomialsEnabled():
+                constraints.extend([
+                    # Wing root moment constraint, with wing and engine weight load relief
+                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}']*(Wwing+f_wingfuel*W_ftotal)) * \
+                        (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
+                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) - \
+                                        self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
+
+                    # Horizontal tail aero+landing loads constants A1h
+                    self.fuse['A_{1h_{Land}}'] >= (self.fuse['N_{land}'] * \
+                                (self.fuse['W_{tail}'] + self.fuse['W_{apu}'])) / \
+                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{bend}']),
+
+                    self.fuse['A_{1h_{MLF}}'] >= (self.fuse['N_{lift}'] * \
+                                (self.fuse['W_{tail}'] + self.fuse['W_{apu}']) \
+                                + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
+                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+                ])
+
+        # Rear-engined aircraft constraints
+
+        ### FUSELAGE CONSTRAINTS
+
+        ### VERTICAL TAIL CONSTRAINTS
+
+        ### HORIZONTAL TAIL CONSTRAINTS
         # Pi HT constraints:
         if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing or smallD8_eng_wing or D8fam:
             with SignomialsEnabled():
@@ -407,22 +420,6 @@ class Aircraft(Model):
                    # Floor loading
                     self.fuse['S_{floor}'] == 1./2. * self.fuse['P_{floor}'],
                     self.fuse['M_{floor}'] == 1./4. * self.fuse['P_{floor}']*self.fuse['w_{floor}'],
-
-                    # Wing root moment constraint, with wing and engine weight load relief
-                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}']*(Wwing+f_wingfuel*W_ftotal)) * \
-                        (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
-                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) - \
-                                        self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
-
-                    # Horizontal tail aero+landing loads constants A1h
-                    self.fuse['A_{1h_{Land}}'] >= (self.fuse['N_{land}'] * \
-                                (self.fuse['W_{tail}'] + self.fuse['W_{apu}'])) / \
-                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{bend}']),
-
-                    self.fuse['A_{1h_{MLF}}'] >= (self.fuse['N_{lift}'] * \
-                                (self.fuse['W_{tail}'] + self.fuse['W_{apu}']) \
-                                + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
-                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
                     ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
