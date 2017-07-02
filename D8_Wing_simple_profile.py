@@ -476,7 +476,7 @@ class WingBox(Model):
                           'Allowable tensile stress') # [TAS]
         sigmaxshear = Variable('\\sigma_{max,shear}', 167e6, 'Pa',
                                'Allowable shear stress')
-        wwb      = Variable('wwb', 0.5, '-', 'Wingbox-width-to-chord ratio') # [TAS]
+        wwb      = Variable('r_{w/c}', 0.5, '-', 'Wingbox width-to-chord ratio') # [TAS]
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
         tau_max = Variable('\\tau_{max_w}', '-', 'Max allowed wing thickness')

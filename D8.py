@@ -73,7 +73,7 @@ class Aircraft(Model):
         # variable definitions
         numaisle = Variable('n_{aisle}','-','Number of Aisles')
         numeng = Variable('n_{eng}', '-', 'Number of Engines')
-        numVT = Variable('n_{VT}','-','Number of FVertical Tails')
+        numVT = Variable('n_{VT}','-','Number of Vertical Tails')
         Vne = Variable('V_{ne}', 'm/s', 'Never-exceed speed')  # [Philippe]
         Vmn = Variable('V_{mn}', 'm/s','Maneuvering speed')
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
@@ -155,7 +155,7 @@ class Aircraft(Model):
         with SignomialsEnabled():
             constraints.extend([
                             self.wing['c_{root}'] == self.fuse['c_0'],
-                            self.wing.wb['wwb'] == self.fuse['wtc'],
+                            self.wing.wb['r_{w/c}'] == self.fuse['r_{wb}'],
                             self.wing['x_w'] == self.fuse['x_{wing}'],
                             self.wing['V_{ne}'] == Vmn,
                             self.VT['V_{ne}'] == Vmn,
@@ -197,7 +197,7 @@ class Aircraft(Model):
                             xmisc*Wmisc >= xlgnose*Wlgnose + xlgmain*Wlgmain + xhpesys*Whpesys,
 
                             # Tail cone sizing
-                            3. * self.VT['M_r'] * self.VT['c_{root_{vt}}'] * \
+                            3. * (numVT*self.VT['M_r']) * self.VT['c_{root_{vt}}'] * \
                                 (self.fuse['p_{\\lambda_v}'] - 1.) >= numVT*self.VT[
                                     'L_{v_{max}}'] * self.VT['b_{vt}'] * (self.fuse['p_{\\lambda_v}']),
                             TCS([self.fuse['V_{cone}'] * (1. + self.fuse['\\lambda_{cone}']) * \
@@ -931,6 +931,7 @@ class Mission(Model):
         # make overall constraints
         constraints = []
 
+        # Setting maximum OPR
         if RJfam:
             OPRmax = 30.
         elif D8bigfam or optimal777 or b777300ER or D12:
@@ -939,11 +940,7 @@ class Mission(Model):
             OPRmax = 35.
 
         constraints.extend([
-                    #allow max OPR 42 for 777 class, 35 for others
             aircraft['OPR'][Nclimb] <= OPRmax,
-##            aircraft['\pi_{lc_D}'] <= aircraft['\\pi_{lc}'][Nclimb],
-##            aircraft['\pi_{hc_D}'] <= aircraft['\\pi_{hc}'][Nclimb],
-##            aircraft['\pi_{f_D}'] <= aircraft['\\pi_f'][Nclimb],
             ])
 
         with SignomialsEnabled():
@@ -952,13 +949,11 @@ class Mission(Model):
             # Note: Buoyancy model has been simplified, since it causes significant increases in runtime.
             constraints.extend([
                 cruise['W_{buoy}'] >= (cruise['\\rho_{cabin}'])*g*aircraft['V_{cabin}'], # [SP] # - cruise['\\rho']
-                # climb['W_{buoy}'] >= 0.1*units('lbf'),
                 climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
                 aircraft['PRFC'] == aircraft['W_{f_{primary}}']/g*aircraft.engine['h_f']/(ReqRng*aircraft['W_{payload}'])
             ])
 
             ### CG CONSTRAINTS
-
             if rearengine:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
@@ -1032,7 +1027,6 @@ class Mission(Model):
                     #Setting fuselage drag coefficient
                     #additioanl 1.1 factor accounts for mach drag rise model
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663,
-                    
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663,
                     aircraft.fuse['M_{fuseD}'] == 0.84,
                 ])

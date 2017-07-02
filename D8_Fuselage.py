@@ -213,7 +213,7 @@ class Fuselage(Model):
         # Wingbox variables
         xf = Variable('x_f', 'm', 'x-location of front of wingbox')
         xb = Variable('x_b', 'm', 'x-location of back of wingbox')
-        w = Variable('wtc', 0.5, '-', 'Wingbox-width-to-chord ratio')
+        w = Variable('r_{wb}', 0.5, '-', 'Wingbox width-to-chord ratio')
 
         #weight margin and sensitivity
         Cfuse = Variable('C_{fuse}', 1, '-', 'Fuselage Weight Margin and Sensitivity')

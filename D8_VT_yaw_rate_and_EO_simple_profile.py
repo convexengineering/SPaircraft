@@ -491,7 +491,6 @@ class WingBox(Model):
         if isinstance(surface, VerticalTailNoStruct):
             #factors of 2 required since the VT is only half span and the wing model
             #is for a full span wing
-##            AR = 2*surface['A_{vt}']
             b = 2.*surface['b_{vt}']
             S = 2.*surface['S_{vt}']
             p = surface['p_{vt}']
