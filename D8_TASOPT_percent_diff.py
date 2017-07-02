@@ -28,7 +28,7 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Fuselage Weight Percent Diff: %s" % compute_diff(mag(sol('W_{fuse}').to('lbf')), 35360.9)
         print "\n"
-        print "Payload Weight Percent Diff: %s" % compute_diff(mag(sol('W_{payload}').to('lbf')), 115046.0)
+        print "Payload Weight Percent Diff: %s" % compute_diff(mag(sol('W_{payload}').to('lbf')), 38715.5)
         print "\n"
         print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{VT}').to('lbf')), 1383.8)
         print "\n"
