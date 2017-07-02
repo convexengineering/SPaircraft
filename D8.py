@@ -259,49 +259,10 @@ class Aircraft(Model):
                             TCS([Wengsys >= Ceng*(Wpylon + Wnace + Weadd + self.engine['W_{engine}'])]),
                             ])
 
-        #d8 only constraints
-        if D8fam:
-            with SignomialsEnabled():
-                constraints.extend([
-                    # Moment of inertia
-                    Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing) / (self.wing['S'] * g) * \
-                    self.wing['c_{root}'] * self.wing['b'] ** 3. * (1. / 12. - (1. - self.wing['\\lambda']) / 16.),
-                    # [SP]
-                    Iztail >= (self.fuse['W_{apu}'] + numeng * Wengsys + self.fuse['W_{tail}']) * self.VT[
-                        'l_{vt}'] ** 2. / g,
-                    # NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
-                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}']) / self.fuse['l_{fuse}'] * \
-                    (self.fuse['x_{wing}'] ** 3. + self.VT['l_{vt}'] ** 3.) / (3. * g),
-
-                    # Horizontal tail aero+landing loads constants A1h
-                    self.fuse['A_{1h_{Land}}'] >= (self.fuse['N_{land}'] * \
-                                                (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}'])) / \
-                                                (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{bend}']),
-
-                    self.fuse['A_{1h_{MLF}}'] >= (self.fuse['N_{lift}'] * \
-                                               (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}']) \
-                                               + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
-                                                (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
-                ])
-
         if D8fam and not D8_no_BLI:
             constraints.extend({self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}']})# Engine out moment arm
         if D8_no_BLI:
             constraints.extend({self.VT['y_{eng}'] >= self.fuse['w_{fuse}'] + 0.5*self.engine['d_{f}'] + 1.*units('ft')})
-
-        # Wing-engined D8 constraints
-        if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing or smallD8_eng_wing:
-            with SignomialsEnabled():
-                constraints.extend([
-                    # Moment of inertia
-                    Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
-                                    (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
-                                    self.wing['c_{root}']*self.wing['b']**3.*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
-                    Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
-                            #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
-                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
-                                    (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
-                ])
 
         ### ENGINE LOCATION RELATED CONSTRAINTS
 
@@ -324,6 +285,15 @@ class Aircraft(Model):
                                 (self.fuse['W_{tail}'] + self.fuse['W_{apu}']) \
                                 + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+
+                    # Moment of inertia constraints
+                    Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
+                                    (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
+                                    self.wing['c_{root}']*self.wing['b']**3.*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
+                    Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
+                            #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
+                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
+                                    (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
                 ])
 
         # Rear-engined aircraft constraints
@@ -334,6 +304,26 @@ class Aircraft(Model):
                     TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing+f_wingfuel*W_ftotal)) * \
                         (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
                                 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
+
+                    # Horizontal tail aero+landing loads constants A1h
+                    self.fuse['A_{1h_{Land}}'] >= (self.fuse['N_{land}'] * \
+                                                (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}'])) / \
+                                                (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{bend}']),
+
+                    self.fuse['A_{1h_{MLF}}'] >= (self.fuse['N_{lift}'] * \
+                                               (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}']) \
+                                               + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
+                                                (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
+
+                    # Moment of inertia constraints
+                    Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing) / (self.wing['S'] * g) * \
+                    self.wing['c_{root}'] * self.wing['b'] ** 3. * (1. / 12. - (1. - self.wing['\\lambda']) / 16.),
+                    # [SP]
+                    Iztail >= (self.fuse['W_{apu}'] + numeng * Wengsys + self.fuse['W_{tail}']) * self.VT[
+                        'l_{vt}'] ** 2. / g,
+                    # NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
+                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}']) / self.fuse['l_{fuse}'] * \
+                    (self.fuse['x_{wing}'] ** 3. + self.VT['l_{vt}'] ** 3.) / (3. * g),
                 ])
 
         ### FUSELAGE CONSTRAINTS
@@ -408,20 +398,6 @@ class Aircraft(Model):
                     # HT joint constraint
                     self.HT['c_{attach}'] == self.HT['c_{root_{ht}}'],
                 ])
-
-          #737 and 777 only constraints
-        if conventional:
-            with SignomialsEnabled():
-               constraints.extend([
-                   # Moment of inertia
-                    Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
-                                    (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
-                                    self.wing['c_{root}']*self.wing['b']**3.*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
-                    Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
-                            #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
-                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
-                                    (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
-                    ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
 
