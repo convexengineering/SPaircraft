@@ -259,15 +259,15 @@ class Aircraft(Model):
                             TCS([Wengsys >= Ceng*(Wpylon + Wnace + Weadd + self.engine['W_{engine}'])]),
                             ])
 
-        if D8fam and not D8_no_BLI:
+        if rearengine and BLI:
             constraints.extend({self.VT['y_{eng}'] == 0.5 * self.fuse['w_{fuse}']})# Engine out moment arm
-        if D8_no_BLI:
+        if rearengine and not BLI:
             constraints.extend({self.VT['y_{eng}'] >= self.fuse['w_{fuse}'] + 0.5*self.engine['d_{f}'] + 1.*units('ft')})
 
         ### ENGINE LOCATION RELATED CONSTRAINTS
 
         # Wing-engined aircraft constraints
-        if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing or smallD8_eng_wing or conventional:
+        if wingengine:
             with SignomialsEnabled():
                 constraints.extend([
                     # Wing root moment constraint, with wing and engine weight load relief
@@ -297,7 +297,7 @@ class Aircraft(Model):
                 ])
 
         # Rear-engined aircraft constraints
-        if D8fam:
+        if rearengine:
             with SignomialsEnabled():
                 constraints.extend([
                     # Wing root moment constraint, with wing weight + fuel load relief
@@ -329,7 +329,7 @@ class Aircraft(Model):
         ### FUSELAGE CONSTRAINTS
 
         # Double-bubble
-        if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing or smallD8_eng_wing or D8fam:
+        if doublebubble:
             with SignomialsEnabled():
                 constraints.extend([
                     # Floor loading
@@ -338,7 +338,7 @@ class Aircraft(Model):
                     self.fuse['\\Delta R_{fuse}'] == self.fuse['R_{fuse}'] * 0.43/1.75,
                 ])
         # Tube
-        if conventional:
+        if tube:
             with SignomialsEnabled():
                 constraints.extend([
                    # Floor loading
@@ -350,7 +350,7 @@ class Aircraft(Model):
 
         ### HORIZONTAL TAIL CONSTRAINTS
         # Pi HT constraints:
-        if D8_eng_wing or M08_D8_eng_wing  or D8big_eng_wing or smallD8_eng_wing or D8fam:
+        if piHT:
             with SignomialsEnabled():
                 constraints.extend([
                     # Pin VT joint moment constraint #TODO may be problematic, should check
@@ -704,6 +704,9 @@ class Mission(Model):
         global manufacturer, operator, fuel
         global wingengine, rearengine, doublebubble, tube, piHT, conventional
 
+        wingengine = False; rearengine = False; doublebubble = False; tube = False;
+        piHT = False; conventional = False
+
         # Objective type, only one active at once
         manufacturer = False; operator = False; fuel = False; PRFC = False
         if objective == 'manufacturer':
@@ -750,28 +753,28 @@ class Mission(Model):
         D8big_no_BLI_M072 = False
 
         if airplane == 'D80':
-            D80 = True; rearengine = True; BLI = True; piHT = True;
+            D80 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
         if airplane == 'D82':
-            D82 = True; rearengine = True; BLI = True; piHT = True;
+            D82 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
         if airplane == 'D82_73eng':
-            D82_73eng = True; rearengine = True; BLI = True; piHT = True;
+            D82_73eng = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
         if airplane == 'D8_eng_wing':
-            D8_eng_wing = True; wingengine = True; piHT = True;
+            D8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'D8big':
-            D8big = True; rearengine = True; BLI = True; piHT = True;
+            D8big = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
         if airplane == 'D8big_no_BLI':
-            D8big_no_BLI = True; rearengine = True; piHT = True;
+            D8big_no_BLI = True; rearengine = True; piHT = True; doublebubble = True;
         if airplane == 'D8big_eng_wing':
-            D8big_eng_wing = True; wingengine = True; piHT = True;
+            D8big_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'D8big_M072':
             D8big = True
-            D8big_M072 = True; rearengine = True; BLI = True; piHT = True;
+            D8big_M072 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
         if airplane == 'D8big_no_BLI_M072':
             D8big_no_BLI = True
-            D8big_no_BLI_M072 = True; rearengine = True; piHT = True;
+            D8big_no_BLI_M072 = True; rearengine = True; piHT = True; doublebubble = True;
         if airplane == 'D8big_eng_wing_M072':
             D8big_eng_wing = True
-            D8big_eng_wing_M072 = True; wingengine = True; piHT = True
+            D8big_eng_wing_M072 = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'b737800':
             b737800 = True; conventional = True
         if airplane == 'b777300ER':
@@ -779,7 +782,7 @@ class Mission(Model):
         if airplane == 'optimal737':
             optimal737 = True; conventional = True
         if airplane == 'optimalD8':
-            optimalD8 = True; rearengine = True; BLI = True; piHT = True;
+            optimalD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
         if airplane == 'optimal777':
             optimal777 = True; conventional = True
         if airplane == 'optimal777_M08':
@@ -789,40 +792,43 @@ class Mission(Model):
             optimal777 = True
             optimal777_M072 = True; conventional = True
         if airplane == 'M08D8':
-            M08D8 = True; rearengine = True; BLI = True; piHT = True
+            M08D8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
         if airplane == 'M08D8_noBLI':
-            M08D8_noBLI = True; rearengine = True; piHT = True
+            M08D8_noBLI = True; rearengine = True; piHT = True; doublebubble = True;
         if airplane == 'M08_D8_eng_wing':
-            M08_D8_eng_wing = True; wingengine = True; piHT = True
+            M08_D8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'M072_737':
             M072_737 = True; conventional = True
         if airplane == 'D8_no_BLI':
-            D8_no_BLI = True; rearengine = True; piHT = True
+            D8_no_BLI = True; rearengine = True; piHT = True; doublebubble = True;
         if airplane == 'D8big_M072':
             D8big = True
-            D8big_M072 = True; rearengine = True; BLI = True; piHT = True
+            D8big_M072 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
         if airplane == 'D8big_M08':
             D8big = True
-            D8big_M08 = True; rearengine = True; BLI = True; piHT = True
+            D8big_M08 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
         if airplane == 'optimalRJ':
             optimalRJ = True; conventional = True
         if airplane == 'smallD8':
-            smallD8 = True; rearengine = True; BLI = True; piHT = True
+            smallD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
         if airplane == 'smallD8_eng_wing':
-            smallD8_eng_wing = True; wingengine = True; piHT = True
+            smallD8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'smallD8_no_BLI':
-            smallD8_no_BLI = True; rearengine = True; piHT = True
+            smallD8_no_BLI = True; rearengine = True; piHT = True; doublebubble = True;
         if airplane == 'smallD8_M08_no_BLI':
             smallD8_no_BLI = True
-            smallD8_M08_no_BLI = True; rearengine = True; piHT = True
+            smallD8_M08_no_BLI = True; rearengine = True; piHT = True; doublebubble = True;
         if airplane == 'smallD8_M08':
             smallD8 = True
-            smallD8_M08 = True; rearengine = True; BLI = True; piHT = True
+            smallD8_M08 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
         if airplane == 'smallD8_M08_eng_wing':
             smallD8_eng_wing = True
-            smallD8_M08_eng_wing = True; wingengine = True; piHT = True
+            smallD8_M08_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'D12':
-            D12 = True; rearengine = True; BLI = True; piHT = True
+            D12 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+
+        if conventional:
+            wingengine = True; tube = True;
 
         # Multimission?
         if Nmission == 1:
@@ -874,11 +880,6 @@ class Mission(Model):
             RJfam = True
         else:
             RJfam = False
-
-        if b737800 or b777300ER or optimal737 or M072_737 or optimal777 or optimalRJ:
-            conventional = True
-        else:
-            conventional = False
 
         # vectorize
         with Vectorize(Nmission):
@@ -955,8 +956,10 @@ class Mission(Model):
                 climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
                 aircraft['PRFC'] == aircraft['W_{f_{primary}}']/g*aircraft.engine['h_f']/(ReqRng*aircraft['W_{payload}'])
             ])
-            #CG constraints
-            if D8fam:
+
+            ### CG CONSTRAINTS
+
+            if rearengine:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
@@ -966,7 +969,6 @@ class Mission(Model):
                     + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
                     ]),
-##               cruise['x_{CG}'][0] <= climb['x_{CG}'],
                 TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
@@ -976,7 +978,7 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                      ]),
               ])
-            if conventional or D8_eng_wing or M08_D8_eng_wing or D8big_eng_wing or smallD8_eng_wing:
+            if wingengine:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
