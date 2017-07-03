@@ -373,8 +373,8 @@ class Aircraft(Model):
                     self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
 
                     # Constraints for stability: TODO find another way
-                    self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.1 * self.HT['M_{r_{out}}']*self.HT['c_{attach}'],
-                    self.HT['b_{ht_{out}}'] >= 1./6.*self.HT['b_{ht}'],
+                    self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25 * self.HT['M_{r_{out}}']*self.HT['c_{attach}'],
+                    # self.HT['b_{ht_{out}}'] >= 1./6.*self.HT['b_{ht}'],
 
                     # HT/VT joint constraint
                     self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
