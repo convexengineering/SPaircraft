@@ -397,6 +397,13 @@ class Aircraft(Model):
                          1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']]),
                     # HT joint constraint
                     self.HT['c_{attach}'] == self.HT['c_{root_{ht}}'],
+
+                    # HT auxiliary variables
+                    self.HT['b_{ht_{out}}'] == 0.5*self.HT['b_{ht}'],
+                    self.HT['L_{h_{tri_{out}}}'] == self.HT['L_{h_{tri}}'],
+                    self.HT['L_{h_{rect_{out}}}'] == self.HT['L_{h_{rect}}'],
+                    self.HT['M_{r_{out}}'] == self.HT['M_r'],
+                    self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
                 ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
