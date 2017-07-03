@@ -144,18 +144,18 @@ def getb737800subs():
 
             # Engine substitutions
             '\\pi_{tn}': .989,
-            '\pi_{b}': .94,
-            '\pi_{d}': .998,
-            '\pi_{fn}': .98,
+            '\\pi_{b}': .94,
+            '\\pi_{d}': .998,
+            '\\pi_{fn}': .98,
             'T_{ref}': 288.15,
             'P_{ref}': 101.325,
-            '\eta_{HPshaft}': .99,
-            '\eta_{LPshaft}': .978,
-            'eta_{B}': .985,
+            '\\eta_{HPshaft}': .99,
+            '\\eta_{LPshaft}': .978,
+            '\\eta_{B}': .985,
 
-            '\pi_{f_D}': fan,
-            '\pi_{hc_D}': hpc,
-            '\pi_{lc_D}': lpc,
+            '\\pi_{f_D}': fan,
+            '\\pi_{hc_D}': hpc,
+            '\\pi_{lc_D}': lpc,
 
             '\\alpha_{OD}': 5.1,
             '\\alpha_{max}': 5.6958,
@@ -167,16 +167,16 @@ def getb737800subs():
 
             'M_{takeoff}': .9709,
 
-            'G_f': 1.,
+            'G_{f}': 1.,
 
-            'h_f': 43.003,
+            'h_{f}': 43.003,
 
-            'Cp_t1': 1253.,
-            'Cp_t2': 1223.,
-            'Cp_c': 1283.,
+            'C_{p_{t1}}': 1253.,
+            'C_{p_{t2}}': 1223.,
+            'C_{p_{c}}': 1283.,
 
-            'HTR_{f_SUB}': 1. - .3 ** 2.,
-            'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
+            'HTR_{f_{SUB}}': 1. - .3 ** 2.,
+            'HTR_{lpc_{SUB}}': 1. - 0.6 ** 2.,
 
             # Minimum Cruise Mach Number
             'M_{min}': 0.8,

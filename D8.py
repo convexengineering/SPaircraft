@@ -520,7 +520,7 @@ class AircraftP(Model):
             aircraft.VT['x_{CG_{vt}}'] + 0.5*aircraft.VT['c_{root_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Drag of a windmilling engine (VT sizing)
-            TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2.*aircraft.engine['A_2']*aircraft.VT['C_{D_{wm}}']]),
+            TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2.*aircraft.engine['A_{2}']*aircraft.VT['C_{D_{wm}}']]),
 
             # Aircraft trim conditions
             TCS([xAC/aircraft.wing['mac'] <= xCG/aircraft.wing['mac'] + \
@@ -957,7 +957,7 @@ class Mission(Model):
             constraints.extend([
                 cruise['W_{buoy}'] >= (cruise['\\rho_{cabin}'])*g*aircraft['V_{cabin}'], # [SP] # - cruise['\\rho']
                 climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
-                aircraft['PRFC'] == aircraft['W_{f_{primary}}']/g*aircraft.engine['h_f']/(ReqRng*aircraft['W_{payload}'])
+                aircraft['PRFC'] == aircraft['W_{f_{primary}}']/g*aircraft.engine['h_{f}']/(ReqRng*aircraft['W_{payload}'])
             ])
 
             ### CG CONSTRAINTS
