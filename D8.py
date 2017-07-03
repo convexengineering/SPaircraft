@@ -354,24 +354,16 @@ class Aircraft(Model):
             with SignomialsEnabled():
                 constraints.extend([
                     # Pin VT joint moment constraint #TODO may be problematic, should check
-                    SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 4. - self.fuse['w_{fuse}']),
-                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 6.)), # [SP] #[SPEquality]
+                    SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 2. - self.fuse['w_{fuse}']),
+                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 3.)), # [SP] #[SPEquality]
 
                     # HT outboard half-span
                     self.HT['b_{ht_{out}}'] >= 0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}'], # [SP]
 
-                    # Triangular HT lift outboard
-                    self.HT['L_{h_{tri_{out}}}'] >= self.HT['L_{h_{tri}}'] * \
-                                self.HT['b_{ht_{out}}']**2 / self.fuse['w_{fuse}']**2,
-
-                    # Rectangular HT lift outboard
-                    self.HT['L_{h_{rect_{out}}}'] >= self.HT['L_{h_{rect}}'] * \
-                            self.HT['b_{ht_{out}}'] / self.fuse['w_{fuse}'],
-
                     # HT center moment
                     self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['L_{h_{rect}}'] * (
                     self.HT['b_{ht}'] / 4.) + self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - \
-                    self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2.,
+                    self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2., # [SP]
 
                     # HT joint moment
                     self.HT['M_{r_{out}}']*self.HT['c_{attach}'] >= self.HT['L_{h_{rect_{out}}}'] * (0.5*self.HT['b_{ht_{out}}']) + \
@@ -380,13 +372,19 @@ class Aircraft(Model):
                     # HT joint shear (max shear)
                     self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
 
-                    # constraint to lower bound M_r w.r.t. a conventional tail config (0.25*M_r of conventional)
-                    self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25*(1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
-                         1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']), # [SP] TODO: Remove when good HT structural model is ready.
+                    # Constraints for stability: TODO find another way
+                    self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.1 * self.HT['M_{r_{out}}']*self.HT['c_{attach}'],
+                    self.HT['b_{ht_{out}}'] >= 1./6.*self.HT['b_{ht}'],
 
                     # HT/VT joint constraint
                     self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
                     self.HT['c_{attach}'],
+
+                    # HT structural factor calculation
+                    self.HT['\\pi_{M-fac}'] >= (0.5*(self.HT['M_{r_{out}}']*self.HT['c_{attach}'] + \
+                                                    self.HT['M_r']* self.HT['c_{root_{ht}}']) * self.fuse['w_{fuse}'] / \
+                                                    (0.5*self.HT['M_{r_{out}}']*self.HT['c_{attach}']*self.HT['b_{ht_{out}}']) + 1.0) * \
+                                                        self.HT['b_{ht_{out}}'] / (0.5*self.HT['b_{ht}']),
                 ])
         # Conventional HT constraints
         if conventional:
@@ -400,10 +398,11 @@ class Aircraft(Model):
 
                     # HT auxiliary variables
                     self.HT['b_{ht_{out}}'] == 0.5*self.HT['b_{ht}'],
-                    self.HT['L_{h_{tri_{out}}}'] == self.HT['L_{h_{tri}}'],
-                    self.HT['L_{h_{rect_{out}}}'] == self.HT['L_{h_{rect}}'],
                     self.HT['M_{r_{out}}'] == self.HT['M_r'],
                     self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
+
+                    # HT structural factor calculation
+                    self.HT['\\pi_{M-fac}'] == 1.0,
                 ])
 
         self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
