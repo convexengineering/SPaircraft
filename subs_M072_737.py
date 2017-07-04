@@ -145,18 +145,18 @@ def get_M072_737_subs():
 
             # Engine substitutions
             '\\pi_{tn}': .995,
-            '\pi_{b}': .94,
-            '\pi_{d}': .995,
-            '\pi_{fn}': .985,
+            '\\pi_{b}': .94,
+            '\\pi_{d}': .995,
+            '\\pi_{fn}': .985,
             'T_{ref}': 288.15,
             'P_{ref}': 101.325,
-            '\eta_{HPshaft}': .978,
-            '\eta_{LPshaft}': .99,
-            'eta_{B}': .985,
+            '\\eta_{HPshaft}': .978,
+            '\\eta_{LPshaft}': .99,
+            '\\eta_{B}': .985,
 
-            '\pi_{f_D}': fan,
-            '\pi_{hc_D}': hpc,
-            '\pi_{lc_D}': lpc,
+            '\\pi_{f_D}': fan,
+            '\\pi_{hc_D}': hpc,
+            '\\pi_{lc_D}': lpc,
 
 ##            '\\alpha_{OD}': 6.97,
 ##            '\\alpha_{max}': 6.97,
@@ -168,16 +168,16 @@ def get_M072_737_subs():
 
             'M_{takeoff}': .9556,
 
-            'G_f': 1.,
+            'G_{f}': 1.,
 
-            'h_f': 43.003,
+            'h_{f}': 43.003,
 
-            'Cp_t1': 1236.5,
-            'Cp_t2': 1200.4,
-            'Cp_c': 1257.9,
+            'C_{p_{t1}}': 1236.5,
+            'C_{p_{t2}}': 1200.4,
+            'C_{p_{c}}': 1257.9,
 
-            'HTR_{f_SUB}': 1. - .3 ** 2.,
-            'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
+            'HTR_{f_{SUB}}': 1. - .3 ** 2.,
+            'HTR_{lpc_{SUB}}': 1. - 0.6 ** 2.,
 
             # Minimum Cruise Mach Number
             'M_{min}': Mcruisemin,

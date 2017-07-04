@@ -157,18 +157,18 @@ def getD80subs():
 
                 # Engine substitutions
                 '\\pi_{tn}': .995,
-                '\pi_{b}': .94,
-                '\pi_{d}': .995,
-                '\pi_{fn}': .985,
+                '\\pi_{b}': .94,
+                '\\pi_{d}': .995,
+                '\\pi_{fn}': .985,
                 'T_{ref}': 288.15,
                 'P_{ref}': 101.325,
-                '\eta_{HPshaft}': .97,
-                '\eta_{LPshaft}': .97,
-                'eta_{B}': .9827,
+                '\\eta_{HPshaft}': .97,
+                '\\eta_{LPshaft}': .97,
+                '\\eta_{B}': .9827,
 
-                '\pi_{f_D}': fan,
-                '\pi_{hc_D}': hpc,
-                '\pi_{lc_D}': lpc,
+                '\\pi_{f_D}': fan,
+                '\\pi_{hc_D}': hpc,
+                '\\pi_{lc_D}': lpc,
 
                 '\\alpha_{OD}': 6.97,
                 '\\alpha_{max}': 6.97,
@@ -180,16 +180,16 @@ def getD80subs():
 
                 'M_{takeoff}': .9556,
 
-                'G_f': 1.,
+                'G_{f}': 1.,
 
-                'h_f': 43.003,
+                'h_{f}': 43.003,
 
-                'Cp_t1': 1280.,
-                'Cp_t2': 1184.,
-                'Cp_c': 1216.,
+                'C_{p_{t1}}': 1280.,
+                'C_{p_{t2}}': 1184.,
+                'C_{p_{c}}': 1216.,
 
-                'HTR_{f_SUB}': 1.-.3**2.,
-                'HTR_{lpc_SUB}': 1. - 0.6**2.,
+                'HTR_{f_{SUB}}': 1.-.3**2.,
+                'HTR_{lpc_{SUB}}': 1. - 0.6**2.,
 
                 'T_{t_{4.1_{max}}}': 1567.*units('K'),
 
@@ -199,9 +199,9 @@ def getD80subs():
                 #BLI factors
                 #compute the cruise stagnation pressure loss factor given a min
                 #mach number and the BLI velocity loss factor
-                'f_{BLI_P}': (18753.9 +.5*0.301559*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
+                'f_{BLI_{P}}': (18753.9 +.5*0.301559*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
                               (18753.9 +.5*0.301559*(Mcruisemin*295.)**2),
-                'f_{BLI_V}': 1 - BLIVloss,
+                'f_{BLI_{V}}': 1 - BLIVloss,
         }
 
         return substitutions

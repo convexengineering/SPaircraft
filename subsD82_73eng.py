@@ -161,18 +161,18 @@ def getD82_73engsubs():
 
                 # Engine substitutions
                 '\\pi_{tn}': .989,
-                '\pi_{b}': .94,
-                '\pi_{d}': .998,
-                '\pi_{fn}': .98,
+                '\\pi_{b}': .94,
+                '\\pi_{d}': .998,
+                '\\pi_{fn}': .98,
                 'T_{ref}': 288.15,
                 'P_{ref}': 101.325,
-                '\eta_{HPshaft}': .99,
-                '\eta_{LPshaft}': .978,
-                'eta_{B}': .985,
+                '\\eta_{HPshaft}': .99,
+                '\\eta_{LPshaft}': .978,
+                '\\eta_{B}': .985,
 
-                '\pi_{f_D}': fan,
-                '\pi_{hc_D}': hpc,
-                '\pi_{lc_D}': lpc,
+                '\\pi_{f_D}': fan,
+                '\\pi_{hc_D}': hpc,
+                '\\pi_{lc_D}': lpc,
 
 ##                '\\alpha_{OD}': 8,
                 '\\alpha_{max}': 6.97,#8,
@@ -184,25 +184,25 @@ def getD82_73engsubs():
 
                 'M_{takeoff}': .9709,
 
-                'G_f': 1.,
+                'G_{f}': 1.,
 
-                'h_f': 43.003,
+                'h_{f}': 43.003,
 
-                'Cp_t1': 1236.5,
-                'Cp_t2': 1200.4,
-                'Cp_c': 1257.9,
+                'C_{p_{t1}}': 1236.5,
+                'C_{p_{t2}}': 1200.4,
+                'C_{p_{c}}': 1257.9,
 
-                'HTR_{f_SUB}': 1. - .3 ** 2.,
-                'HTR_{lpc_SUB}': 1. - 0.6 ** 2.,
+                'HTR_{f_{SUB}}': 1. - .3 ** 2.,
+                'HTR_{lpc_{SUB}}': 1. - 0.6 ** 2.,
 
                 'T_{t_{4.1_{max}}}': 1833.*units('K'),
 
                 #BLI factors
                 #compute the cruise stagnation pressure loss factor given a min
                 #mach number and the BLI velocity loss factor
-                'f_{BLI_P}': (10400. +.2546*1.225*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
+                'f_{BLI_{P}}': (10400. +.2546*1.225*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
                               (10400. +.2546*1.225*(Mcruisemin*295.)**2),
-                'f_{BLI_V}': 1 - BLIVloss,
+                'f_{BLI_{V}}': 1 - BLIVloss,
         }
 
         return substitutions

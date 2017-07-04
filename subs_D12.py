@@ -163,18 +163,18 @@ def get_D12_subs():
 
                 #new engine params
                 '\pi_{tn}': .995,
-                '\pi_{b}': .94,
-                '\pi_{d}': .995,
-                '\pi_{fn}': .985,
+                '\\pi_{b}': .94,
+                '\\pi_{d}': .995,
+                '\\pi_{fn}': .985,
                 'T_{ref}': 288.15,
                 'P_{ref}': 101.325,
-                '\eta_{HPshaft}': .978,
-                '\eta_{LPshaft}': .99,
-                'eta_{B}': .985,
+                '\\eta_{HPshaft}': .978,
+                '\\eta_{LPshaft}': .99,
+                '\\eta_{B}': .985,
 
-                '\pi_{f_D}': fan,
-                '\pi_{hc_D}': hpc,
-                '\pi_{lc_D}': lpc,
+                '\\pi_{f_D}': fan,
+                '\\pi_{hc_D}': hpc,
+                '\\pi_{lc_D}': lpc,
 
 ##                '\\alpha_{OD}': 8.62,
 ##                '\\alpha_{max}': 8.62,     #place holder value not active during analysis
@@ -186,16 +186,16 @@ def get_D12_subs():
 
                 'M_{takeoff}': .93997,
 
-                'G_f': 1,
+                'G_{f}': 1,
 
-                'h_f': 43.003,
+                'h_{f}': 43.003,
 
-                'Cp_t1': 1257.3,
-                'Cp_t2': 1158.35,
-                'Cp_c': 1278.5,
+                'C_{p_{t1}}': 1257.3,
+                'C_{p_{t2}}': 1158.35,
+                'C_{p_{c}}': 1278.5,
 
-                'HTR_{f_SUB}': 1-.3**2,
-                'HTR_{lpc_SUB}': 1 - 0.6**2,
+                'HTR_{f_{SUB}}': 1-.3**2,
+                'HTR_{lpc_{SUB}}': 1 - 0.6**2,
 
                 # engine system subs
                 'r_{S_{nacelle}}': 8.,
@@ -206,9 +206,9 @@ def get_D12_subs():
                 #BLI factors
                 #compute the cruise stagnation pressure loss factor given a min
                 #mach number and the BLI velocity loss factor
-                'f_{BLI_P}': (18753.9 +.5*0.301559*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
+                'f_{BLI_{P}}': (18753.9 +.5*0.301559*((1-BLIVloss)*Mcruisemin*295.)**2)/ \
                               (18753.9 +.5*0.301559*(Mcruisemin*295.)**2),
-                'f_{BLI_V}': 1 - BLIVloss,
+                'f_{BLI_{V}}': 1 - BLIVloss,
         }
 
         return substitutions
