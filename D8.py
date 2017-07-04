@@ -353,9 +353,12 @@ class Aircraft(Model):
         if piHT:
             with SignomialsEnabled():
                 constraints.extend([
-                    # Pin VT joint moment constraint #TODO may be problematic, should check
+                    # Pin VT joint moment constraint #PROBLEMATIC, instead using wingtip moment
                     # SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 2. - self.fuse['w_{fuse}']),
                     #                   self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 3.)), # [SP] #[SPEquality]
+                    # Pin VT constraint (wingtip moment = 0Nm) #TODO: may be problematic as well, relax if doesn't solve
+                    SignomialEquality(self.HT['b_{ht}']/4.*self.HT['L_{h_{rect}}'] + self.HT['b_{ht}']/3.*self.HT['L_{h_{tri}}'],
+                                      self.HT['b_{ht_{out}}'] * self.HT['L_{h_{max}}']/2.),
 
                     # HT outboard half-span
                     self.HT['b_{ht_{out}}'] >= 0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}'], # [SP]
