@@ -478,8 +478,8 @@ class HorizontalTail(Model):
         constraints = []
         with SignomialsEnabled():
             constraints.append([
-                self.wb['L_{h_{rect}}'] >= self.wb['L_{h_{max}}']/2.*self.HTns['c_{tip_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'],
-                self.wb['L_{h_{tri}}'] >= self.wb['L_{h_{max}}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'], #[SP]
+                self.wb['L_{h_{rect}}'] >= self.HTns['L_{h_{max}}']/2.*self.HTns['c_{tip_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'],
+                self.wb['L_{h_{tri}}'] >= self.HTns['L_{h_{max}}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'], #[SP]
                 WHT >= CHT*(self.wb['W_{struct}'] + self.wb['W_{struct}']  * fHT),
             ])
 
@@ -540,7 +540,8 @@ class WingBox(Model):
         Lhrectout = Variable('L_{h_{rect_{out}}}','N','Rectangular HT load outboard')
         Mrout = Variable('M_{r_{out}}','N','Wing moment at pin joint ')
         Lshear = Variable('L_{shear}','N','Maximum shear load (at pin joint)')
-        
+        piMfac = Variable('\\pi_{M-fac}','-','Pi-tail bending structural factor')
+
         objective = Wstruct
 
         if isinstance(surface, HorizontalTailNoStruct):
@@ -552,7 +553,8 @@ class WingBox(Model):
             tau = surface['\\tau_{ht}']
             Lmax = surface['L_{h_{max}}']
 
-        constraints = [
+        constraints = [Lhtriout >= Lhtri * bhtout**2 / (0.5*b)**2,
+                       Lhrectout >= Lhrect * bhtout /(0.5*b),
                        # Upper bound on maximum thickness
                        tau <= 0.14,
 
@@ -567,19 +569,19 @@ class WingBox(Model):
 
                        # Stress limit
                        # Assumes bending stress carried by caps (Icap >> Iweb)
-                       8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax),
+                       8 >= Nlift*Mrout*AR*q**2*tau/(S*Icap*sigmax),
 
                        # Shear web sizing
                        # Assumes all shear loads are carried by web and rh=0.75
-                       # 12 >= AR*Lshear*Nlift*q**2/(tau*S*tweb*sigmaxshear),
-                       12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
+                       12 >= 2.*AR*Lshear*Nlift*q**2/(tau*S*tweb*sigmaxshear),
+                       # 12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam)
                        # nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # PHILIPPE'S FIT
                         (nu/1.09074074)**.166 >= 0.205*(p/1.7)**0.772 + 0.795*(p/1.7)**-0.125, # BERK'S FIT
 
                        # Weight of spar caps and shear webs
-                       Wcap >= 8*rhocap*g*w*tcap*S**1.5*nu/(3*AR**0.5),
+                       Wcap >= piMfac*8*rhocap*g*w*tcap*S**1.5*nu/(3*AR**0.5),
                        Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
 
                        # Total wing weight using an additional weight fraction
