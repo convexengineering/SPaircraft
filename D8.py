@@ -358,10 +358,10 @@ class Aircraft(Model):
                     #                   self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 3.)), # [SP] #[SPEquality]
                     # Pin VT constraint (wingtip moment = 0Nm) #TODO: may be problematic as well, relax if doesn't solve
                     SignomialEquality(self.HT['b_{ht}']/4.*self.HT['L_{h_{rect}}'] + self.HT['b_{ht}']/3.*self.HT['L_{h_{tri}}'],
-                                      self.HT['b_{ht_{out}}'] * self.HT['L_{h_{max}}']/2.),
+                                      self.HT['b_{ht_{out}}'] * self.HT['L_{h_{max}}']/2.), #[SP] #[SPEquality]
 
                     # HT outboard half-span
-                    self.HT['b_{ht_{out}}'] >= 0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}'], # [SP]
+                    SignomialEquality(self.HT['b_{ht_{out}}'] , 0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}']), #[SP] #[SPEquality]
 
                     # HT center moment
                     self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['L_{h_{rect}}'] * (
@@ -374,10 +374,6 @@ class Aircraft(Model):
 
                     # HT joint shear (max shear)
                     self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
-
-                    # Constraints for stability: TODO find another way
-                    self.HT['AR_{ht}'] >= 6.,
-                    # self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25 * self.HT['M_{r_{out}}']*self.HT['c_{attach}'],
 
                     # HT/VT joint constraint
                     self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
