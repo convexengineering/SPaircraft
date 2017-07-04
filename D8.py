@@ -354,8 +354,8 @@ class Aircraft(Model):
             with SignomialsEnabled():
                 constraints.extend([
                     # Pin VT joint moment constraint #TODO may be problematic, should check
-                    SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 2. - self.fuse['w_{fuse}']),
-                                      self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 3.)), # [SP] #[SPEquality]
+                    # SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 2. - self.fuse['w_{fuse}']),
+                    #                   self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 3.)), # [SP] #[SPEquality]
 
                     # HT outboard half-span
                     self.HT['b_{ht_{out}}'] >= 0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}'], # [SP]
@@ -373,8 +373,8 @@ class Aircraft(Model):
                     self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
 
                     # Constraints for stability: TODO find another way
-                    self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25 * self.HT['M_{r_{out}}']*self.HT['c_{attach}'],
-                    # self.HT['b_{ht_{out}}'] >= 1./6.*self.HT['b_{ht}'],
+                    self.HT['AR_{ht}'] >= 6.,
+                    # self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 0.25 * self.HT['M_{r_{out}}']*self.HT['c_{attach}'],
 
                     # HT/VT joint constraint
                     self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
