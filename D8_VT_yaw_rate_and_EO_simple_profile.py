@@ -478,7 +478,7 @@ class WingBox(Model):
         w      = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
-        AR   = Variable('A_{vt_{struct}}', '-', 'Vertical tail aspect ratio used in structural model')
+        AR = Variable('AR_{vt}','-','Vertical tail aspect ratio (double span)')
 
         numspar = Variable('N_{spar}', '-', 'Number of Spars in Each VT Carrying Stress in 1 in 20 Case')
 

@@ -391,8 +391,8 @@ class Aircraft(Model):
             with SignomialsEnabled():
                 constraints.extend([
                     # HT root moment
-                    TCS([self.HT['M_r']*self.HT['c_{root_{ht}}'] >= 1./6.*self.HT['L_{h_{tri}}']*self.HT['b_{ht}'] + \
-                         1./4.*self.HT['L_{h_{rect}}']*self.HT['b_{ht}']]),
+                    TCS([self.HT['M_r']*self.HT['c_{attach}'] >= 1./3.*self.HT['L_{h_{tri_{out}}}']*self.HT['b_{ht_{out}}'] + \
+                         1./2.*self.HT['L_{h_{rect_{out}}}']*self.HT['b_{ht_{out}}']]),
                     # HT joint constraint
                     self.HT['c_{attach}'] == self.HT['c_{root_{ht}}'],
 
@@ -527,7 +527,7 @@ class AircraftP(Model):
                               aircraft.HT['V_{ht}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
 
             # Tail aspect ratio and lift constraints
-            aircraft.HT['AR_{ht}'] >= 3., #TODO change to tip Re constraint
+            aircraft.HT['AR_{ht}'] >= 6., #TODO change to tip Re constraint
             self.HTP['C_{L_h}'] >= 0.01, #TODO remove
 
             # HT/VT moment arm constraints
