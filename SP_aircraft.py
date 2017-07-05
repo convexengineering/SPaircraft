@@ -1496,7 +1496,7 @@ if __name__ == '__main__':
         # m.substitutions.__delitem__('ReqRng')
 
     if aircraft in ['D80','D82','D8_no_BLI']:
-        # m = Model(m.cost,BCS(m))
+        m = Model(m.cost,BCS(m))
         m_relax = relaxed_constants(m, None, ['ReqRng'])
     if aircraft in ['D8big', 'D82_73eng', 'D8_eng_wing', 'optimalD8', 'M08D8', 'M08_D8_eng_wing']:
         m = Model(m.cost,BCS(m))
@@ -1513,7 +1513,7 @@ if __name__ == '__main__':
     
     if Nmission == 1:
          if aircraft in ['D82', 'D8_eng_wing', 'optimalD8']:
-              percent_diff(sol, 2, Nclimb)
+              percent_diff(sol, 'D82', Nclimb)
 
          if aircraft in ['b737800','optimal737']:
               percent_diff(sol, 801, Nclimb)

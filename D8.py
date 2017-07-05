@@ -74,7 +74,7 @@ class Aircraft(Model):
         numaisle = Variable('n_{aisle}','-','Number of Aisles')
         numeng = Variable('n_{eng}', '-', 'Number of Engines')
         numVT = Variable('n_{VT}','-','Number of Vertical Tails')
-        Vne = Variable('V_{ne}', 'm/s', 'Never-exceed speed')  # [Philippe]
+        Vne = Variable('V_{ne}',143.92,'m/s', 'Never-exceed speed')  # [Philippe]
         Vmn = Variable('V_{mn}', 'm/s','Maneuvering speed')
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
         ReserveFraction = Variable('ReserveFraction', '-', 'Fuel Reserve Fraction')
@@ -157,8 +157,6 @@ class Aircraft(Model):
                             self.wing['c_{root}'] == self.fuse['c_0'],
                             self.wing.wb['r_{w/c}'] == self.fuse['r_{wb}'],
                             self.wing['x_w'] == self.fuse['x_{wing}'],
-                            self.wing['V_{ne}'] == Vmn,
-                            self.VT['V_{ne}'] == Vmn,
 
                             #compute the aircraft's zero fuel weight
                             TCS([self.fuse['W_{fuse}'] + numeng \
@@ -215,7 +213,10 @@ class Aircraft(Model):
                             TCS([self.HT['V_{ht}'] == self.HT['S_{ht}']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
 
                             # HT Max Loading
-                            TCS([self.HT['L_{h_{max}}'] >= 0.5*rhoTO*Vmn**2*self.HT['S_{ht}']*self.HT['C_{L_{hmax}}']]),
+                            TCS([self.HT['L_{h_{max}}'] >= 0.5*rhoTO*Vne**2*self.HT['S_{ht}']*self.HT['C_{L_{hmax}}']]),
+
+                            # VT Max Loading
+                            TCS([self.VT['L_{v_{max}}'] >= 0.5*rhoTO*Vne**2*self.VT['S_{vt}']*self.VT['C_{L_{vmax}}']]),
 
                             # Tail weight
                             self.fuse['W_{tail}'] >= numVT*WVT + WHT + self.fuse['W_{cone}'],

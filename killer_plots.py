@@ -1,6 +1,9 @@
 # only needed for plotting
 import matplotlib.pyplot as plt
 
+# Percent diffs
+from D8_TASOPT_percent_diff import percent_diff
+
 # Solution saving
 from saveSol import genSolOut
 

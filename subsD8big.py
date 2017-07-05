@@ -51,7 +51,7 @@ def getD8bigsubs():
                 'W\'\'_{floor}': 60.,  # [TAS]
                 'W\'\'_{insul}': 22.,  # [TAS]
                 'W\'_{window}': 145.*3.*units('N/m'),  # [TAS]
-                'V_{mn}': 133.76*units('m/s'),
+                'V_{mn}': 133.76*units('m/s'), 'V_{ne}':143.92*units('m/s'),
 
                 #BLI drag reduction factor
                 'D_{reduct}': 1-((1-fBLI)*wake_benefit*wake_percent),

@@ -299,7 +299,6 @@ class VerticalTailNoStruct(Model):
         LvtEO    = Variable('L_{vtEO}', 'N', 'Vertical tail lift in engine out')
         Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area')
         V1     = Variable('V_1', 'm/s', 'Minimum takeoff velocity')
-        Vne    = Variable('V_{ne}', 'm/s', 'Never exceed velocity')
         bvt    = Variable('b_{vt}', 'm', 'Vertical tail span')
         cma    = Variable('\\bar{c}_{vt}', 'm', 'Vertical tail mean aero chord')
         croot  = Variable('c_{root_{vt}}', 'm', 'Vertical tail root chord')
@@ -367,9 +366,6 @@ class VerticalTailNoStruct(Model):
                 SignomialEquality((2./3)*(1 + taper + taper**2)*croot/q, cma),
                 taper == ctip/croot,
                 # Define vertical tail geometry
-
-                Lvmax == 0.5*rho0*Vne**2*Svt*CLvmax,
-                #compute the max force
 
                 # TODO: Constrain taper by tip Reynolds number
                 taper >= 0.25,
