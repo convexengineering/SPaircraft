@@ -514,7 +514,7 @@ class WingBox(Model):
         # Constants
         taper = Variable('taper', 0.3, '-', 'Taper ratio')
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
-        Nlift  = Variable('N_{lift}', 3.0, '-', 'Wing loading multiplier')
+        Nlift  = Variable('N_{lift}', 1.0, '-', 'Wing loading multiplier')
         rh     = Variable('r_h', 0.75, '-',
                           'Fractional wing thickness at spar web')
         rhocap = Variable('\\rho_{cap}', 2700, 'kg/m^3',
