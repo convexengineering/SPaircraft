@@ -144,6 +144,9 @@ def get737_optimal_subs():
             #set the fuel reserve fraction
             'ReserveFraction': .20,
 
+            #min altitude for start of cruise
+            'MinCruiseAlt': 35000*units('ft'),
+
             # Engine substitutions
             '\\pi_{tn}': .995,
             '\\pi_{b}': .94,
@@ -191,7 +194,7 @@ def get737_optimal_subs():
 
             'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
 
-##          'MaxClimbTime': 23*units('min'),
+          'MaxClimbTime': 15*units('min'),
 ##          'MaxClimbDistance': 180*units('nautical_miles')
     }
 

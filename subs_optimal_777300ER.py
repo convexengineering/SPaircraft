@@ -142,6 +142,9 @@ def get_optimal_777300ER_subs():
             'f_{pylon}': 0.1,
             'f_{eadd}': 0.1,
 
+            #min altitude for start of cruise
+            'MinCruiseAlt': 31977*units('ft'),
+
             #new engine params
             '\pi_{tn}': .995,
             '\\pi_{b}': .94,
@@ -187,6 +190,9 @@ def get_optimal_777300ER_subs():
             'r_{v_{nacelle}}': 1.02,
             'T_{t_{4.1_{max}}}': 1860.*units('K'),
             'ReserveFraction': .05,
+
+##            'MaxClimbTime': 30*units('min'),
+##            'MaxClimbDistance': 180*units('nautical_miles')
     }
 
     return substitutions

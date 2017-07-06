@@ -893,7 +893,7 @@ class Mission(Model):
                  enginestate = FlightState()
 
         # True is use xfoil fit tail drag model, False is TASOPT tail drag model
-        if optimal737 or optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8 or M072_737 or \
+        if optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8 or M072_737 or \
            D8_eng_wing or D8_no_BLI or D8big or optimal777 or D8big_eng_wing or D8big_no_BLI or RJfam or D12:
             fitDrag = True
         else:
@@ -933,7 +933,7 @@ class Mission(Model):
         max_climb_time = Variable('MaxClimbTime', 'min', 'Total Time in Climb')
         max_climb_distance = Variable('MaxClimbDistance', 'nautical_miles', 'Climb Distance')
         CruiseTt41max = Variable('T_{t_{4.1_{max-Cruise}}}', 'K', 'Max Cruise Turbine Inlet Temp')
-
+        MinCruiseAlt = Variable('MinCruiseAlt', 'ft', 'Minimum Cruise Altitude')
         # make overall constraints
         constraints = []
 
@@ -1144,6 +1144,8 @@ class Mission(Model):
                 # Cruise climb constraint
                 cruise['hft'][0] <= climb['hft'][-1] + cruise['dhft'][0], #[SP]
                 cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
+
+                climb['hft'][Nclimb-1] >= MinCruiseAlt,
                 ])
 
         if multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam:
