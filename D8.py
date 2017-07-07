@@ -587,22 +587,23 @@ class CruiseP(Model): # Cruise performance constraints
         self.engine = aircraft.engine
         
         # variable definitions
-        # z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
         Rng = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
-        RC = Variable('RC', 'feet/min', 'Rate of Climb/Descent')
-        theta = Variable('\\theta','-','Climb Angle')
-        dhft = Variable('dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
+        z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
+        Rng = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
 
         constraints = []
 
-        constraints.extend([
-            RC == theta*state['V'],
-            RC >= 0.01 * units('ft/min'),
 
-            # Time
+        constraints.extend([
+            #taylor series expansion to get the weight term
+            TCS([self.aircraftP['W_{burn}']/self.aircraftP['W_{end}'] >=
+              te_exp_minus1(z_bre, nterm=3)]),
+
+            #time
             self.aircraftP['thr'] * state['V'] == Rng,
-            dhft == self.aircraftP['tmin'] * RC,
-            ])
+
+            z_bre >= self.engine['TSFC'] * self.aircraftP['thr'] * self.aircraftP['D'] / self.aircraftP['W_{avg}']
+        ])
 
         return constraints + self.aircraftP
 
@@ -958,7 +959,7 @@ class Mission(Model):
                     cruise['thr'] * aircraft.engine['F'],
 
                 # Thrust >= Drag + Vertical Potential Energy
-                aircraft['n_{eng}'] * aircraft.engine['F'] >= cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'],
+                aircraft['n_{eng}'] * aircraft.engine['F'] >= cruise['D'],
 
                 # Takeoff thrust T_e calculated for engine out + vertical tail sizing.
                 # Note: coeff can be varied as desired.
@@ -999,9 +1000,6 @@ class Mission(Model):
             constraints.extend([
                 #set the range constraints
                 TCS([sum(cruise['Rng']) >= ReqRng]), #[SP]
-
-                # Cruise climb constraint
-                cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
                 ])
 
         if multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam:
@@ -1091,7 +1089,7 @@ class Mission(Model):
             aircraft.engine.engineP['hold_{2.5}'] == 1.+.5*(1.354-1.)*M25**2.,
             
             # Thrust >= Drag + Vertical Component of Weight
-            cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['n_{eng}'] * aircraft.engine['F_{spec}'],
+            cruise['D'] <= aircraft['n_{eng}'] * aircraft.engine['F_{spec}'],
             ]
 
         if BLI or M072_737 or b737800 or b777300ER or optimal737 or D8_eng_wing or D8_no_BLI:
