@@ -148,51 +148,9 @@ def get737_optimal_subs():
             'MinCruiseAlt': 35000*units('ft'),
 
             # Engine substitutions
-            '\\pi_{tn}': .995,
-            '\\pi_{b}': .94,
-            '\\pi_{d}': .995,
-            '\\pi_{fn}': .985,
-            'T_{ref}': 288.15,
-            'P_{ref}': 101.325,
-            '\\eta_{HPshaft}': .978,
-            '\\eta_{LPshaft}': .99,
-            '\\eta_{B}': .985,
-
-            '\\pi_{f_D}': fan,
-            '\\pi_{hc_D}': hpc,
-            '\\pi_{lc_D}': lpc,
-
-##            '\\alpha_{OD}': 6.97,
-##            '\\alpha_{max}': 6.97,
-
-            'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
-            'r_{uc}': .01,
-            '\\alpha_c': .16,
-            'T_{t_f}': 435.,
-
-            'M_{takeoff}': .9556,
-
-            'G_{f}': 1.,
-
-            'h_{f}': 43.003,
-
-            'C_{p_{t1}}': 1236.5,
-            'C_{p_{t2}}': 1200.4,
-            'C_{p_{c}}': 1257.9,
-
-            'HTR_{f_{SUB}}': 1. - .3 ** 2.,
-            'HTR_{lpc_{SUB}}': 1. - 0.6 ** 2.,
-
-            # Minimum Cruise Mach Number
-            'M_{min}': Mcruisemin,
-
-            # engine system subs
-            'r_{S_{nacelle}}': 16.,
-            # nacelle drag calc parameter
-            'r_{v_{nacelle}}': 1.02,
-            'T_{t_{4.1_{max}}}': 1567.*units('K'),#('sweep', np.linspace(1200, 1600, 10)),
-
-            'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
+            'W_{engsys}': 65000*units('lbf'),
+            'TSFC': 0.5,
+            'F_TO': 30000*units('lbf'),
     }
 
     return substitutions
