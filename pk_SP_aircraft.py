@@ -28,7 +28,7 @@ from D8_TASOPT_percent_diff import percent_diff
 
 def run_optimal_737(fixedBPR, pRatOpt = False, objective = 'fuel'):
     # User definitions
-    Ncruise = 2
+    Ncruise = 4
     Nmission = 1
     aircraft = 'optimal737'
 
@@ -65,9 +65,7 @@ def run_optimal_737(fixedBPR, pRatOpt = False, objective = 'fuel'):
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
-    percent_diff(sol, 'b737800', Nclimb)
-
-    post_compute(sol, Nclimb)
+    percent_diff(sol, 'optimal737')
 
     return sol
 
