@@ -575,27 +575,6 @@ class CruiseSegment(Model): # Combines FlightState and Aircraft to form a cruise
         self.cruiseP = aircraft.cruise_dynamic(self.state)
         return self.state, self.cruiseP
 
-class StateLinking(Model):
-    """
-    link all the state model variables
-    """
-    def setup(self, cruisestate, enginestate, Ncruise):
-        if conventional:
-             statevarkeys = ['L_{atm}', 'M_{atm}', 'P_{atm}', 'R_{atm}',
-                             '\\rho', 'T_{atm}', '\\mu', 'T_s', 'C_1', 'h', 'hft', 'V', 'a', 'R', '\\gamma', 'M']
-        else:
-             statevarkeys = ['P_{atm}', 'R_{atm}',
-                        '\\rho', 'T_{atm}', '\\mu', 'T_s', 'C_1', 'h', 'hft', 'V', 'a', 'R', '\\gamma', 'M']
-        constraints = []
-        for i in range(len(statevarkeys)):
-            varkey = statevarkeys[i]
-            for i in range(Ncruise):
-                constraints.extend([
-                    cruisestate[varkey][i] == enginestate[varkey][i]
-                    ])
-
-        return constraints
-
 class Mission(Model):
     """
     Mission superclass, links together all subclasses into an optimization problem
@@ -814,10 +793,6 @@ class Mission(Model):
              with Vectorize(Ncruise):
                  cruise = CruiseSegment(aircraft)
 
-        # StateLinking links the climb and cruise state variables to the engine state,
-        # so that atmospheric variables match.
-        statelinking = StateLinking(cruise.state, enginestate, Ncruise)
-
         # Declare Mission variables
         if multimission:
              with Vectorize(Nmission):
@@ -1018,7 +993,7 @@ class Mission(Model):
              else:
                   self.cost = W_fmissions
 
-             return constraints, aircraft, cruise, enginestate, statelinking
+             return constraints, aircraft, cruise, enginestate
              
         if operator:
              # Operator cost model
@@ -1028,7 +1003,7 @@ class Mission(Model):
              else:
                   self.cost = aircraft['W_{dry}'] + W_fmissions
 
-             return constraints, aircraft, cruise, enginestate, statelinking
+             return constraints, aircraft, cruise, enginestate
 
         if manufacturer:
              # Manufacturer cost model
@@ -1038,7 +1013,7 @@ class Mission(Model):
              else:
                   self.cost = aircraft['W_{dry}'] + W_fmissions
 
-             return constraints, aircraft, cruise, enginestate, statelinking
+             return constraints, aircraft, cruise, enginestate
 
         if PRFC:
              # Payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT NEED TO SUB ReqRng OR n_{pax}.
@@ -1046,6 +1021,6 @@ class Mission(Model):
                 self.cost = sum(aircraft['PRFC'])
              else:
                 self.cost = sum(aircraft['PRFC'])
-             return constraints, aircraft, cruise, enginestate, statelinking
+             return constraints, aircraft, cruise, enginestate
 
 
