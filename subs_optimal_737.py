@@ -193,9 +193,6 @@ def get737_optimal_subs():
             'T_{t_{4.1_{max}}}': 1567.*units('K'),#('sweep', np.linspace(1200, 1600, 10)),
 
             'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
-
-          'MaxClimbTime': 15*units('min'),
-##          'MaxClimbDistance': 180*units('nautical_miles')
     }
 
     return substitutions

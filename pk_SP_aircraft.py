@@ -28,12 +28,11 @@ from D8_TASOPT_percent_diff import percent_diff
 
 def run_optimal_737(fixedBPR, pRatOpt = False, objective = 'fuel'):
     # User definitions
-    Nclimb = 3
     Ncruise = 2
     Nmission = 1
     aircraft = 'optimal737'
 
-    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    m = Mission(Ncruise, objective, aircraft, Nmission)
     
     substitutions = get737_optimal_subs()
 
