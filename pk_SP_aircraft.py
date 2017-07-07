@@ -26,7 +26,7 @@ from post_compute import post_compute
 # Solution check tool relative to TASOPT
 from D8_TASOPT_percent_diff import percent_diff
 
-def run_optimal_737(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_optimal_737(objective = 'fuel'):
     # User definitions
     Ncruise = 4
     Nmission = 1
@@ -46,16 +46,6 @@ def run_optimal_737(fixedBPR, pRatOpt = False, objective = 'fuel'):
 #            'n_{paxx}': 180.,
             'ReqRng': 3000.*units('nmi'),
         })        
-
-    if fixedBPR:
-        substitutions.update({
-            '\\alpha_{max}': 6.97,
-        })
-        
-    if pRatOpt:
-        del substitutions['\pi_{f_D}']
-##        del substitutions['\pi_{lc_D}']
-##        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
 

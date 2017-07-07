@@ -15,8 +15,8 @@ from stand_alone_simple_profile import FlightState
 from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail
 from D8_HT_simple_profile import HorizontalTail
 from D8_Wing_simple_profile import Wing
-from turbofan.engine_validation import Engine
 from D8_Fuselage import Fuselage
+from simple_engine import Engine
 
 
 """
@@ -61,9 +61,9 @@ class Aircraft(Model):
         self.fuse = Fuselage(Nmissions)
         self.wing = Wing()
         if Nmissions != 0:
-            self.engine = Engine(0, True, Ncruise, enginestate, eng, Nmissions, BLI)
+            self.engine = Engine()
         else:
-           self.engine = Engine(0, True, Ncruise, enginestate, eng, BLI)
+           self.engine = Engine()
         self.VT = VerticalTail()
         self.HT = HorizontalTail()
 
@@ -127,15 +127,10 @@ class Aircraft(Model):
         xhpesys = Variable('x_{hpesys}','m','Power Systems Weight x-Location')
 
         #engine system weight variables
-        rSnace = Variable('r_{S_{nacelle}}', '-', 'Nacelle and Pylon Wetted Area')
-        lnace = Variable('l_{nacelle}', 'm', 'Nacelle Length')
-        fSnace = Variable('f_{S_{nacelle}}', '-', 'Non-dimensional Nacelle Area')
-        Snace = Variable('S_{nacelle}', 'm^2', 'Nacelle Surface Area')
         Ainlet = Variable('A_{inlet}','m^2', 'Inlet Area')
         Afancowl = Variable('A_{fancowl}', 'm^2', 'Fan Cowling Area')
         Aexh = Variable('A_{exh}', 'm^2', 'Exhaust Area')
         Acorecowl = Variable('A_{corecowl}', 'm^2', 'Core Cowling Area')
-        Wnace = Variable('W_{nacelle}', 'lbf', 'Nacelle Weight')
         Wpylon = Variable('W_{pylon}', 'lbf','Engine Pylon Weight')
         fpylon = Variable('f_{pylon}', '-', 'Pylong Weight Fraction')
         feadd = Variable('f_{eadd}', '-', 'Additional Engine Weight Fraction')
@@ -150,7 +145,8 @@ class Aircraft(Model):
         Dwakefrac = Variable('D_{wakefraction}', 0.33, '-', 'Percent of Total Drag From Wake Dissipation')
         BLI_wake_benefit = Variable('BLI_{wakebenefit}', 0.02, '-', 'Wake Drag Reduction from BLI Wake Ingestion')
      
-        constraints = []
+        constraints = []        
+        
         with SignomialsEnabled():
             constraints.extend([
                             self.wing['c_{root}'] == self.fuse['c_0'],
@@ -243,20 +239,6 @@ class Aircraft(Model):
                             # Fuselage width (numaisle comes in)
                             TCS([2.*self.fuse['w_{fuse}'] >= self.fuse['SPR'] * self.fuse['w_{seat}'] + \
                                  numaisle*self.fuse['w_{aisle}'] + 2. * self.fuse['w_{sys}'] + self.fuse['t_{db}']]),
-
-                            #engine system weight constraints
-                            Snace == rSnace * np.pi * 0.25 * self.engine['d_{f}']**2,
-                            lnace == 0.15 * self.engine['d_{f}'] * rSnace,
-                            fSnace == Snace * self.wing['S']**-1,
-                            Ainlet == 0.4 * Snace,
-                            Afancowl == 0.2 * Snace,
-                            Aexh == 0.4 * Snace,
-                            Acorecowl == 3. * np.pi * self.engine['d_{LPC}']**2,
-                            TCS([Wnace >= ((2.5+ 0.238*self.engine['d_{f}']/units('in')) * Ainlet + 1.9*Afancowl \
-                                + (2.5+ 0.0363*self.engine['d_{f}']/units('in'))*Aexh + 1.9*Acorecowl)*units('lbf/ft^2'),
-                            Weadd == feadd * self.engine['W_{engine}']]),
-                            TCS([Wpylon >= (Wnace + Weadd + self.engine['W_{engine}']) * fpylon]),
-                            TCS([Wengsys >= Ceng*(Wpylon + Wnace + Weadd + self.engine['W_{engine}'])]),
                             ])
 
         if rearengine and BLI:
@@ -458,17 +440,6 @@ class AircraftP(Model):
         # Lift fraction variables
         Ltotal = Variable('L_{total}','N','Total lift')
 
-        #variables for nacelle drag calcualation
-        Vnace = Variable('V_{nacelle}', 'm/s', 'Incoming Nacelle Flow Velocity')
-        V2 = Variable('V_2', 'm/s', 'Interior Nacelle Flow Velcoity')
-        Vnacrat = Variable('V_{nacelle_ratio}', '-', 'Vnle/Vinf')
-        rvnsurf = Variable('r_{v_{nsurf}}', '-', 'Intermediate Nacelle Drag Parameter')
-        Cfnace = Variable('C_{f_nacelle}', '-', 'Nacelle Drag Coefficient')
-        Renace = Variable('R_{e_nacelle}', '-', 'Nacelle Reynolds Number')
-        Cfturb = Variable('C_{f_nacelle}', '-', 'Turbulent Nacelle Skin Friction Coefficient')
-        Cdnace = Variable('C_{d_nacelle}', '-', 'Nacelle Drag Coeffecient')
-        Dnace = Variable('D_{nacelle}', 'N', 'Drag On One Nacelle')
-
         constraints = []
 
         with SignomialsEnabled():
@@ -487,7 +458,7 @@ class AircraftP(Model):
             # Drag calculations
             self.fuseP['D_{fuse}'] == 0.5 * state['\\rho'] * state['V']**2 * \
                                         self.fuseP['C_{D_{fuse}}'] * aircraft['l_{fuse}'] * aircraft['R_{fuse}'] * (state['M']**2/aircraft.fuse['M_{fuseD}']**2),
-            D >= aircraft['D_{reduct}'] * (self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.aircraft['n_{VT}']*self.VTP['D_{vt}'] + self.HTP['D_{ht}'] + aircraft['n_{eng}'] * Dnace),
+            D >= aircraft['D_{reduct}'] * (self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.aircraft['n_{VT}']*self.VTP['D_{vt}'] + self.HTP['D_{ht}']),
             C_D == D/(.5*state['\\rho']*state['V']**2 * self.aircraft.wing['S']),
             LoD == W_avg/D,
 
@@ -555,15 +526,6 @@ class AircraftP(Model):
                  + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] <= \
                                             aircraft.HT['V_{ht}']*aircraft.HT['m_{ratio}'] +\
                                             aircraft.HT['V_{ht}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
-
-            #nacelle drag
-            Renace == state['\\rho']*state['V'] * aircraft['l_{nacelle}']/state['\\mu'],
-            Cfnace == 0.94*4.*0.0743/(Renace**(0.2)), #from http://www.calpoly.edu/~kshollen/ME347/Handouts/Friction_Drag_Coef.pdf
-            Vnace == aircraft['r_{v_{nacelle}}'] * state['V'],
-            Vnacrat >= 2.*Vnace/state['V'] - V2/state['V'],
-            rvnsurf**3. >= 0.25*(Vnacrat + aircraft['r_{v_{nacelle}}'])*(Vnacrat**2. + aircraft['r_{v_{nacelle}}']**2.),
-            Cdnace == aircraft['f_{S_{nacelle}}'] * Cfnace[0] * rvnsurf **3.,
-            Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2. * aircraft['S'],
             ])
 
         if not aircraft.fitDrag:
@@ -867,7 +829,6 @@ class Mission(Model):
           ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
           Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
 
-        CruiseTt41max = Variable('T_{t_{4.1_{max-Cruise}}}', 'K', 'Max Cruise Turbine Inlet Temp')
         MinCruiseAlt = Variable('MinCruiseAlt', 'ft', 'Minimum Cruise Altitude')
         # make overall constraints
         constraints = []
@@ -878,7 +839,7 @@ class Mission(Model):
             # Note: Buoyancy model has been simplified, since it causes significant increases in runtime.
             constraints.extend([
                 cruise['W_{buoy}'] >= (cruise['\\rho_{cabin}'])*g*aircraft['V_{cabin}'], # [SP] # - cruise['\\rho']
-                aircraft['PRFC'] == aircraft['W_{f_{primary}}']/g*aircraft.engine['h_{f}']/(ReqRng*aircraft['W_{payload}'])
+##                aircraft['PRFC'] == aircraft['W_{f_{primary}}']/g*aircraft.engine['h_{f}']/(ReqRng*aircraft['W_{payload}'])
             ])
 
             ### CG CONSTRAINTS
@@ -965,7 +926,7 @@ class Mission(Model):
                 # Note: coeff can be varied as desired.
 
                 #TODO FIX THIS
-                aircraft.VT['T_e'] == 3 * cruise.cruiseP.engine['F'][0],
+                aircraft.VT['T_e'] == aircraft.engine['F_TO'],
 
                 # Set the range for each cruise segment.
                 # All cruise segments cover the same range.
@@ -974,17 +935,10 @@ class Mission(Model):
                 # Cruise Mach Number constraint
                 cruise['M'] >= aircraft['M_{min}'],
 
-                # Nacelle drag constraint
-                # Elevated this constraint to Mission for dimensionality
-                cruise.cruiseP['V_2'] == aircraft.engine['M_2'] * cruise.state['a'],
-
                 cruise['\\alpha_{max,w}'] == .1,
 
                 #compute the total time
                 Total_Time >= sum(cruise['thr']),
-
-                #set the max allowed cruise Tt4.1
-                aircraft['T_{t_{4.1}}'] <= CruiseTt41max,
                 ])
 
         # Calculating percent fuel remaining
@@ -1056,52 +1010,6 @@ class Mission(Model):
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
                   ])
 
-
-        if D8fam or M072_737 or D8big_M072 or D8_eng_wing or smallD8_eng_wing or optimal777_M072 or D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072:
-             M2 = .6
-             M25 = .6
-             M4a = .2
-             M0 = .72
-
-        if optimal737 or D8_no_BLI or D8big_M08 or optimalRJ or M08D8 or smallD8_M08_eng_wing or smallD8_M08_no_BLI or smallD8_M08 or optimal777_M08:
-             M2 = .6
-             M25 = .6
-             M4a = .2
-             M0 = .8
-
-        if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
-                                                                                         D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072):
-             M2 = .65
-             M25 = .6
-             M4a = .2
-             M0 = .84
-
-        if D12:
-             M2 = .65
-             M25 = .6
-             M4a = .2
-             M0 = .83
-
-        enginecruise = [
-            aircraft.engine.engineP['M_2'] == cruise['M'],
-            aircraft.engine.engineP['M_{2.5}'] == M25,
-            aircraft.engine.engineP['hold_{2}'] == 1.+.5*(1.398-1.)*M2**2.,
-            aircraft.engine.engineP['hold_{2.5}'] == 1.+.5*(1.354-1.)*M25**2.,
-            
-            # Thrust >= Drag + Vertical Component of Weight
-            cruise['D'] <= aircraft['n_{eng}'] * aircraft.engine['F_{spec}'],
-            ]
-
-        if BLI or M072_737 or b737800 or b777300ER or optimal737 or D8_eng_wing or D8_no_BLI:
-             with SignomialsEnabled():
-                  enginecruise.extend([
-                       SignomialEquality(aircraft.engine.engineP['c1'], (1. + 0.5*(.401)*cruise['M']**2.)),                
-                       ])
-        else:
-             enginecruise.extend([
-                  aircraft.engine.engineP['c1'] <= 1. + 0.5*(.401)*0.8**2.,
-                  ])
-
         if fuel:
              # Fuel burn cost model
              if not multimission:
@@ -1110,7 +1018,7 @@ class Mission(Model):
              else:
                   self.cost = W_fmissions
 
-             return constraints, aircraft, cruise, enginestate, statelinking, enginecruise
+             return constraints, aircraft, cruise, enginestate, statelinking
              
         if operator:
              # Operator cost model
@@ -1120,7 +1028,7 @@ class Mission(Model):
              else:
                   self.cost = aircraft['W_{dry}'] + W_fmissions
 
-             return constraints, aircraft, cruise, enginestate, statelinking, enginecruise
+             return constraints, aircraft, cruise, enginestate, statelinking
 
         if manufacturer:
              # Manufacturer cost model
@@ -1130,7 +1038,7 @@ class Mission(Model):
              else:
                   self.cost = aircraft['W_{dry}'] + W_fmissions
 
-             return constraints, aircraft, cruise, enginestate, statelinking, enginecruise
+             return constraints, aircraft, cruise, enginestate, statelinking
 
         if PRFC:
              # Payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT NEED TO SUB ReqRng OR n_{pax}.
@@ -1138,6 +1046,6 @@ class Mission(Model):
                 self.cost = sum(aircraft['PRFC'])
              else:
                 self.cost = sum(aircraft['PRFC'])
-             return constraints, aircraft, cruise, enginestate, statelinking, enginecruise
+             return constraints, aircraft, cruise, enginestate, statelinking
 
 

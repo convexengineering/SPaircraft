@@ -23,8 +23,8 @@ def percent_diff(sol,aircraft):
         print "Total Fuel Weight Percent Diff: %s" % compute_diff(mag(sol('W_{f_{total}}').to('lbf')), 45057.0)
         print "\n"
         print "Total Aircraft Weight Percent Diff: %s" % compute_diff(mag(sol('W_{total}').to('lbf')), 166502.0)
-        print "\n"
-        print "Engine Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{engsys}').to('lbf')), 11632.6)
+##        print "\n"
+##        print "Engine Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{engsys}').to('lbf')), 11632.6)
         print "\n"
         print "Fuselage Weight Percent Diff: %s" % compute_diff(mag(sol('W_{fuse}').to('lbf')), 35641.6)
         print "\n"
@@ -78,8 +78,6 @@ def percent_diff(sol,aircraft):
         print "L/D Percent Diff: %s" % compute_diff(mag(sol('L/D')[0]), 17.252)
         print "\n"
         print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')[0]), 0.03292)
-        print "\n"
-        print "Nacelle Cd Percent Diff: %s" % compute_diff(mag(sol('C_{d_nacelle}')[0]),0.00191)
         print "\n"
         print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')[0]), 0.00175*sol('S')/sol('S_{ht}'))
         print "\n"
