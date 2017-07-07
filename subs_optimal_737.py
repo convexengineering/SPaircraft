@@ -151,6 +151,7 @@ def get737_optimal_subs():
             'W_{engsys}': 65000*units('lbf'),
             'TSFC': 0.5,
             'F_TO': 30000*units('lbf'),
+            'A_{2}': 3*units('m^2'),
     }
 
     return substitutions

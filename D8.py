@@ -915,6 +915,8 @@ class Mission(Model):
 
                 cruise['hft'] == MinCruiseAlt,
 
+                cruise['M'] == 0.8,
+
                 # compute fuel burn from TSFC
                 cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['n_{eng}'] * aircraft.engine['TSFC'] * \
                     cruise['thr'] * aircraft.engine['F'],
