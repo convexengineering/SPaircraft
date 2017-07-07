@@ -6,4 +6,4 @@
 SPaircraft is a signomial programming compatible transonic aircraft conceptual design optimization tool.
 It is of similar level of fidelity as TASOPT, and can perform the single- and multi-mission optimization of a variety of aircraft configurations.
 
-[![Build Status](https://acdl.mit.edu/csi/buildStatus/icon?job=gpkit_ResearchModel_d8_Push)](https://acdl.mit.edu/csi/job/gpkit_ResearchModel_d8_Push)
+[![Build Status](https://acdl.mit.edu/csi/buildStatus/icon?job=gpkit_ResearchModel_SPaircraft_Push)](https://acdl.mit.edu/csi/job/gpkit_ResearchModel_SPaircraft_Push/)

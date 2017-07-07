@@ -527,7 +527,7 @@ class AircraftP(Model):
                               aircraft.HT['V_{ht}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
 
             # Tail aspect ratio and lift constraints
-            aircraft.HT['AR_{ht}'] >= 6., #TODO change to tip Re constraint
+            aircraft.HT['AR_{ht}'] >= 4., #TODO change to tip Re constraint
             self.HTP['C_{L_h}'] >= 0.01, #TODO remove
 
             # HT/VT moment arm constraints
