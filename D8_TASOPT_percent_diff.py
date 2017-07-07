@@ -450,7 +450,7 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Induced Drag Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{i_w}}')['C_{D_{i_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.01112)
         print "\n"
-        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.00861)
+        print "Wing Profile Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{p_w}}')['C_{D_{p_w}}_Mission/CruiseSegment/CruiseP/AircraftP/WingPerformance'][0]), 0.00833)
         
         #crusie TSFC
         print "\n\n\n"

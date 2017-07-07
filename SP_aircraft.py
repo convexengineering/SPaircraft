@@ -151,7 +151,7 @@ def gen_D8_737_plots(solD8, sol737):
     plt.legend(['D8 SP Model', 'D8 TASOPT', '737 SP Model', '737 TASOPT'], loc=4)
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance [nm]', fontsize=18)
-    plt.title('737 and D8 Altitude Profile')
+    plt.title('737 and D8 Altitude Profile', fontsize=18)
     plt.savefig('737_D8_altitude_profile.pdf', bbox_inches="tight")
     plt.show()
 
@@ -214,7 +214,7 @@ def gen_737_plots(sol):
     plt.legend(['SP Model', 'TASOPT'], loc=4)
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance [nm]', fontsize=18)
-    plt.title('737 Altitude Profile')
+    plt.title('737 Altitude Profile', fontsize=18)
     plt.savefig('737_altitude_profile.pdf', bbox_inches="tight")
     plt.show()
     
