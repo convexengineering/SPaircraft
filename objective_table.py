@@ -24,7 +24,7 @@ LD_time = sum(LD_sol('thr')['thr_Mission.6/ClimbSegment.6/ClimbP.6/AircraftP.12'
 #output the columns of the table
 print "column 2"
 print "\n"
-print [emptyW_sol('W_{f_{total}}')/base_sol('W_{f_{total}}'), emptyW_sol('W_{dry}')/base_sol('W_{dry}'), emptyW_sol('b')/base_sol('b'), emptyW_sol('AR')/base_sol('AR'), emptyW_sol('W_{engine}')/base_sol('W_{engine}'), emptyW_time/base_time,emptyW_sol('L/D')['L/D_Mission.1/CruiseSegment.1/CruiseP.1/AircraftP.3'][0]/base_sol('L/D')['L/D_Mission/CruiseSegment/CruiseP/AircraftP.1'][0]]
+print [emptyW_sol('W_{f_{total}}')/base_sol('W_{f_{total}}'), emptyW_sol('W_{dry}')/base_sol('W_{dry}'), emptyW_sol('b')/base_sol('b'), emptyW_sol('AR')/base_sol('AR'), emptyW_sol('W_{engine}')/base_sol('W_{engine}'), emptyW_time/base_time, emptyW_sol('L/D')['L/D_Mission.1/CruiseSegment.1/CruiseP.1/AircraftP.3'][0]/base_sol('L/D')['L/D_Mission/CruiseSegment/CruiseP/AircraftP.1'][0]]
 print "\n"
 print "\n"
 print "column 3"
