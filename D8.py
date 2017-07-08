@@ -1268,9 +1268,14 @@ class Mission(Model):
                   aircraft.engine.engineP['c1'][Nclimb:] <= 1. + 0.5*(.401)*0.8**2.,
                   ])
 
-        if not multimission:
+        if not multimission and objective != 'Total_Time' and objective != 'L/D':
             self.cost = aircraft[objective]
             self.cost = self.cost.sum()
+        elif not multimission and objective == 'Total_Time':
+            self.cost = Total_Time
+            self.cost = self.cost.sum()
+        elif not multimission and objective == 'L/D':
+            self.cost = 1/cruise['L/D'][0][0]
         else:
             self.cost = W_fmissions
 
