@@ -1268,42 +1268,10 @@ class Mission(Model):
                   aircraft.engine.engineP['c1'][Nclimb:] <= 1. + 0.5*(.401)*0.8**2.,
                   ])
 
-        if fuel:
-             # Fuel burn cost model
-             if not multimission:
-                  self.cost = aircraft['W_{f_{total}}']
-                  self.cost = self.cost.sum()
-             else:
-                  self.cost = W_fmissions
+        if not multimission:
+            self.cost = aircraft[objective]
+            self.cost = self.cost.sum()
+        else:
+            self.cost = aircraft[objective]
 
-             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
-             
-        if operator:
-             # Operator cost model
-             if not multimission:
-                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']
-                  self.cost = self.cost.sum()
-             else:
-                  self.cost = aircraft['W_{dry}'] + W_fmissions
-
-             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
-
-        if manufacturer:
-             # Manufacturer cost model
-             if not multimission:
-                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']
-                  self.cost = self.cost.sum()
-             else:
-                  self.cost = aircraft['W_{dry}'] + W_fmissions
-
-             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
-
-        if PRFC:
-             # Payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT NEED TO SUB ReqRng OR n_{pax}.
-             if not multimission:
-                self.cost = sum(aircraft['PRFC'])
-             else:
-                self.cost = sum(aircraft['PRFC'])
-             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
-
-
+        return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
