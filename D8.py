@@ -920,7 +920,7 @@ class Mission(Model):
              with Vectorize(Nmission):
                   CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
                   ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
-##                  Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
+                  Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
                   climb_time = Variable('ClimbTime', 'min', 'Total Time in Climb')
                   climb_distance = Variable('ClimbDistance', 'nautical_miles', 'Climb Distance')
         else:
@@ -1272,6 +1272,6 @@ class Mission(Model):
             self.cost = aircraft[objective]
             self.cost = self.cost.sum()
         else:
-            self.cost = aircraft[objective]
+            self.cost = W_fmissions
 
         return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
