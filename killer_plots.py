@@ -37,22 +37,22 @@ from SP_aircraft import run_M072_D8_big_eng_wing
 from SP_aircraft import run_M072_D8_big_no_BLI
 
 def RJ_M08_killer_plot_standard():
-    sol0 = run_optimal_RJ(True)
+    sol0 = run_optimal_RJ('W_{f_{total}}',True)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_small_M08_D8_eng_wing(True)
+    sol1 = run_small_M08_D8_eng_wing('W_{f_{total}}',True)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_small_M08_D8_no_BLI(True)
+    sol2 = run_small_M08_D8_no_BLI('W_{f_{total}}',True)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_small_M08_D8(True)
+    sol3 = run_small_M08_D8('W_{f_{total}}',True)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_small_D8(True)
+    sol4 = run_small_D8('W_{f_{total}}',True)
     wf4 = sol4('W_{f_{total}}')
 
-    sol5 = run_small_D8(False, True)
+    sol5 = run_small_D8('W_{f_{total}}',False, True)
     wf5 = sol5('W_{f_{total}}')
 
     ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0]
@@ -156,22 +156,22 @@ def RJ_M08_killer_plot_standard():
     plt.show(), plt.close()
 
 def RJ_killer_plot_standard():
-    sol0 = run_optimal_RJ(True)
+    sol0 = run_optimal_RJ('W_{f_{total}}',True)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_M072_optimal_RJ(True)
+    sol1 = run_M072_optimal_RJ('W_{f_{total}}',True)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_small_D8_eng_wing(True)
+    sol2 = run_small_D8_eng_wing('W_{f_{total}}',True)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_small_D8_no_BLI(True)
+    sol3 = run_small_D8_no_BLI('W_{f_{total}}',True)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_small_D8(True)
+    sol4 = run_small_D8('W_{f_{total}}',True)
     wf4 = sol4('W_{f_{total}}')
 
-    sol5 = run_small_D8(False, True)
+    sol5 = run_small_D8('W_{f_{total}}',False, True)
     wf5 = sol5('W_{f_{total}}')
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
@@ -276,19 +276,19 @@ def RJ_killer_plot_standard():
 
 def RJ_killer_plot_max_opt_eng():
     #TURN ON THE RIGHT CONSTRIANTS INSIDE D8.py
-    sol0 = run_optimal_RJ(False, True)
+    sol0 = run_optimal_RJ('W_{f_{total}}',False, True)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_M072_optimal_RJ(False, True)
+    sol1 = run_M072_optimal_RJ('W_{f_{total}}',False, True)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_small_D8_eng_wing(False, True)
+    sol2 = run_small_D8_eng_wing('W_{f_{total}}',False, True)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_small_D8_no_BLI(False, True)
+    sol3 = run_small_D8_no_BLI('W_{f_{total}}',False, True)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_small_D8(False, True)
+    sol4 = run_small_D8('W_{f_{total}}',False, True)
     wf4 = sol4('W_{f_{total}}')
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
@@ -401,10 +401,10 @@ def b777_killer_plot_standard():
     sol2 = run_M072_optimal_777(True)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_M072_D8_big_eng_wing(True)
+    sol3 = run_M072_D8_big_eng_wing('W_{f_{total}}',True)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_M072_D8_big_no_BLI(True)
+    sol4 = run_M072_D8_big_no_BLI('W_{f_{total}}',True)
     wf4 = sol4('W_{f_{total}}')
 
     sol5 = run_D8_big_M072(True)
@@ -524,10 +524,10 @@ def b777_killer_plot_reordered():
     sol0 = run_optimal_777(True)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_D8_big_eng_wing(True)
+    sol1 = run_D8_big_eng_wing('W_{f_{total}}',True)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_D8_big_no_BLI(True)
+    sol2 = run_D8_big_no_BLI('W_{f_{total}}',True)
     wf2 = sol2('W_{f_{total}}')
 
     sol3 = run_D8_big(True)
@@ -654,10 +654,10 @@ def b777_killer_plot_max_opt_eng():
     sol0 = run_optimal_777(False, True)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_D8_big_eng_wing(False, True)
+    sol1 = run_D8_big_eng_wing('W_{f_{total}}',False, True)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_D8_big_no_BLI(False, True)
+    sol2 = run_D8_big_no_BLI('W_{f_{total}}',False, True)
     wf2 = sol2('W_{f_{total}}')
 
     sol3 = run_D8_big(False, True)
@@ -771,19 +771,19 @@ def b777_killer_plot_max_opt_eng():
 
 def M_08_killer_plot_max_opt_eng():
     #TURN ON THE RIGHT CONSTRAINTS INSIDE D8.py
-    sol0 = run_optimal_737(False, True)
+    sol0 = run_optimal_737('W_{f_{total}}',False, True)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_M08_D8_eng_wing(False, True)
+    sol1 = run_M08_D8_eng_wing('W_{f_{total}}',False, True)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_M08_D8_no_BLI(False, True)
+    sol2 = run_M08_D8_no_BLI('W_{f_{total}}',False, True)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_M08_D8(False, True)
+    sol3 = run_M08_D8('W_{f_{total}}',False, True)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_optimal_D8(False, True)
+    sol4 = run_optimal_D8('W_{f_{total}}',False, True)
     wf4 = sol4('W_{f_{total}}')
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
@@ -888,19 +888,19 @@ def M_08_killer_plot_max_opt_eng():
 
 def M_08_killer_plot_optimal():
     #invalid due to lack of FPR optimization along with BPR
-    sol0 = run_optimal_737(False)
+    sol0 = run_optimal_737('W_{f_{total}}',False)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_M08_D8_eng_wing(False)
+    sol1 = run_M08_D8_eng_wing('W_{f_{total}}',False)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_M08_D8_no_BLI(False)
+    sol2 = run_M08_D8_no_BLI('W_{f_{total}}',False)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_M08_D8(False)
+    sol3 = run_M08_D8('W_{f_{total}}',False)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_optimal_D8(False)
+    sol4 = run_optimal_D8('W_{f_{total}}',False)
     wf4 = sol4('W_{f_{total}}')
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
@@ -1004,22 +1004,22 @@ def M_08_killer_plot_optimal():
 
 
 def M_08_killer_plot_fixed_BPR():
-    sol0 = run_optimal_737(True)
+    sol0 = run_optimal_737('W_{f_{total}}',True)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_M08_D8_eng_wing(True)
+    sol1 = run_M08_D8_eng_wing('W_{f_{total}}',True)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_M08_D8_no_BLI(True)
+    sol2 = run_M08_D8_no_BLI('W_{f_{total}}',True)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_M08_D8(True)
+    sol3 = run_M08_D8('W_{f_{total}}',True)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_M08_D8(False)
+    sol4 = run_M08_D8('W_{f_{total}}',False)
     wf4 = sol4('W_{f_{total}}')
 
-    sol5 = run_optimal_D8(False)
+    sol5 = run_optimal_D8('W_{f_{total}}',False)
     wf5 = sol5('W_{f_{total}}')
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
@@ -1123,27 +1123,27 @@ def M_08_killer_plot_fixed_BPR():
     plt.show(), plt.close()
 
 def standard_killer_plot():
-    sol0 = run_optimal_737(True)
+    sol0 = run_optimal_737('W_{f_{total}}', True)
     wf0 = sol0('W_{f_{total}}')
     genSolOut(sol0.table(),0)
 
-    sol1 = run_M072_737(True)
+    sol1 = run_M072_737('W_{f_{total}}', True)
     wf1 = sol1('W_{f_{total}}')
     genSolOut(sol1.table(),1)
 
-    sol2 = run_D8_eng_wing(True)
+    sol2 = run_D8_eng_wing('W_{f_{total}}', True)
     wf2 = sol2('W_{f_{total}}')
     genSolOut(sol2.table(),2)
 
-    sol3 = run_D8_no_BLI(True)
+    sol3 = run_D8_no_BLI('W_{f_{total}}', True)
     wf3 = sol3('W_{f_{total}}')
     genSolOut(sol3.table(),3)
 
-    sol4 = run_optimal_D8(True)
+    sol4 = run_optimal_D8('W_{f_{total}}', True)
     wf4 = sol4('W_{f_{total}}')
     genSolOut(sol4.table(),4)
 
-    sol5 = run_optimal_D8(False, True)
+    sol5 = run_optimal_D8('W_{f_{total}}', False, True)
     wf5 = sol5('W_{f_{total}}')
     genSolOut(sol5.table(),5)
 
@@ -1302,19 +1302,19 @@ def standard_killer_plot():
 
 def standard_killer_plot_optimal_engine():
     #invalid due to lack of FPR optimization along with BPR
-    sol0 = run_optimal_737(False, False)
+    sol0 = run_optimal_737('W_{f_{total}}',False, False)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_M072_737(False, False)
+    sol1 = run_M072_737('W_{f_{total}}',False, False)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_D8_eng_wing(False, False)
+    sol2 = run_D8_eng_wing('W_{f_{total}}',False, False)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_D8_no_BLI(False, False)
+    sol3 = run_D8_no_BLI('W_{f_{total}}',False, False)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_optimal_D8(False, False)
+    sol4 = run_optimal_D8('W_{f_{total}}',False, False)
     wf4 = sol4('W_{f_{total}}')
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
@@ -1353,19 +1353,19 @@ def standard_killer_plot_optimal_engine():
 
 def standard_killer_plot_max_opt_eng():
     #TURN ON THE RIGHT CONSTRIANTS INSIDE D8.py
-    sol0 = run_optimal_737(False, True)
+    sol0 = run_optimal_737('W_{f_{total}}',False, True)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_M072_737(False, True)
+    sol1 = run_M072_737('W_{f_{total}}',False, True)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_D8_eng_wing(False, True)
+    sol2 = run_D8_eng_wing('W_{f_{total}}',False, True)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_D8_no_BLI(False, True)
+    sol3 = run_D8_no_BLI('W_{f_{total}}',False, True)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_optimal_D8(False, True)
+    sol4 = run_optimal_D8('W_{f_{total}}',False, True)
     wf4 = sol4('W_{f_{total}}')
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \

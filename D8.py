@@ -707,22 +707,10 @@ class Mission(Model):
                optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_no_BLI, \
                M08D8_noBLI, optimal777, D8big_eng_wing, multimission, \
                D8bigfam, optimalRJ, RJfam, smallD8, smallD8_no_BLI, smallD8_eng_wing, D12
-        global manufacturer, operator, fuel
         global wingengine, rearengine, doublebubble, tube, piHT, conventional
 
         wingengine = False; rearengine = False; doublebubble = False; tube = False;
         piHT = False; conventional = False
-
-        # Objective type, only one active at once
-        manufacturer = False; operator = False; fuel = False; PRFC = False
-        if objective == 'manufacturer':
-            manufacturer = True
-        if objective == 'operator':
-            operator = True
-        if objective == 'fuel':
-            fuel = True
-        if objective == 'PRFC':
-            PRFC = True
 
         # Aircraft type, only one active at once
         D80 = False
@@ -920,7 +908,7 @@ class Mission(Model):
              with Vectorize(Nmission):
                   CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
                   ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
-##                  Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
+                  Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
                   climb_time = Variable('ClimbTime', 'min', 'Total Time in Climb')
                   climb_distance = Variable('ClimbDistance', 'nautical_miles', 'Climb Distance')
         else:
@@ -1268,42 +1256,15 @@ class Mission(Model):
                   aircraft.engine.engineP['c1'][Nclimb:] <= 1. + 0.5*(.401)*0.8**2.,
                   ])
 
-        if fuel:
-             # Fuel burn cost model
-             if not multimission:
-                  self.cost = aircraft['W_{f_{total}}']
-                  self.cost = self.cost.sum()
-             else:
-                  self.cost = W_fmissions
+        if not multimission and objective != 'Total_Time' and objective != 'L/D':
+            self.cost = aircraft[objective]
+            self.cost = self.cost.sum()
+        elif not multimission and objective == 'Total_Time':
+            self.cost = Total_Time
+            self.cost = self.cost.sum()
+        elif not multimission and objective == 'L/D':
+            self.cost = 1/cruise['L/D'][0][0]
+        else:
+            self.cost = W_fmissions
 
-             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
-             
-        if operator:
-             # Operator cost model
-             if not multimission:
-                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']
-                  self.cost = self.cost.sum()
-             else:
-                  self.cost = aircraft['W_{dry}'] + W_fmissions
-
-             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
-
-        if manufacturer:
-             # Manufacturer cost model
-             if not multimission:
-                  self.cost = aircraft['W_{dry}'] + aircraft['W_{f_{total}}']
-                  self.cost = self.cost.sum()
-             else:
-                  self.cost = aircraft['W_{dry}'] + W_fmissions
-
-             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
-
-        if PRFC:
-             # Payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT NEED TO SUB ReqRng OR n_{pax}.
-             if not multimission:
-                self.cost = sum(aircraft['PRFC'])
-             else:
-                self.cost = sum(aircraft['PRFC'])
-             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
-
-
+        return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise

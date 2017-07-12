@@ -247,7 +247,7 @@ def gen_777_plots(sol):
     plt.savefig('777_altitude_profile.pdf', bbox_inches="tight")
     plt.show()
 
-def run_737800(objective = 'fuel'):
+def run_737800(objective = 'W_{f_{total}}'):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -276,7 +276,7 @@ def run_737800(objective = 'fuel'):
 
     return sol
 
-def run_D82(objective = 'fuel'):
+def run_D82(objective = 'W_{f_{total}}'):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -305,7 +305,7 @@ def run_D82(objective = 'fuel'):
 
     return sol
 
-def run_D12(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_D12(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -344,7 +344,7 @@ def run_D12(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_D8_no_BLI(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -383,7 +383,7 @@ def run_D8_no_BLI(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_M072_737(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_M072_737(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -423,7 +423,7 @@ def run_M072_737(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_D8_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -462,7 +462,7 @@ def run_D8_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_optimal_D8(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -508,7 +508,7 @@ def run_optimal_D8(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_optimal_737(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_optimal_737(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -554,7 +554,7 @@ def run_optimal_737(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_M08_D8_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_M08_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -593,7 +593,7 @@ def run_M08_D8_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_M08_D8(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_M08_D8(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -632,7 +632,7 @@ def run_M08_D8(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_M08_D8_no_BLI(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_M08_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -671,7 +671,7 @@ def run_M08_D8_no_BLI(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_777300ER(objective = 'fuel'):
+def run_777300ER(objective = 'W_{f_{total}}'):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -700,7 +700,7 @@ def run_777300ER(objective = 'fuel'):
 
     return sol
 
-def run_optimal_777(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_optimal_777(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -739,7 +739,7 @@ def run_optimal_777(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_M08_optimal_777(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_M08_optimal_777(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -778,7 +778,7 @@ def run_M08_optimal_777(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_M072_optimal_777(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_M072_optimal_777(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -817,7 +817,7 @@ def run_M072_optimal_777(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_D8_big(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_D8_big(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -856,7 +856,7 @@ def run_D8_big(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_D8_big_no_BLI(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_D8_big_no_BLI(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -895,7 +895,7 @@ def run_D8_big_no_BLI(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_M072_D8_big_no_BLI(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_M072_D8_big_no_BLI(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -934,7 +934,7 @@ def run_M072_D8_big_no_BLI(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_D8_big_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_D8_big_eng_wing(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -973,7 +973,7 @@ def run_D8_big_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_M072_D8_big_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_M072_D8_big_eng_wing(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -1013,7 +1013,7 @@ def run_M072_D8_big_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
     return sol
 
 
-def run_D8_big_M072(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_D8_big_M072(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -1052,7 +1052,7 @@ def run_D8_big_M072(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_D8_big_M08(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_D8_big_M08(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -1091,7 +1091,7 @@ def run_D8_big_M08(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_optimal_RJ(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_optimal_RJ(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -1130,7 +1130,7 @@ def run_optimal_RJ(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_M072_optimal_RJ(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_M072_optimal_RJ(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -1169,7 +1169,7 @@ def run_M072_optimal_RJ(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_small_D8(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_small_D8(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -1208,7 +1208,7 @@ def run_small_D8(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_small_M08_D8(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_small_M08_D8(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -1245,7 +1245,7 @@ def run_small_M08_D8(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_small_D8_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_small_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -1284,7 +1284,7 @@ def run_small_D8_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_small_M08_D8_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_small_M08_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -1323,7 +1323,7 @@ def run_small_M08_D8_eng_wing(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_small_D8_no_BLI(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_small_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -1362,7 +1362,7 @@ def run_small_D8_no_BLI(fixedBPR, pRatOpt = False, objective = 'fuel'):
 
     return sol
 
-def run_small_M08_D8_no_BLI(fixedBPR, pRatOpt = False, objective = 'fuel'):
+def run_small_M08_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -1409,7 +1409,7 @@ if __name__ == '__main__':
     Nclimb = 3
     Ncruise = 2
     Nmission = 1
-    objective = 'fuel'
+    objective = 'W_{f_{total}}'
     aircraft = 'D8_eng_wing'
 
     genVSP = True
