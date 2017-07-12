@@ -34,7 +34,7 @@ For the demonstration, we define these as::
     Nclimb = 3
     Ncruise = 2
     Nmission = 1
-    objective = 'fuel' # minimizing fuel burn
+    objective = 'W_{f_{total}}' # minimizing fuel burn
     aircraft = 'D82' # optimizing the D82 configuration
 Now, we have the basic building blocks of a model::
 

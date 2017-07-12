@@ -707,22 +707,10 @@ class Mission(Model):
                optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_no_BLI, \
                M08D8_noBLI, optimal777, D8big_eng_wing, multimission, \
                D8bigfam, optimalRJ, RJfam, smallD8, smallD8_no_BLI, smallD8_eng_wing, D12
-        global manufacturer, operator, fuel
         global wingengine, rearengine, doublebubble, tube, piHT, conventional
 
         wingengine = False; rearengine = False; doublebubble = False; tube = False;
         piHT = False; conventional = False
-
-        # Objective type, only one active at once
-        manufacturer = False; operator = False; fuel = False; PRFC = False
-        if objective == 'manufacturer':
-            manufacturer = True
-        if objective == 'operator':
-            operator = True
-        if objective == 'fuel':
-            fuel = True
-        if objective == 'PRFC':
-            PRFC = True
 
         # Aircraft type, only one active at once
         D80 = False
