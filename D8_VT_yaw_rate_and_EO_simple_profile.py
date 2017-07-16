@@ -309,12 +309,12 @@ class VerticalTailNoStruct(Model):
         #                   'Distance from CG to vertical tail trailing edge')
         e      = Variable('e_v', '-', 'Span efficiency of vertical tail')
         lvt    = Variable('l_{vt}', 'm', 'Vertical tail moment arm')
-        mu0    = Variable('\\mu_0', 1.8E-5, 'N*s/m^2', 'Dynamic viscosity (SL)')
+        mu0    = Variable('\\mu_0', 1.8E-5, 'N*s/m^2', 'Dynamic viscosity (sea level)')
         p      = Variable('p_{vt}', '-', 'Substituted variable = 1 + 2*taper')
         # plamv  = Variable('p_{\\lambda_v}', '-',
         #                   'Dummy variable = 1 + 2\\lambda') # fuselage
         q      = Variable('q_{vt}', '-', 'Substituted variable = 1 + taper')
-        rho0   = Variable('\\rho_{TO}', 'kg/m^3', 'Air density (SL))')
+        rho0   = Variable('\\rho_{TO}', 'kg/m^3', 'Air density (sea level)')
         tanL   = Variable('\\tan(\\Lambda_{vt})', '-',
                           'Tangent of leading edge sweep (40 deg)')
         taper  = Variable('\\lambda_{vt}', '-', 'Vertical tail taper ratio')
