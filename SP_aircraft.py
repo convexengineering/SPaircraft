@@ -227,8 +227,8 @@ def gen_777_plots(sol):
     tasrng = [0, 15.6, 33.24, 60.40, 107.98, 107.98, 5850.37, 5850.37, 5887.82, 5925.28, 5962.74, 6000]
     tasalt = [0, 7994.2, 15988.5, 23982.8, 31977.0, 31977.0, 39723.4, 39723.4, 31282.2, 21847.9, 11420.5, 0]
 
-    rng = []
-    alt = []
+    rng = [0]
+    alt = [0]
     
     for i in range(len(sol('RngClimb'))):
            rng.append(mag(sol('RngClimb')[i][0]))
@@ -546,11 +546,11 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
-    post_process(sol)
+##    post_process(sol)
 
-    percent_diff(sol, 'b737800', Nclimb)
+##    percent_diff(sol, 'b737800', Nclimb)
 
-    post_compute(sol, Nclimb)
+##    post_compute(sol, Nclimb)
 
     return sol
 
@@ -1525,3 +1525,10 @@ if __name__ == '__main__':
             genDesFileSweep(sol,aircraft,nsweep)
         else:
             genDesFile(sol,aircraft)
+
+##plt.plot(sol('T_{t_{4.1_{max}}}'),sol['sensitivities']['constants']['C_{engsys}'])
+##plt.ylabel('Sensitivity to Engine System Weight')
+##plt.xlabel('Max Turbine Inlet Temp [K]')
+##plt.ylim([0,.4])
+##plt.savefig('turbine_inlet_sens.pdf', bbox_inches="tight")
+##plt.show()
