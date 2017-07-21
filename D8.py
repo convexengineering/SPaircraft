@@ -97,7 +97,6 @@ class Aircraft(Model):
 
         # Weights
         with Vectorize(Nmissions):
-             PRFC = Variable('PRFC','','Payload-Range Fuel Consumption')
              W_total = Variable('W_{total}', 'lbf', 'Total Aircraft Weight')
              W_dry = Variable('W_{dry}', 'lbf', 'Zero Fuel Aircraft Weight')
              W_ftotal = Variable('W_{f_{total}}', 'lbf', 'Total Fuel Weight')
@@ -114,28 +113,12 @@ class Aircraft(Model):
         # Misc system variables
         Wmisc   = Variable('W_{misc}','lbf','Sum of Miscellaneous Weights')
         Whpesys = Variable('W_{hpesys}','lbf','Power Systems Weight')
-        #
-        flgnose = Variable('f_{lgnose}','-','Nose Landing Gear Weight Fraction')
-        flgmain = Variable('f_{lgmain}','-','Main Landing Gear Weight Fraction')
         fhpesys = Variable('f_{hpesys}','-','Power Systems Weight Fraction')
-        #
         xmisc   = Variable('x_{misc}','m','Misc Weight Centroid')
-        xlgnose = Variable('x_{lgnose}','m','Nose Landing Gear Weight x-Location')
-        xlgmain = Variable('x_{lgmain}','m','Main Landing Gear Weight x-Location')
         xhpesys = Variable('x_{hpesys}','m','Power Systems Weight x-Location')
 
         #engine system weight variables
-        Ainlet = Variable('A_{inlet}','m^2', 'Inlet Area')
-        Afancowl = Variable('A_{fancowl}', 'm^2', 'Fan Cowling Area')
-        Aexh = Variable('A_{exh}', 'm^2', 'Exhaust Area')
-        Acorecowl = Variable('A_{corecowl}', 'm^2', 'Core Cowling Area')
-        Wpylon = Variable('W_{pylon}', 'lbf','Engine Pylon Weight')
-        fpylon = Variable('f_{pylon}', '-', 'Pylong Weight Fraction')
-        feadd = Variable('f_{eadd}', '-', 'Additional Engine Weight Fraction')
-        Weadd = Variable('W_{eadd}', 'lbf', 'Additional Engine System Weight')
         Wengsys = Variable('W_{engsys}', 'lbf', 'Total Engine System Weight')
-        rvnace = Variable('r_{v_{nacelle}}', '-', 'Incoming Nacelle Velocity Ratio')
-
         Ceng = Variable('C_{engsys}', 1, '-', 'Engine System Weight Margin/Sens Factor')
 
         #BLI total drag reduction factor
@@ -178,7 +161,6 @@ class Aircraft(Model):
 
                             # LG and Power System locations
                             self.LG['x_n'] <= self.fuse['l_{nose}'],
-##                            TCS([xlgnose >= 0.6*self.fuse['l_{nose}']]),
                             TCS([self.LG['x_m'] >= self.fuse['x_{wing}']]),
                             self.LG['x_m'] <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
                             xhpesys == 1.1*self.fuse['l_{nose}'],

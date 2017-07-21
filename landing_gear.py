@@ -32,15 +32,14 @@ class LandingGear(Model):
         Lwn     = Variable('L_{w_n}', 'N', 'Static load per wheel (nose)')
         N_s     = Variable('N_s', '-', 'Factor of safety')
         S_sa    = Variable('S_{sa}', 'm', 'Stroke of the shock absorber')
-        S_t     = Variable('S_t', 'm', 'Tire deflection')
+##        S_t     = Variable('S_t', 'm', 'Tire deflection')
         T       = Variable('T', 'm', 'Main landing gear track')
-        
         WAWm    = Variable('W_{wa,m}', 'lbf',
                            'Wheel assembly weight for single main gear wheel')
         WAWn    = Variable('W_{wa,n}', 'lbf',
                            'Wheel assembly weight for single nose gear wheel')
-        W_0     = Variable('W_{0_{lg}}', 'N',
-                           'Weight of aircraft excluding landing gear')
+##        W_0     = Variable('W_{0_{lg}}', 'N',
+##                           'Weight of aircraft excluding landing gear')
         Clg = Variable('C_{lg}', 1, '-', 'Landing Gear Weight Margin/Sens Factor')
         W_lg    = Variable('W_{lg}', 'N', 'Weight of landing gear')
         W_mg    = Variable('W_{mg}', 'N', 'Weight of main gear')
@@ -49,18 +48,11 @@ class LandingGear(Model):
         W_ng    = Variable('W_{ng}', 'N', 'Weight of nose gear')
         W_ns    = Variable('W_{ns}', 'N', 'Weight of nose strut')
         W_nw    = Variable('W_{nw}', 'N', 'Weight of nose wheels (total)')
-        
         d_oleo  = Variable('d_{oleo}', 'm', 'Diameter of oleo shock absorber')
         dtm     = Variable('d_{t_m}', 'in', 'Diameter of main gear tires')
         dtn     = Variable('d_{t_n}', 'in', 'Diameter of nose gear tires')
-
-
-        
         dxm     = Variable('\\Delta x_m', 'm', 'Distance b/w main gear and CG')
         dxn     = Variable('\\Delta x_n', 'm', 'Distance b/w nose gear and CG')
-
-
-        
         eta_s   = Variable('\\eta_s', '-', 'Shock absorber efficiency')
         faddm   = Variable('f_{add,m}', '-', 'Proportional added weight, main')
         faddn   = Variable('f_{add,n}', '-', 'Proportional added weight, nose')
@@ -96,22 +88,18 @@ class LandingGear(Model):
         x_m     = Variable('x_m', 'm', 'x-location of main gear')
         x_n     = Variable('x_n', 'm', 'x-location of nose gear')
         x_upswp = Variable('x_{up}', 'm', 'Fuselage upsweep point')
-        
         xcglg   = Variable('x_{CG_{lg}}', 'm', 'Landing gear CG')
-        
-        
         y_m     = Variable('y_m', 'm', 'y-location of main gear (symmetric)')
         z_CG_0  = Variable('z_{CG}', 'm',
                            'CG height relative to bottom of fuselage')
         zwing   = Variable('z_{wing}', 'm',
                            'Height of wing relative to base of fuselage')
-
-        #get linked
+        
         W       = Variable('W', 'N', 'Total aircraft weight')
         d_fan   = Variable('d_{fan}', 'm', 'Fan diameter')
         d_nac   = Variable('d_{nacelle}', 'm', 'Nacelle diameter')
-        xcg     = Variable('x_{CG}', 'm', 'x-location of CG incl. LG')
-        xcg0    = Variable('x_{CG_0}', 'm', 'x-location of CG excl. LG')
+##        xcg     = Variable('x_{CG}', 'm', 'x-location of CG incl. LG')
+##        xcg0    = Variable('x_{CG_0}', 'm', 'x-location of CG excl. LG')
 ##        y_eng   = Variable('y_{eng}', 'm', 'Spanwise loc. of engines')
 
         with SignomialsEnabled():
@@ -238,109 +226,5 @@ class LandingGear(Model):
                            x_m >= xcglg,
                           ]
 
-##            standaloneCG = [
-##                           # CG location affected by landing gear position
-##                           TCS([xcg*W <= W_0*xcg0 + W_ng*x_n + W_mg*x_m]),
-##                           W >= W_0 + W_lg,
-##                           ]
-
-
-##            self.standaloneCG = standaloneCG
-##            self.coupledCG = coupledCG
-
         return constraints
 
-    #coupling constarints
-    # For steering don't want too much or too little
-    # load on nose gear
-##    L_n/W >= 0.05,
-##    L_n/W <= 0.20,
-
-    # Engine ground clearance
-##    d_nac >= d_fan + 2*t_nac,
-##    d_nac + h_nac <= l_m + (y_eng-y_m)*tan_gam, # [SP]
-
-    # Geometric constraints relating gear placement with
-    # fore/aft CG locations
-##    TCS([dxn + x_n >= xcg], reltol=1E-3), # [SP]
-##    TCS([dxm + xcg >= x_m], reltol=1E-4), # [SP]
-    # TODO forward and aft CG
-
-    # Longitudinal tip over (static)
-##    x_m >= tan_phi*(z_CG_0+l_m) + xcg,
-
-    # Constrains/is constrained by engine location
-##    y_m <= y_eng,
-                           
-##    def default737subs(self):
-##
-##        substitutions = {
-##                         'E': 205,
-##                         'K': 2,
-##                         'N_s': 2,
-##                         'W_{0_{lg}}': 82000*9.81,
-##                         '\\eta_s': 0.8,
-##                         '\\lambda_{LG}': 2.5,
-##                         '\\rho_{st}': 7850,
-##                         '\\tan(\\gamma)': np.tan(5*np.pi/180),
-##                         '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
-##                         '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
-##                         '\\tan(\\theta_{max})': np.tan(15*np.pi/180),
-##                         '\\sigma_{y_c}': 470E6,
-##                         'd_{fan}': 1.75,
-##                         'f_{add,m}': 1.5,
-##                         'f_{add,n}': 1.5,
-##                         'h_{hold}': 1,
-##                         'h_{nacelle}': 0.5,
-##                         'n_{mg}': 2,
-##                         'n_{wps}': 2,
-##                         'p_{oleo}': 1800,
-##                         't_{nacelle}': 0.15,
-##                         'w_{ult}': 10,
-##                         'x_{CG_0}': 18,
-##                         'x_{up}': 28,
-##                         'y_{eng}': 4.83,
-##                         'z_{CG}': 2,
-##                         'z_{wing}': 0.5,
-##                        } 
-##
-##        return substitutions
-##
-##    @classmethod
-##    def standalone737(cls):
-##        """Returns a standalone landing gear model"""
-##        ccs = cls()
-##
-##        constraints = ccs + ccs.standaloneCG
-## 
-##        substitutions = ccs.default737subs()
-##
-##        m =  Model(ccs.cost, constraints, substitutions)
-##        return m
-##
-##    @classmethod
-##    def coupled737(cls):
-##        """Returns a landing gear model for use in a coupled aircraft model"""
-##        ccs = cls()
-##
-##        constraints = ccs + ccs.coupledCG
-##
-##        dsubs = ccs.default737subs()
-##        del dsubs['x_{CG_0}']
-##        del dsubs['W_{0_{lg}}']
-##        linkedsubs = ['h_{hold}', 'x_{up}']
-##        substitutions = {key: value for key, value in dsubs.items()
-##                                    if key not in linkedsubs}
-##
-##        m =  Model(ccs.cost, constraints, substitutions, name='LandingGear')
-##        return m
-##        
-##
-##    @classmethod
-##    def test(cls):
-##        """Tests the standalone landing gear model"""
-##        m = cls.standalone737()
-##        sol = m.localsolve()
-##
-##if __name__ == "__main__":
-##    LandingGear.test()

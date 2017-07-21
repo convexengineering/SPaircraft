@@ -17,6 +17,8 @@ def get737_optimal_subs():
     Mcruisemin = 0.8
 
     substitutions = {
+            'M_{min}': 0.8,
+        
             'N_{land}': 6.,
             'p_s': 81.*units('cm'),
             'n_{eng}': 2.,
@@ -64,8 +66,6 @@ def get737_optimal_subs():
 
             # Power system and landing gear and engine weight fraction subs
             'f_{hpesys}': 0.01, # [TAS]
-##            'f_{lgmain}':0.044, # [TAS]
-##            'f_{lgnose}':0.011, # [TAS]
 
             # Fractional weights
             'f_{fadd}': 0.2,  # [TAS]
@@ -84,7 +84,7 @@ def get737_optimal_subs():
 ##            'AR': 10.1,
             'b_{max}': 117.5 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-            'f_{wingfuel}': .5,  #.35 may be a better answer
+            'f_{wingfuel}': 1,  #.35 may be a better answer
             '\\tau_{max_w}': 0.1267,
             'TipReduct': 1,
 
@@ -135,10 +135,6 @@ def get737_optimal_subs():
             'c_{d_{fh}}': 0.0060,
             'c_{d_{ph}}': 0.0030,
 
-            #engine system subs
-            'f_{pylon}': 0.1,
-            'f_{eadd}': 0.1,
-
             # Cabin air substitutions in AircraftP
 
             #set the fuel reserve fraction
@@ -149,7 +145,7 @@ def get737_optimal_subs():
 
             # Engine substitutions
             'W_{engsys}': 11632.6*units('lbf'),
-            'TSFC': 0.5,
+            'TSFC': 0.6,
             'F_TO': 1.29e5*units('N'),
             'A_{2}': 3.14*(61*units('in'))**2,
 
@@ -157,7 +153,6 @@ def get737_optimal_subs():
             'E': 205,
             'K': 2,
             'N_s': 2,
-##            'W_{0_{lg}}': 82000*9.81,
             '\\eta_s': 0.8,
             '\\lambda_{LG}': 2.5,
             '\\rho_{st}': 7850,
@@ -176,9 +171,7 @@ def get737_optimal_subs():
             'p_{oleo}': 1800,
             't_{nacelle}': 0.15,
             'w_{ult}': 10,
-##            'x_{CG_0}': 18,
             'x_{up}': 28,
-##            'y_{eng}': 4.83,
             'z_{CG}': 2,
             'z_{wing}': 0.5,
     }
