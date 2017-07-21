@@ -64,8 +64,8 @@ def get737_optimal_subs():
 
             # Power system and landing gear and engine weight fraction subs
             'f_{hpesys}': 0.01, # [TAS]
-            'f_{lgmain}':0.044, # [TAS]
-            'f_{lgnose}':0.011, # [TAS]
+##            'f_{lgmain}':0.044, # [TAS]
+##            'f_{lgnose}':0.011, # [TAS]
 
             # Fractional weights
             'f_{fadd}': 0.2,  # [TAS]
@@ -152,6 +152,35 @@ def get737_optimal_subs():
             'TSFC': 0.5,
             'F_TO': 1.29e5*units('N'),
             'A_{2}': 3.14*(61*units('in'))**2,
+
+            #LG subs
+            'E': 205,
+            'K': 2,
+            'N_s': 2,
+##            'W_{0_{lg}}': 82000*9.81,
+            '\\eta_s': 0.8,
+            '\\lambda_{LG}': 2.5,
+            '\\rho_{st}': 7850,
+            '\\tan(\\gamma)': np.tan(5*np.pi/180),
+            '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
+            '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
+            '\\tan(\\theta_{max})': np.tan(15*np.pi/180),
+            '\\sigma_{y_c}': 470E6,
+            'd_{fan}': 1.75,
+            'f_{add,m}': 1.5,
+            'f_{add,n}': 1.5,
+            'h_{hold}': 1,
+            'h_{nacelle}': 0.5,
+            'n_{mg}': 2,
+            'n_{wps}': 2,
+            'p_{oleo}': 1800,
+            't_{nacelle}': 0.15,
+            'w_{ult}': 10,
+##            'x_{CG_0}': 18,
+            'x_{up}': 28,
+##            'y_{eng}': 4.83,
+            'z_{CG}': 2,
+            'z_{wing}': 0.5,
     }
 
     return substitutions

@@ -17,6 +17,7 @@ from D8_HT_simple_profile import HorizontalTail
 from D8_Wing_simple_profile import Wing
 from D8_Fuselage import Fuselage
 from simple_engine import Engine
+from landing_gear import LandingGear
 
 
 """
@@ -66,6 +67,7 @@ class Aircraft(Model):
            self.engine = Engine()
         self.VT = VerticalTail()
         self.HT = HorizontalTail()
+        self.LG = LandingGear()
 
         #set the tail drag flag
         self.fitDrag = fitDrag
@@ -111,10 +113,6 @@ class Aircraft(Model):
 
         # Misc system variables
         Wmisc   = Variable('W_{misc}','lbf','Sum of Miscellaneous Weights')
-        Wlgnose = Variable('W_{lgnose}','lbf','Nose Landing Gear Weight')
-        Wlgmain = Variable('W_{lgmain}','lbf','Main Landing Gear Weight')
-        Wlg = Variable('W_{lg}', 'lbf', 'Total Landing Gear Weight')
-        Clg = Variable('C_{lg}', 1, '-', 'Landing Gear Weight Margin/Sens Factor')
         Whpesys = Variable('W_{hpesys}','lbf','Power Systems Weight')
         #
         flgnose = Variable('f_{lgnose}','-','Nose Landing Gear Weight Fraction')
@@ -175,20 +173,28 @@ class Aircraft(Model):
                             WVT == self.VT['W_{VT_system}'],
 
                             # LG and Power Systems weights
-                            Wmisc >= Wlg + Whpesys,
-                            Wlgnose == flgnose*W_total,
-                            Wlgmain == flgmain*W_total,
-                            Wlg >= Clg*(Wlgnose + Wlgmain),
+                            Wmisc >= self.LG['W_{lg}'] + Whpesys,
                             Whpesys == fhpesys*W_total,
 
                             # LG and Power System locations
-                            xlgnose <= self.fuse['l_{nose}'],
-                            TCS([xlgnose >= 0.6*self.fuse['l_{nose}']]),
-                            TCS([xlgmain >= self.fuse['x_{wing}']]),
-                            xlgmain <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
+                            self.LG['x_n'] <= self.fuse['l_{nose}'],
+##                            TCS([xlgnose >= 0.6*self.fuse['l_{nose}']]),
+                            TCS([self.LG['x_m'] >= self.fuse['x_{wing}']]),
+                            self.LG['x_m'] <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
                             xhpesys == 1.1*self.fuse['l_{nose}'],
-                            xmisc*Wmisc >= xlgnose*Wlgnose + xlgmain*Wlgmain + xhpesys*Whpesys,
+                            xmisc*Wmisc >= self.LG['x_n']*self.LG['W_{ng}'] + self.LG['x_m']*self.LG['W_{mg}'] + xhpesys*Whpesys,
 
+                            #------------LG constraints------------
+                            # For steering don't want too much or too little
+                            # load on nose gear
+                            self.LG['L_n']/W_total >= 0.05,
+                            self.LG['L_n']/W_total <= 0.20,
+
+                            self.VT['y_{eng}'] >= self.LG['y_m'],
+
+                            # Engine ground clearance
+                            self.LG['d_{nacelle}'] + self.LG['h_{nacelle}'] <= self.LG['l_m'] + (self.VT['y_{eng}']-self.LG['y_m'])*self.LG['\\tan(\\gamma)'], # [SP]
+                            
                             # Tail cone sizing
                             3. * (numVT*self.VT['M_r']) * self.VT['c_{root_{vt}}'] * \
                                 (self.fuse['p_{\\lambda_v}'] - 1.) >= numVT*self.VT[
@@ -386,7 +392,7 @@ class Aircraft(Model):
                     self.HT['\\pi_{M-fac}'] == 1.0,
                 ])
 
-        self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
+        self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT, self.LG]
 
         return self.components, constraints
 
@@ -863,6 +869,13 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                     + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
               ])
+            #LG CG distance and tip over computations
+            constraints.extend([
+                TCS([aircraft['\\Delta x_n'] + aircraft['x_n'] >= cruise['x_{CG}'][0]]),
+                TCS([aircraft['\\Delta x_m'] + cruise['x_{CG}'][0] >= aircraft['x_m']]),
+                # Longitudinal tip over (static)
+                aircraft['x_m'] >= aircraft['\\tan(\\phi)']*(aircraft['z_{CG}']+aircraft['l_m']) + cruise['x_{CG}'][0],
+                ])
 
             #Setting fuselage drag and lift, and BLI correction
             if optimalD8 or D80 or D82 or D82_73eng or M08D8 or D8_no_BLI or M08D8_noBLI or smallD8 or smallD8_no_BLI or D8_eng_wing or smallD8_eng_wing \
