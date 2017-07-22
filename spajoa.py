@@ -11,10 +11,10 @@ from gpkit.constraints.bounded import Bounded as BCS
 from relaxed_constants import relaxed_constants, post_process
 
 # Mission model
-from D8 import Mission
+from aircraft import Mission
 
 # Substitution dictionaries for different aircraft
-from subs_optimal_737 import get737_optimal_subs
+from subs.optimal_737 import get737_optimal_subs
 # Plotting tools
 import matplotlib.pyplot as plt
 from gpkit.small_scripts import mag
@@ -24,7 +24,7 @@ import numpy as np
 from post_compute import post_compute
 
 # Solution check tool relative to TASOPT
-from D8_TASOPT_percent_diff import percent_diff
+from percent_diff_TASOPT import percent_diff
 
 def run_optimal_737(objective = 'fuel'):
     # User definitions
@@ -52,10 +52,13 @@ def run_optimal_737(objective = 'fuel'):
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=0, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
     percent_diff(sol, 'optimal737')
 
     return sol
 
+
+if __name__ == "__main__":
+    sol = run_optimal_737()

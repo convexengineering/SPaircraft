@@ -2,10 +2,10 @@
 import matplotlib.pyplot as plt
 
 # Percent diffs
-from D8_TASOPT_percent_diff import percent_diff
+from percent_diff_TASOPT import percent_diff
 
 # Solution saving
-from saveSol import genSolOut
+from save_sol import genSolOut
 
 from SP_aircraft import run_737800
 from SP_aircraft import run_D82

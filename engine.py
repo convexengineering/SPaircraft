@@ -3,7 +3,7 @@ simple engine for pkjournal model
 """
 from gpkit import Variable, Model, units, Vectorize
 
-class Engine(Model):
+class SimpleEngine(Model):
     """
     most simple engine model imaginable
     """
