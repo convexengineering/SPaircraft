@@ -7,6 +7,7 @@ from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import Tight as TCS
 import matplotlib.pyplot as plt
 from simple_ac_imports_no_engine import Fuselage, Engine, CruiseP, ClimbP, FlightState, CruiseSegment, ClimbSegment
+from wingbox import WingBox
 
 """
 Models requird to minimze the aircraft total fuel weight. Rate of climb equation taken from John
@@ -222,7 +223,7 @@ class Wing(Model):
     """
     def setup(self, **kwargs):
         self.wns = WingNoStruct()
-        self.wb = WingBox(self.wns)
+        self.wb = WingBox(self.wns, "wing")
 
         Wwing = Variable('W_{wing_system}', 'N', 'Total Wing Weight')
 
@@ -440,93 +441,6 @@ class WingPerformance(Model):
                 ]),
             ])
 
-        return constraints
-
-class WingBox(Model):
-    """
-    Structural model for a wing
-    source: Hoburg, "Geometric Programming for Aircraft Design Optimization"
-
-    Note - does not have a performance model
-    """
-
-    def setup(self, surface, **kwargs):
-        # Variables
-        g = 9.81*units('m*s^-2')
-        Icap    = Variable('I_{capprint s}', '-',
-                           'Non-dim spar cap area moment of inertia')
-        Mr      = Variable('M_r', 'N', 'Root moment per root chord')
-        nu      = Variable('\\nu', '-',
-                           'Dummy variable = $(t^2 + t + 1)/(t+1)$')
-        Wcap    = Variable('W_{cap}', 'N', 'Weight of spar caps')
-        Wweb    = Variable('W_{web}', 'N', 'Weight of shear web')
-        Wstruct = Variable('W_{struct}', 'N', 'Structural weight')
-
-        # Constants
-        taper = Variable('taper', '-', 'Taper ratio')
-        Nlift  = Variable('N_{lift}', 3.0, '-', 'Wing loading multiplier') # [TAS]
-        rh     = Variable('r_h', 0.75, '-',
-                          'Fractional wing thickness at spar web') # [TAS]
-        rhocap = Variable('\\rho_{cap}', 2700, 'kg/m^3',
-                          'Density of spar cap material') # [TAS]
-        rhoweb = Variable('\\rho_{web}', 2700, 'kg/m^3',
-                          'Density of shear web material') # [TAS]
-        sigmax = Variable('\\sigma_{max}', 250e6, 'Pa',
-                          'Allowable tensile stress') # [TAS]
-        sigmaxshear = Variable('\\sigma_{max,shear}', 167e6, 'Pa',
-                               'Allowable shear stress')
-        wwb      = Variable('r_{w/c}', 0.5, '-', 'Wingbox width-to-chord ratio') # [TAS]
-        tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
-        tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
-        tau_max = Variable('\\tau_{max_w}', '-', 'Max allowed wing thickness')
-        
-        objective = Wstruct
-
-        if isinstance(surface, WingNoStruct):
-            AR = surface['AR']
-            b = surface['b']
-            S = surface['S']
-            p = surface['p']
-            q = surface['q']
-            tau = surface['\\tau']
-            Lmax = surface['L_{max}']
-
-        constraints = [
-                       # Aspect ratio definition
-                       AR == b**2/S,
-
-                       # Upper bound on maximum thickness
-                       tau <= tau_max,
-
-                       # Root moment calculation (see Hoburg 2014)
-                       # Depends on a given load the wing must support, Lmax
-                       # Assumes lift per unit span proportional to local chord
-##                       TCS([Mr >= Lmax*AR*p/24]),
-
-                       # Root stiffness (see Hoburg 2014)
-                       # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
-                       TCS([0.92*wwb*tau*tcap**2 + Icap <= 0.92**2/2*wwb*tau**2*tcap]),
-
-                       # Stress limit
-                       # Assumes bending stress carried by caps (Icap >> Iweb)
-                       TCS([8 >= Mr*AR*q**2*tau/(S*Icap*sigmax)]),
-
-                       # Shear web sizing
-                       # Assumes all shear loads are carried by web and rh=0.75
-                       TCS([12 >= AR*Lmax*q**2/(tau*S*tweb*sigmaxshear)]),
-
-                       # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam)
-                       # nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # PHILIPPE'S FIT
-                        (nu/1.09074074)**.166 >= 0.205*(p/1.7)**0.772 + 0.795*(p/1.7)**-0.125, # BERK'S FIT
-
-                       # Weight of spar caps and shear webs
-                       Wcap >= 8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5),
-                       TCS([Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5)]),
-
-                       # Total wing weight using an additional weight fraction
-                       Wstruct >= (Wweb + Wcap),
-                       ]
-        
         return constraints
 
 if __name__ == '__main__':
