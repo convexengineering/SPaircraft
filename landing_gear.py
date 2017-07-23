@@ -95,12 +95,8 @@ class LandingGear(Model):
         zwing   = Variable('z_{wing}', 'm',
                            'Height of wing relative to base of fuselage')
         
-        W       = Variable('W', 'N', 'Total aircraft weight')
         d_fan   = Variable('d_{fan}', 'm', 'Fan diameter')
         d_nac   = Variable('d_{nacelle}', 'm', 'Nacelle diameter')
-##        xcg     = Variable('x_{CG}', 'm', 'x-location of CG incl. LG')
-##        xcg0    = Variable('x_{CG_0}', 'm', 'x-location of CG excl. LG')
-##        y_eng   = Variable('y_{eng}', 'm', 'Spanwise loc. of engines')
 
         with SignomialsEnabled():
 
@@ -112,16 +108,6 @@ class LandingGear(Model):
                            T == 2*y_m,
                            TCS([x_n + B <= x_m]),
                            x_n >= 5*units.m, # nose gear after nose
-
- 
-
-                           # Maximum static loads through main and nose gears
-                           L_n == W*dxm/B,
-                           L_m == W*dxn/B,
-
-                           # Dynamic braking load through nose gear
-                           # (assumes deceleration of 10 ft/s^2)
-                           L_n_dyn >= 0.31*((z_CG_0+l_m)/B)*W,
 
                            # Longitudinal tip over (static)
                            tan_phi >= tan_15,
@@ -151,7 +137,7 @@ class LandingGear(Model):
                            # sink rate of 10 feet per second at the maximum
                            # design landing weight
                            # Landing condition from Torenbeek p360
-                           Eland >= W/(2*g)*w_ult**2, # Torenbeek (10-26)
+##                           Eland >= W/(2*g)*w_ult**2, # Torenbeek (10-26)
                            # S_t == 0.5*lam*Lwm/(p*(dtm*bt)**0.5), # (10-30)
                            S_sa == (1/eta_s)*(Eland/(L_m*lam)),# - eta_t*S_t),
                            # [SP] Torenbeek (10-28)

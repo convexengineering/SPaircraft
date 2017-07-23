@@ -174,8 +174,23 @@ class Aircraft(Model):
 
                             self.VT['y_{eng}'] >= self.LG['y_m'],
 
+                           # Hard landing
+                           # http://www.boeing.com/commercial/aeromagazine/...
+                           # articles/qtr_3_07/AERO_Q307_article3.pdf
+                           # sink rate of 10 feet per second at the maximum
+                           # design landing weight
+                           # Landing condition from Torenbeek p360
+                           self.LG['E_{land}'] >= W_total/(2*self.LG['g'])*self.LG['w_{ult}']**2, # Torenbeek (10-26)
+
+                           # Maximum static loads through main and nose gears
+                           self.LG['L_n'] == W_total*self.LG['\\Delta x_m']/self.LG['B'],
+                           self.LG['L_m'] == W_total*self.LG['\\Delta x_n']/self.LG['B'],
+
                             # Engine ground clearance
                             self.LG['d_{nacelle}'] + self.LG['h_{nacelle}'] <= self.LG['l_m'] + (self.VT['y_{eng}']-self.LG['y_m'])*self.LG['\\tan(\\gamma)'], # [SP]
+
+                            # (assumes deceleration of 10 ft/s^2)
+                            self.LG['L_{n_{dyn}}'] >= 0.31*((self.LG['z_{CG}']+self.LG['l_m'])/self.LG['B'])*W_total,
                             
                             # Tail cone sizing
                             3. * (numVT*self.VT['M_r']) * self.VT['c_{root_{vt}}'] * \
@@ -854,7 +869,7 @@ class Mission(Model):
             #LG CG distance and tip over computations
             constraints.extend([
                 TCS([aircraft['\\Delta x_n'] + aircraft['x_n'] >= cruise['x_{CG}'][0]]),
-                TCS([aircraft['\\Delta x_m'] + cruise['x_{CG}'][0] >= aircraft['x_m']]),
+                TCS([aircraft['\\Delta x_m'] + cruise['x_{CG}'][0] <= aircraft['x_m']]),
                 # Longitudinal tip over (static)
                 aircraft['x_m'] >= aircraft['\\tan(\\phi)']*(aircraft['z_{CG}']+aircraft['l_m']) + cruise['x_{CG}'][0],
                 ])
