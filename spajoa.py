@@ -55,10 +55,10 @@ def run_optimal_737(objective = 'fuel'):
     sol = m_relax.localsolve(verbosity=0, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
-    percent_diff(sol, 'optimal737')
-
     return sol
 
 
 if __name__ == "__main__":
     sol = run_optimal_737()
+    percent_diff(sol, 'optimal737')
+
