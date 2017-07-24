@@ -37,7 +37,6 @@ class WingBox(Model):
         wwb      = Variable('r_{w/c}', 0.5, '-', 'Wingbox width-to-chord ratio')
         tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
         tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
-        tau_max = Variable('\\tau_{max_w}', '-', 'Max allowed wing thickness')
 
         objective = Wstruct
 
@@ -49,13 +48,24 @@ class WingBox(Model):
             q = surface['q']
             tau = surface['\\tau']
             Lmax = surface['L_{max}']
+        elif surfacetype == "vertical_tail":
+            #factors of 2 required since the VT is only half span and the wing model
+            #is for a full span wing
+            AR = Variable('AR_{vt}','-','Vertical tail aspect ratio (double span)')
+            b = 2.*surface['b_{vt}']
+            S = 2.*surface['S_{vt}']
+            p = surface['p_{vt}']
+            q = surface['q_{vt}']
+            tau = surface['\\tau_{vt}']
+            Lmax = 2.*surface['L_{v_{max}}']
+            taper = surface['\\lambda_{vt}']
 
         constraints = [
                        # Aspect ratio definition
                        AR == b**2/S,
 
                        # Upper bound on maximum thickness
-                       tau <= tau_max,
+                       tau <= 0.14,
 
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax

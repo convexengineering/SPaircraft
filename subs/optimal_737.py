@@ -85,7 +85,6 @@ def get737_optimal_subs():
             'b_{max}': 117.5 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'f_{wingfuel}': 1,  #.35 may be a better answer
-            '\\tau_{max_w}': 0.1267,
             'TipReduct': 1,
 
             # Wing fractional weights
@@ -106,14 +105,12 @@ def get737_optimal_subs():
             'c_{l_{vtEO}}': 0.5, # [TAS]
             'e_v': 0.8,
             'V_{land}': 72.*units('m/s'),
-            'N_{spar}': 1.,
             'f_{VT}': 0.4,
             'y_{eng}': 4.8768*units('m'),
             'n_{VT}': 1.,
             'A_{vt}': 2.,
             '\\lambda_{vt}': 0.3,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
-            'N_{spar}': 1.,
             '\\dot{r}_{req}': 0.0001, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
             '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
             'c_{d_{fv}}': 0.0060,
