@@ -109,8 +109,10 @@ class AircraftP(Model):
             TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}']]),
 
             #constraint CL and compute the wing loading
-            W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,      
-            WLoad == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2/self.aircraft.wing['S'],
+            W_avg == .5*self.wingP['C_{L}']*self.aircraft['S'] *
+                     state.atm['\\rho']*state['V']**2,
+            WLoad == .5*self.wingP['C_{L}']*self.aircraft['S']*
+                     state.atm['\\rho']*state['V']**2/self.aircraft.wing['S'],
 
             #set average weight equal to the geometric avg of start and end weight
             W_avg == (W_start * W_end)**.5,
@@ -119,7 +121,8 @@ class AircraftP(Model):
             WLoad <= WLoadmax,
 
             #compute fuel burn from TSFC
-            W_burn == aircraft['numeng']*self.engineP['TSFC'] * thours * self.engineP['F'],
+            W_burn == aircraft['numeng']*self.engineP['TSFC']*thours*
+                      self.engineP['F'],
                
             #time unit conversion
             t == thours,
@@ -227,26 +230,30 @@ class Wing(Model):
 
         Wwing = Variable('W_{wing_system}', 'N', 'Total Wing Weight')
 
-        Cwing = Variable('C_{wing}', 1, '-', 'Wing Weight Margin and Sensitivity Factor')
+        Cwing = Variable('C_{wing}', 1, '-',
+                         'Wing Weight Margin and Sensitivity Factor')
 
-        dxACwing = Variable('\\Delta x_{AC_{wing}}','m','Wing Aerodynamic Center Shift')
+        dxACwing = Variable('\\Delta x_{AC_{wing}}', 'm',
+                            'Wing Aerodynamic Center Shift')
         # w.r.t. the quarter chord of the root of the wing.
 
         #wing induced drag reduction due to wing tip devices
-        TipReduct = Variable('TipReduct', '-', 'Induced Drag Reduction Factor from Wing Tip Devices')
+        TipReduct = Variable('TipReduct', '-',
+                             'Induced drag reduction factor from wing tip devices')
 
         constraints = []
         with SignomialsEnabled():
             constraints.extend([
             self.wns['\\lambda'] == self.wb['taper'],
 
-            TCS([Wwing >= Cwing * self.wb['W_{struct}'] + self.wb['W_{struct}']*(self.wns['f_{flap}'] + \
-                    self.wns['f_{slat}'] + self.wns['f_{aileron}'] + self.wns['f_{lete}'] + self.wns['f_{ribs}'] + \
-                    self.wns['f_{spoiler}'] + self.wns['f_{watt}'])]),
-            TCS([dxACwing >= (1/12.*self.wns['A_{tri}'] + 1/4.*self.wns['A_{rect}'])/self.wns['S'] \
-                 *self.wns['b']*self.wns['\\tan(\\Lambda)']]),
-
-##            self.wns['\\bar{A}_{fuel, max}'] <= (self.wns['wwn'] - 2*self.wb['t_{web}'])*(0.92*self.wns['\\tau'] - 2*self.wb['t_{web}']),
+            TCS([Wwing >= Cwing * self.wb['W_{struct}']
+                        + self.wb['W_{struct}']*(self.wns['f_{flap}']
+                        + self.wns['f_{slat}'] + self.wns['f_{aileron}']
+                        + self.wns['f_{lete}'] + self.wns['f_{ribs}']
+                        + self.wns['f_{spoiler}'] + self.wns['f_{watt}'])]),
+            TCS([dxACwing >= (1/12.*self.wns['A_{tri}']
+                           + 1/4.*self.wns['A_{rect}'])/self.wns['S']
+                           * self.wns['b']*self.wns['\\tan(\\Lambda)']]),
             ])
 
         return self.wns, self.wb, constraints
@@ -262,23 +269,17 @@ class WingNoStruct(Model):
     Philippe's wing model minus structure
     """
     def setup(self, **kwargs):
-        #declare variables
-               #Variables
-        # Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
-        
+       #Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
         CLwmax  = Variable('C_{L_{wmax}}', '-', 'Max lift coefficient, wing')
-        
-        
         Vfuel   = Variable('V_{fuel, max}', 'm^3', 'Available fuel volume')
-        
         cosL    = Variable('\\cos(\\Lambda)', '-',
                            'Cosine of quarter-chord sweep angle')
         croot   = Variable('c_{root}', 'm', 'Wing root chord')
         ctip    = Variable('c_{tip}', 'm', 'Wing tip chord')
-        
-        
-        eta     = Variable('\\eta', '-', 'Lift efficiency (diff b/w sectional, actual lift)')
-        fl      = Variable('f(\\lambda_w)', '-', 'Empirical efficiency function of taper')
+        eta     = Variable('\\eta', '-',
+                           'Lift efficiency (diff b/w sectional, actual lift)')
+        fl      = Variable('f(\\lambda_w)', '-',
+                           'Empirical efficiency function of taper')
         g       = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         p       = Variable('p', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q', '-', 'Substituted variable = 1 + taper')
@@ -288,11 +289,11 @@ class WingNoStruct(Model):
                            'Tangent of quarter-chord sweep angle')
         taper   = Variable('\\lambda', '-', 'Wing taper ratio')
         tau     = Variable('\\tau', '-', 'Wing thickness/chord ratio')
-        wwn       = Variable('wwn', 0.5, '-', 'Wingbox-width-to-chord ratio')
-        xw     = Variable('x_w', 'm', 'Position of wing aerodynamic center')
+        wwn     = Variable('wwn', 0.5, '-', 'Wingbox-width-to-chord ratio')
+        xw      = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{mac}', 'm',
                            'Spanwise location of mean aerodynamic chord')
-        bmax = Variable('b_{max}', 'm', 'Max Wing Span')
+        bmax    = Variable('b_{max}', 'm', 'Max Wing Span')
 
         #Linked Variables
         AR      = Variable('AR', '-', 'Wing aspect ratio')
@@ -300,10 +301,8 @@ class WingNoStruct(Model):
         Sw      = Variable('S', 'm^2', 'Wing area')
         WfuelWing   = Variable('W_{fuel_{wing}}', 'N', 'Fuel weight')
         b       = Variable('b', 'm', 'Wing span')
-        #the following two variables have the same name in the flight profile and
-        #will be automatically linked by the linked constraint set
-        mac    = Variable('mac', 'm',
-                          'Mean aerodynamic chord (wing)')
+        mac     = Variable('mac', 'm',
+                           'Mean aerodynamic chord (wing)')
         e       = Variable('e', '-', 'Oswald efficiency factor')
         FuelFrac = Variable('FuelFrac', '-', 'Usability Factor of Max Fuel Volume')
 
@@ -319,35 +318,29 @@ class WingNoStruct(Model):
         # Area fractions
         Atri = Variable('A_{tri}','m^2','Triangular Wing Area')
         Arect = Variable('A_{rect}','m^2','Rectangular Wing Area')
-        
-        #make constraints
-        constraints = []
 
         with SignomialsEnabled():
 
-            constraints.extend([
-                 Arect == ctip*b,
-                 Atri >= 1./2.*(1-taper)*croot*b, #[SP]
-                 p >= 1 + 2*taper,
-                 2*q >= 1 + p,
-                 ymac == (b/3)*q/p,
-                 TCS([(2./3)*(1+taper+taper**2)*croot/q <= mac],
-                                   reltol=1E-2),
-                 taper == ctip/croot,
+            constraints = [
+                Arect == ctip*b,
+                Atri >= 1./2.*(1-taper)*croot*b, #[SP]
+                p >= 1 + 2*taper,
+                2*q >= 1 + p,
+                ymac == (b/3)*q/p,
+                TCS([(2./3)*(1+taper+taper**2)*croot/q <= mac],
+                                  reltol=1E-2),
+                taper == ctip/croot,
 
-                 SignomialEquality(Sw, b*(croot + ctip)/2),
+                SignomialEquality(Sw, b*(croot + ctip)/2),
 
-                 # Oswald efficiency
-                 # Nita, Scholz, "Estimating the Oswald factor from
-                 # basic aircraft geometrical parameters"
-                 TCS([fl >= 0.0524*taper**4 - 0.15*taper**3
+                # Oswald efficiency
+                # Nita, Scholz, "Estimating the Oswald factor from
+                # basic aircraft geometrical parameters"
+                TCS([fl >= 0.0524*taper**4 - 0.15*taper**3
                          + 0.1659*taper**2 - 0.0706*taper + 0.0119],
                     reltol=1E-2),
                 TCS([e*(1 + fl*AR) <= 1]),
 
-##                (1/e)**25.83551736847673 >= 0.0003471818473394128 * (AR)**1.986445677275891 * (taper)**-1.352261863161144   
-##                + 1.044439738352572 * (AR)**-0.2201203645519972 * (taper)**-0.0411332468801354   
-##                + 0.004481514943241946 * (AR)**2.502762266336954 * (taper)**5.061781313263068,
                 taper >= 0.15, # TODO
 
                 # Fuel volume [TASOPT doc]
@@ -355,11 +348,11 @@ class WingNoStruct(Model):
                 # GP approx of the signomial constraint:
 
                 #.3026 computed from TASOPT 737 case, assumes all lengths in m
-                Vfuel <= .3026*mac**2*b*tau,
+                Vfuel <= 0.3026*mac**2*b*tau,
                 WfuelWing <= rhofuel*Vfuel*g,
 
                 b <= bmax,
-                ])
+            ]
 
         return constraints
 
@@ -407,37 +400,44 @@ class WingPerformance(Model):
         with SignomialsEnabled():
             constraints.extend([
                 # Lw == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw,
-                0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw >= Lw + dLo + 2.*dLt,
+                0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw >= Lw + dLo
+                                                                     + 2.*dLt,
                 dLo == etao*fLo*self.wing['b']/2*po,
-                dLt == fLt*po*self.wing['c_{root}']*self.wing['taper']**2, # TODO improve approximations croot~co and taper~gammat
+                dLt == fLt*po*self.wing['c_{root}']*self.wing['taper']**2,
+                # TODO improve approximations croot~co and taper~gammat
 
                 # DATCOM formula (Mach number makes it SP)
                 # Swept wing lift curve slope constraint
-                SignomialEquality((self.wing['AR']/self.wing['\\eta'])**2*(1 + self.wing['\\tan(\\Lambda)']**2 - state['M']**2) + 8*pi*self.wing['AR']/CLaw
-                      , (2*pi*self.wing['AR']/CLaw)**2),
-                
+                SignomialEquality((self.wing['AR']/self.wing['\\eta'])**2*(1
+                                   + self.wing['\\tan(\\Lambda)']**2
+                                   - state['M']**2) + 8*pi*self.wing['AR']/CLaw,
+                                  (2*pi*self.wing['AR']/CLaw)**2),
+ 
                 CLw == CLaw*alpha,
                 alpha <= amax,
 
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CDw,
                 TCS([CDw >= CDp + CDi]),
-                TCS([CDi >= self.wing['TipReduct']*CLw**2/(pi*(self.wing['e'])*self.wing['AR'])]),
+                TCS([CDi >= self.wing['TipReduct']*CLw**2/(pi*(self.wing['e'])
+                          * self.wing['AR'])]),
                 Re == state['\\rho']*state['V']*self.wing['mac']/state['\\mu'],
 
-                #original Philippe thesis fit
-##                TCS([CDp**6.5 >= (1.02458748e10 * CLw**15.587947404823325 * (self.wing['\\cos(\\Lambda)']*state['M'])**156.86410659495155 +
-##                                 2.85612227e-13 * CLw**1.2774976672501526 * (self.wing['\\cos(\\Lambda)']*state['M'])**6.2534328002723703 +
-##                                 2.08095341e-14 * CLw**0.8825277088649582 * (self.wing['\\cos(\\Lambda)']*state['M'])**0.0273667615730107 +
-##                                 1.94411925e+06 * CLw**5.6547413360261691 * (self.wing['\\cos(\\Lambda)']*state['M'])**146.51920742858428)]),
-##                ])
 
             #Martin's TASOPT c series airfoil fit
-            TCS([
-                CDp**1.6515 >= 1.61418 * (Re/1000)**-0.550434 * (self.wing['\\tau'])**1.29151 * (self.wing['\\cos(\\Lambda)']*state['M'])**3.03609 * CLw**1.77743
-                    + 0.0466407 * (Re/1000)**-0.389048 * (self.wing['\\tau'])**0.784123 * (self.wing['\\cos(\\Lambda)']*state['M'])**-0.340157 * CLw**0.950763
-                    + 190.811 * (Re/1000)**-0.218621 * (self.wing['\\tau'])**3.94654 * (self.wing['\\cos(\\Lambda)']*state['M'])**19.2524 * CLw**1.15233
-                    + 2.82283e-12 * (Re/1000)**1.18147 * (self.wing['\\tau'])**-1.75664 * (self.wing['\\cos(\\Lambda)']*state['M'])**0.10563 * CLw**-1.44114
+            TCS([CDp**1.65 >= 1.61 * (Re/1000)**-0.550
+                              * (self.wing['\\tau'])**1.29
+                              * (self.wing['\\cos(\\Lambda)']*state['M'])**3.04
+                              * CLw**1.78 + 0.0466 * (Re/1000)**-0.389
+                              * (self.wing['\\tau'])**0.784
+                              * (self.wing['\\cos(\\Lambda)']*state['M'])**-0.340
+                              * CLw**0.951 + 191 * (Re/1000)**-0.219
+                              * (self.wing['\\tau'])**3.95
+                              * (self.wing['\\cos(\\Lambda)']*state['M'])**19.3
+                              * CLw**1.15 + 2.82e-12 * (Re/1000)**1.18
+                              * (self.wing['\\tau'])**-1.76
+                              * (self.wing['\\cos(\\Lambda)']*state['M'])**0.105
+                              * CLw**-1.44
                 ]),
             ])
 

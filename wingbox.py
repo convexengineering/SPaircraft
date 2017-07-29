@@ -21,7 +21,6 @@ class WingBox(Model):
         Wstruct = Variable('W_{struct}', 'N', 'Structural weight')
 
         # Constants
-        taper = Variable('taper', '-', 'Taper ratio')
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
         Nlift  = Variable('N_{lift}', 1.0, '-', 'Wing loading multiplier')
         rh     = Variable('r_h', 0.75, '-',
@@ -41,6 +40,7 @@ class WingBox(Model):
         objective = Wstruct
 
         if surfacetype == "wing":
+            taper = Variable('taper', '-', 'Taper ratio')
             AR = surface['AR']
             b = surface['b']
             S = surface['S']
@@ -49,6 +49,7 @@ class WingBox(Model):
             tau = surface['\\tau']
             Lmax = surface['L_{max}']
         elif surfacetype == "vertical_tail":
+            taper = Variable('taper', '-', 'Taper ratio')
             #factors of 2 required since the VT is only half span and the wing model
             #is for a full span wing
             AR = Variable('AR_{vt}','-','Vertical tail aspect ratio (double span)')
@@ -59,6 +60,27 @@ class WingBox(Model):
             tau = surface['\\tau_{vt}']
             Lmax = 2.*surface['L_{v_{max}}']
             taper = surface['\\lambda_{vt}']
+        elif surfacetype == "horizontal_tail":
+            taper = Variable('taper', 0.3, '-', 'Taper ratio')
+            AR = surface['AR_{ht}']
+            b = surface['b_{ht}']
+            S = surface['S_{ht}']
+            p = surface['p_{ht}']
+            q = surface['q_{ht}']
+            tau = surface['\\tau_{ht}']
+            Lmax = surface['L_{h_{max}}']
+
+            # Pi tail sizing variables
+            # Splits the max lift into triangular and rectangular components
+            # for root bending sizing.
+            bhtout = Variable('b_{ht_{out}}','m','Horizontal tail outboard half-span')
+            Lhtri = Variable('L_{h_{tri}}','N','Triangular HT load')
+            Lhrect = Variable('L_{h_{rect}}','N','Rectangular HT load')
+            Lhtriout = Variable('L_{h_{tri_{out}}}','N','Triangular HT load outboard')
+            Lhrectout = Variable('L_{h_{rect_{out}}}','N','Rectangular HT load outboard')
+            Mrout = Variable('M_{r_{out}}','N','Wing moment at pin joint ') #TODO
+            Lshear = Variable('L_{shear}','N','Maximum shear load (at pin joint)')
+            piMfac = Variable('\\pi_{M-fac}','-','Pi-tail bending structural factor')
 
         constraints = [
                        # Aspect ratio definition
@@ -75,9 +97,6 @@ class WingBox(Model):
                        # Assumes bending stress carried by caps (Icap >> Iweb)
                        TCS([8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax)]),
 
-                       # Shear web sizing
-                       # Assumes all shear loads are carried by web and rh=0.75
-                       TCS([12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear)]),
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam^2)
                        # nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # Woody's fit
@@ -90,17 +109,30 @@ class WingBox(Model):
                       ]
 
 
-        if surfacetype in ("wing", "horizontal_tail"):
+        if surfacetype == "wing":
             constraints += [
-                    # Total wing weight using an additional weight fraction
                     Wstruct >= (Wweb + Wcap),
+                    # Shear web sizing
+                    # Assumes all shear loads are carried by web and rh=0.75
+                    TCS([12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear)]),
                     ]
         elif surfacetype == "vertical_tail":
             constraints += [
                     Wstruct >= 0.5*(Wweb + Wcap),
                     # Root moment calculation (see Hoburg 2014)
                     # Assumes lift per unit span proportional to local chord
-                    Mr >= Lmax*AR*p/24
+                    Mr >= Lmax*AR*p/24,
+                    # Shear web sizing
+                    # Assumes all shear loads are carried by web and rh=0.75
+                    TCS([12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear)]),
+                    ]
+        elif surfacetype == "horizontal_tail":
+            constraints += [
+                    Wstruct >= (Wweb + Wcap),
+                    Lhtriout >= Lhtri * bhtout**2 / (0.5*b)**2,
+                    Lhrectout >= Lhrect * bhtout /(0.5*b),
+                    12 >= 2*AR*Lshear*Nlift*q**2/(tau*S*tweb*sigmaxshear), #TODO
+                    Wcap >= piMfac*8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5), #TODO
                     ]
         
         return constraints

@@ -61,4 +61,5 @@ def run_optimal_737(objective = 'fuel'):
 if __name__ == "__main__":
     sol = run_optimal_737()
     percent_diff(sol, 'optimal737')
+    print sol.table()
 
