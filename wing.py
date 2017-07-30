@@ -399,7 +399,6 @@ class WingPerformance(Model):
 
         with SignomialsEnabled():
             constraints.extend([
-                # Lw == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw,
                 0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw >= Lw + dLo
                                                                      + 2.*dLt,
                 dLo == etao*fLo*self.wing['b']/2*po,
