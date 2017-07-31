@@ -406,8 +406,8 @@ class HorizontalTailPerformance(Model):
                 Lh == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CLh,
 
                 # Angle of attack and lift slope constraints
-                CLh <= 1.025*CLah*alphah,
-                CLh >= 0.975*CLah*alphah,
+                CLh == CLah*alphah,
+##                CLh >= 0.975*CLah*alphah,
                 alphah <= self.HT['\\alpha_{max,h}'],
 
                 # Moment arm and geometry -- same as for vtail
