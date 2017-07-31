@@ -399,7 +399,6 @@ class WingPerformance(Model):
 
         with SignomialsEnabled():
             constraints.extend([
-                # Lw == 0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw,
                 0.5*state['\\rho']*state['V']**2*self.wing['S']*CLw >= Lw + dLo
                                                                      + 2.*dLt,
                 dLo == etao*fLo*self.wing['b']/2*po,
@@ -425,19 +424,19 @@ class WingPerformance(Model):
 
 
             #Martin's TASOPT c series airfoil fit
-            TCS([CDp**1.6515 >= 1.61418 * (Re/1000)**-0.550434
-                              * (self.wing['\\tau'])**1.29151
-                              * (self.wing['\\cos(\\Lambda)']*state['M'])**3.03609
-                              * CLw**1.77743 + 0.0466407 * (Re/1000)**-0.389048
-                              * (self.wing['\\tau'])**0.784123
-                              * (self.wing['\\cos(\\Lambda)']*state['M'])**-0.340157
-                              * CLw**0.950763 + 190.811 * (Re/1000)**-0.218621
-                              * (self.wing['\\tau'])**3.94654
-                              * (self.wing['\\cos(\\Lambda)']*state['M'])**19.2524
-                              * CLw**1.15233 + 2.82283e-12 * (Re/1000)**1.18147
-                              * (self.wing['\\tau'])**-1.75664
-                              * (self.wing['\\cos(\\Lambda)']*state['M'])**0.10563
-                              * CLw**-1.44114
+            TCS([CDp**1.65 >= 1.61 * (Re/1000)**-0.550
+                              * (self.wing['\\tau'])**1.29
+                              * (self.wing['\\cos(\\Lambda)']*state['M'])**3.04
+                              * CLw**1.78 + 0.0466 * (Re/1000)**-0.389
+                              * (self.wing['\\tau'])**0.784
+                              * (self.wing['\\cos(\\Lambda)']*state['M'])**-0.340
+                              * CLw**0.951 + 191 * (Re/1000)**-0.219
+                              * (self.wing['\\tau'])**3.95
+                              * (self.wing['\\cos(\\Lambda)']*state['M'])**19.3
+                              * CLw**1.15 + 2.82e-12 * (Re/1000)**1.18
+                              * (self.wing['\\tau'])**-1.76
+                              * (self.wing['\\cos(\\Lambda)']*state['M'])**0.105
+                              * CLw**-1.44
                 ]),
             ])
 

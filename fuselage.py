@@ -88,7 +88,7 @@ class Fuselage(Model):
 
         # Bending inertias (ported from TASOPT)
         # (shell inertia contribution)
-        A0h = Variable('A0h', 'm^2', 'Horizontal bending area constant A0h')
+        A0h = Variable('A_{0h}', 'm^2', 'Horizontal bending area constant A0h')
 
         # (tail impact + aero loading)
         A1hLand = Variable('A_{1h_{Land}}', 'm', 'Horizontal bending area constant A1h (landing case)')
@@ -301,7 +301,7 @@ class Fuselage(Model):
                 SignomialEquality(A0h, A2hMLF * (xshell2 - xhbendMLF) ** 2 + A1hMLF * (xtail - xhbendMLF)), # [SP] #[SPEquality]
 
                 A2hLand >= Nland * (Wpay + Wpadd + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
-                (2 * lshell * hfuse * sigbend),  # Landing loads constant A2hLand
+                (2 * lshell * hfuse * sigMh),  # Landing loads constant A2hLand
                 A2hMLF >= Nlift * (Wpay + Wpadd + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
                 (2 * lshell * hfuse * sigMh),  # Max wing aero loads constant A2hMLF
 
