@@ -269,7 +269,7 @@ class WingNoStruct(Model):
     Philippe's wing model minus structure
     """
     def setup(self, **kwargs):
-       #Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
+        Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
         CLwmax  = Variable('C_{L_{wmax}}', '-', 'Max lift coefficient, wing')
         Vfuel   = Variable('V_{fuel, max}', 'm^3', 'Available fuel volume')
         cosL    = Variable('\\cos(\\Lambda)', '-',
@@ -344,11 +344,8 @@ class WingNoStruct(Model):
                 taper >= 0.15, # TODO
 
                 # Fuel volume [TASOPT doc]
-##                TCS([Afuel <= wwn*0.92*tau]),
-                # GP approx of the signomial constraint:
-
-                #.3026 computed from TASOPT 737 case, assumes all lengths in m
-                Vfuel <= 0.3026*mac**2*b*tau,
+                TCS([Afuel <= wwn*0.92*tau]),
+                Vfuel <= croot**2*b/6*(1+taper+taper**2)*cosL, # [SP]
                 WfuelWing <= rhofuel*Vfuel*g,
 
                 b <= bmax,
