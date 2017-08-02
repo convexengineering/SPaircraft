@@ -99,9 +99,7 @@ class WingBox(Model):
 
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam)^2
-                       # nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # Woody's fit
-                       (nu/1.09074074)**.166 >= 0.205*(p/1.7)**0.772
-                                              + 0.795*(p/1.7)**-0.125, # Berk's fit
+                       nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # Woody's fit
 
                        # Weight of spar caps and shear webs
                        Wcap >= 8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5),
