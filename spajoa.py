@@ -57,6 +57,37 @@ def run_optimal_737(objective = 'fuel'):
 
     return sol
 
+def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pax}', range = np.linspace(150,210,10)):
+    # User definitions
+    Ncruise = 4
+    Nmission = 1
+    aircraft = 'optimal737'
+
+    m  = Mission(Ncruise, objective, aircraft, Nmission)
+
+    substitutions = get737_optimal_subs()
+
+    if Nmission == 3:
+        substitutions.update({
+            'ReqRng': [3000.*units('nmi'),3000.*units('nmi'),3000.*units('nmi')],
+            'n_{pax}': [180., 160., 120.],
+        })
+    else:
+        substitutions.update({
+#            'n_{paxx}': 180.,
+            'ReqRng': 3000.*units('nmi'),
+        })
+
+    m.substitutions.update(substitutions)
+
+    m.substitutions.update({variable : ('sweep', range)})
+
+    m = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=0, iteration_limit=200, reltol=0.01)
+
+    return sol
 
 if __name__ == "__main__":
     sol = run_optimal_737()
