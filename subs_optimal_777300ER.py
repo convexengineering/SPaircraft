@@ -191,7 +191,7 @@ def get_optimal_777300ER_subs():
             'T_{t_{4.1_{max}}}': 1860.*units('K'),
             'ReserveFraction': .05,
 
-##            'MaxClimbTime': 30*units('min'),
+            'MaxClimbTime': 15*units('min'),
 ##            'MaxClimbDistance': 180*units('nautical_miles')
     }
 
