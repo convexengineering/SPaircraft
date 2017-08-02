@@ -983,7 +983,7 @@ class Mission(Model):
 
         if not multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam and not D12:
              constraints.extend([
-                  aircraft['n_{pax}'] == 180.,
+                  # aircraft['n_{pax}'] == 180.,
                   aircraft['n_{seat}'] == aircraft['n_{pax}']
                   ])
 
