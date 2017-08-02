@@ -43,8 +43,8 @@ def run_optimal_737(objective = 'fuel'):
         })
     else:
         substitutions.update({
-#            'n_{paxx}': 180.,
-            'ReqRng': 3000.*units('nmi'),
+           'n_{pax}': 180.,
+           'ReqRng': 3000.*units('nmi'),
         })        
 
     m.substitutions.update(substitutions)
@@ -74,16 +74,16 @@ def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pax}', range = np.l
         })
     else:
         substitutions.update({
-#            'n_{paxx}': 180.,
-            'ReqRng': 3000.*units('nmi'),
+           # 'n_{pax}': 180.,
+           'ReqRng': 3000.*units('nmi'),
         })
 
+    m = Model(m.cost, BCS(m))
     m.substitutions.update(substitutions)
 
-    m.substitutions.update({variable : ('sweep', range)})
-
-    m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+    m_relax.substitutions.update({variable : ('sweep', range)})
+
 
     sol = m_relax.localsolve(verbosity=0, iteration_limit=200, reltol=0.01)
 
