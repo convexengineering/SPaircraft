@@ -11,7 +11,7 @@ from gpkit.constraints.bounded import Bounded as BCS
 from relaxed_constants import relaxed_constants, post_process
 
 # Mission model
-from D8 import Mission
+from aircraft import Mission
 
 # Substitution dictionaries for different aircraft
 from subsD80 import getD80subs
