@@ -14,39 +14,39 @@ from relaxed_constants import relaxed_constants, post_process
 from aircraft import Mission
 
 # Substitution dictionaries for different aircraft
-from subsD80 import getD80subs
-from subsD82 import getD82subs
-from subsD82_73eng import getD82_73engsubs
-from subs_D8_eng_wing import get_D8_eng_wing_subs
-from subsD8big import getD8bigsubs
-from subsb737800 import getb737800subs
-from subsb777300ER import getb777300ERsubs
-from subs_optimal_737 import get737_optimal_subs
-from subs_optimal_D8 import get_optimal_D8_subs
-from subs_M08_D8 import subs_M08_D8
-from subs_M08_d8_eng_wing import getM08_D8_eng_wing_subs
-from subs_D8_eng_wing import get_D8_eng_wing_subs
-from subs_M072_737 import get_M072_737_subs
-from subs_D8_no_BLI import get_D8_no_BLI_subs
-from subs_M08_D8_noBLI import get_subs_M08_D8_noBLI
-from subs_optimal_777300ER import get_optimal_777300ER_subs
-from subs_M08_D8_big import getD8big_M08_subs
-from subs_M072_D8_big import getD8big_M072_subs
-from subs_D8big_eng_wing import getD8big_eng_wing_subs
-from subs_D8big_noBLI import getD8big_noBLI_subs
-from subs_optimal_RJ import get_optimal_RJ_subs
-from subs_M072_optimal_RJ import get_M072_optimal_RJ_subs
-from subs_D8_small import get_small_D8_subs
-from subs_D8_small_no_BLI import get_small_D8_no_BLI_subs
-from subs_D8_small_eng_wing import get_small_D8_eng_wing_subs
-from subs_small_M08_D8 import get_small_M08_D8_subs
-from subs_small_M08_D8_no_BLI import get_small_M08_D8_no_BLI_subs
-from subs_small_M08_D8_eng_wing  import get_small_M08_D8_eng_wing_subs
-from subs_M072_D8big_eng_wing import getD8big_M072_eng_wing_subs
-from subs_M072_D8big_no_BLI import getD8big_M072_noBLI_subs
-from subs_M072_optimal_777 import get_optimal_777300ER_M072_subs
-from subs_M08_optimal_777 import get_optimal_777300ER_M08_subs
-from subs_D12  import get_D12_subs
+from subs.D80 import getD80subs
+from subs.D82 import getD82subs
+from subs.D82_737_engine import getD82_73engsubs
+from subs.D8_eng_wing import get_D8_eng_wing_subs
+from subs.D8_big import getD8bigsubs
+from subs.b737800 import getb737800subs
+from subs.b777300ER import getb777300ERsubs
+from subs.optimal_737 import get737_optimal_subs
+from subs.optimal_D8 import get_optimal_D8_subs
+from subs.D8_M08 import subs_M08_D8
+from subs.D8_eng_wing_M08 import getM08_D8_eng_wing_subs
+from subs.D8_eng_wing import get_D8_eng_wing_subs
+from subs.b737_M072 import get_M072_737_subs
+from subs.D8_no_BLI import get_D8_no_BLI_subs
+from subs.D8_no_BLI_M08 import get_subs_M08_D8_noBLI
+from subs.optimal_777300ER import get_optimal_777300ER_subs
+from subs.D8_big_M08 import getD8big_M08_subs
+from subs.D8_big_M072 import getD8big_M072_subs
+from subs.D8_big_eng_wing import getD8big_eng_wing_subs
+from subs.D8_big_no_BLI import getD8big_noBLI_subs
+from subs.optimal_RJ import get_optimal_RJ_subs
+from subs.optimal_RJ_M072 import get_M072_optimal_RJ_subs
+from subs.D8_small import get_small_D8_subs
+from subs.D8_small_no_BLI import get_small_D8_no_BLI_subs
+from subs.D8_small_eng_wing import get_small_D8_eng_wing_subs
+from subs.D8_small_M08 import get_small_M08_D8_subs
+from subs.D8_small_no_BLI_M08 import get_small_M08_D8_no_BLI_subs
+from subs.D8_small_eng_wing_M08  import get_small_M08_D8_eng_wing_subs
+from subs.D8_big_eng_wing_M072 import getD8big_M072_eng_wing_subs
+from subs.D8_big_no_BLI_M072 import getD8big_M072_noBLI_subs
+from subs.optimal_777_M072 import get_optimal_777300ER_M072_subs
+from subs.optimal_777_M08 import get_optimal_777300ER_M08_subs
+from subs.D12  import get_D12_subs
 
 # Plotting tools
 import matplotlib.pyplot as plt
@@ -57,7 +57,7 @@ import numpy as np
 from post_compute import post_compute
 
 # Solution check tool relative to TASOPT
-from D8_TASOPT_percent_diff import percent_diff
+from percent_diff import percent_diff
 
 # VSP visualization tools
 from saveSol import updateOpenVSP, genDesFile, genDesFileSweep
