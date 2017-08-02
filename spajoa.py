@@ -28,7 +28,7 @@ from percent_diff_TASOPT import percent_diff
 
 def run_optimal_737(objective = 'fuel'):
     # User definitions
-    Ncruise = 4
+    Ncruise = 2
     Nmission = 1
     aircraft = 'optimal737'
 
@@ -52,7 +52,7 @@ def run_optimal_737(objective = 'fuel'):
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=0, iteration_limit=200, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=50, reltol=0.01)
     post_process(sol)
 
     return sol
