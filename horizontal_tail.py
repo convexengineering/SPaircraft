@@ -7,6 +7,7 @@ from gpkit.constraints.tight import Tight as TCS
 import matplotlib.pyplot as plt
 from gpkit.small_scripts import mag
 from simple_ac_imports_no_engine import Wing, Fuselage, Engine, CruiseP, ClimbP, FlightState, CruiseSegment, ClimbSegment
+from wingbox import WingBox
 
 """
 Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
@@ -461,7 +462,7 @@ class HorizontalTail(Model):
     """
     def setup(self):
         self.HTns = HorizontalTailNoStruct()
-        self.wb = WingBox(self.HTns)
+        self.wb = WingBox(self.HTns, "horizontal_tail")
 
         #HT system weight variable
         WHT = Variable('W_{HT_system}', 'N', 'HT System Weight')
@@ -491,103 +492,6 @@ class HorizontalTail(Model):
         creates a horizontal tail performance model
         """
         return HorizontalTailPerformance(self, state, fitDrag)
-    
-class WingBox(Model):
-    """
-    Structural model for a wing
-    source: Hoburg, "Geometric Programming for Aircraft Design Optimization"
-
-    Note - does not have a performance model
-    """
-
-    def setup(self, surface):
-        # Variables
-        Icap    = Variable('I_{cap}', '-',
-                           'Non-dim spar cap area moment of inertia')
-        Mr      = Variable('M_r', 'N', 'Root moment per root chord')
-        nu      = Variable('\\nu', '-',
-                           'Dummy variable = $(t^2 + t + 1)/(t+1)$')
-        Wcap    = Variable('W_{cap}', 'N', 'Weight of spar caps')
-        Wweb    = Variable('W_{web}', 'N', 'Weight of shear web')
-        Wstruct = Variable('W_{struct}', 'N', 'Structural weight')
-
-        # Constants
-        taper = Variable('taper', 0.3, '-', 'Taper ratio')
-        g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
-        Nlift  = Variable('N_{lift}', 1.0, '-', 'Wing loading multiplier')
-        rh     = Variable('r_h', 0.75, '-',
-                          'Fractional wing thickness at spar web')
-        rhocap = Variable('\\rho_{cap}', 2700, 'kg/m^3',
-                          'Density of spar cap material')
-        rhoweb = Variable('\\rho_{web}', 2700, 'kg/m^3',
-                          'Density of shear web material')
-        sigmax = Variable('\\sigma_{max}', 250e6, 'Pa',
-                          'Allowable tensile stress')
-        sigmaxshear = Variable('\\sigma_{max,shear}', 167e6, 'Pa',
-                               'Allowable shear stress')
-        w      = Variable('w', 0.5, '-', 'Wingbox-width-to-chord ratio')
-        tcap    = Variable('t_{cap}' ,'-', 'Non-dim. spar cap thickness')
-        tweb    = Variable('t_{web}', '-', 'Non-dim. shear web thickness')
-
-
-        # Pi tail sizing variables
-        # Splits the max lift into triangular and rectangular components
-        # for root bending sizing.
-        bhtout = Variable('b_{ht_{out}}','m','Horizontal tail outboard half-span')
-        Lhtri = Variable('L_{h_{tri}}','N','Triangular HT load')
-        Lhrect = Variable('L_{h_{rect}}','N','Rectangular HT load')
-        Lhtriout = Variable('L_{h_{tri_{out}}}','N','Triangular HT load outboard')
-        Lhrectout = Variable('L_{h_{rect_{out}}}','N','Rectangular HT load outboard')
-        Mrout = Variable('M_{r_{out}}','N','Wing moment at pin joint ')
-        Lshear = Variable('L_{shear}','N','Maximum shear load (at pin joint)')
-        piMfac = Variable('\\pi_{M-fac}','-','Pi-tail bending structural factor')
-
-        objective = Wstruct
-
-        if isinstance(surface, HorizontalTailNoStruct):
-            AR = surface['AR_{ht}']
-            b = surface['b_{ht}']
-            S = surface['S_{ht}']
-            p = surface['p_{ht}']
-            q = surface['q_{ht}']
-            tau = surface['\\tau_{ht}']
-            Lmax = surface['L_{h_{max}}']
-
-        constraints = [Lhtriout >= Lhtri * bhtout**2 / (0.5*b)**2,
-                       Lhrectout >= Lhrect * bhtout /(0.5*b),
-                       # Upper bound on maximum thickness
-                       tau <= 0.14,
-
-                       # Root moment calculation (see Hoburg 2014)
-                       # Depends on a given load the wing must support, Lmax
-                       # Assumes lift per unit span proportional to local chord
-                       # Mr >= Lmax*AR*p/24,
-
-                       # Root stiffness (see Hoburg 2014)
-                       # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
-                       0.92*w*tau*tcap**2 + Icap <= 0.92**2/2*w*tau**2*tcap,
-
-                       # Stress limit
-                       # Assumes bending stress carried by caps (Icap >> Iweb)
-                       8 >= Nlift*Mrout*AR*q**2*tau/(S*Icap*sigmax),
-
-                       # Shear web sizing
-                       # Assumes all shear loads are carried by web and rh=0.75
-                       12 >= 2.*AR*Lshear*Nlift*q**2/(tau*S*tweb*sigmaxshear),
-                       # 12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear),
-
-                       # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam)^2
-                       nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # PHILIPPE'S FIT
-
-                       # Weight of spar caps and shear webs
-                       Wcap >= piMfac*8*rhocap*g*w*tcap*S**1.5*nu/(3*AR**0.5),
-                       Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
-
-                       # Total wing weight using an additional weight fraction
-                       Wstruct >= (Wweb + Wcap),
-                       ]
-        
-        return constraints
 
 if __name__ == '__main__':
     plot = True
