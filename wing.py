@@ -289,6 +289,7 @@ class WingNoStruct(Model):
                            'Tangent of quarter-chord sweep angle')
         taper   = Variable('\\lambda', '-', 'Wing taper ratio')
         tau     = Variable('\\tau', '-', 'Wing thickness/chord ratio')
+        tau_max = Variable('\\tau_{max_w}', '-', 'Max allowed wing thickness')
         wwn     = Variable('wwn', 0.5, '-', 'Wingbox-width-to-chord ratio')
         xw      = Variable('x_w', 'm', 'Position of wing aerodynamic center')
         ymac    = Variable('y_{mac}', 'm',
