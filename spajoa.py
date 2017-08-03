@@ -89,6 +89,9 @@ def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pax}', range = np.l
 
     return sol
 
+def test():
+    run_optimal_737()
+
 if __name__ == "__main__":
     sol = run_optimal_737()
     percent_diff(sol, 'optimal737')
