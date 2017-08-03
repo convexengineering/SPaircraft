@@ -47,6 +47,7 @@ class WingBox(Model):
             p = surface['p']
             q = surface['q']
             tau = surface['\\tau']
+            tau_max = surface['\\tau_{max_w}']
             Lmax = surface['L_{max}']
         elif surfacetype == "vertical_tail":
             taper = Variable('taper', '-', 'Taper ratio')
@@ -86,9 +87,6 @@ class WingBox(Model):
                        # Aspect ratio definition
                        AR == b**2/S,
 
-                       # Upper bound on maximum thickness
-                       tau <= 0.14,
-
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
                        TCS([0.92*wwb*tau*tcap**2 + Icap <= 0.92**2/2*wwb*tau**2*tcap]),
@@ -109,6 +107,8 @@ class WingBox(Model):
 
         if surfacetype == "wing":
             constraints += [
+                    # Upper bound on maximum thickness
+                    tau <= tau_max,
                     Wstruct >= (Wweb + Wcap),
                     # Shear web sizing
                     # Assumes all shear loads are carried by web and rh=0.75
@@ -116,6 +116,8 @@ class WingBox(Model):
                     ]
         elif surfacetype == "vertical_tail":
             constraints += [
+                    # Upper bound on maximum thickness
+                    tau <= 0.14,
                     Wstruct >= 0.5*(Wweb + Wcap),
                     # Root moment calculation (see Hoburg 2014)
                     # Assumes lift per unit span proportional to local chord
@@ -126,6 +128,8 @@ class WingBox(Model):
                     ]
         elif surfacetype == "horizontal_tail":
             constraints += [
+                    # Upper bound on maximum thickness
+                    tau <= 0.14,
                     Wstruct >= (Wweb + Wcap),
                     Lhtriout >= Lhtri * bhtout**2 / (0.5*b)**2,
                     Lhrectout >= Lhrect * bhtout /(0.5*b),
