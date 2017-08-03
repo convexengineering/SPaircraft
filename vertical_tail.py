@@ -260,9 +260,11 @@ class VerticalTail(Model):
         cdpv = Variable('c_{d_{pv}}', '-', 'VT pressure drag coefficient')
         coslamcube = Variable('\\cos(\\Lambda_{vt})^3', '-', 'Cosine of tail sweep cubed')
 
+        numspar = Variable('N_{spar}', '-', 'Number of Spars in Each VT Carrying Stress in 1 in 20 Case')
+
         constraints = [
             self.vtns['\\lambda_{vt}'] == self.wb['taper'],
-            WVT >= CVT*(self.wb['W_{struct}'] + self.wb['W_{struct}'] * fVT),
+            WVT >= numspar*CVT*(self.wb['W_{struct}'] + self.wb['W_{struct}'] * fVT),
             ]
 
         return self.vtns, self.wb, constraints
