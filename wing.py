@@ -353,8 +353,7 @@ class WingNoStruct(Model):
 
                 # Fuel volume [TASOPT doc]
                 # GP approx of the signomial constraint:
-                TCS([Afuel <= wwn*0.92*tau]),
-                Vfuel <= croot**2*b/6*(1+taper+taper**2)*cosL, # [SP]
+                Vfuel <= .3026*mac**2*b*tau,
                  
                 WfuelWing <= rhofuel*Vfuel*g,
 

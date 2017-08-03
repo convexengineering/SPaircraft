@@ -100,7 +100,6 @@ class WingBox(Model):
                        nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # Woody's fit
 
                        # Weight of spar caps and shear webs
-                       Wcap >= 8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5),
                        Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
                       ]
 
@@ -113,6 +112,8 @@ class WingBox(Model):
                     # Shear web sizing
                     # Assumes all shear loads are carried by web and rh=0.75
                     TCS([12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear)]),
+                    # Weight of spar caps and shear webs
+                    Wcap >= 8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5),
                     ]
         elif surfacetype == "vertical_tail":
             constraints += [
@@ -125,6 +126,8 @@ class WingBox(Model):
                     # Shear web sizing
                     # Assumes all shear loads are carried by web and rh=0.75
                     TCS([12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear)]),
+                    # Weight of spar caps and shear webs
+                    Wcap >= 8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5),
                     ]
         elif surfacetype == "horizontal_tail":
             constraints += [
