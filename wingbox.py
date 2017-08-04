@@ -22,7 +22,7 @@ class WingBox(Model):
 
         # Constants
         g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
-        Nlift  = Variable('N_{lift}', 1.0, '-', 'Wing loading multiplier')
+        Nlift  = Variable('N_{lift}', '-', 'Wing loading multiplier')
         rh     = Variable('r_h', 0.75, '-',
                           'Fractional wing thickness at spar web')
         rhocap = Variable('\\rho_{cap}', 2700, 'kg/m^3',
@@ -47,6 +47,7 @@ class WingBox(Model):
             p = surface['p']
             q = surface['q']
             tau = surface['\\tau']
+            tau_max = surface['\\tau_{max_w}']
             Lmax = surface['L_{max}']
         elif surfacetype == "vertical_tail":
             taper = Variable('taper', '-', 'Taper ratio')
@@ -86,36 +87,37 @@ class WingBox(Model):
                        # Aspect ratio definition
                        AR == b**2/S,
 
-                       # Upper bound on maximum thickness
-                       tau <= 0.14,
-
                        # Root stiffness (see Hoburg 2014)
                        # Assumes rh = 0.75, so that rms box height = ~0.92*tmax
                        TCS([0.92*wwb*tau*tcap**2 + Icap <= 0.92**2/2*wwb*tau**2*tcap]),
-
-                       # Stress limit
-                       # Assumes bending stress carried by caps (Icap >> Iweb)
-                       TCS([8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax)]),
-
 
                        # Posynomial approximation of nu=(1+lam+lam^2)/(1+lam)^2
                        nu**3.94 >= 0.86*p**(-2.38)+ 0.14*p**0.56, # Woody's fit
 
                        # Weight of spar caps and shear webs
-                       Wcap >= 8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5),
                        Wweb >= 8*rhoweb*g*rh*tau*tweb*S**1.5*nu/(3*AR**0.5),
                       ]
 
 
         if surfacetype == "wing":
             constraints += [
+                    # Upper bound on maximum thickness
+                    tau <= tau_max,
                     Wstruct >= (Wweb + Wcap),
                     # Shear web sizing
                     # Assumes all shear loads are carried by web and rh=0.75
-                    TCS([12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear)]),
+                    TCS([12 >= AR*Lmax*q**2/(tau*S*tweb*sigmaxshear)]),
+                    # Weight of spar caps and shear webs
+                    Wcap >= 8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5),
+                    Nlift == 3,
+                    # Stress limit
+                    # Assumes bending stress carried by caps (Icap >> Iweb)
+                    TCS([8 >= Mr*AR*q**2*tau/(S*Icap*sigmax)]),
                     ]
         elif surfacetype == "vertical_tail":
             constraints += [
+                    # Upper bound on maximum thickness
+                    tau <= 0.14,
                     Wstruct >= 0.5*(Wweb + Wcap),
                     # Root moment calculation (see Hoburg 2014)
                     # Assumes lift per unit span proportional to local chord
@@ -123,14 +125,26 @@ class WingBox(Model):
                     # Shear web sizing
                     # Assumes all shear loads are carried by web and rh=0.75
                     TCS([12 >= AR*Lmax*Nlift*q**2/(tau*S*tweb*sigmaxshear)]),
+                    # Weight of spar caps and shear webs
+                    Wcap >= 8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5),
+                    Nlift == 1,
+                    # Stress limit
+                    # Assumes bending stress carried by caps (Icap >> Iweb)
+                    TCS([8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax)]),
                     ]
         elif surfacetype == "horizontal_tail":
             constraints += [
+                    # Upper bound on maximum thickness
+                    tau <= 0.14,
                     Wstruct >= (Wweb + Wcap),
                     Lhtriout >= Lhtri * bhtout**2 / (0.5*b)**2,
                     Lhrectout >= Lhrect * bhtout /(0.5*b),
                     12 >= 2*AR*Lshear*Nlift*q**2/(tau*S*tweb*sigmaxshear), #TODO
                     Wcap >= piMfac*8*rhocap*g*wwb*tcap*S**1.5*nu/(3*AR**0.5), #TODO
+                    Nlift == 1,
+                    # Stress limit
+                    # Assumes bending stress carried by caps (Icap >> Iweb)
+                    TCS([8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax)]),
                     ]
         
         return constraints
