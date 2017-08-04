@@ -168,7 +168,6 @@ def get737_optimal_subs():
             'p_{oleo}': 1800,
             't_{nacelle}': 0.15,
             'w_{ult}': 10,
-            'x_{up}': 28,
             'z_{CG}': 2,
             'z_{wing}': 0.5,
     }

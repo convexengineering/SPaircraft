@@ -191,7 +191,10 @@ class Aircraft(Model):
 
                             # (assumes deceleration of 10 ft/s^2)
                             self.LG['L_{n_{dyn}}'] >= 0.31*((self.LG['z_{CG}']+self.LG['l_m'])/self.LG['B'])*W_total,
-                            
+
+                            #setting fuselage upsweep location
+                            self.LG['x_{up}'] == self.fuse['x_{shell2}'],
+
                             # Tail cone sizing
                             3. * (numVT*self.VT['M_r']) * self.VT['c_{root_{vt}}'] * \
                                 (self.fuse['p_{\\lambda_v}'] - 1.) >= numVT*self.VT[
