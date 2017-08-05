@@ -97,3 +97,7 @@ if __name__ == "__main__":
     percent_diff(sol, 'optimal737')
     print sol.table()
 
+    # sol = run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pax}', range = np.linspace(150,210,11)):
+    # sol = run_sweeps_optimal_737(objective = 'fuel',variable = 'V_1', range = np.linspace(60,80,11)):
+    # sol = run_sweeps_optimal_737(objective = 'fuel',variable = 'M_{min}', range = np.linspace(0.7,0.88,10))
+
