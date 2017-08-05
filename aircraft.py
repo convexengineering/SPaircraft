@@ -182,6 +182,9 @@ class Aircraft(Model):
                             xhpesys == 1.1*self.fuse['l_{nose}'],
                             xmisc*Wmisc >= self.LG['x_n']*self.LG['W_{ng}'] + self.LG['x_m']*self.LG['W_{mg}'] + xhpesys*Whpesys,
 
+                            #compute nacelle diameter
+                            self.LG['d_{nacelle}'] >= self.engine['d_{f}'] + 2*self.LG['t_{nacelle}'],
+
                            # Hard landing
                            # http://www.boeing.com/commercial/aeromagazine/...
                            # articles/qtr_3_07/AERO_Q307_article3.pdf
@@ -195,7 +198,7 @@ class Aircraft(Model):
                            self.LG['L_m'] == W_total*self.LG['\\Delta x_n']/self.LG['B'],
 
                             # Engine ground clearance
-                            self.LG['d_{nacelle}'] + self.LG['h_{nacelle}'] <= self.LG['l_m'] + (self.VT['y_{eng}']-self.LG['y_m'])*self.LG['\\tan(\\gamma)'], # [SP]
+                            self.LG['d_{nacelle}']  + self.LG['h_{nacelle}'] <= self.LG['l_m'] + (self.VT['y_{eng}']-self.LG['y_m'])*self.LG['\\tan(\\gamma)'], # [SP]
 
                             # (assumes deceleration of 10 ft/s^2)
                             self.LG['L_{n_{dyn}}'] >= 0.31*((self.LG['z_{CG}']+self.LG['l_m'])/self.LG['B'])*W_total,
@@ -993,6 +996,14 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                     + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
               ])
+                
+            #LG CG distance and tip over computations
+            constraints.extend([
+                TCS([aircraft['\\Delta x_n'] + aircraft['x_n'] >= cruise['x_{CG}'][0]]),
+                TCS([aircraft['\\Delta x_m'] + cruise['x_{CG}'][0] >= aircraft['x_m']]),
+                # Longitudinal tip over (static)
+                aircraft['x_m'] >= aircraft['\\tan(\\phi)']*(aircraft['z_{CG}']+aircraft['l_m']) + cruise['x_{CG}'][0],
+                ])
 
             #Setting fuselage drag and lift, and BLI correction
             if optimalD8 or D80 or D82 or D82_73eng or M08D8 or D8_no_BLI or M08D8_noBLI or smallD8 or smallD8_no_BLI or D8_eng_wing or smallD8_eng_wing \

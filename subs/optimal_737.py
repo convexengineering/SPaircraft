@@ -207,7 +207,6 @@ def get737_optimal_subs():
             '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
             '\\tan(\\theta_{max})': np.tan(15*np.pi/180),
             '\\sigma_{y_c}': 470E6,
-            'd_{fan}': 1.75,
             'f_{add,m}': 1.5,
             'f_{add,n}': 1.5,
             'h_{hold}': 1,

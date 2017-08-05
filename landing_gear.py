@@ -95,7 +95,6 @@ class LandingGear(Model):
         zwing   = Variable('z_{wing}', 'm',
                            'Height of wing relative to base of fuselage')
         
-        d_fan   = Variable('d_{fan}', 'm', 'Fan diameter')
         d_nac   = Variable('d_{nacelle}', 'm', 'Nacelle diameter')
 
         with SignomialsEnabled():
@@ -110,7 +109,7 @@ class LandingGear(Model):
                            x_n >= 5*units.m, # nose gear after nose
 
                            # Longitudinal tip over (static)
-                           tan_phi >= tan_15,
+                           tan_phi == tan_15,
 
                            # Lateral tip over in turn (dynamic)
                            # www.dept.aoe.vt.edu/~mason/Mason_f/M96SC03.pdf
@@ -193,9 +192,6 @@ class LandingGear(Model):
                            # www.dept.aoe.vt.edu/~mason/Mason_f/M96SC08.pdf
                            2*r_m/t_m <= 40,
                            2*r_m/t_n <= 40,
-
-                           # Engine ground clearance
-                           d_nac >= d_fan + 2*t_nac,
 
                            # Retraction constraint on strut diameter
                            2*wtm + 2*r_m <= hhold,
