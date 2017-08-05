@@ -17,6 +17,7 @@ from horizontal_tail import HorizontalTail
 from wing import Wing
 from turbofan.engine_validation import Engine
 from fuselage import Fuselage
+from landing_gear import LandingGear
 
 
 """
@@ -66,6 +67,7 @@ class Aircraft(Model):
            self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, BLI)
         self.VT = VerticalTail()
         self.HT = HorizontalTail()
+        self.LG = LandingGear()
 
         #set the tail drag flag
         self.fitDrag = fitDrag
@@ -112,19 +114,9 @@ class Aircraft(Model):
 
         # Misc system variables
         Wmisc   = Variable('W_{misc}','lbf','Sum of Miscellaneous Weights')
-        Wlgnose = Variable('W_{lgnose}','lbf','Nose Landing Gear Weight')
-        Wlgmain = Variable('W_{lgmain}','lbf','Main Landing Gear Weight')
-        Wlg = Variable('W_{lg}', 'lbf', 'Total Landing Gear Weight')
-        Clg = Variable('C_{lg}', 1, '-', 'Landing Gear Weight Margin/Sens Factor')
         Whpesys = Variable('W_{hpesys}','lbf','Power Systems Weight')
-        #
-        flgnose = Variable('f_{lgnose}','-','Nose Landing Gear Weight Fraction')
-        flgmain = Variable('f_{lgmain}','-','Main Landing Gear Weight Fraction')
         fhpesys = Variable('f_{hpesys}','-','Power Systems Weight Fraction')
-        #
         xmisc   = Variable('x_{misc}','m','Misc Weight Centroid')
-        xlgnose = Variable('x_{lgnose}','m','Nose Landing Gear Weight x-Location')
-        xlgmain = Variable('x_{lgmain}','m','Main Landing Gear Weight x-Location')
         xhpesys = Variable('x_{hpesys}','m','Power Systems Weight x-Location')
 
         #engine system weight variables
@@ -180,19 +172,34 @@ class Aircraft(Model):
                             WVT == self.VT['W_{VT_system}'],
 
                             # LG and Power Systems weights
-                            Wmisc >= Wlg + Whpesys,
-                            Wlgnose == flgnose*W_total,
-                            Wlgmain == flgmain*W_total,
-                            Wlg >= Clg*(Wlgnose + Wlgmain),
+                            Wmisc >= self.LG['W_{lg}'] + Whpesys,
                             Whpesys == fhpesys*W_total,
 
                             # LG and Power System locations
-                            xlgnose <= self.fuse['l_{nose}'],
-                            TCS([xlgnose >= 0.6*self.fuse['l_{nose}']]),
-                            TCS([xlgmain >= self.fuse['x_{wing}']]),
-                            xlgmain <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
+                            self.LG['x_n'] <= self.fuse['l_{nose}'],
+                            TCS([self.LG['x_m'] >= self.fuse['x_{wing}']]),
+                            self.LG['x_m'] <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
                             xhpesys == 1.1*self.fuse['l_{nose}'],
-                            xmisc*Wmisc >= xlgnose*Wlgnose + xlgmain*Wlgmain + xhpesys*Whpesys,
+                            xmisc*Wmisc >= self.LG['x_n']*self.LG['W_{ng}'] + self.LG['x_m']*self.LG['W_{mg}'] + xhpesys*Whpesys,
+
+                           # Hard landing
+                           # http://www.boeing.com/commercial/aeromagazine/...
+                           # articles/qtr_3_07/AERO_Q307_article3.pdf
+                           # sink rate of 10 feet per second at the maximum
+                           # design landing weight
+                           # Landing condition from Torenbeek p360
+                           self.LG['E_{land}'] >= W_total/(2*self.LG['g'])*self.LG['w_{ult}']**2, # Torenbeek (10-26)
+
+                           # Maximum static loads through main and nose gears
+                           self.LG['L_n'] == W_total*self.LG['\\Delta x_m']/self.LG['B'],
+                           self.LG['L_m'] == W_total*self.LG['\\Delta x_n']/self.LG['B'],
+
+                            # Engine ground clearance
+                            self.LG['d_{nacelle}'] + self.LG['h_{nacelle}'] <= self.LG['l_m'] + (self.VT['y_{eng}']-self.LG['y_m'])*self.LG['\\tan(\\gamma)'], # [SP]
+
+                            # (assumes deceleration of 10 ft/s^2)
+                            self.LG['L_{n_{dyn}}'] >= 0.31*((self.LG['z_{CG}']+self.LG['l_m'])/self.LG['B'])*W_total,
+                                                         self.VT['y_{eng}'] >= self.LG['y_m'],
 
                             # Tail cone sizing
                             3. * (numVT*self.VT['M_r']) * self.VT['c_{root_{vt}}'] * \
@@ -405,7 +412,7 @@ class Aircraft(Model):
                     self.HT['\\pi_{M-fac}'] == 1.0,
                 ])
 
-        self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT]
+        self.components = [self.fuse, self.wing, self.engine, self.VT, self.HT, self.LG]
 
         return self.components, constraints
 
