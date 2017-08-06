@@ -43,7 +43,7 @@ def run_optimal_737(objective = 'fuel'):
         })
     else:
         substitutions.update({
-           'n_{pax}': 180.,
+           'n_{pax}': [180.],
            'ReqRng': 3000.*units('nmi'),
         })        
 
