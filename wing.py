@@ -251,9 +251,8 @@ class Wing(Model):
                         + self.wns['f_{slat}'] + self.wns['f_{aileron}']
                         + self.wns['f_{lete}'] + self.wns['f_{ribs}']
                         + self.wns['f_{spoiler}'] + self.wns['f_{watt}'])]),
-            TCS([dxACwing >= (1/12.*self.wns['A_{tri}']
-                           + 1/4.*self.wns['A_{rect}'])/self.wns['S']
-                           * self.wns['b']*self.wns['\\tan(\\Lambda)']]),
+            TCS([dxACwing >= 1./24.*(self.wns['c_{root}'] + 5.*self.wns['c_{tip}'])/self.wns['S'] \
+                           *self.wns['b']**2*self.wns['\\tan(\\Lambda)']]),
             ])
 
         return self.wns, self.wb, constraints
