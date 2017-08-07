@@ -15,7 +15,7 @@ class WingBox(Model):
                            'Non-dim spar cap area moment of inertia')
         Mr      = Variable('M_r', 'N', 'Root moment per root chord')
         nu      = Variable('\\nu', '-',
-                           'Dummy variable = $(t^2 + t + 1)/(t+1)$')
+                           'Dummy variable = $(t^2 + t + 1)/(t+1)^2$')
         Wcap    = Variable('W_{cap}', 'N', 'Weight of spar caps')
         Wweb    = Variable('W_{web}', 'N', 'Weight of shear web')
         Wstruct = Variable('W_{struct}', 'N', 'Structural weight')
