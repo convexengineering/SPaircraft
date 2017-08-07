@@ -316,15 +316,8 @@ class WingNoStruct(Model):
         fspoi = Variable('f_{spoiler}', '-', 'Spoiler Fractional Weight')
         fwatt = Variable('f_{watt}', '-', 'Watt Fractional Weight')
 
-        # Area fractions
-        Atri = Variable('A_{tri}','m^2','Triangular Wing Area')
-        Arect = Variable('A_{rect}','m^2','Rectangular Wing Area')
-
         with SignomialsEnabled():
-
             constraints = [
-                Arect == ctip*b,
-                Atri >= 1./2.*(1-taper)*croot*b, #[SP]
                 p >= 1 + 2*taper,
                 2*q >= 1 + p,
                 ymac == (b/3)*q/p,

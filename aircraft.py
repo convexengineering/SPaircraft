@@ -261,8 +261,7 @@ class Aircraft(Model):
                     # Wing root moment constraint, w/ wing and engine weight load relief
                     TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] 
                         - self.wing['N_{lift}']*(Wwing+f_wingfuel*W_ftotal))
-                        * (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b']
-                        + 1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b']) 
+                        * (self.wing['b']**2/(12*self.wing['S'])*(self.wing['c_{root}'] + 2*self.wing['c_{tip}']))
                         - self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
 
                     # Horizontal tail aero+landing loads constants A1h
@@ -296,8 +295,7 @@ class Aircraft(Model):
                 constraints.extend([
                     # Wing root moment constraint, with wing weight + fuel load relief
                     TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing+f_wingfuel*W_ftotal)) * \
-                        (1./6.*self.wing['A_{tri}']/self.wing['S']*self.wing['b'] + \
-                                1./4.*self.wing['A_{rect}']/self.wing['S']*self.wing['b'])]), #[SP]
+                        (self.wing['b']**2/(12*self.wing['S'])*(self.wing['c_{root}'] + 2*self.wing['c_{tip}']))]), #[SP]
 
                     # Horizontal tail aero+landing loads constants A1h
                     self.fuse['A_{1h_{Land}}'] >= (self.fuse['N_{land}'] * \
