@@ -57,7 +57,7 @@ def run_optimal_737(objective = 'fuel'):
 
     return sol
 
-def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pax}', range = np.linspace(150,210,10)):
+def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pax}', xrange = np.linspace(150,210,10)):
     # User definitions
     Ncruise = 4
     Nmission = 1
@@ -74,19 +74,15 @@ def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pax}', range = np.l
         })
     else:
         substitutions.update({
-           # 'n_{pax}': 180.,
+           # 'n_{pax}': [180.],
            'ReqRng': 3000.*units('nmi'),
         })
 
     m = Model(m.cost, BCS(m))
     m.substitutions.update(substitutions)
-
+    m.substitutions.update({variable : ('sweep', xrange)})
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
-    m_relax.substitutions.update({variable : ('sweep', range)})
-
-
-    sol = m_relax.localsolve(verbosity=0, iteration_limit=200, reltol=0.01)
-
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=50, reltol=0.01)
     return sol
 
 def test():
@@ -97,7 +93,7 @@ if __name__ == "__main__":
     percent_diff(sol, 'optimal737')
     print sol.table()
 
-    # sol = run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pax}', range = np.linspace(150,210,11)):
+    # sol = run_sweeps_optimal_737()
     # sol = run_sweeps_optimal_737(objective = 'fuel',variable = 'V_1', range = np.linspace(60,80,11)):
     # sol = run_sweeps_optimal_737(objective = 'fuel',variable = 'M_{min}', range = np.linspace(0.7,0.88,10))
 
