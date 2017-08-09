@@ -15,7 +15,10 @@ class Fuselage(Model):
     def setup(self, Nmissions, **kwargs):
         g = Variable('g',9.81,'m*s^-2','Acceleration due to gravity')
         dPover = Variable('\\Delta P_{over}', 'psi', 'Cabin overpressure')
-        with Vectorize(Nmissions):
+        if Nmissions >= 2.:
+            with Vectorize(Nmissions):
+                npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+        else:
             npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
                          'Emergency landing load factor')  # [TAS]
