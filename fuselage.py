@@ -15,7 +15,10 @@ class Fuselage(Model):
     def setup(self, Nmissions, **kwargs):
         g = Variable('g',9.81,'m*s^-2','Acceleration due to gravity')
         dPover = Variable('\\Delta P_{over}', 'psi', 'Cabin overpressure')
-        with Vectorize(Nmissions):
+        if Nmissions >= 2.:
+            with Vectorize(Nmissions):
+                npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+        else:
             npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
                          'Emergency landing load factor')  # [TAS]
@@ -133,9 +136,9 @@ class Fuselage(Model):
         Whbend = Variable('W_{hbend}', 'lbf','Horizontal bending material weight')
         Wvbend = Variable('W_{vbend}','lbf','Vertical bending material weight')
 
-        xhbendLand = Variable('x_{hbend_{Land}}', 'ft', 'Horizontal zero bending location (landing case)')
-        xhbendMLF = Variable('x_{hbend_{MLF}}', 'ft', 'Horizontal zero bending location (maximum aero load case)')
-        xvbend       = Variable('x_{vbend}','ft','Vertical zero bending location')
+        xhbendLand = Variable('x_{hbend_{Land}}', 'm', 'Horizontal zero bending location (landing case)')
+        xhbendMLF = Variable('x_{hbend_{MLF}}', 'm', 'Horizontal zero bending location (maximum aero load case)')
+        xvbend       = Variable('x_{vbend}','m','Vertical zero bending location')
 
         # Material properties
         rE = Variable('r_E', 1., '-', 'Ratio of stringer/skin moduli')  # [TAS] # [b757 freight doc]
