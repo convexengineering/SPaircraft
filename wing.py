@@ -287,6 +287,7 @@ class WingNoStruct(Model):
         tanL    = Variable('\\tan(\\Lambda)', '-',
                            'Tangent of quarter-chord sweep angle')
         taper   = Variable('\\lambda', '-', 'Wing taper ratio')
+        taper_min   = Variable('\\lambda_{min}', '-', 'Min wing taper ratio')
         tau     = Variable('\\tau', '-', 'Wing thickness/chord ratio')
         tau_max = Variable('\\tau_{max_w}', '-', 'Max allowed wing thickness')
         wwn     = Variable('wwn', 0.5, '-', 'Wingbox-width-to-chord ratio')
@@ -334,7 +335,7 @@ class WingNoStruct(Model):
                     reltol=1E-2),
                 TCS([e*(1 + fl*AR) <= 1]),
 
-                taper >= 0.15, # TODO
+                taper >= taper_min, # TODO
 
                 # Fuel volume [TASOPT doc]
                 TCS([Afuel <= wwn*0.92*tau]),

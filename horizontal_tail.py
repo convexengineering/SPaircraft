@@ -295,6 +295,7 @@ class HorizontalTailNoStruct(Model):
         tanLh   = Variable('\\tan(\\Lambda_{ht})', '-',
                            'tangent of horizontal tail sweep')
         taper   = Variable('\lambda_{ht}', '-', 'Horizontal tail taper ratio')
+        taper_min   = Variable('\lambda_{ht_{min}}', '-', 'Min horizontal tail taper ratio')
         tau     = Variable('\\tau_{ht}', '-',
                            'Horizontal tail thickness/chord ratio')
         xcght   = Variable('x_{CG_{ht}}', 'm', 'Horizontal tail CG location')
@@ -358,7 +359,7 @@ class HorizontalTailNoStruct(Model):
 
                 ARht == bht**2/Sh,
                 
-                taper >= 0.2, # TODO: make less arbitrary
+                taper >= taper_min, # TODO: make less arbitrary
                 taper <= 1,
 
                 ])
