@@ -82,6 +82,7 @@ def get737_optimal_subs():
             '\\eta': 0.97,
             '\\rho_0': 1.225*units('kg/m^3'),
 ##            'AR': 10.1,
+            '\\lambda_{min}': 0.15,
             'b_{max}': 117.5 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'f_{wingfuel}': 1.,  #.35 may be a better answer
@@ -110,7 +111,8 @@ def get737_optimal_subs():
             'y_{eng}': 4.8768*units('m'),
             'n_{VT}': 1.,
             'A_{vt}': 2.,
-            '\\lambda_{vt}': 0.3,
+##            '\\lambda_{vt}': 0.3,
+            '\\lambda_{vt_{min}}': 0.25,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
             '\\dot{r}_{req}': 0.0001, # 10 deg/s/s yaw rate acceleration #NOTE: Constraint inactive
             '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
@@ -122,7 +124,8 @@ def get737_optimal_subs():
             '\\alpha_{max,h}': 2.5,
             'f_{HT}': 0.3,
 ##            'AR_{ht}': 6.,
-            '\\lambda_{ht}': 0.25,
+##            '\\lambda_{ht}': 0.25,
+            '\lambda_{ht_{min}}': 0.2,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
             'C_{L_{hmax}}': 2.0,  # [TAS]
             'C_{L_{hfcG}}': 0.7,

@@ -319,6 +319,7 @@ class VerticalTailNoStruct(Model):
         tanL   = Variable('\\tan(\\Lambda_{vt})', '-',
                           'Tangent of leading edge sweep (40 deg)')
         taper  = Variable('\\lambda_{vt}', '-', 'Vertical tail taper ratio')
+        taper_min = Variable('\\lambda_{vt_{min}}', '-', 'Min vertical tail taper ratio')
         tau    = Variable('\\tau_{vt}', '-', 'Vertical tail thickness/chord ratio')
         xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of tail CG')
         y_eng  = Variable('y_{eng}', 'm', 'Engine moment arm')
@@ -369,7 +370,7 @@ class VerticalTailNoStruct(Model):
                 # Define vertical tail geometry
 
                 # TODO: Constrain taper by tip Reynolds number
-                taper >= 0.25,
+                taper >= taper_min,
                 
                 #Enforce a minimum vertical tail volume
                 Vvt >= Vvtmin,
