@@ -106,6 +106,8 @@ class Aircraft(Model):
         Wwing = Variable('W_{wing}','lbf','Wing Weight')
         WHT = Variable('W_{HT}','lbf','Horizontal Tail Weight')
         WVT = Variable('W_{VT}','lbf','Vertical Tail Weight')
+        WLG = Variable('W_{LG}','lbf','Landing Gear Weight')
+        xLG = Variable('x_{LG}','m','Landing Gear Weight x-Location')
 
         # Fuselage lift fraction variables
         Ltow = Variable('L_{total/wing}','-','Total lift as a percentage of wing lift')
@@ -136,7 +138,7 @@ class Aircraft(Model):
 
                             #compute the aircraft's zero fuel weight
                             TCS([self.fuse['W_{fuse}'] + numeng \
-                                * Wengsys + self.fuse['W_{tail}'] + Wwing + Wmisc <= W_dry]),
+                                * Wengsys + self.fuse['W_{tail}'] + Wwing + Wmisc + WLG <= W_dry]),
 
                             # Total takeoff weight constraint
                             TCS([W_ftotal + W_dry + self.fuse['W_{payload}'] <= W_total]),
@@ -154,9 +156,10 @@ class Aircraft(Model):
                             Wwing == self.wing['W_{wing_system}'],
                             WHT == self.HT['W_{HT_system}'],
                             WVT == self.VT['W_{VT_system}'],
+                            WLG == self.LG['W_{lg}'],
 
                             # LG and Power Systems weights
-                            Wmisc >= self.LG['W_{lg}'] + Whpesys,
+                            Wmisc >=  Whpesys,
                             Whpesys == fhpesys*W_total,
 
                             # LG and Power System locations
@@ -164,7 +167,8 @@ class Aircraft(Model):
                             TCS([self.LG['x_m'] >= self.fuse['x_{wing}']]),
                             self.LG['x_m'] <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
                             xhpesys == 1.1*self.fuse['l_{nose}'],
-                            xmisc*Wmisc >= self.LG['x_n']*self.LG['W_{ng}'] + self.LG['x_m']*self.LG['W_{mg}'] + xhpesys*Whpesys,
+                            xmisc*Wmisc >= xhpesys*Whpesys,
+                            xLG*WLG >= self.LG['x_n']*self.LG['W_{ng}'] + self.LG['x_m']*self.LG['W_{mg}'],
 
                             #------------LG constraints------------
                             # For steering don't want too much or too little
@@ -854,7 +858,7 @@ class Mission(Model):
             if rearengine:
                 constraints.extend([
                 TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    aircraft['x_{misc}']*aircraft['W_{misc}'] + aircraft['x_{LG}']*aircraft['W_{LG}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['n_{eng}']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
@@ -865,7 +869,7 @@ class Mission(Model):
             if wingengine:
                 constraints.extend([
                  TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    aircraft['x_{misc}']*aircraft['W_{misc}'] + aircraft['x_{LG}']*aircraft['W_{LG}']  \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
