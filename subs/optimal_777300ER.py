@@ -68,8 +68,8 @@ def get_optimal_777300ER_subs():
 
             # Power system and landing gear and engine weight fraction subs
             'f_{hpesys}': 0.01, # [TAS]
-            'f_{lgmain}':0.04, # [TAS]
-            'f_{lgnose}':0.01, # [TAS]
+##            'f_{lgmain}':0.04, # [TAS]
+##            'f_{lgnose}':0.01, # [TAS]
             'f_{pylon}': 0.05,
 
             # Fractional weights
@@ -80,7 +80,7 @@ def get_optimal_777300ER_subs():
             'f_{padd}': 0.35,  # [TAS]
 
             # Wing substitutions
-            'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
+            'C_{L_{wmax}}': 2.25/(cos(sweep* pi / 180.)**2), # [TAS]
             '\\tan(\\Lambda)': tan(sweep * pi / 180.),
             '\\cos(\\Lambda)': cos(sweep * pi / 180.),
             '\\eta': 0.97,

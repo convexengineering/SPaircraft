@@ -83,7 +83,7 @@ def get_optimal_D8_subs():
                 'f_{padd}': 0.35,  # [TAS]
 
                 # Wing substitutions
-                'C_{L_{wmax}}': 2.15/(cos(sweep)**2), # [TAS]
+                'C_{L_{wmax}}': 2.15/(cos(sweep* pi / 180.)**2), # [TAS]
                 '\\tan(\\Lambda)': tan(sweep * pi / 180.),
                 '\\cos(\\Lambda)': cos(sweep * pi / 180.),
                 '\\eta': 0.97,

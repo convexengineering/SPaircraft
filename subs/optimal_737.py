@@ -74,7 +74,7 @@ def get737_optimal_subs():
             'f_{hpesys}': 0.01, # [TAS]
 
             # Wing substitutions
-            'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
+            'C_{L_{wmax}}': 2.25/(cos(sweep* pi / 180.)**2), # [TAS]
             '\\tan(\\Lambda)': tan(sweep * pi / 180.),
             '\\cos(\\Lambda)': cos(sweep * pi / 180.),
             '\\eta': 0.97,
