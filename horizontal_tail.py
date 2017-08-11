@@ -290,8 +290,7 @@ class HorizontalTailNoStruct(Model):
         #variables
         p       = Variable('p_{ht}', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q_{ht}', '-', 'Substituted variable = 1 + taper')
-
-        
+        etaht   = Variable('\\eta_{ht}', '-', 'Tail efficiency')
         tanLh   = Variable('\\tan(\\Lambda_{ht})', '-',
                            'tangent of horizontal tail sweep')
         taper   = Variable('\lambda_{ht}', '-', 'Horizontal tail taper ratio')
@@ -383,13 +382,9 @@ class HorizontalTailPerformance(Model):
         Rec     = Variable('Re_{c_h}', '-',
                            'Cruise Reynolds number (Horizontal tail)')
         CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
-        # CLah0   = Variable('C_{L_{ah_0}}', '-',
-        #                    'Isolated lift curve slope (htail)')
-        # CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
-
+        CLah0   = Variable('C_{L_{ah_0}}', '-',
+                           'Isolated lift curve slope (htail)')
         CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
-
-        # etaht   = Variable('\\eta_{ht}', '-', 'Tail efficiency')
         # eta     = Variable('\\eta_h', '-',
         #                    ("Lift efficiency (diff between sectional and "
         #                     "actual lift)"))
@@ -408,14 +403,12 @@ class HorizontalTailPerformance(Model):
 
                 # Angle of attack and lift slope constraints
                 CLh == CLah*alphah,
-##                CLh >= 0.975*CLah*alphah,
+##
                 alphah <= self.HT['\\alpha_{max,h}'],
 
-                # Moment arm and geometry -- same as for vtail
-##                dxlead >= self.wing['x_w'] + 1.5*units('m'),
 
                 # Currently using TAT to approximate
-                CLah == 2*3.14,
+                CLah0 == 2*3.14,
 
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CDh,

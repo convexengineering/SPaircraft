@@ -544,6 +544,9 @@ class AircraftP(Model):
             aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG,
             aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG,
 
+            # HT lift coefficient calc
+            self.HTP['C_{L_{ah}}'] + (2*self.wingP['C_{L_{aw}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{ah_0}}'] <= self.HTP['C_{L_{ah_0}}']*aircraft.HT['\\eta_{ht}'],
+
            # Tail downforce penalty to total lift
             TCS([Ltotal == self.aircraft['L_{total/wing}']*self.wingP['L_w']]),
             TCS([Ltotal >= W_avg + self.HTP['L_h']]),

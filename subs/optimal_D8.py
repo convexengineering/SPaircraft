@@ -139,6 +139,7 @@ def get_optimal_D8_subs():
                 '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
                 'c_{d_{fh}}': 0.0060,
                 'c_{d_{ph}}': 0.0035,
+                '\\eta_{ht}': 1, 
                 
                 #engine system subs
                 'r_{S_{nacelle}}': 6.,

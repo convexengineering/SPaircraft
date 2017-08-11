@@ -132,6 +132,7 @@ def get737_optimal_subs():
             '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
             'c_{d_{fh}}': 0.0060,
             'c_{d_{ph}}': 0.0030,
+            '\\eta_{ht}': 0.9, 
 
             #engine system subs
             'f_{pylon}': 0.1,
