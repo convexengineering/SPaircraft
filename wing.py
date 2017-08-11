@@ -338,9 +338,7 @@ class WingNoStruct(Model):
                 taper >= taper_min, # TODO
 
                 # Fuel volume [TASOPT doc]
-                TCS([Afuel <= wwn*0.92*tau]),
-                Vfuel <= croot**2*b/6*(1+taper+taper**2)*cosL, # [SP]
-                WfuelWing <= rhofuel*Vfuel*g,
+                Vfuel <= .3026*mac**2*b*tau,
 
                 b <= bmax,
             ]
