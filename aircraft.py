@@ -372,7 +372,7 @@ class Aircraft(Model):
                     self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
 
                     # HT/VT joint constraint
-                    self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
+                    self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
                     self.HT['c_{attach}'],
 
                     # HT structural factor calculation
@@ -514,6 +514,9 @@ class AircraftP(Model):
             # HT/VT moment arm constraints
             aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG,
             aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG,
+
+            # HT lift coefficient calc
+            self.HTP['C_{L_{ah}}'] + (2*self.wingP['C_{L_{aw}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{ah_0}}'] <= self.HTP['C_{L_{ah_0}}']*aircraft.HT['\\eta_{ht}'],
 
            # Tail downforce penalty to total lift
             TCS([Ltotal == self.aircraft['L_{total/wing}']*self.wingP['L_w']]),
