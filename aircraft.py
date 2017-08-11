@@ -164,7 +164,7 @@ class Aircraft(Model):
                             Ltow*self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
 
                             # Wing fuel constraints
-                            self.wing['W_{fuel_{wing}}'] >= W_ftotal/self.wing['FuelFrac'],
+                            self.wing['W_{fuel_{wing}}'] >= f_wingfuel*W_ftotal/self.wing['FuelFrac'],
 
                             # Lifting surface weights
                             Wwing == self.wing['W_{wing_system}'],
