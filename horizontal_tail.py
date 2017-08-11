@@ -359,7 +359,7 @@ class HorizontalTailNoStruct(Model):
 
                 ARht == bht**2/Sh,
                 
-                taper >= 0.2, # TODO: make less arbitrary
+                taper >= taper_min, # TODO: make less arbitrary
                 taper <= 1,
                 ])
 
