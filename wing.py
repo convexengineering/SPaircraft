@@ -339,6 +339,7 @@ class WingNoStruct(Model):
 
                 # Fuel volume [TASOPT doc]
                 Vfuel <= .3026*mac**2*b*tau,
+                WfuelWing <= rhofuel*Vfuel*g,
 
                 b <= bmax,
             ]
