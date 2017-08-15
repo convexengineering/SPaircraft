@@ -125,7 +125,7 @@ def get737_optimal_subs():
             'f_{HT}': 0.3,
 ##            'AR_{ht}': 6.,
 ##            '\\lambda_{ht}': 0.25,
-            '\lambda_{ht_{min}}': 0.2,
+            '\\lambda_{ht_{min}}': 0.2,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
             'C_{L_{hmax}}': 2.0,  # [TAS]
             'C_{L_{hfcG}}': 0.7,
@@ -135,6 +135,7 @@ def get737_optimal_subs():
             '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
             'c_{d_{fh}}': 0.0060,
             'c_{d_{ph}}': 0.0030,
+            '\\eta_{ht}': 0.9, 
 
             # Cabin air substitutions in AircraftP
 
