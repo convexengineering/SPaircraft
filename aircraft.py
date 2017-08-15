@@ -110,7 +110,7 @@ class Aircraft(Model):
         xLG = Variable('x_{LG}','m','Landing Gear Weight x-Location')
 
         # Fuselage lift fraction variables
-        Ltow = Variable('L_{total/wing}','-','Total lift as a percentage of wing lift')
+        fLtow = Variable('f_{L_{total/wing}}','-','Total lift as a percentage of wing lift')
 
         # Misc system variables
         Wmisc   = Variable('W_{misc}','lbf','Sum of Miscellaneous Weights')
@@ -147,7 +147,7 @@ class Aircraft(Model):
 
                             # Load factor matching
                             self.fuse['N_{lift}'] == self.wing['N_{lift}'], # To make sure that the loads factors match.
-                            Ltow*self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
+                            fLtow*self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
 
                             # Wing fuel constraints
                             self.wing['W_{fuel_{wing}}'] >= f_wingfuel*W_ftotal/self.wing['FuelFrac'],
@@ -485,7 +485,7 @@ class AircraftP(Model):
             self.wingP['\\eta_{o}'] == aircraft['w_{fuse}']/(aircraft['b']/2),
 
             # Fuselage lift (just calculating)
-            SignomialEquality(self.fuseP['L_{fuse}'], (self.aircraft['L_{total/wing}']-1.)*self.wingP['L_w']),
+            SignomialEquality(self.fuseP['L_{fuse}'], (self.aircraft['f_{L_{total/wing}}']-1.)*self.wingP['L_w']),
 
             # Geometric average of start and end weights of flight segment
             W_avg >= (W_start * W_end)**.5 + W_buoy, # Buoyancy weight included in Breguet Range
@@ -519,7 +519,7 @@ class AircraftP(Model):
             self.HTP['C_{L_{ah}}'] + (2*self.wingP['C_{L_{aw}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{ah_0}}'] <= self.HTP['C_{L_{ah_0}}']*aircraft.HT['\\eta_{ht}'],
 
            # Tail downforce penalty to total lift
-            TCS([Ltotal == self.aircraft['L_{total/wing}']*self.wingP['L_w']]),
+            TCS([Ltotal == self.aircraft['f_{L_{total/wing}}']*self.wingP['L_w']]),
             TCS([Ltotal >= W_avg + self.HTP['L_h']]),
 
             # Wing location and AC constraints
