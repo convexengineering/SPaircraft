@@ -979,13 +979,13 @@ class Mission(Model):
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
+                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
 
         if not multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam and not D12:
              constraints.extend([
-                  # aircraft['n_{pax}'] == 180.,
-                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  # aircraft['n_{pass}'] == 180.,
+                  aircraft['n_{seat}'] == aircraft['n_{pass}']
                   ])
 
         if multimission and (D8bigfam or b777300ER or optimal777):
@@ -994,12 +994,12 @@ class Mission(Model):
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
 
-                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
+                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
         if not multimission and (D8bigfam or b777300ER or optimal777):
              constraints.extend([
-                  aircraft['n_{pax}'] == 450.,
-                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  aircraft['n_{pass}'] == 450.,
+                  aircraft['n_{seat}'] == aircraft['n_{pass}']
                   ])
 
         if multimission and RJfam:
@@ -1008,12 +1008,12 @@ class Mission(Model):
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
 
-                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
+                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
         if not multimission and RJfam:
              constraints.extend([
-                  aircraft['n_{pax}'] == 90.,
-                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  aircraft['n_{pass}'] == 90.,
+                  aircraft['n_{seat}'] == aircraft['n_{pass}']
                   ])
 
         if multimission and D12:
@@ -1021,12 +1021,12 @@ class Mission(Model):
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
+                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
         if not multimission and D12:
              constraints.extend([
-                  aircraft['n_{pax}'] == 500.,
-                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  aircraft['n_{pass}'] == 500.,
+                  aircraft['n_{seat}'] == aircraft['n_{pass}']
                   ])
 
         if fuel:
@@ -1060,7 +1060,7 @@ class Mission(Model):
              return constraints, aircraft, cruise, enginestate, statelinking
 
         if PRFC:
-             # Payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT NEED TO SUB ReqRng OR n_{pax}.
+             # Payload-range fuel consumption optimization - CHOOSES THE OPTIMAL MISSION, DO NOT NEED TO SUB ReqRng OR n_{pass}.
              if not multimission:
                 self.cost = sum(aircraft['PRFC'])
              else:

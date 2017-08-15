@@ -39,11 +39,11 @@ def run_optimal_737(objective = 'fuel'):
     if Nmission == 3:
         substitutions.update({
             'ReqRng': [3000.*units('nmi'),3000.*units('nmi'),3000.*units('nmi')],
-            'n_{pax}': [180., 160., 120.],
+            'n_{pass}': [180., 160., 120.],
         })
     else:
         substitutions.update({
-           'n_{pax}': 180.,
+           'n_{pass}': 180.,
            'ReqRng': 3000.*units('nmi'),
         })        
 
@@ -57,7 +57,7 @@ def run_optimal_737(objective = 'fuel'):
 
     return sol
 
-def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pax}', xrange = np.linspace(150,210,10)):
+def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pass}', xrange = np.linspace(150,210,10)):
     # User definitions
     Ncruise = 4
     Nmission = 1
@@ -70,11 +70,11 @@ def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pax}', xrange = np.
     if Nmission == 3:
         substitutions.update({
             'ReqRng': [3000.*units('nmi'),3000.*units('nmi'),3000.*units('nmi')],
-            'n_{pax}': [180., 160., 120.],
+            'n_{pass}': [180., 160., 120.],
         })
     else:
         substitutions.update({
-           'n_{pax}': 180.,
+           'n_{pass}': 180.,
            'ReqRng': 3000.*units('nmi'),
         })
 

@@ -17,9 +17,9 @@ class Fuselage(Model):
         dPover = Variable('\\Delta P_{over}', 'psi', 'Cabin overpressure')
         if Nmissions >= 2.:
             with Vectorize(Nmissions):
-                npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+                npax = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
         else:
-            npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+            npax = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
                          'Emergency landing load factor')  # [TAS]
         Nlift = Variable('N_{lift}','-','Wing maximum load factor')
