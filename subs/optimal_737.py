@@ -175,6 +175,9 @@ def get737_optimal_subs():
             'w_{ult}': 10,
             'z_{CG}': 2,
             'z_{wing}': 0.5,
+
+            #takeoff subs
+            'l_r': 5000*units('ft'),
     }
 
     return substitutions

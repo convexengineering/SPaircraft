@@ -127,6 +127,15 @@ class Aircraft(Model):
         Dreduct = Variable('D_{reduct}', '-', 'BLI Drag Reduction Factor')
         Dwakefrac = Variable('D_{wakefraction}', 0.33, '-', 'Percent of Total Drag From Wake Dissipation')
         BLI_wake_benefit = Variable('BLI_{wakebenefit}', 0.02, '-', 'Wake Drag Reduction from BLI Wake Ingestion')
+
+        #Takeoff variables
+        VTO    = Variable('V_{TO}', 'm/s', 'Takeoff speed')
+        xTO    = Variable('x_{TO}', 'm', 'Takeoff distance')
+        xi     = Variable('\\xi', '-', 'Takeoff parameter')
+        y      = Variable('y', '-', 'Takeoff parameter')
+        CDTO   = Variable('C_{D_{TO}}', '-', 'Takeoff CD')
+        g      = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
+        lr     = Variable('l_r', 'ft', 'Runway length')
      
         constraints = []        
         
@@ -249,6 +258,14 @@ class Aircraft(Model):
                             # Fuselage width (numaisle comes in)
                             TCS([2.*self.fuse['w_{fuse}'] >= self.fuse['SPR'] * self.fuse['w_{seat}'] + \
                                  numaisle*self.fuse['w_{aisle}'] + 2. * self.fuse['w_{sys}'] + self.fuse['t_{db}']]),
+
+                            
+                            #Takeoff relationships
+                            xi >= 0.5*self.VT['\\rho_{TO}']*VTO**2*self.wing['S']*CDTO/self.engine['F_TO'],
+                            4*g*xTO*self.engine['F_TO']/(W_total*VTO**2) >= 1 + y,
+                            1 >= 0.0464*xi**2.73/y**2.88 + 1.044*xi**0.296/y**0.049,
+                            VTO == 1.2*(2*W_total/(self.VT['\\rho_{TO}']*self.wing['S']*self.wing['C_{L_{wmax}}']))**0.5,
+                            xTO <= lr,
                             ])
 
         if rearengine and BLI:
@@ -939,8 +956,6 @@ class Mission(Model):
 
                 cruise['hft'] == MinCruiseAlt,
 
-                cruise['M'] == 0.8,
-
                 # compute fuel burn from TSFC
                 cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['n_{eng}'] * aircraft.engine['TSFC'] * \
                     cruise['thr'] * aircraft.engine['F'],
@@ -950,6 +965,8 @@ class Mission(Model):
 
                 # Takeoff thrust T_e calculated for engine out + vertical tail sizing.
                 # Note: coeff can be varied as desired.
+
+                aircraft['C_{D_{TO}}'] == cruise['C_D'][0],
 
                 #TODO FIX THIS
                 aircraft.VT['T_e'] == aircraft.engine['F_TO'],
