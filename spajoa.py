@@ -52,7 +52,8 @@ def run_optimal_737(objective = 'fuel'):
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=50, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=0, iteration_limit=50, reltol=0.01,
+                             modifylastgp=False)
     post_process(sol)
 
     return sol
