@@ -142,7 +142,7 @@ class Aircraft(Model):
         with SignomialsEnabled():
             constraints.extend([
                             self.wing['c_{root}'] == self.fuse['c_0'],
-                            self.wing.wb['r_{w/c}'] == self.fuse['r_{wb}'],
+                            self.wing.wb['r_{w/c}'] == self.fuse['r_{w/c}'],
                             self.wing['x_w'] == self.fuse['x_{wing}'],
 
                             #compute the aircraft's zero fuel weight
