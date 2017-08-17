@@ -792,7 +792,7 @@ class Mission(Model):
              BLI = True
 
         if D8_eng_wing or D8_no_BLI or M08_D8_eng_wing or optimal737 or M08D8_noBLI or M072_737 \
-           or optimalRJ or smallD8_eng_wing or smallD8_no_BLI:
+           or optimalRJ or smallD8_eng_wing or smallD8_no_BLI or optimal737:
             eng = 3
             BLI = False
 
