@@ -57,7 +57,7 @@ def run_optimal_737(objective = 'fuel'):
 
     return sol
 
-def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pass}', xrange = np.linspace(150,210,10)):
+def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pass}', xrange = np.linspace(150,210,20)):
     # User definitions
     Ncruise = 4
     Nmission = 1
@@ -82,7 +82,7 @@ def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pass}', xrange = np
     m.substitutions.update(substitutions)
     m.substitutions.update({variable : ('sweep', xrange)})
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=50, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=50, reltol=0.01, skipsweepfailures = True)
     return sol
 
 def test():
@@ -93,7 +93,17 @@ if __name__ == "__main__":
     percent_diff(sol, 'optimal737')
     print sol.table()
 
-    # sol = run_sweeps_optimal_737()
-    # sol = run_sweeps_optimal_737(objective = 'fuel',variable = 'V_1', range = np.linspace(60,80,11)):
-    # sol = run_sweeps_optimal_737(objective = 'fuel',variable = 'M_{min}', range = np.linspace(0.7,0.88,10))
+    # sol = run_sweeps_optimal_737('fuel','n_{pass}',np.linspace(150,210,20))
+    # sol = run_sweeps_optimal_737('fuel','V_1',np.linspace(60,80,20))
+    # sol = run_sweeps_optimal_737('fuel','M_{min}',np.linspace(0.7,0.88,10))
 
+    # plt.plot(sol('V_1'),sol['sensitivities']['constants']['C_{wing}'],label='Wing')
+    # plt.plot(sol('V_1'),sol['sensitivities']['constants']['C_{VT}'], label = 'Vertical Tail')
+    # plt.plot(sol('V_1'),sol['sensitivities']['constants']['C_{HT}'], label = 'Horizontal Tail')
+    # plt.plot(sol('V_1'),sol['sensitivities']['constants']['C_{fuse}'], label = 'Fuselage')
+    # plt.plot(sol('V_1'),sol['sensitivities']['constants']['C_{lg}'], label = 'Landing Gear')
+    # # plt.xlabel('Number of passengers')
+    # plt.xlabel('Minimum takeoff velocity $V_1$ [m/s]')
+    # plt.ylabel('Sensitivity to component weight')
+    # plt.grid()
+    # plt.legend(loc = "upper left")
