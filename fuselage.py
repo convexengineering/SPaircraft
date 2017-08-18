@@ -29,21 +29,21 @@ class Fuselage(Model):
         pitch = Variable('p_s', 'cm', 'Seat pitch')
 
         # Cross-sectional variables
-        Adb = Variable('A_{db}', 'm^2', 'Web cross sectional area')
+        Aweb = Variable('A_{web}', 'm^2', 'Web cross sectional area')
         Afloor = Variable('A_{floor}', 'm^2', 'Floor beam x-sectional area')
         Afuse = Variable('A_{fuse}', 'm^2', 'Fuselage x-sectional area')
         Askin = Variable('A_{skin}', 'm^2', 'Skin cross sectional area')
-        hdb = Variable('h_{db}', 'm', 'Web half-height')
+        hweb = Variable('h_{web}', 'm', 'Web half-height')
         hfloor = Variable('h_{floor}', 'm', 'Floor beam height')
         hfuse = Variable('h_{fuse}', 'm', 'Fuselage height')
         dRfuse = Variable('\\Delta R_{fuse}','m','Fuselage extension height')
         Rfuse = Variable('R_{fuse}', 'm', 'Fuselage radius')
-        tdb = Variable('t_{db}', 'm', 'Web thickness')
-        thetadb = Variable('\\theta_{db}', '-', 'DB fuselage joining angle')
+        tweb = Variable('t_{web}', 'm', 'Web thickness')
+        thetadb = Variable('\\theta_{db}', '-', 'Double bubble fuselage joining angle')
         tshell = Variable('t_{shell}', 'm', 'Shell thickness')
         tskin = Variable('t_{skin}', 'm', 'Skin thickness')
         waisle = Variable('w_{aisle}', 'm', 'Aisle width')
-        wdb = Variable('w_{db}', 'm', 'DB added half-width')
+        wdb = Variable('w_{db}', 'm', 'Double bubble added half-width')
         wfloor = Variable('w_{floor}', 'm', 'Floor half-width')
         wfuse = Variable('w_{fuse}', 'm', 'Fuselage half-width')
         wseat = Variable('w_{seat}', 'm', 'Seat width')
@@ -71,7 +71,7 @@ class Fuselage(Model):
         Vcabin = Variable('V_{cabin}', 'm^3', 'Cabin volume')
         Vcone = Variable('V_{cone}', 'm^3', 'Cone skin volume')
         Vcyl = Variable('V_{cyl}', 'm^3', 'Cylinder skin volume')
-        Vdb = Variable('V_{db}', 'm^3', 'Web volume')
+        Vweb = Variable('V_{web}', 'm^3', 'Web volume')
         Vfloor = Variable('V_{floor}', 'm^3', 'Floor volume')
         Vnose = Variable('V_{nose}', 'm^3', 'Nose skin volume')
 
@@ -188,7 +188,7 @@ class Fuselage(Model):
         Wchecked = Variable('W_{checked}', 'lbf',
                             'Ave. checked bag weight')  # [Philippe]
         Wcone = Variable('W_{cone}', 'lbf', 'Cone weight')
-        Wdb = Variable('W_{db}', 'lbf', 'Web weight')
+        Wweb = Variable('W_{web}', 'lbf', 'Web weight')
         Wfix = Variable(
             'W_{fix}', 'lbf', 'Fixed weights (pilots, cockpit seats, navcom)')
         Wfloor = Variable('W_{floor}', 'lbf', 'Floor weight')
@@ -242,10 +242,10 @@ class Fuselage(Model):
 
                 # Fuselage joint angle relations
                 thetadb == wdb / Rfuse,  # first order Taylor works...
-                hdb >= Rfuse * (1.0 - .5 * thetadb**2),  # [SP]
+                hweb >= Rfuse * (1.0 - .5 * thetadb**2),  # [SP]
 
                 # Cross-sectional constraints
-                Adb >= (2 * hdb + dRfuse) * tdb,
+                Aweb >= (2 * hweb + dRfuse) * tweb,
                 Afuse >= (pi + 2 * thetadb + 2 * thetadb * \
                           (1 - thetadb**2 / 2)) * Rfuse**2 + 2*dRfuse*Rfuse,  # [SP]
                 Askin >= (2 * pi + 4 * thetadb) * Rfuse * tskin + 2*dRfuse*tskin,
@@ -268,7 +268,7 @@ class Fuselage(Model):
                 # STRESS RELATIONS
                 # Pressure shell loading
                 tskin == dPover * Rfuse / sigskin,
-                tdb == 2 * dPover * wdb / sigskin,
+                tweb == 2 * dPover * wdb / sigskin,
                 sigx == dPover * Rfuse / (2 * tshell),
                 sigth == dPover * Rfuse / tskin,
 
@@ -290,7 +290,7 @@ class Fuselage(Model):
                 # stresses
                 Ihshell <= ((pi + 4 * thetadb) * Rfuse**2 + 8.*(1-thetadb**2/2) * (dRfuse/2.)*Rfuse + \
                             (2*pi + 4 * thetadb)*(dRfuse/2)**2) * Rfuse * tshell + \
-                    2 / 3 * (hdb + dRfuse/2.)**3 * tdb,  # [SP]
+                    2 / 3 * (hweb + dRfuse/2.)**3 * tweb,  # [SP]
                 Ivshell <= (pi*Rfuse**2 + 8*wdb*Rfuse + (2*pi+4*thetadb)*wdb**2)*Rfuse*tshell, #[SP] #Ivshell
                 # approximation needs to be improved
 
@@ -366,12 +366,12 @@ class Fuselage(Model):
                 Vcyl == Askin * lshell,
                 Vnose == Snose * tskin,
                 Vbulk == Sbulk * tskin,
-                Vdb == Adb * lshell,
+                Vweb == Aweb * lshell,
                 Vcabin >= Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse),
 
                 # Weight relations
                 Wapu == Wpay * fapu,
-                Wdb == rhoskin * g * Vdb,
+                Wweb == rhoskin * g * Vweb,
                 Winsul >= Wppinsul * ((1.1 * pi + 2 * thetadb) * Rfuse * lshell + 0.55 * (Snose + Sbulk)),
                 Wwindow >= Wpwindow * lshell,
                 Wpadd == Wpay * fpadd,
@@ -379,7 +379,7 @@ class Fuselage(Model):
                 Wseat >= fseat * Wpay,
 
                 Wskin >= rhoskin * g * (Vcyl + Vnose + Vbulk),
-                Wshell >= Wskin * (1 + fstring + ffadd + fframe) + Wdb,
+                Wshell >= Wskin * (1 + fstring + ffadd + fframe) + Wweb,
                 Wfuse >= Cfuse*(Wshell + Wfloor + Winsul + \
                     Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend + Wvbend),
             ])

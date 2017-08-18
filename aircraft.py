@@ -257,7 +257,7 @@ class Aircraft(Model):
 
                             # Fuselage width (numaisle comes in)
                             TCS([2.*self.fuse['w_{fuse}'] >= self.fuse['SPR'] * self.fuse['w_{seat}'] + \
-                                 numaisle*self.fuse['w_{aisle}'] + 2. * self.fuse['w_{sys}'] + self.fuse['t_{db}']]),
+                                 numaisle*self.fuse['w_{aisle}'] + 2. * self.fuse['w_{sys}'] + self.fuse['t_{web}']]),
 
                             
                             #Takeoff relationships
