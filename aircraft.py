@@ -262,7 +262,7 @@ class Aircraft(Model):
                             
                             #Takeoff relationships
                             xi >= 0.5*self.VT['\\rho_{TO}']*VTO**2*self.wing['S']*CDTO/self.engine['F_TO'],
-                            4*g*xTO*self.engine['F_TO']/(W_total*VTO**2) >= 1 + y,
+                            2*g*xTO*self.engine['F_TO']/(W_total*VTO**2) >= 1 + y,
                             1 >= 0.0464*xi**2.73/y**2.88 + 1.044*xi**0.296/y**0.049,
                             VTO == 1.2*(2*W_total/(self.VT['\\rho_{TO}']*self.wing['S']*self.wing['C_{L_{wmax}}']))**0.5,
                             xTO <= lr,
