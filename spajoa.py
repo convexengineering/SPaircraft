@@ -94,10 +94,6 @@ if __name__ == "__main__":
     percent_diff(sol, 'optimal737')
     print sol.table()
 
-    # sol = run_sweeps_optimal_737('fuel','V_1',np.linspace(60,80,20))
-    # sol = run_sweeps_optimal_737('fuel','M_{min}',np.linspace(0.7,0.83,20))
-
-
     # NPASS PLOTS
     #
     # sol = run_sweeps_optimal_737('fuel','n_{pass}',np.linspace(150,210,20))
@@ -132,19 +128,21 @@ if __name__ == "__main__":
     # plt.xlabel('Number of passengers')
     # plt.ylabel('Fuel weight fraction')
     # plt.ylabel('Fuel weight fraction')
-    # plt.savefig('figs/sweep-FuelFraction_vs_npass.png')
     # plt.grid()
+    # plt.savefig('figs/sweep-FuelFraction_vs_npass.png')
     # plt.close()
     #
     # plt.plot(sol('n_{pass}'),sol('W_{f_{total}}')/sol('W_{payload}'))
     # plt.xlabel('Number of passengers')
     # plt.ylabel('Fuel payload weight ratio')
-    # plt.savefig('figs/sweep-FPWR_vs_npass.png')
     # plt.grid()
+    # plt.savefig('figs/sweep-FPWR_vs_npass.png')
     # plt.close()
 
     #V1 PLOTS
-
+    #
+    # sol = run_sweeps_optimal_737('fuel','V_1',np.linspace(60,80,20))
+    #
     # plt.plot(sol('V_1'),sol['sensitivities']['constants']['C_{wing}'],label='Wing')
     # plt.plot(sol('V_1'),sol['sensitivities']['constants']['C_{VT}'], label = 'Vertical Tail')
     # plt.plot(sol('V_1'),sol['sensitivities']['constants']['C_{HT}'], label = 'Horizontal Tail')
@@ -154,16 +152,146 @@ if __name__ == "__main__":
     # plt.ylabel('Sensitivity to component weights')
     # plt.grid()
     # plt.legend(loc = "upper left")
+    # plt.savefig('figs/sweep-Wsens_vs_V1.png')
+    # plt.close()
+    #
+    # plt.plot(sol('V_1'),sol('W_{f_{total}}'))
+    # plt.xlabel('Minimum takeoff velocity $V_1$')
+    # plt.ylabel('Fuel weight [lbf]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-Wftotal_vs_V1.png')
+    # plt.close()
+    #
+    # plt.plot(sol('V_1'),sol('W_{dry}'))
+    # plt.xlabel('Minimum takeoff velocity $V_1$')
+    # plt.ylabel('Dry weight [lbf]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-Wdry_vs_V1.png')
+    # plt.close()
+    #
+    # plt.plot(sol('V_1'),sol('W_{f_{total}}')/sol('W_{total}'))
+    # plt.xlabel('Minimum takeoff velocity $V_1$')
+    # plt.ylabel('Fuel weight fraction')
+    # plt.ylabel('Fuel weight fraction')
+    # plt.grid()
+    # plt.savefig('figs/sweep-FuelFraction_vs_V1.png')
+    # plt.close()
+    #
+    # plt.plot(sol('V_1'),sol('W_{f_{total}}')/sol('W_{payload}'))
+    # plt.xlabel('Minimum takeoff velocity $V_1$')
+    # plt.ylabel('Fuel payload weight ratio')
+    # plt.grid()
+    # plt.savefig('figs/sweep-FPWR_vs_V1.png')
+    # plt.close()
+    #
+    # plt.plot(sol('V_1'),sol('AR'))
+    # plt.xlabel('Minimum takeoff velocity $V_1$')
+    # plt.ylabel('Wing aspect ratio')
+    # plt.grid()
+    # plt.savefig('figs/sweep-AR_vs_V1.png')
+    # plt.close()
+    #
+    # plt.plot(sol('V_1'),sol('S'))
+    # plt.xlabel('Minimum takeoff velocity $V_1$')
+    # plt.ylabel('Wing area [m$^2$]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-S_vs_V1.png')
+    # plt.close()
+    #
+    # plt.plot(sol('V_1'),sol('W_{wing}'))
+    # plt.xlabel('Minimum takeoff velocity $V_1$')
+    # plt.ylabel('Wing weight [lbf]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-Wwing_vs_V1.png')
+    # plt.close()
+    #
+    # plt.plot(sol('V_1'),sol('W_{total}').transpose()[0]/sol('S').to('in^2'))
+    # plt.xlabel('Minimum takeoff velocity $V_1$')
+    # plt.ylabel('Wing loading [lbf/m$^2$]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-WingLoading_vs_V1.png')
+    # plt.close()
 
     #Mmin PLOTS
-
+    #
+    # sol = run_sweeps_optimal_737('fuel','M_{min}',np.linspace(0.7,0.83,20))
+    #
     # plt.plot(sol('M_{min}'),sol['sensitivities']['constants']['C_{wing}'],label='Wing')
     # plt.plot(sol('M_{min}'),sol['sensitivities']['constants']['C_{VT}'], label = 'Vertical Tail')
     # plt.plot(sol('M_{min}'),sol['sensitivities']['constants']['C_{HT}'], label = 'Horizontal Tail')
     # plt.plot(sol('M_{min}'),sol['sensitivities']['constants']['C_{fuse}'], label = 'Fuselage')
     # plt.plot(sol('M_{min}'),sol['sensitivities']['constants']['C_{lg}'], label = 'Landing Gear')
-    # plt.xlabel('Minimum Mach number')
+    # plt.xlabel('Minimum cruise Mach number')
     # plt.ylabel('Sensitivity to component weights')
     # plt.grid()
     # plt.legend(loc = "upper left")
+    # plt.savefig('figs/sweep-Wsens_vs_Mmin.png')
+    # plt.close()
+    #
+    # Marray = np.zeros(20)
+    # for i in range(0,20):
+    #     Marray[i] = sol('M_Mission/FlightState')[i][0]
+    # plt.plot(sol('M_{min}'),Marray)
+    # plt.xlabel('Minimum cruise Mach number')
+    # plt.ylabel('Beginning of Cruise Mach number')
+    # plt.grid()
+    # plt.savefig('figs/sweep-M_vs_Mmin.png')
+    # plt.close()
+    #
+    # plt.plot(sol('M_{min}'),sol('W_{f_{total}}'))
+    # plt.xlabel('Minimum cruise Mach number')
+    # plt.ylabel('Fuel weight [lbf]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-Wftotal_vs_Mmin.png')
+    # plt.close()
+    #
+    # plt.plot(sol('M_{min}'),sol('W_{dry}'))
+    # plt.xlabel('Minimum cruise Mach number')
+    # plt.ylabel('Dry weight [lbf]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-Wdry_vs_Mmin.png')
+    # plt.close()
+    #
+    # plt.plot(sol('M_{min}'),sol('W_{f_{total}}')/sol('W_{total}'))
+    # plt.xlabel('Minimum cruise Mach number')
+    # plt.ylabel('Fuel weight fraction')
+    # plt.ylabel('Fuel weight fraction')
+    # plt.grid()
+    # plt.savefig('figs/sweep-FuelFraction_vs_Mmin.png')
+    # plt.close()
+    #
+    # plt.plot(sol('M_{min}'),sol('W_{f_{total}}')/sol('W_{payload}'))
+    # plt.xlabel('Minimum cruise Mach number')
+    # plt.ylabel('Fuel payload weight ratio')
+    # plt.grid()
+    # plt.savefig('figs/sweep-FPWR_vs_Mmin.png')
+    # plt.close()
+    #
+    # plt.plot(sol('M_{min}'),sol('AR'))
+    # plt.xlabel('Minimum cruise Mach number')
+    # plt.ylabel('Wing aspect ratio')
+    # plt.grid()
+    # plt.savefig('figs/sweep-AR_vs_Mmin.png')
+    # plt.close()
+    #
+    # plt.plot(sol('M_{min}'),sol('S'))
+    # plt.xlabel('Minimum cruise Mach number')
+    # plt.ylabel('Wing area [m$^2$]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-S_vs_Mmin.png')
+    # plt.close()
+    #
+    # plt.plot(sol('M_{min}'),sol('W_{wing}'))
+    # plt.xlabel('Minimum cruise Mach number')
+    # plt.ylabel('Wing weight [lbf]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-Wwing_vs_Mmin.png')
+    # plt.close()
+    #
+    # plt.plot(sol('M_{min}'),sol('W_{total}').transpose()[0]/sol('S').to('in^2'))
+    # plt.xlabel('Minimum cruise Mach number')
+    # plt.ylabel('Wing loading [lbf/m$^2$]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-WingLoading_vs_Mmin.png')
+    # plt.close()
 
