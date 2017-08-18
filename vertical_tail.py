@@ -364,8 +364,8 @@ class VerticalTailNoStruct(Model):
                 TCS([p >= 1 + 2*taper]),
                 TCS([2*q >= 1 + p]),
                 zmac == (bvt/3)*q/p,
-##                TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cma]), # [SP]
-                SignomialEquality((2./3)*(1 + taper + taper**2)*croot/q, cma),
+                TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cma]), # [SP]
+##                SignomialEquality((2./3)*(1 + taper + taper**2)*croot/q, cma),
                 taper == ctip/croot,
                 # Define vertical tail geometry
 
