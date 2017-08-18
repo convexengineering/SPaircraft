@@ -94,10 +94,14 @@ if __name__ == "__main__":
     percent_diff(sol, 'optimal737')
     print sol.table()
 
-    # sol = run_sweeps_optimal_737('fuel','n_{pass}',np.linspace(150,210,20))
     # sol = run_sweeps_optimal_737('fuel','V_1',np.linspace(60,80,20))
     # sol = run_sweeps_optimal_737('fuel','M_{min}',np.linspace(0.7,0.83,20))
 
+
+    # NPASS PLOTS
+    #
+    # sol = run_sweeps_optimal_737('fuel','n_{pass}',np.linspace(150,210,20))
+    #
     # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{wing}'],label='Wing')
     # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{VT}'], label = 'Vertical Tail')
     # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{HT}'], label = 'Horizontal Tail')
@@ -107,7 +111,40 @@ if __name__ == "__main__":
     # plt.ylabel('Sensitivity to component weights')
     # plt.grid()
     # plt.legend(loc = "upper left")
+    # plt.savefig('figs/sweep-Wsens_vs_npass.png')
+    # plt.close()
     #
+    # plt.plot(sol('n_{pass}'),sol('W_{f_{total}}'))
+    # plt.xlabel('Number of passengers')
+    # plt.ylabel('Fuel weight [lbf]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-Wftotal_vs_npass.png')
+    # plt.close()
+    #
+    # plt.plot(sol('n_{pass}'),sol('W_{dry}'))
+    # plt.xlabel('Number of passengers')
+    # plt.ylabel('Dry weight [lbf]')
+    # plt.grid()
+    # plt.savefig('figs/sweep-Wdry_vs_npass.png')
+    # plt.close()
+    #
+    # plt.plot(sol('n_{pass}'),sol('W_{f_{total}}')/sol('W_{total}'))
+    # plt.xlabel('Number of passengers')
+    # plt.ylabel('Fuel weight fraction')
+    # plt.ylabel('Fuel weight fraction')
+    # plt.savefig('figs/sweep-FuelFraction_vs_npass.png')
+    # plt.grid()
+    # plt.close()
+    #
+    # plt.plot(sol('n_{pass}'),sol('W_{f_{total}}')/sol('W_{payload}'))
+    # plt.xlabel('Number of passengers')
+    # plt.ylabel('Fuel payload weight ratio')
+    # plt.savefig('figs/sweep-FPWR_vs_npass.png')
+    # plt.grid()
+    # plt.close()
+
+    #V1 PLOTS
+
     # plt.plot(sol('V_1'),sol['sensitivities']['constants']['C_{wing}'],label='Wing')
     # plt.plot(sol('V_1'),sol['sensitivities']['constants']['C_{VT}'], label = 'Vertical Tail')
     # plt.plot(sol('V_1'),sol['sensitivities']['constants']['C_{HT}'], label = 'Horizontal Tail')
@@ -117,7 +154,9 @@ if __name__ == "__main__":
     # plt.ylabel('Sensitivity to component weights')
     # plt.grid()
     # plt.legend(loc = "upper left")
-    #
+
+    #Mmin PLOTS
+
     # plt.plot(sol('M_{min}'),sol['sensitivities']['constants']['C_{wing}'],label='Wing')
     # plt.plot(sol('M_{min}'),sol['sensitivities']['constants']['C_{VT}'], label = 'Vertical Tail')
     # plt.plot(sol('M_{min}'),sol['sensitivities']['constants']['C_{HT}'], label = 'Horizontal Tail')
@@ -127,3 +166,4 @@ if __name__ == "__main__":
     # plt.ylabel('Sensitivity to component weights')
     # plt.grid()
     # plt.legend(loc = "upper left")
+
