@@ -449,7 +449,7 @@ class AircraftP(Model):
             'W_{avg}', 'lbf', 'Geometric Average of Segment Start and End Weight')
         W_start = Variable('W_{start}', 'lbf', 'Segment Start Weight')
         W_end = Variable('W_{end}', 'lbf', 'Segment End Weight')
-        W_burn = Variable('W_{burn}', 'lbf', 'Segment Fuel Burn Weight')
+        W_fuel = Variable('W_{fuel}', 'lbf', 'Segment Fuel Burn Weight')
         WLoadmax = Variable('W_{Load_max}',6664., 'N/m^2', 'Max Wing Loading')
         WLoad = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
@@ -460,7 +460,7 @@ class AircraftP(Model):
         xCG = Variable('x_{CG}','m','Center of Gravity of Aircraft')
         xNP = Variable('x_{NP}','m','Neutral Point of Aircraft')
         SM = Variable('SM','-','Stability Margin of Aircraft')
-        PCFuel = Variable('F_{fuel}','-','Percent Fuel Remaining (end of segment)')
+        Ffuel = Variable('F_{fuel}','-','Percent Fuel Remaining (end of segment)')
 
         # Buoyancy weight variables
         Pcabin = Variable('P_{cabin}','Pa','Cabin Air Pressure')
@@ -475,9 +475,7 @@ class AircraftP(Model):
 
         with SignomialsEnabled():
             constraints.extend([
-            W_burn == W_burn,
-            PCFuel == PCFuel,
-
+            Ffuel == Ffuel,
             #Cabin Air properties
             rhocabin == Pcabin/(state['R']*Tcabin),
             Pcabin == 75000*units('Pa'),
@@ -583,7 +581,6 @@ class CruiseP(Model): # Cruise performance constraints
         self.engine = aircraft.engine
         
         # variable definitions
-        Rng = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
         z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
         Rng = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
 
@@ -592,7 +589,7 @@ class CruiseP(Model): # Cruise performance constraints
 
         constraints.extend([
             #taylor series expansion to get the weight term
-            TCS([self.aircraftP['W_{burn}']/self.aircraftP['W_{end}'] >=
+            TCS([self.aircraftP['W_{fuel}']/self.aircraftP['W_{end}'] >=
               te_exp_minus1(z_bre, nterm=3)]),
 
             #time
@@ -939,14 +936,14 @@ class Mission(Model):
 
             # Cruise segment weight decreasesby the fuel burn...
             TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP[
-                'W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
+                'W_{end}'] + cruise.cruiseP.aircraftP['W_{fuel}']]),
 
             cruise.cruiseP.aircraftP['W_{start}'][
             1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
             TCS([aircraft['W_{dry}'] + aircraft['W_{payload}'] + \
                  aircraft['f_{fuel_{res}}'] * aircraft['W_{f_{primary}}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
-            TCS([aircraft['W_{f_{cruise}}'] >= sum(cruise.cruiseP.aircraftP['W_{burn}'])]),
+            TCS([aircraft['W_{f_{cruise}}'] >= sum(cruise.cruiseP.aircraftP['W_{fuel}'])]),
             ])
 
         with SignomialsEnabled():
@@ -957,7 +954,7 @@ class Mission(Model):
                 cruise['hft'] == MinCruiseAlt,
 
                 # compute fuel burn from TSFC
-                cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['n_{eng}'] * aircraft.engine['TSFC'] * \
+                cruise.cruiseP.aircraftP['W_{fuel}'] == aircraft['n_{eng}'] * aircraft.engine['TSFC'] * \
                     cruise['thr'] * aircraft.engine['F'],
 
                 # Thrust >= Drag + Vertical Potential Energy
@@ -988,7 +985,7 @@ class Mission(Model):
         with SignomialsEnabled():
             for i in range(0,Ncruise):
                 constraints.extend([
-                    TCS([cruise['F_{fuel}'][i] >= (sum(cruise['W_{burn}'][i+1:]) + \
+                    TCS([cruise['F_{fuel}'][i] >= (sum(cruise['W_{fuel}'][i+1:]) + \
                                 0.0000001*aircraft['W_{f_{primary}}'])/aircraft['W_{f_{primary}}']]),
                     cruise['F_{fuel}'] <= 1.0, #just in case, TODO remove later
                     ])
