@@ -140,7 +140,7 @@ def get737_optimal_subs():
             # Cabin air substitutions in AircraftP
 
             #set the fuel reserve fraction
-            'ReserveFraction': .20,
+            'f_{fuel_{res}}': .20,
 
             #min altitude for start of cruise
             'MinCruiseAlt': 35000*units('ft'),
