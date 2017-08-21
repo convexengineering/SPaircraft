@@ -205,8 +205,7 @@ class LandingGear(Model):
                            W_lg >= Clg * (W_mg + W_ng),
 
                            #LG CG accounting
-                           TCS([W_lg*xcglg >= W_ng*x_n + W_mg*x_m], reltol=1E-2,
-                                raiseerror=False),
+                           TCS([W_lg*xcglg >= W_ng*x_n + W_mg*x_m], reltol=1E-2),
                            x_m >= xcglg,
                           ]
 
