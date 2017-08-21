@@ -249,7 +249,7 @@ class VerticalTail(Model):
         self.wb = WingBox(self.vtns, "vertical_tail")
 
         #total weight variables
-        WVT = Variable('W_{VT_system}', 'N', 'Total VT System Weight')
+        WVT = Variable('W_{VT_system}', 'lbf', 'Total VT System Weight')
         fVT = Variable('f_{VT}', '-', 'VT Fractional Weight')
 
         #Margin and Sensitivity

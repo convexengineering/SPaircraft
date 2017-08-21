@@ -107,7 +107,6 @@ class Aircraft(Model):
         WHT = Variable('W_{HT}','lbf','Horizontal Tail Weight')
         WVT = Variable('W_{VT}','lbf','Vertical Tail Weight')
         WLG = Variable('W_{LG}','lbf','Landing Gear Weight')
-        xLG = Variable('x_{LG}','m','Landing Gear Weight x-Location')
 
         # Fuselage lift fraction variables
         fLtow = Variable('f_{L_{total/wing}}','-','Total lift as a percentage of wing lift')
@@ -116,7 +115,7 @@ class Aircraft(Model):
         Wmisc   = Variable('W_{misc}','lbf','Sum of Miscellaneous Weights')
         Whpesys = Variable('W_{hpesys}','lbf','Power Systems Weight')
         fhpesys = Variable('f_{hpesys}','-','Power Systems Weight Fraction')
-        xmisc   = Variable('x_{misc}','m','Misc Weight Centroid')
+        xCGmisc   = Variable('x_{CG_{misc}}','m','Misc Systems Center of Gravity')
         xhpesys = Variable('x_{hpesys}','m','Power Systems Weight x-Location')
 
         #engine system weight variables
@@ -176,8 +175,7 @@ class Aircraft(Model):
                             TCS([self.LG['x_m'] >= self.fuse['x_{wing}']]),
                             self.LG['x_m'] <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
                             xhpesys == 1.1*self.fuse['l_{nose}'],
-                            xmisc*Wmisc >= xhpesys*Whpesys,
-                            xLG*WLG >= self.LG['x_n']*self.LG['W_{ng}'] + self.LG['x_m']*self.LG['W_{mg}'],
+                            xCGmisc*Wmisc >= xhpesys*Whpesys,
 
                             #------------LG constraints------------
                             # For steering don't want too much or too little
@@ -875,7 +873,7 @@ class Mission(Model):
             if rearengine:
                 constraints.extend([
                 TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] + aircraft['x_{LG}']*aircraft['W_{LG}'] \
+                    aircraft['x_{CG_{misc}}']*aircraft['W_{misc}'] + aircraft['x_{CG_{lg}}']*aircraft['W_{LG}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}']+aircraft['n_{eng}']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
@@ -886,7 +884,7 @@ class Mission(Model):
             if wingengine:
                 constraints.extend([
                  TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] + aircraft['x_{LG}']*aircraft['W_{LG}']  \
+                    aircraft['x_{CG_{misc}}']*aircraft['W_{misc}'] + aircraft['x_{CG_{lg}}']*aircraft['W_{LG}']  \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
@@ -997,7 +995,7 @@ class Mission(Model):
                 ])
 
         if multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
+             W_fmissions = Variable('W_{f_{missions}', 'lbf', 'Fuel burn across all missions')
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
@@ -1010,7 +1008,7 @@ class Mission(Model):
                   ])
 
         if multimission and (D8bigfam or b777300ER or optimal777):
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
+             W_fmissions = Variable('W_{f_{missions}', 'lbf', 'Fuel burn across all missions')
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
@@ -1024,7 +1022,7 @@ class Mission(Model):
                   ])
 
         if multimission and RJfam:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
+             W_fmissions = Variable('W_{f_{missions}', 'lbf', 'Fuel burn across all missions')
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
@@ -1038,7 +1036,7 @@ class Mission(Model):
                   ])
 
         if multimission and D12:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
+             W_fmissions = Variable('W_{f_{missions}', 'lbf', 'Fuel burn across all missions')
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),

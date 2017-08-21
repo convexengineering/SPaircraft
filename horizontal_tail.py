@@ -82,19 +82,17 @@ class HorizontalTailNoStruct(Model):
                 TCS([(2./3)*(1 + taper + taper**2)*croot/q >=
                      chma]), # [SP]
                 taper == ctip/croot,
+                taper >= tapermin, # TODO: make less arbitrary
+                taper <= 1,
+
                 SignomialEquality(Sh, bht*(croot + ctip)/2),
 
                 # Oswald efficiency
-                TCS([fl >= (0.0524*taper**4 - 0.15*taper**3
-                            + 0.1659*taper**2
-                            - 0.0706*taper + 0.0119)], reltol=0.2),
+                TCS([fl >= 0.0524*taper**4 - 0.15*taper**3
+                         + 0.1659*taper**2 - 0.0706*taper + 0.0119],
+                    reltol=0.2),
                 # NOTE: slightly slack
                 TCS([e*(1 + fl*ARht) <= 1]),
-
-                ARht == bht**2/Sh,
-                
-                taper >= tapermin, # TODO: make less arbitrary
-                taper <= 1,
                 ])
 
         return constraints
@@ -109,7 +107,7 @@ class HorizontalTailPerformance(Model):
     """
     def setup(self, ht, state, fitDrag):
         self.HT = ht
-        
+
         D       = Variable('D_{ht}', 'N', 'Horizontal tail drag')
         Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
         Rec     = Variable('Re_{c_h}', '-',
@@ -127,7 +125,7 @@ class HorizontalTailPerformance(Model):
         constraints = []
 
         with SignomialsEnabled():
-           
+
             constraints.extend([
                 Lh == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CLh,
 
@@ -137,7 +135,7 @@ class HorizontalTailPerformance(Model):
                 alphah <= self.HT['\\alpha_{max,h}'],
 
                 # Thin airfoil theory
-                CLah0 == 2*3.14,                
+                CLah0 == 2*3.14,
 
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CDh,
@@ -190,7 +188,7 @@ class HorizontalTail(Model):
         self.wb = WingBox(self.HTns, "horizontal_tail")
 
         # HT system weight variable
-        WHT = Variable('W_{HT_system}', 'N', 'HT System Weight')
+        WHT = Variable('W_{HT_system}', 'lbf', 'HT System Weight')
         fHT = Variable('f_{HT}' ,'-', 'Rudder etc. fractional weight')
 
         # margin and sensitivity

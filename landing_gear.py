@@ -38,16 +38,14 @@ class LandingGear(Model):
                            'Wheel assembly weight for single main gear wheel')
         WAWn    = Variable('W_{wa,n}', 'lbf',
                            'Wheel assembly weight for single nose gear wheel')
-##        W_0     = Variable('W_{0_{lg}}', 'N',
-##                           'Weight of aircraft excluding landing gear')
         Clg = Variable('C_{lg}', 1, '-', 'Landing Gear Weight Margin/Sens Factor')
-        W_lg    = Variable('W_{lg}', 'N', 'Weight of landing gear')
-        W_mg    = Variable('W_{mg}', 'N', 'Weight of main gear')
-        W_ms    = Variable('W_{ms}', 'N', 'Weight of main struts')
-        W_mw    = Variable('W_{mw}', 'N', 'Weight of main wheels (per strut)')
-        W_ng    = Variable('W_{ng}', 'N', 'Weight of nose gear')
-        W_ns    = Variable('W_{ns}', 'N', 'Weight of nose strut')
-        W_nw    = Variable('W_{nw}', 'N', 'Weight of nose wheels (total)')
+        W_lg    = Variable('W_{lg}', 'lbf', 'Weight of landing gear')
+        W_mg    = Variable('W_{mg}', 'lbf', 'Weight of main gear')
+        W_ms    = Variable('W_{ms}', 'lbf', 'Weight of main struts')
+        W_mw    = Variable('W_{mw}', 'lbf', 'Weight of main wheels (per strut)')
+        W_ng    = Variable('W_{ng}', 'lbf', 'Weight of nose gear')
+        W_ns    = Variable('W_{ns}', 'lbf', 'Weight of nose strut')
+        W_nw    = Variable('W_{nw}', 'lbf', 'Weight of nose wheels (total)')
         d_oleo  = Variable('d_{oleo}', 'm', 'Diameter of oleo shock absorber')
         dtm     = Variable('d_{t_m}', 'in', 'Diameter of main gear tires')
         dtn     = Variable('d_{t_n}', 'in', 'Diameter of nose gear tires')
@@ -207,8 +205,7 @@ class LandingGear(Model):
                            W_lg >= Clg * (W_mg + W_ng),
 
                            #LG CG accounting
-                           TCS([W_lg*xcglg >= W_ng*x_n + W_mg*x_m], reltol=1E-2,
-                                raiseerror=False),
+                           TCS([W_lg*xcglg >= W_ng*x_n + W_mg*x_m], reltol=1E-2),
                            x_m >= xcglg,
                           ]
 
