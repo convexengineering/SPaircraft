@@ -895,7 +895,7 @@ class Mission(Model):
 
         # True is use xfoil fit tail drag model, False is TASOPT tail drag model
         if optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8 or M072_737 or \
-           D8_eng_wing or D8_no_BLI or D8big or optimal777 or D8big_eng_wing or D8big_no_BLI or RJfam or D12:
+           D8_eng_wing or D8_no_BLI or D8big or optimal777 or optimal737 or D8big_eng_wing or D8big_no_BLI or RJfam or D12:
             fitDrag = True
         else:
             fitDrag = False
