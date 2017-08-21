@@ -79,8 +79,7 @@ class HorizontalTailNoStruct(Model):
                 p >= 1 + 2*taper,
                 2*q >= 1 + p,
                 ymac == (bht/3)*q/p,
-                TCS([(2./3)*(1 + taper + taper**2)*croot/q >=
-                     chma]), # [SP]
+                SignomialEquality((2./3)*(1 + taper + taper**2)*croot/q,chma),
                 taper == ctip/croot,
                 taper >= tapermin, # TODO: make less arbitrary
                 taper <= 1,
