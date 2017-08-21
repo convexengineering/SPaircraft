@@ -38,13 +38,13 @@ def run_optimal_737(objective = 'fuel'):
 
     if Nmission == 3:
         substitutions.update({
-            'ReqRng': [3000.*units('nmi'),3000.*units('nmi'),3000.*units('nmi')],
+            'R_{req}': [3000.*units('nmi'),3000.*units('nmi'),3000.*units('nmi')],
             'n_{pass}': [180., 160., 120.],
         })
     else:
         substitutions.update({
            'n_{pass}': 180.,
-           'ReqRng': 3000.*units('nmi'),
+           'R_{req}': 3000.*units('nmi'),
         })        
 
     m.substitutions.update(substitutions)
@@ -70,13 +70,13 @@ def run_sweeps_optimal_737(objective = 'fuel',variable = 'n_{pass}', xrange = np
 
     if Nmission == 3:
         substitutions.update({
-            'ReqRng': [3000.*units('nmi'),3000.*units('nmi'),3000.*units('nmi')],
+            'R_{req}': [3000.*units('nmi'),3000.*units('nmi'),3000.*units('nmi')],
             'n_{pass}': [180., 160., 120.],
         })
     else:
         substitutions.update({
            'n_{pass}': 180.,
-           'ReqRng': 3000.*units('nmi'),
+           'R_{req}': 3000.*units('nmi'),
         })
 
     m = Model(m.cost, BCS(m))

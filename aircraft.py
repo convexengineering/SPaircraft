@@ -853,11 +853,11 @@ class Mission(Model):
         if multimission:
              with Vectorize(Nmission):
                   CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
-                  ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
+                  ReqRng = Variable('R_{req}', 'nautical_miles', 'Required Cruise Range')
 ##                  Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
         else:
           CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
-          ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
+          ReqRng = Variable('R_{req}', 'nautical_miles', 'Required Cruise Range')
           Total_Time = Variable('TotalTime', 'hr', 'Total Mission Time')
 
         MinCruiseAlt = Variable('MinCruiseAlt', 'ft', 'Minimum Cruise Altitude')
