@@ -221,7 +221,7 @@ class Aircraft(Model):
 
                             # HT Location and Volume Coefficient
                             self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
-                            self.fuse['x_{tail}'] == self.VT['x_{CG_{vt}}'],
+                            self.VT['x_{CG_{vt}}'] <= self.fuse['l_{fuse}'],
                             TCS([self.HT['V_{ht}'] == self.HT['S_{ht}']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
 
                             # HT Max Loading
@@ -890,7 +890,7 @@ class Mission(Model):
                  TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
                     aircraft['x_{CG_{misc}}']*aircraft['W_{misc}'] + aircraft['x_{CG_{lg}}']*aircraft['W_{LG}']  \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{HT}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{VT}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (cruise['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
