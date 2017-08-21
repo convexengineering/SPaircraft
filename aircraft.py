@@ -526,7 +526,7 @@ class AircraftP(Model):
 
             # HT/VT moment arm constraints
             aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG,
-            aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG,
+            aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - 0.25*aircraft.VT['c_{root_{vt}}'] - xCG,
 
             # HT lift coefficient calc
             self.HTP['C_{L_{ah}}'] + (2*self.wingP['C_{L_{aw}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{ah_0}}'] <= self.HTP['C_{L_{ah_0}}']*aircraft.HT['\\eta_{ht}'],
