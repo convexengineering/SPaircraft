@@ -121,9 +121,9 @@ class HorizontalTailPerformance(Model):
                            'Horizontal tail parasitic drag coefficient')
 
         alphah   = Variable('\\alpha_{ht}', '-', 'Horizontal tail angle of attack')
-        dxlead  = Variable('\\Delta x_{lead_{h}}', 'm',
+        dxlead  = Variable('\\Delta x_{lead_{ht}}', 'm',
                            'Distance from CG to horizontal tail leading edge')
-        dxtrail = Variable('\\Delta x_{trail_{h}}', 'm',
+        dxtrail = Variable('\\Delta x_{trail_{ht}}', 'm',
                            'Distance from CG to horizontal tail trailing edge')
         constraints = []
 
