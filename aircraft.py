@@ -197,9 +197,6 @@ class Aircraft(Model):
                            self.LG['L_n'] == W_total*self.LG['\\Delta x_m']/self.LG['B'],
                            self.LG['L_m'] == W_total*self.LG['\\Delta x_n']/self.LG['B'],
 
-                            # Engine ground clearance
-                            self.LG['d_{nacelle}']  + self.LG['h_{nacelle}'] <= self.LG['l_m'] + (self.VT['y_{eng}']-self.LG['y_m'])*self.LG['\\tan(\\gamma)'], # [SP]
-
                             # (assumes deceleration of 10 ft/s^2)
                             self.LG['L_{n_{dyn}}'] >= 0.31*((self.LG['z_{CG}']+self.LG['l_m'])/self.LG['B'])*W_total,
                                                          self.VT['y_{eng}'] >= self.LG['y_m'],
@@ -305,6 +302,9 @@ class Aircraft(Model):
                             #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
                                     (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
+
+                    # Engine ground clearance
+                    self.LG['d_{nacelle}']  + self.LG['h_{nacelle}'] <= self.LG['l_m'] + (self.VT['y_{eng}']-self.LG['y_m'])*self.LG['\\tan(\\gamma)'], # [SP
                 ])
 
         # Rear-engined aircraft constraints
@@ -542,7 +542,7 @@ class AircraftP(Model):
 
             # HT/VT moment arm constraints
             aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG,
-            aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG,
+            aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - 0.25*aircraft.VT['c_{root_{vt}}'] - xCG,
 
             # HT lift coefficient calc
             self.HTP['C_{L_{ah}}'] + (2*self.wingP['C_{L_{aw}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{ah_0}}'] <= self.HTP['C_{L_{ah_0}}']*aircraft.HT['\\eta_{ht}'],
