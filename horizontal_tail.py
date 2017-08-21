@@ -82,19 +82,17 @@ class HorizontalTailNoStruct(Model):
                 TCS([(2./3)*(1 + taper + taper**2)*croot/q >=
                      chma]), # [SP]
                 taper == ctip/croot,
+                taper >= tapermin, # TODO: make less arbitrary
+                taper <= 1,
+
                 SignomialEquality(Sh, bht*(croot + ctip)/2),
 
                 # Oswald efficiency
-                TCS([fl >= (0.0524*taper**4 - 0.15*taper**3
-                            + 0.1659*taper**2
-                            - 0.0706*taper + 0.0119)], reltol=0.2),
+                TCS([fl >= 0.0524*taper**4 - 0.15*taper**3
+                         + 0.1659*taper**2 - 0.0706*taper + 0.0119],
+                    reltol=0.2),
                 # NOTE: slightly slack
                 TCS([e*(1 + fl*ARht) <= 1]),
-
-                ARht == bht**2/Sh,
-
-                taper >= tapermin, # TODO: make less arbitrary
-                taper <= 1,
                 ])
 
         return constraints
@@ -471,7 +469,7 @@ class Mission(Model):
 
 if __name__ == '__main__':
     plot = True
-
+    
     aircraft = Aircraft()
         
     substitutions = {      
