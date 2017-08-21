@@ -86,7 +86,6 @@ class HorizontalTailNoStruct(Model):
                 taper <= 1,
 
                 SignomialEquality(Sh, bht*(croot + ctip)/2),
-                ARht == bht**2/Sh,
 
                 # Oswald efficiency
                 TCS([fl >= 0.0524*taper**4 - 0.15*taper**3
