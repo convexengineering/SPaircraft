@@ -53,7 +53,7 @@ def run_optimal_737(objective = 'fuel'):
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=0, iteration_limit=50, reltol=0.01,
-                             modifylastgp=False)
+                             modifylastgp=True)
     post_process(sol)
 
     return sol
