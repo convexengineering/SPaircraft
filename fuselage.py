@@ -156,7 +156,7 @@ class Fuselage(Model):
                             'Floor weight/area density')  # [TAS]
         Wppinsul = Variable(
             'W\'\'_{insul}', 'N/m^2', 'Weight/area density of insulation material')  # [TAS]
-        Wpseat = Variable('W\'_{seat}', 'N', 'Weight per seat')  # [TAS]
+        Wpseat = Variable('W\'_{seat}', 'lbf', 'Weight per seat')  # [TAS]
         Wpwindow = Variable('W\'_{window}', 'N/m',
                             'Weight/length density of windows')  # [TAS]
 

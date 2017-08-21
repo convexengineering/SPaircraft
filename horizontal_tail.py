@@ -379,7 +379,7 @@ class HorizontalTailPerformance(Model):
         #variables
 
         D       = Variable('D_{ht}', 'N', 'Horizontal tail drag')
-        Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
+        Lh      = Variable('L_h', 'lbf', 'Horizontal tail downforce')
         Rec     = Variable('Re_{c_h}', '-',
                            'Cruise Reynolds number (Horizontal tail)')
         CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
@@ -460,7 +460,7 @@ class HorizontalTail(Model):
         self.wb = WingBox(self.HTns, "horizontal_tail")
 
         #HT system weight variable
-        WHT = Variable('W_{HT_system}', 'N', 'HT System Weight')
+        WHT = Variable('W_{HT_system}', 'lbf', 'HT System Weight')
         fHT = Variable('f_{HT}' ,'-', 'Rudder etc. fractional weight')
 
         #margin and sensitivity
