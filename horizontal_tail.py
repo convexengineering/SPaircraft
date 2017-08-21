@@ -25,6 +25,202 @@ Inputs
 - Cruise altitude [ft]
 """
 
+class HorizontalTailNoStruct(Model):
+    """
+    horiziontal tail model from Philippe's thesis
+    as a performance model without the wing box
+
+    References:
+    [1] TASOPT code
+    [2] http://adg.stanford.edu/aa241/stability/staticstability.HTml
+
+    This model does not include the effects of wing downwash on tail
+    effectiveness.
+    """
+    def setup(self):
+        ARht    = Variable('AR_{ht}', '-', 'Horizontal tail aspect ratio')
+        CLfCG   = Variable('C_{L_{hfcG}}', '-', 'HT CL During Max Forward CG')
+        CLhmax  = Variable('C_{L_{hmax}}', '-', 'Max lift coefficient')
+        Lmax    = Variable('L_{h_{max}}', 'N', 'Maximum load')
+        Sh      = Variable('S_{ht}', 'm^2', 'Horizontal tail area')
+        Vh      = Variable('V_{ht}', '-', 'Horizontal Tail Volume Coefficient')
+        amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack, htail')
+        bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
+        cattach = Variable('c_{attach}', 'm',
+                           'HT Chord Where it is Mounted to the VT')
+        chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
+        croot   = Variable('c_{root_{ht}}', 'm', 'Horizontal tail root chord')
+        ctip    = Variable('c_{tip_{ht}}', 'm', 'Horizontal tail tip chord')
+        e       = Variable('e_h', '-', 'Oswald efficiency factor')
+        etaht   = Variable('\\eta_{ht}', '-', 'Tail efficiency')
+        fl      = Variable(r"f(\lambda_{ht})", '-',
+                           'Empirical efficiency function of taper')
+        lht     = Variable('l_{ht}', 'm', 'Horizontal tail moment arm')
+        mrat    = Variable('m_{ratio}', '-', 'Wing to Tail Lift Slope Ratio')
+        p       = Variable('p_{ht}', '-', 'Substituted variable = 1 + 2*taper')
+        q       = Variable('q_{ht}', '-', 'Substituted variable = 1 + taper')
+        tanLh   = Variable('\\tan(\\Lambda_{ht})', '-',
+                           'tangent of horizontal tail sweep')
+        taper   = Variable('\\lambda_{ht}', '-', 'Horizontal tail taper ratio')
+        tapermin= Variable('\\lambda_{ht_{min}}', '-',
+                           'Min horizontal tail taper ratio')
+        tau     = Variable('\\tau_{ht}', '-',
+                           'Horizontal tail thickness/chord ratio')
+        xcght   = Variable('x_{CG_{ht}}', 'm', 'Horizontal tail CG location')
+        ymac    = Variable('y_{\\bar{c}_{ht}}', 'm',
+                           'Spanwise location of mean aerodynamic chord')
+
+        #constraints
+        constraints = []
+
+        with SignomialsEnabled():
+
+            constraints.extend([
+                p >= 1 + 2*taper,
+                2*q >= 1 + p,
+                ymac == (bht/3)*q/p,
+                TCS([(2./3)*(1 + taper + taper**2)*croot/q >=
+                     chma]), # [SP]
+                taper == ctip/croot,
+                SignomialEquality(Sh, bht*(croot + ctip)/2),
+
+                # Oswald efficiency
+                TCS([fl >= (0.0524*taper**4 - 0.15*taper**3
+                            + 0.1659*taper**2
+                            - 0.0706*taper + 0.0119)], reltol=0.2),
+                # NOTE: slightly slack
+                TCS([e*(1 + fl*ARht) <= 1]),
+
+                ARht == bht**2/Sh,
+                
+                taper >= tapermin, # TODO: make less arbitrary
+                taper <= 1,
+                ])
+
+        return constraints
+
+class HorizontalTailPerformance(Model):
+    """
+    Horizontal tail performance model
+
+    ARGUMENTS
+    ---------
+    fitDrag: True = use Martin's tail drag fits, False = use the TASOPT tail drag model
+    """
+    def setup(self, ht, state, fitDrag):
+        self.HT = ht
+        
+        D       = Variable('D_{ht}', 'N', 'Horizontal tail drag')
+        Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
+        Rec     = Variable('Re_{c_h}', '-',
+                           'Cruise Reynolds number (Horizontal tail)')
+        CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
+        CLah0   = Variable('C_{L_{ah_0}}', '-',
+                            'Isolated lift curve slope (htail)')
+        CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
+        CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
+        CD0h    = Variable('C_{D_{0_h}}', '-',
+                           'Horizontal tail parasitic drag coefficient')
+
+        alphah   = Variable('\\alpha_{ht}', '-', 'Horizontal tail angle of attack')
+
+        constraints = []
+
+        with SignomialsEnabled():
+           
+            constraints.extend([
+                Lh == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CLh,
+
+                # Angle of attack and lift slope constraints
+                CLh == CLah*alphah,
+
+                alphah <= self.HT['\\alpha_{max,h}'],
+
+                # Thin airfoil theory
+                CLah0 == 2*3.14,                
+
+                # Drag
+                D == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CDh,
+                CDh >= CD0h + CLh**2/(pi*self.HT['e_h']*self.HT['AR_{ht}']),
+
+                #cruise Reynolds number
+                Rec == state['\\rho']*state['V']*self.HT['\\bar{c}_{ht}']/state['\\mu'],
+                ])
+
+        if fitDrag:
+            constraints.extend([
+                #Martin's TASOPT tail drag fit
+                CD0h**0.119892 >= 0.0693931 * (Rec/1000)**-0.0021665
+                                            * (self.HT['\\tau_{ht}']*100)**0.104391
+                                            * (state['M'])**-0.0177484
+                                + 0.273439 * (Rec/1000)**-0.0017356
+                                           * (self.HT['\\tau_{ht}']*100)**-0.164667
+                                           * (state['M'])**0.0233832
+                                + 0.000150403 * (Rec/1000)**-0.186771
+                                              * (self.HT['\\tau_{ht}']*100)**1.52706
+                                              * (state['M'])**3.89794
+                                + 0.27215 * (Rec/1000)**-0.00170564
+                                          * (self.HT['\\tau_{ht}']*100)**-0.175197
+                                          * (state['M'])**0.0242146
+                                + 0.0608952 * (Rec/1000)**-0.00195729
+                                            * (self.HT['\\tau_{ht}']*100)**0.227082
+                                            * (state['M'])**-0.0439115,
+            ])
+
+        return constraints
+
+class HorizontalTail(Model):
+    """
+    horiziontal tail model from Philippe's thesis
+    as a performance model without the wing box
+
+    References:
+    [1] TASOPT code
+    [2] http://adg.stanford.edu/aa241/stability/staticstability.HTml
+    """
+    def setup(self):
+        self.HTns = HorizontalTailNoStruct()
+        self.wb = WingBox(self.HTns, "horizontal_tail")
+
+        # HT system weight variable
+        WHT = Variable('W_{HT_system}', 'N', 'HT System Weight')
+        fHT = Variable('f_{HT}' ,'-', 'Rudder etc. fractional weight')
+
+        # margin and sensitivity
+        CHT = Variable('C_{HT}', 1, '-', 'HT Weight Margin and Sensitivity Factor')
+
+        # Variables only used for the TASOPT tail drag formulation
+        cdfh = Variable('c_{d_{fh}}', '-', 'VT friction drag coefficient')
+        cdph = Variable('c_{d_{ph}}', '-', 'VT pressure drag coefficient')
+        coslamcube = Variable('\\cos(\\Lambda_{ht})^3', '-',
+                              'Cosine of tail sweep cubed')
+
+        constraints = []
+        with SignomialsEnabled():
+            constraints.append([
+                self.wb['L_{h_{rect}}'] >= self.HTns['L_{h_{max}}']/2.
+                                          *self.HTns['c_{tip_{ht}}']
+                                          *self.HTns['b_{ht}']
+                                          /self.HTns['S_{ht}'],
+                self.wb['L_{h_{tri}}'] >= self.HTns['L_{h_{max}}']/4.
+                                         *(1-self.wb['taper'])
+                                         *self.HTns['c_{root_{ht}}']
+                                         *self.HTns['b_{ht}']
+                                         /self.HTns['S_{ht}'], #[SP]
+                WHT >= CHT*(self.wb['W_{struct}'] + self.wb['W_{struct}']*fHT),
+            ])
+
+        return self.HTns, self.wb, constraints
+
+
+    def dynamic(self, state, fitDrag):
+        """"
+        creates a horizontal tail performance model
+        """
+        return HorizontalTailPerformance(self, state, fitDrag)
+
+
+# FOR RUNNING STANDALONE ######################################################
 class Aircraft(Model):
     "Aircraft class"
     def setup(self):
@@ -273,368 +469,31 @@ class Mission(Model):
 
         return climb, cruise, constraints
 
-class HorizontalTailNoStruct(Model):
-    """
-    horiziontal tail model from Philippe's thesis
-    as a performance model without the wing box
-
-    References:
-    [1] TASOPT code
-    [2] http://adg.stanford.edu/aa241/stability/staticstability.HTml
-
-    This model does not include the effects of wing downwash on tail
-    effectiveness.
-    """
-    def setup(self):
-        
-        #variables
-        p       = Variable('p_{ht}', '-', 'Substituted variable = 1 + 2*taper')
-        q       = Variable('q_{ht}', '-', 'Substituted variable = 1 + taper')
-
-        etaht   = Variable('\\eta_{ht}', '-', 'Tail efficiency')
-        tanLh   = Variable('\\tan(\\Lambda_{ht})', '-',
-                           'tangent of horizontal tail sweep')
-        taper   = Variable('\\lambda_{ht}', '-', 'Horizontal tail taper ratio')
-        taper_min   = Variable('\\lambda_{ht_{min}}', '-', 'Min horizontal tail taper ratio')
-        tau     = Variable('\\tau_{ht}', '-',
-                           'Horizontal tail thickness/chord ratio')
-        xcght   = Variable('x_{CG_{ht}}', 'm', 'Horizontal tail CG location')
-        # dxlead  = Variable('\\Delta x_{{lead}_h}', 'm',
-        #                    'Distance from CG to horizontal tail leading edge')
-        # dxtrail = Variable('\\Delta x_{{trail}_h}', 'm',
-        #                    'Distance from CG to horizontal tail trailing edge')
-        ymac    = Variable('y_{\\bar{c}_{ht}}', 'm',
-                           'Spanwise location of mean aerodynamic chord')
-        lht     = Variable('l_{ht}', 'm', 'Horizontal tail moment arm')
-        ARht     = Variable('AR_{ht}', '-', 'Horizontal tail aspect ratio')
-        amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack, htail')
-        e       = Variable('e_h', '-', 'Oswald efficiency factor')
-        Sh      = Variable('S_{ht}', 'm^2', 'Horizontal tail area')
-        bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
-        chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
-        croot   = Variable('c_{root_{ht}}', 'm', 'Horizontal tail root chord')
-        ctip    = Variable('c_{tip_{ht}}', 'm', 'Horizontal tail tip chord')
-        Lmax    = Variable('L_{h_{max}}', 'N', 'Maximum load')
-        # Kf      = Variable('K_f', '-',
-        #                    'Empirical factor for fuselage-wing interference')
-        fl      = Variable(r"f(\lambda_{ht})", '-',
-                           'Empirical efficiency function of taper')
-        CLhmax  = Variable('C_{L_{hmax}}', '-', 'Max lift coefficient')
-        CLfCG = Variable('C_{L_{hfcG}}', '-', 'HT CL During Max Forward CG')
-
-        #new variables
-        Vh = Variable('V_{ht}', '-', 'Horizontal Tail Volume Coefficient')
-        mrat = Variable('m_{ratio}', '-', 'Wing to Tail Lift Slope Ratio')
-        #variable just for the D8
-        cattach = Variable('c_{attach}', 'm', 'HT Chord Where it is Mounted to the VT')
-
-        #constraints
-        constraints = []
-
-        with SignomialsEnabled():
-
-            constraints.extend([
-                # Moment arm and geometry -- same as for vtail
-                # TCS([dxlead + croot <= dxtrail]),
-                p >= 1 + 2*taper,
-                2*q >= 1 + p,
-                ymac == (bht/3)*q/p,
-                TCS([(2./3)*(1 + taper + taper**2)*croot/q >=
-                     chma]), # [SP]
-##                SignomialEquality((2./3)*(1 + taper + taper**2)*croot/q,
-##                     chma),
-                taper == ctip/croot,
-                SignomialEquality(Sh, bht*(croot + ctip)/2),
-                # TCS([Sh <= bht*(croot + ctip)/2]), # [SP]
-
-                # Oswald efficiency
-                # Nita, Scholz,
-                # "Estimating the Oswald factor from basic
-                # aircraft geometrical parameters"
-                TCS([fl >= (0.0524*taper**4 - 0.15*taper**3
-                            + 0.1659*taper**2
-                            - 0.0706*taper + 0.0119)], reltol=0.2),
-                # NOTE: slightly slack
-                TCS([e*(1 + fl*ARht) <= 1]),
-
-                ARht == bht**2/Sh,
-                
-                taper >= taper_min, # TODO: make less arbitrary
-                taper <= 1,
-                ])
-
-        return constraints
-
-class HorizontalTailPerformance(Model):
-    """
-    Horizontal tail performance model
-
-    ARGUMENTS
-    ---------
-    fitDrag: True = use Martin's tail drag fits, False = use the TASOPT tail drag model
-    """
-    def setup(self, ht, state, fitDrag):
-        self.HT = ht
-        
-        #variables
-
-        D       = Variable('D_{ht}', 'N', 'Horizontal tail drag')
-        Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
-        Rec     = Variable('Re_{c_h}', '-',
-                           'Cruise Reynolds number (Horizontal tail)')
-        CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
-        CLah0   = Variable('C_{L_{ah_0}}', '-',
-                            'Isolated lift curve slope (htail)')
-        # CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope (wing)')
-
-        CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
-        # eta     = Variable('\\eta_h', '-',
-        #                    ("Lift efficiency (diff between sectional and "
-        #                     "actual lift)"))
-        CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
-        CD0h    = Variable('C_{D_{0_h}}', '-',
-                           'Horizontal tail parasitic drag coefficient')
-
-        alphah   = Variable('\\alpha_{ht}', '-', 'Horizontal tail angle of attack')
-
-        constraints = []
-
-        with SignomialsEnabled():
-           
-            constraints.extend([
-                Lh == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CLh,
-
-                # Angle of attack and lift slope constraints
-                CLh == CLah*alphah,
-
-                alphah <= self.HT['\\alpha_{max,h}'],
-
-                # Currently using TAT to approximate
-                CLah0 == 2*3.14,                
-
-                # Drag
-                D == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CDh,
-                CDh >= CD0h + CLh**2/(pi*self.HT['e_h']*self.HT['AR_{ht}']),
-
-                #cruise Reynolds number
-                Rec == state['\\rho']*state['V']*self.HT['\\bar{c}_{ht}']/state['\\mu'],
-                ])
-
-        if fitDrag:
-            constraints.extend([
-                # Same drag model as VerticalTail
-                #Martin's NACA drag fit
-##                CD0h**1.5846 >= 0.000195006 * (Rec)**-0.508965 * (self.HT['\\tau_{ht}']*100)**1.62106 * (state['M'])**0.670788
-##                        + 9.25066e+18 * (Rec)**-0.544817 * (self.HT['\\tau_{ht}']*100)**1.94003 * (state['M'])**240.136
-##                        + 2.23515e-05 * (Rec)**0.223161 * (self.HT['\\tau_{ht}']*100)**0.0338899 * (state['M'])**0.0210705,
-
-                #Martin's TASOPT tail drag fit
-                CD0h**0.119892 >= 0.0693931 * (Rec/1000)**-0.0021665 * (self.HT['\\tau_{ht}']*100)**0.104391 * (state['M'])**-0.0177484
-                        + 0.273439 * (Rec/1000)**-0.0017356 * (self.HT['\\tau_{ht}']*100)**-0.164667 * (state['M'])**0.0233832
-                        + 0.000150403 * (Rec/1000)**-0.186771 * (self.HT['\\tau_{ht}']*100)**1.52706 * (state['M'])**3.89794
-                        + 0.27215 * (Rec/1000)**-0.00170564 * (self.HT['\\tau_{ht}']*100)**-0.175197 * (state['M'])**0.0242146
-                        + 0.0608952 * (Rec/1000)**-0.00195729 * (self.HT['\\tau_{ht}']*100)**0.227082 * (state['M'])**-0.0439115,
-                #Philippe thesis drag fit
-##                CD0h**0.125 >= 0.19*(self.HT['\\tau_{ht}'])**0.0075 *(Rec)**0.0017
-##                            + 1.83e+04*(self.HT['\\tau_{ht}'])**3.54*(Rec)**-0.494
-##                            + 0.118*(self.HT['\\tau_{ht}'])**0.0082 *(Rec)**0.00165
-##                            + 0.198*(self.HT['\\tau_{ht}'])**0.00774*(Rec)**0.00168,
-                ])
-        else:
-            #HT drag constraints in AircraftP
-            None
-
-        return constraints
-
-class HorizontalTail(Model):
-    """
-    horiziontal tail model from Philippe's thesis
-    as a performance model without the wing box
-
-    References:
-    [1] TASOPT code
-    [2] http://adg.stanford.edu/aa241/stability/staticstability.HTml
-    """
-    def setup(self):
-        self.HTns = HorizontalTailNoStruct()
-        self.wb = WingBox(self.HTns, "horizontal_tail")
-
-        #HT system weight variable
-        WHT = Variable('W_{HT_system}', 'N', 'HT System Weight')
-        fHT = Variable('f_{HT}' ,'-', 'Rudder etc. fractional weight')
-
-        #margin and sensitivity
-        CHT = Variable('C_{HT}', 1, '-', 'HT Weight Margin and Sensitivity Factor')
-
-        #variables only used for the TASOPT tail drag formulation
-        cdfh = Variable('c_{d_{fh}}', '-', 'VT friction drag coefficient')
-        cdph = Variable('c_{d_{ph}}', '-', 'VT pressure drag coefficient')
-        coslamcube = Variable('\\cos(\\Lambda_{ht})^3', '-', 'Cosine of tail sweep cubed')
-
-        constraints = []
-        with SignomialsEnabled():
-            constraints.append([
-                self.wb['L_{h_{rect}}'] >= self.HTns['L_{h_{max}}']/2.*self.HTns['c_{tip_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'],
-                self.wb['L_{h_{tri}}'] >= self.HTns['L_{h_{max}}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'], #[SP]
-                WHT >= CHT*(self.wb['W_{struct}'] + self.wb['W_{struct}']  * fHT),
-            ])
-
-        return self.HTns, self.wb, constraints
-
-
-    def dynamic(self, state, fitDrag):
-        """"
-        creates a horizontal tail performance model
-        """
-        return HorizontalTailPerformance(self, state, fitDrag)
-
 if __name__ == '__main__':
     plot = True
     
-    #build required submodels
     aircraft = Aircraft()
         
     substitutions = {      
-##            'V_{stall}': 120,
-            'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
-            'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
-            'numeng': 2,
-            'W_{pax}': 91 * 9.81,
-            'n_{pax}': 150,
-            'pax_{area}': 1,
-            'e': .9,
-            'b_{max}': 60,
-
-            #HT subs
             'C_{L_{hmax}}': 2.5,
-            '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-            'w_{fuse}': 6,
-            'c_{m_{w}}': 1,
             'C_{L_{max}}': 2,
-            '\\alpha_{max,h}': 2.5,
+            'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
+            'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
             'SM_{min}': 0.5,
+            'W_{pax}': 91 * 9.81,
             '\\Delta x_{CG}': 4,
-
-##            'x_{CG}': [17, 18],
-            #think about how to constrain this
-            'x_w': 19,
+            '\\alpha_{max,h}': 2.5,
+            '\\tan(\\Lambda_{ht})': tan(30*pi/180),
+            'b_{max}': 60,
+            'c_{m_{w}}': 1,
+            'e': .9,
             'mac': 2,
+            'n_{pax}': 150,
+            'numeng': 2,
+            'pax_{area}': 1,
+            'w_{fuse}': 6,
+            'x_w': 19,
             }
     mission = Mission(aircraft)
     m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
     sol = m.localsolve(solver='mosek', verbosity = 4)
-
-    # if plot == True:
-
-    #     substitutions = {      
-    # ##            'V_{stall}': 120,
-    #             'ReqRng': ('sweep', np.linspace(500,2000,4)),
-    #             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
-    #             'numeng': 1,
-    # ##            'W_{Load_max}': 6664,
-    #             'W_{pax}': 91 * 9.81,
-    #             'n_{pax}': 150,
-    #             'pax_{area}': 1,
-    # ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
-    #             'e': .9,
-    #             'b_{max}': 35,
-
-    #              'V_{ne}': 144,
-    #              'C_{L_{hmax}}': 2.5,
-
-    #              '\\rho_0': 1.225,
-    #              '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-    #              'w_{fuse}': 6,
-
-    # ##            'l_{fuse}': 30,
-    #             'c_{m_{w}}': 1,
-    #             'C_{L_{max}}': 2,
-
-    #             '\\alpha_{max,h}': 2.5,
-
-         
-    #             'SM_{min}': 0.5,
-
-    #             '\\Delta x_{CG}': 4,
-
-    # ##            'x_{CG}': [17, 18],
-    #              #think about how to constrain this
-    #              'x_w': 19,
-
-    #             'mac': 2,
-    #             }
-               
-    #     mission = Mission(aircraft)
-    #     m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
-    #     solRsweep = m.localsolve(solver='mosek', verbosity = 4)
-        
-    #     plt.plot(solRsweep('ReqRng'), solRsweep('AR_{ht}'), '-r')
-    #     plt.xlabel('Mission Range [nm]')
-    #     plt.ylabel('Horizontal Tail Aspect Ratio')
-    #     plt.title('Horizontal Tail Aspect Ratio vs Range')
-    # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
-    #     plt.show()
-
-    #     plt.plot(solRsweep('ReqRng'), solRsweep('S_{ht}'), '-r')
-    #     plt.xlabel('Mission Range [nm]')
-    #     plt.ylabel('Horizontal Tail Area [m$^2$]')
-    #     plt.title('Horizontal Tail Area vs Range')
-    # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
-    #     plt.show()
-
-        
-    #     substitutions = {      
-    # ##            'V_{stall}': 120,
-    #             'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
-    #             'CruiseAlt': ('sweep', np.linspace(20000,40000,4)),
-    #             'numeng': 1,
-    # ##            'W_{Load_max}': 6664,
-    #             'W_{pax}': 91 * 9.81,
-    #             'n_{pax}': 150,
-    #             'pax_{area}': 1,
-    # ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
-    #             'e': .9,
-    #             'b_{max}': 35,
-
-    #              'V_{ne}': 144,
-    #              'C_{L_{hmax}}': 2.5,
-
-    #              '\\rho_0': 1.225,
-    #              '\\tan(\\Lambda_{ht})': tan(30*pi/180),
-    #              'w_{fuse}': 6,
-
-    # ##            'l_{fuse}': 30,
-    #             'c_{m_{w}}': 1,
-    #             'C_{L_{max}}': 2,
-
-    #             '\\alpha_{max,h}': 2.5,
-
-         
-    #             'SM_{min}': 0.5,
-
-    #             '\\Delta x_{CG}': 4,
-
-    # ##            'x_{CG}': [17, 18],
-    #              #think about how to constrain this
-    #              'x_w': 19,
-
-    #             'mac': 2,
-    #             }
-               
-    #     mission = Mission(aircraft)
-    #     m = Model(mission['W_{f_{total}}'], [aircraft, mission], substitutions)
-    #     solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
-        
-    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('AR_{ht}'), '-r')
-    #     plt.xlabel('Cruise Altitude [ft]')
-    #     plt.ylabel('Horizontal Tail Aspect Ratio')
-    #     plt.title('Horizontal Tail Aspect Ratio vs Cruise Altitude')
-    # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
-    #     plt.show()
-
-    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('S_{ht}'), '-r')
-    #     plt.xlabel('Cruise Altitude [ft]')
-    #     plt.ylabel('Horizontal Tail Area [m$^2$]')
-    #     plt.title('Horizontal Tail Area vs Cruise Altitude')
-    # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
-    #     plt.show()
