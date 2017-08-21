@@ -995,7 +995,7 @@ class Mission(Model):
                 ])
 
         if multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
+             W_fmissions = Variable('W_{f_{missions}', 'lbf', 'Fuel burn across all missions')
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
@@ -1008,7 +1008,7 @@ class Mission(Model):
                   ])
 
         if multimission and (D8bigfam or b777300ER or optimal777):
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
+             W_fmissions = Variable('W_{f_{missions}', 'lbf', 'Fuel burn across all missions')
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
@@ -1022,7 +1022,7 @@ class Mission(Model):
                   ])
 
         if multimission and RJfam:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
+             W_fmissions = Variable('W_{f_{missions}', 'lbf', 'Fuel burn across all missions')
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
@@ -1036,7 +1036,7 @@ class Mission(Model):
                   ])
 
         if multimission and D12:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
+             W_fmissions = Variable('W_{f_{missions}', 'lbf', 'Fuel burn across all missions')
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),

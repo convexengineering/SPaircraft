@@ -183,7 +183,7 @@ class HorizontalTail(Model):
         self.wb = WingBox(self.HTns, "horizontal_tail")
 
         # HT system weight variable
-        WHT = Variable('W_{HT_system}', 'N', 'HT System Weight')
+        WHT = Variable('W_{HT_system}', 'lbf', 'HT System Weight')
         fHT = Variable('f_{HT}' ,'-', 'Rudder etc. fractional weight')
 
         # margin and sensitivity
