@@ -79,7 +79,7 @@ def percent_diff(sol,aircraft):
         print "\n"
         print "Overall Cd Percent Diff: %s" % compute_diff(mag(sol('C_D')[0]), 0.03292)
         print "\n"
-        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_h}')[0]), 0.00175*sol('S')/sol('S_{ht}'))
+        print "HT Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{ht}}')[0]), 0.00175*sol('S')/sol('S_{ht}'))
         print "\n"
         print "Fuselage Cd Percent Diff: %s" % compute_diff(mag(sol('C_{D_{fuse}}')[0]), 0.00801)
         print "\n"

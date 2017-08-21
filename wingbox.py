@@ -59,7 +59,7 @@ class WingBox(Model):
             p = surface['p_{vt}']
             q = surface['q_{vt}']
             tau = surface['\\tau_{vt}']
-            Lmax = 2.*surface['L_{v_{max}}']
+            Lmax = 2.*surface['L_{vt_{max}}']
             taper = surface['\\lambda_{vt}']
         elif surfacetype == "horizontal_tail":
             taper = Variable('taper', 0.3, '-', 'Taper ratio')
@@ -69,7 +69,7 @@ class WingBox(Model):
             p = surface['p_{ht}']
             q = surface['q_{ht}']
             tau = surface['\\tau_{ht}']
-            Lmax = surface['L_{h_{max}}']
+            Lmax = surface['L_{ht_{max}}']
 
             # Pi tail sizing variables
             # Splits the max lift into triangular and rectangular components

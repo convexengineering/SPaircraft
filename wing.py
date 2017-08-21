@@ -269,7 +269,7 @@ class WingNoStruct(Model):
     """
     def setup(self, **kwargs):
         Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
-        CLwmax  = Variable('C_{L_{wmax}}', '-', 'Max lift coefficient, wing')
+        CLwmax  = Variable('C_{L_{w,max}}', '-', 'Max lift coefficient, wing')
         Vfuel   = Variable('V_{fuel, max}', 'm^3', 'Available fuel volume')
         cosL    = Variable('\\cos(\\Lambda)', '-',
                            'Cosine of quarter-chord sweep angle')
@@ -356,7 +356,7 @@ class WingPerformance(Model):
         #declare variables
         #Vector Variables
         alpha   = Variable('\\alpha_w', '-', 'Wing angle of attack')
-        CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope, wing')
+        CLaw    = Variable('C_{L_{\\alpha-w}}', '-', 'Lift curve slope, wing')
         
         Re      = Variable('Re_w', '-', 'Reynolds number (wing)')
         CDp     = Variable('C_{D_{p_w}}', '-',
@@ -446,7 +446,7 @@ if __name__ == '__main__':
             'pax_{area}': 1,
 
             #wing subs
-            'C_{L_{wmax}}': 2.5,
+            'C_{L_{w,max}}': 2.5,
             'V_{ne}': 144,
             '\\alpha_{max,w}': 0.1, # (6 deg)
             '\\cos(\\Lambda)': cos(sweep*pi/180),
@@ -467,7 +467,7 @@ if __name__ == '__main__':
             'pax_{area}': 1,
 
             #wing subs
-            'C_{L_{wmax}}': 2.5,
+            'C_{L_{w,max}}': 2.5,
             'V_{ne}': 144,
             '\\alpha_{max,w}': 0.1, # (6 deg)
             '\\cos(\\Lambda)': cos(sweep*pi/180),
@@ -498,7 +498,7 @@ if __name__ == '__main__':
                  'pax_{area}': 1,
 
                  #wing subs
-                 'C_{L_{wmax}}': 2.5,
+                 'C_{L_{w,max}}': 2.5,
                  'V_{ne}': 144,
                  '\\alpha_{max,w}': 0.1, # (6 deg)
                  '\\cos(\\Lambda)': cos(sweep*pi/180),
@@ -590,7 +590,7 @@ if __name__ == '__main__':
 #      ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
 
 #                  #wing subs
-#                  'C_{L_{wmax}}': 2.5,
+#                  'C_{L_{w,max}}': 2.5,
 #                  'V_{ne}': 144,
 #                  '\\alpha_{max,w}': 0.1, # (6 deg)
 #                  '\\cos(\\Lambda)': cos(sweep*pi/180),
@@ -646,7 +646,7 @@ if __name__ == '__main__':
 # ##         plt.savefig('Wing_Sweeps/wing_alt_SensNLift.pdf')
 #          plt.show()
 
-#          plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['C_{L_{wmax}}'], '-r')
+#          plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['C_{L_{w,max}}'], '-r')
 #          plt.xlabel('Cruise Altitude [ft]')
 #          plt.ylabel('Sensitivity to Wing $C_{L_{max}}$')
 #          plt.title('Sensitivity to Wing $C_{L_{max}}$ vs Cruise Altitude')
