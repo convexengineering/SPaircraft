@@ -104,8 +104,8 @@ class Aircraft(Model):
              W_fprimary = Variable('W_{f_{primary}}', 'lbf', 'Total Fuel Weight Less Fuel Reserves')
 
         Wwing = Variable('W_{wing}','lbf','Wing Weight')
-        WHT = Variable('W_{HT}','lbf','Horizontal Tail Weight')
-        WVT = Variable('W_{VT}','lbf','Vertical Tail Weight')
+        WHT = Variable('W_{ht}','lbf','Horizontal Tail Weight')
+        WVT = Variable('W_{vt}','lbf','Vertical Tail Weight')
         WLG = Variable('W_{LG}','lbf','Landing Gear Weight')
 
         # Fuselage lift fraction variables
@@ -890,7 +890,7 @@ class Mission(Model):
                  TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
                     aircraft['x_{CG_{misc}}']*aircraft['W_{misc}'] + aircraft['x_{CG_{lg}}']*aircraft['W_{LG}']  \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{HT}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{VT}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
+                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (cruise['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
