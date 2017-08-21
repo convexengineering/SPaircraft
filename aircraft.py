@@ -525,8 +525,13 @@ class AircraftP(Model):
             self.HTP['C_{L_h}'] >= 0.01, #TODO remove
 
             # HT/VT moment arm constraints
-            aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG,
+            # aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG,
             aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - xCG,
+
+
+            # HT TE constraint, and CG calculation
+            xCG + self.HTP['\\Delta x_{trail_{h}}'] <= aircraft.fuse['l_{fuse}'],
+            aircraft.HT['x_{CG_{ht}}'] >= xCG +0.5*(self.HTP['\\Delta x_{lead_{h}}']+self.HTP['\\Delta x_{trail_{h}}']),
 
             # HT lift coefficient calc
             self.HTP['C_{L_{ah}}'] + (2*self.wingP['C_{L_{aw}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{ah_0}}'] <= self.HTP['C_{L_{ah_0}}']*aircraft.HT['\\eta_{ht}'],
@@ -545,9 +550,6 @@ class AircraftP(Model):
             # TODO improve
             SignomialEquality(xNP/aircraft['mac']/aircraft['V_{ht}']*(aircraft['AR']+2.)*(1.+2./aircraft['AR_{ht}']),
                               (1.+2./aircraft['AR'])*(aircraft['AR']-2.)),
-
-            # HT Location constraints
-            aircraft.HT['x_{CG_{ht}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Static margin constraints
             self.wingP['c_{m_{w}}'] == 1.9,

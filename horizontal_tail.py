@@ -121,12 +121,16 @@ class HorizontalTailPerformance(Model):
                            'Horizontal tail parasitic drag coefficient')
 
         alphah   = Variable('\\alpha_{ht}', '-', 'Horizontal tail angle of attack')
-
+        dxlead  = Variable('\\Delta x_{lead_{h}}', 'm',
+                           'Distance from CG to horizontal tail leading edge')
+        dxtrail = Variable('\\Delta x_{trail_{h}}', 'm',
+                           'Distance from CG to horizontal tail trailing edge')
         constraints = []
 
         with SignomialsEnabled():
 
             constraints.extend([
+
                 Lh == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CLh,
 
                 # Angle of attack and lift slope constraints
@@ -143,6 +147,10 @@ class HorizontalTailPerformance(Model):
 
                 #cruise Reynolds number
                 Rec == state['\\rho']*state['V']*self.HT['\\bar{c}_{ht}']/state['\\mu'],
+
+                # Moment arm and geometry -- same as for vtail
+                dxlead + self.HT['c_{root_{ht}}'] <= dxtrail,
+                TCS([dxlead + self.HT['y_{\\bar{c}_{ht}}']*self.HT['\\tan(\\Lambda_{ht})'] + 0.25*self.HT['\\bar{c}_{ht}'] >= self.HT['l_{ht}']],reltol=1e-2), # [SP]
                 ])
 
         if fitDrag:
