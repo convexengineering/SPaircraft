@@ -147,7 +147,7 @@ def get737_optimal_subs():
 
             # Engine substitutions
             'W_{engsys}': 11632.6*units('lbf'),
-            'TSFC': 0.6,
+            'TSFC': 0.64,
             'F_TO': 1.29e5*units('N'),
             'A_{2}': 3.14*(61*units('in'))**2,
 
