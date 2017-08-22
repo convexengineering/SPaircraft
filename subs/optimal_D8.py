@@ -209,7 +209,7 @@ def get_optimal_D8_subs():
             'MaxClimbTime': 25*units('min'),
 ##            'MaxClimbDistance': 300*units('nautical_miles')
 
-                            #LG subs
+            #LG subs
             'E': 205,
             'K': 2,
             'N_s': 2,

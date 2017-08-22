@@ -307,8 +307,7 @@ class Atmosphere(Model):
                 SignomialEquality(T_sl, T_atm + L_atm*alt['h']),
 
                 #constraint on mu
-                SignomialEquality((T_atm + T_s) * mu, C_1 * T_atm**1.5),
-##                TCS([(T_atm + T_s) * mu >= C_1 * T_atm**1.5])
+                mu == C_1 * T_atm**1.5 /(6.64*units('K^.28')*T_s**0.72),
                 ]
 
         #like to use a local subs here in the future
