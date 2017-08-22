@@ -194,6 +194,30 @@ def get_optimal_777300ER_subs():
 
             'MaxClimbTime': 15*units('min'),
 ##            'MaxClimbDistance': 180*units('nautical_miles')
+
+            #LG subs
+            'E': 205,
+            'K': 2,
+            'N_s': 2,
+            '\\eta_s': 0.8,
+            '\\lambda_{LG}': 2.5,
+            '\\rho_{st}': 7850,
+            '\\tan(\\gamma)': np.tan(5*np.pi/180),
+            '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
+            '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
+            '\\tan(\\theta_{max})': np.tan(15*np.pi/180),
+            '\\sigma_{y_c}': 470E6,
+            'f_{add,m}': 1.5,
+            'f_{add,n}': 1.5,
+            'h_{hold}': 1,
+            'h_{nacelle}': 0.5,
+            'n_{mg}': 2,
+            'n_{wps}': 2,
+            'p_{oleo}': 1800,
+            't_{nacelle}': 0.15,
+            'w_{ult}': 10,
+            'z_{CG}': 2,
+            'z_{wing}': 0.5,
     }
 
     return substitutions
