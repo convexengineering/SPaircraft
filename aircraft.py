@@ -219,7 +219,7 @@ class Aircraft(Model):
 
                             # HT Location and Volume Coefficient
                             self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
-                            self.fuse['x_{tail}'] == self.VT['x_{CG_{vt}}'],
+                            self.VT['x_{CG_{vt}}'] <= self.fuse['l_{fuse}'],                            
                             TCS([self.HT['V_{ht}'] == self.HT['S_{ht}']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
 
                             # HT Max Loading
@@ -542,11 +542,15 @@ class AircraftP(Model):
             # Tail aspect ratio and lift constraints
             aircraft.HT['AR_{ht}'] >= 4., #TODO change to tip Re constraint
             self.HTP['C_{L_h}'] >= 0.01, #TODO remove
+            
+            # HT TE constraint, and CG calculation
+            xCG + self.HTP['\\Delta x_{trail_{ht}}'] <= aircraft.fuse['l_{fuse}'],
+            aircraft.HT['x_{CG_{ht}}'] >= xCG +0.5*(self.HTP['\\Delta x_{lead_{ht}}']+self.HTP['\\Delta x_{trail_{ht}}']),
 
-            # HT/VT moment arm constraints
-            aircraft.HT['l_{ht}'] <= aircraft.HT['x_{CG_{ht}}'] - xCG,
-            aircraft.VT['l_{vt}'] <= aircraft.VT['x_{CG_{vt}}'] - 0.25*aircraft.VT['c_{root_{vt}}'] - xCG,
-
+            # VT TE constraint, and CG calculation
+            xCG + self.VTP['\\Delta x_{trail_{vt}}'] <= aircraft.fuse['l_{fuse}'],
+            aircraft.VT['x_{CG_{vt}}'] >= xCG +0.5*(self.VTP['\\Delta x_{lead_{vt}}']+self.VTP['\\Delta x_{trail_{vt}}']),
+ 
             # HT lift coefficient calc
             self.HTP['C_{L_{ah}}'] + (2*self.wingP['C_{L_{aw}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{ah_0}}'] <= self.HTP['C_{L_{ah_0}}']*aircraft.HT['\\eta_{ht}'],
 
@@ -564,9 +568,6 @@ class AircraftP(Model):
             # TODO improve
             SignomialEquality(xNP/aircraft['mac']/aircraft['V_{ht}']*(aircraft['AR']+2.)*(1.+2./aircraft['AR_{ht}']),
                               (1.+2./aircraft['AR'])*(aircraft['AR']-2.)),
-
-            # HT Location constraints
-            aircraft.HT['x_{CG_{ht}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Static margin constraints
             self.wingP['c_{m_{w}}'] == 1.9,
@@ -969,7 +970,7 @@ class Mission(Model):
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{tail}']+aircraft['n_{eng}']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{HT}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{VT}']+aircraft['W_{cone}']+aircraft['n_{eng}']*aircraft['W_{engsys}'])*aircraft['x_{CG_{vt}}'] \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
@@ -988,7 +989,7 @@ class Mission(Model):
                 TCS([climb['x_{CG}']*climb['W_{end}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{tail}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{HT}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{VT}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \

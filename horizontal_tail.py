@@ -297,10 +297,6 @@ class HorizontalTailNoStruct(Model):
         tau     = Variable('\\tau_{ht}', '-',
                            'Horizontal tail thickness/chord ratio')
         xcght   = Variable('x_{CG_{ht}}', 'm', 'Horizontal tail CG location')
-        # dxlead  = Variable('\\Delta x_{{lead}_h}', 'm',
-        #                    'Distance from CG to horizontal tail leading edge')
-        # dxtrail = Variable('\\Delta x_{{trail}_h}', 'm',
-        #                    'Distance from CG to horizontal tail trailing edge')
         ymac    = Variable('y_{\\bar{c}_{ht}}', 'm',
                            'Spanwise location of mean aerodynamic chord')
         lht     = Variable('l_{ht}', 'm', 'Horizontal tail moment arm')
@@ -337,8 +333,7 @@ class HorizontalTailNoStruct(Model):
                 p >= 1 + 2*taper,
                 2*q >= 1 + p,
                 ymac == (bht/3)*q/p,
-##                TCS([(2./3)*(1 + taper + taper**2)*croot/q <=
-##                     chma]), # [SP]
+
                 SignomialEquality((2./3)*(1 + taper + taper**2)*croot/q,
                      chma),
                 taper == ctip/croot,
@@ -391,6 +386,10 @@ class HorizontalTailPerformance(Model):
         CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
         CD0h    = Variable('C_{D_{0_h}}', '-',
                            'Horizontal tail parasitic drag coefficient')
+        dxlead  = Variable('\\Delta x_{lead_{ht}}', 'm',
+                            'Distance from CG to horizontal tail leading edge')
+        dxtrail = Variable('\\Delta x_{trail_{ht}}', 'm',
+                            'Distance from CG to horizontal tail trailing edge')
 
         alphah   = Variable('\\alpha_{ht}', '-', 'Horizontal tail angle of attack')
 
@@ -416,7 +415,11 @@ class HorizontalTailPerformance(Model):
 
                 #cruise Reynolds number
                 Rec == state['\\rho']*state['V']*self.HT['\\bar{c}_{ht}']/state['\\mu'],
-                ])
+
+                # Moment arm and geometry -- same as for vtail
+                dxlead + self.HT['c_{root_{ht}}'] <= dxtrail,
+                TCS([dxlead + self.HT['y_{\\bar{c}_{ht}}']*self.HT['\\tan(\\Lambda_{ht})'] + 0.25*self.HT['\\bar{c}_{ht}'] >= self.HT['l_{ht}']],reltol=1e-2), # [SP]
+                  ])
 
         if fitDrag:
             constraints.extend([

@@ -324,6 +324,8 @@ class VerticalTailNoStruct(Model):
         tau    = Variable('\\tau_{vt}', '-', 'Vertical tail thickness/chord ratio')
         xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of tail CG')
         y_eng  = Variable('y_{eng}', 'm', 'Engine moment arm')
+        ymac    = Variable('y_{\\bar{c}_{vt}}', 'm',
+                           'Spanwise location of mean aerodynamic chord')
         zmac   = Variable('z_{\\bar{c}_{vt}}', 'm',
                           'Vertical location of mean aerodynamic chord')
         Vvt = Variable('V_{vt}', '-', 'Vertical Tail Volume Coefficient')
@@ -354,21 +356,23 @@ class VerticalTailNoStruct(Model):
                 #engine out CL computation
 
                 Avt == bvt**2/Svt,
-                          
-                Svt <= bvt*(croot + ctip)/2, # [SP]
-                # Tail geometry relationship
 
-                # TCS([dxtrail >= croot + dxlead]),
-                # Tail geometry constraint
+                # Tail geometry relationship                         
+                Svt <= bvt*(croot + ctip)/2, # [SP]
 
                 # Fuselage length constrains the tail trailing edge
                 TCS([p >= 1 + 2*taper]),
                 TCS([2*q >= 1 + p]),
+                # Mean aerodynamic chord calculations
+                ymac == (bvt/3)*q/p,
                 zmac == (bvt/3)*q/p,
+                
 ##                TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cma]), # [SP]
                 SignomialEquality((2./3)*(1 + taper + taper**2)*croot/q, cma),
-                taper == ctip/croot,
+
                 # Define vertical tail geometry
+                taper == ctip/croot,
+
 
                 # TODO: Constrain taper by tip Reynolds number
                 taper >= 0.25,
@@ -398,25 +402,34 @@ class VerticalTailPerformance(Model):
         Dvt    = Variable('D_{vt}', 'N', 'Vertical tail viscous drag, cruise')
         Rec    = Variable('Re_{vt}', '-', 'Vertical tail reynolds number, cruise')
         CDvis  = Variable('C_{D_{vis}}', '-', 'Viscous drag coefficient')
-
+        dxlead  = Variable('\\Delta x_{lead_{vt}}', 'm',
+                           'Distance from CG to vertical tail leading edge')
+        dxtrail = Variable('\\Delta x_{trail_{vt}}', 'm',
+                           'Distance from CG to vertical tail trailing edge')
+ 
         #constraints
         constraints = []
 
          #vectorized constraints
-        constraints.extend([
-                    
-##            TCS([CLvt*(1 + clvt/(np.pi*self.vt['e_v']*self.vt['A_{vt}'])) <= clvt]),
+        with SignomialsEnabled():
+            constraints.extend([
+                        
+    ##            TCS([CLvt*(1 + clvt/(np.pi*self.vt['e_v']*self.vt['A_{vt}'])) <= clvt]),
 
-            # Finite wing theory
-            # people.clarkson.edu/~pmarzocc/AE429/AE-429-4.pdf
-            # Valid because tail is untwisted and uncambered
-            # (lift curve slope passes through origin)
+                # Finite wing theory
+                # people.clarkson.edu/~pmarzocc/AE429/AE-429-4.pdf
+                # Valid because tail is untwisted and uncambered
+                # (lift curve slope passes through origin)
 
-            Dvt >= 0.5*state['\\rho']*state['V']**2*self.vt['S_{vt}']*CDvis,
+                Dvt >= 0.5*state['\\rho']*state['V']**2*self.vt['S_{vt}']*CDvis,
 
-            # Cruise Reynolds number
-            Rec == state.atm['\\rho']*state['V']*self.vt['\\bar{c}_{vt}']/state.atm['\\mu'],
-            ])
+                # Cruise Reynolds number
+                Rec == state.atm['\\rho']*state['V']*self.vt['\\bar{c}_{vt}']/state.atm['\\mu'],
+
+               # Moment arm and geometry -- same as for htail
+              dxlead + self.vt['c_{root_{vt}}'] <= dxtrail,
+              TCS([dxlead + self.vt['y_{\\bar{c}_{vt}}']*self.vt['\\tan(\\Lambda_{vt})'] + 0.25*self.vt['\\bar{c}_{vt}'] >= self.vt['l_{vt}']],reltol=1e-2), # [SP]
+              ])
 
         if fitDrag:
             constraints.extend([
