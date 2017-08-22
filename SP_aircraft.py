@@ -1402,7 +1402,7 @@ def run_small_M08_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
     return sol
 
 def test():
-    run_optimal_737()
+    run_optimal_737('W_{f_{total}}', True, False)
 
 if __name__ == '__main__':
     # User definitions
