@@ -193,6 +193,9 @@ class Aircraft(Model):
                            # Landing condition from Torenbeek p360
                            self.LG['E_{land}'] >= W_total/(2*self.LG['g'])*self.LG['w_{ult}']**2, # Torenbeek (10-26)
 
+                            #setting fuselage upsweep location
+                            self.LG['x_{up}'] == self.fuse['x_{shell2}'],
+
                            # Maximum static loads through main and nose gears
                            self.LG['L_n'] == W_total*self.LG['\\Delta x_m']/self.LG['B'],
                            self.LG['L_m'] == W_total*self.LG['\\Delta x_n']/self.LG['B'],
