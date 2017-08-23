@@ -353,8 +353,8 @@ class Fuselage(Model):
                 Wvbend >= rhobend*g*Vvbend,
 
                 # Wing variable substitutions
-                xf <= xwing + .5 * c0 * w,  # [SP]
-                xb >= xwing - .5 * c0 * w,  # [SP]
+                SignomialEquality(xf,xwing + .5 * c0 * w), # [SP] [SPEquality]
+                SignomialEquality(xb,xwing - .5 * c0 * w),  # [SP] [SPEquality]
 
                 sigMh <= sigbend - rE * dPover / 2 * Rfuse / tshell,
                 sigMv <= sigbend - rE * dPover / 2 * Rfuse / tshell,
