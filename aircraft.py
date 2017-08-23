@@ -147,7 +147,7 @@ class Aircraft(Model):
         with SignomialsEnabled():
             constraints.extend([
                             self.wing['c_{root}'] == self.fuse['c_0'],
-                            self.wing.wb['r_{w/c}'] == self.fuse['r_{wb}'],
+                            self.wing.wb['r_{w/c}'] == self.fuse['r_{w/c}'],
                             self.wing['x_w'] == self.fuse['x_{wing}'],
 
                             #compute the aircraft's zero fuel weight
@@ -1165,13 +1165,13 @@ class Mission(Model):
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
+                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
 
         if not multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam and not D12:
              constraints.extend([
-                  aircraft['n_{pax}'] == 180.,
-                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  aircraft['n_{pass}'] == 180.,
+                  aircraft['n_{seat}'] == aircraft['n_{pass}']
                   ])
 
         if multimission and (D8bigfam or b777300ER or optimal777):
@@ -1180,12 +1180,12 @@ class Mission(Model):
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
 
-                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
+                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
         if not multimission and (D8bigfam or b777300ER or optimal777):
              constraints.extend([
-                  aircraft['n_{pax}'] == 450.,
-                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  aircraft['n_{pass}'] == 450.,
+                  aircraft['n_{seat}'] == aircraft['n_{pass}']
                   ])
 
         if multimission and RJfam:
@@ -1194,12 +1194,12 @@ class Mission(Model):
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
 
-                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
+                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
         if not multimission and RJfam:
              constraints.extend([
-                  aircraft['n_{pax}'] == 90.,
-                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  aircraft['n_{pass}'] == 90.,
+                  aircraft['n_{seat}'] == aircraft['n_{pass}']
                   ])
 
         if multimission and D12:
@@ -1207,12 +1207,12 @@ class Mission(Model):
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{seat}'] == aircraft['n_{pax}'][0], # TODO find a more robust way of doing this!
+                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
         if not multimission and D12:
              constraints.extend([
-                  aircraft['n_{pax}'] == 500.,
-                  aircraft['n_{seat}'] == aircraft['n_{pax}']
+                  aircraft['n_{pass}'] == 500.,
+                  aircraft['n_{seat}'] == aircraft['n_{pass}']
                   ])
 
         M2 = .6

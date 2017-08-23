@@ -16,7 +16,7 @@ class Fuselage(Model):
         g = Variable('g',9.81,'m*s^-2','Acceleration due to gravity')
         dPover = Variable('\\Delta P_{over}', 'psi', 'Cabin overpressure')
         with Vectorize(Nmissions):
-            npax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+            npass = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
         Nland = Variable('N_{land}', 6.0, '-',
                          'Emergency landing load factor')  # [TAS]
         Nlift = Variable('N_{lift}','-','Wing maximum load factor')
@@ -202,7 +202,7 @@ class Fuselage(Model):
         with Vectorize(Nmissions):
             Wpay = Variable('W_{payload}', 'lbf', 'Payload weight')
             Wlugg = Variable('W_{lugg}', 'lbf', 'Passenger luggage weight')
-            Wpax = Variable('W_{pax}', 'lbf', 'Passenger weight')
+            Wpass = Variable('W_{pass}', 'lbf', 'Passenger weight')
         
         # x-location variables
         xshell1 = Variable('x_{shell1}', 'm', 'Start of cylinder section')
@@ -213,7 +213,7 @@ class Fuselage(Model):
         # Wingbox variables
         xf = Variable('x_f', 'm', 'x-location of front of wingbox')
         xb = Variable('x_b', 'm', 'x-location of back of wingbox')
-        w = Variable('r_{wb}', 0.5, '-', 'Wingbox width-to-chord ratio')
+        w = Variable('r_{w/c}', 0.5, '-', 'Wingbox width-to-chord ratio')
 
         #weight margin and sensitivity
         Cfuse = Variable('C_{fuse}', 1, '-', 'Fuselage Weight Margin and Sensitivity')
@@ -229,11 +229,11 @@ class Fuselage(Model):
             constraints.extend([
 
                 # Passenger constraints
-                Wlugg >= flugg2 * npax * 2 * Wchecked + flugg1 * npax * Wchecked + Wcarryon,
-                Wpax == npax * Wavgpass,
-                Wpay >= Wpax + Wlugg + Wcargo,
-                Wpay >= npax * Wavgpasstot,
-                nseat >= npax,
+                Wlugg >= flugg2 * npass * 2 * Wchecked + flugg1 * npass * Wchecked + Wcarryon,
+                Wpass == npass * Wavgpass,
+                Wpay >= Wpass + Wlugg + Wcargo,
+                Wpay >= npass * Wavgpasstot,
+                nseat >= npass,
                 nrows == nseat / SPR,
                 lshell == nrows * pitch,
 
