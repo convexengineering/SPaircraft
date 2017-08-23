@@ -13,7 +13,7 @@ def get_optimal_777300ER_subs():
     M4a = .2
     fan = 1.5958
     lpc  = 5.0
-    hpc = 5.25
+    hpc = 42./(fan*lpc)
 
     Mcruisemin = 0.84
 
@@ -104,28 +104,28 @@ def get_optimal_777300ER_subs():
             'f_{watt}': 0.03,
 
             # VT substitutions
-            'C_{D_{wm}}': 0.01, # [2] 
+            'C_{D_{wm}}': 0.5, # [2] 
             'C_{L_{vmax}}': 2.0, # [TAS]
-            'V_1': 70.*units('m/s'),
+            'V_1': 72.*units('m/s'),
             '\\rho_{TO}': 1.225*units('kg/m^3'),
-            'c_{l_{vtEO}}': 1.0, # [TAS]
-            'e_v': 0.8,
-            'V_{land}': 72.*units('m/s'),
+            'c_{l_{vtEO}}': 2.5, # [TAS]
+            'e_v': 0.85,
+            'V_{land}': 75.*units('m/s'),
             '\\dot{r}_{req}': 0.000001, # 10 deg/s/s yaw rate acceleration
             'y_{eng}': 32*units('ft'),
             'n_{VT}': 1.,
-            'A_{vt}': 2.35,
+            'A_{vt}': 3,
             '\\lambda_{vt}': 0.25,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
-            'f_{VT}': 0.4,
+            'f_{VT}': 0.3,
             '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
             'c_{d_{fv}}': 0.0060,
             'c_{d_{pv}}': 0.0035,
-            'V_{vt_{min}}': 0.06,
+            'V_{vt_{min}}': 0.0001,
 
             # HT substitutions
-            '\\alpha_{max,h}': 2.5,
+##            '\\alpha_{max,h}': 2.5,
 ##            'AR_{ht}': 4.8,
             '\\lambda_{ht}': 0.32,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
@@ -193,7 +193,7 @@ def get_optimal_777300ER_subs():
             'T_{t_{4.1_{max}}}': 1860.*units('K'),
             'ReserveFraction': .05,
 
-            'MaxClimbTime': 15*units('min'),
+##            'MaxClimbTime': 15*units('min'),
 ##            'MaxClimbDistance': 180*units('nautical_miles')
 
             #LG subs
@@ -217,8 +217,8 @@ def get_optimal_777300ER_subs():
             'p_{oleo}': 1800,
             't_{nacelle}': 0.15,
             'w_{ult}': 10,
-            'z_{CG}': 2,
-            'z_{wing}': 0.5,
+            'z_{CG}': 3,
+            'z_{wing}': 1.5,
     }
 
     return substitutions
