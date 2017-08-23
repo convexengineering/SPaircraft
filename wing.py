@@ -243,8 +243,8 @@ class Wing(Model):
             TCS([Wwing >= Cwing * self.wb['W_{struct}'] + self.wb['W_{struct}']*(self.wns['f_{flap}'] + \
                     self.wns['f_{slat}'] + self.wns['f_{aileron}'] + self.wns['f_{lete}'] + self.wns['f_{ribs}'] + \
                     self.wns['f_{spoiler}'] + self.wns['f_{watt}'])]),
-            TCS([dxACwing >= (1/12.*self.wns['A_{tri}'] + 1/4.*self.wns['A_{rect}'])/self.wns['S'] \
-                 *self.wns['b']*self.wns['\\tan(\\Lambda)']]),
+            TCS([dxACwing >= 1./24.*(self.wns['c_{root}'] + 5.*self.wns['c_{tip}'])/self.wns['S'] \
+                            *self.wns['b']**2*self.wns['\\tan(\\Lambda)']]),
 
 ##            self.wns['\\bar{A}_{fuel, max}'] <= (self.wns['wwn'] - 2*self.wb['t_{web}'])*(0.92*self.wns['\\tau'] - 2*self.wb['t_{web}']),
             ])
