@@ -119,7 +119,7 @@ class Aircraft(Model):
         xmisc   = Variable('x_{misc}','m','Misc Weight Centroid')
         xhpesys = Variable('x_{hpesys}','m','Power Systems Weight x-Location')
 
-        #engine system weight variables
+        # Engine system variables
         rSnace = Variable('r_{S_{nacelle}}', '-', 'Nacelle and Pylon Wetted Area')
         lnace = Variable('l_{nacelle}', 'm', 'Nacelle Length')
         fSnace = Variable('f_{S_{nacelle}}', '-', 'Non-dimensional Nacelle Area')
@@ -135,6 +135,7 @@ class Aircraft(Model):
         Weadd = Variable('W_{eadd}', 'lbf', 'Additional Engine System Weight')
         Wengsys = Variable('W_{engsys}', 'lbf', 'Total Engine System Weight')
         rvnace = Variable('r_{v_{nacelle}}', '-', 'Incoming Nacelle Velocity Ratio')
+        xeng = Variable('x_{eng}', 'm', 'Engine x-location')
 
         Ceng = Variable('C_{engsys}', 1, '-', 'Engine System Weight Margin/Sens Factor')
 
@@ -179,7 +180,7 @@ class Aircraft(Model):
                             self.LG['x_n'] <= self.fuse['l_{nose}'],
                             TCS([self.LG['x_m'] >= self.fuse['x_{wing}']]),
                             self.LG['x_m'] <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
-##                            xhpesys == 1.1*self.fuse['l_{nose}'],
+                            xhpesys == 1.1*self.fuse['l_{nose}'],
                             xmisc*Wmisc >= self.LG['x_n']*self.LG['W_{ng}'] + self.LG['x_m']*self.LG['W_{mg}'] + xhpesys*Whpesys,
 
                             #compute nacelle diameter
@@ -306,7 +307,10 @@ class Aircraft(Model):
                                     (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
 
                     # Engine ground clearance
-                    self.LG['d_{nacelle}']  + self.LG['h_{nacelle}'] <= self.LG['l_m'] + (self.VT['y_{eng}']-self.LG['y_m'])*self.LG['\\tan(\\gamma)'], # [SP
+                    self.LG['d_{nacelle}']  + self.LG['h_{nacelle}'] <= self.LG['l_m'] + (self.VT['y_{eng}']-self.LG['y_m'])*self.LG['\\tan(\\gamma)'], # [SP]
+
+                    # Engine x-location (weight centroid, roughly)
+                    xeng >= self.fuse['x_{wing}'] + self.wing['\\tan(\\Lambda)']*self.VT['y_{eng}'] - 0.5*lnace,
                 ])
 
         # Rear-engined aircraft constraints
@@ -336,6 +340,10 @@ class Aircraft(Model):
                     # NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}']) / self.fuse['l_{fuse}'] * \
                     (self.fuse['x_{wing}'] ** 3. + self.VT['l_{vt}'] ** 3.) / (3. * g),
+
+                    # Engine x-location (weight centroid, roughly)
+                    xeng <= self.fuse['x_{shell2}'] + 0.75*self.fuse['l_{cone}'],
+                    xeng >= self.fuse['x_{shell2}'] + 0.25*self.fuse['l_{cone}'],
                 ])
 
         ### FUSELAGE CONSTRAINTS
@@ -991,7 +999,7 @@ class Mission(Model):
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
-                    + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
+                    + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]), # TODO improve; using x_b as a surrogate for xeng
                 TCS([cruise['x_{CG}']*cruise['W_{avg}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
