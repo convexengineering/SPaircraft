@@ -260,7 +260,7 @@ def run_737800(objective = 'W_{f_{total}}'):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 3000.*units('nmi'),
+        'R_{req}': 3000.*units('nmi'),
     })
 
     m.substitutions.update(substitutions)
@@ -289,7 +289,7 @@ def run_D82(objective = 'W_{f_{total}}'):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 3000.*units('nmi'),
+        'R_{req}': 3000.*units('nmi'),
     })
 
     m.substitutions.update(substitutions)
@@ -318,7 +318,7 @@ def run_D12(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 500.,
-        'ReqRng': 5600.*units('nmi'),
+        'R_{req}': 5600.*units('nmi'),
     })
 
     if fixedBPR:
@@ -357,7 +357,7 @@ def run_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 3000.*units('nmi'),
+        'R_{req}': 3000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -396,7 +396,7 @@ def run_M072_737(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 3000.*units('nmi'),
+        'R_{req}': 3000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -436,7 +436,7 @@ def run_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 3000.*units('nmi'),
+        'R_{req}': 3000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -475,13 +475,13 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
 
     if Nmission == 3:
         substitutions.update({
-            'ReqRng': [2000.*units('nmi'), 3000.*units('nmi'), 1000.*units('nmi')],
-            'n_{pax}': [180., 150., 180.],
+            'R_{req}': [2000.*units('nmi'), 3000.*units('nmi'), 1000.*units('nmi')],
+            'n_{pass}': [180., 150., 180.],
         })
     else:
         substitutions.update({
 #            'n_{paxx}': 180.,
-            'ReqRng': 3000.*units('nmi'),
+            'R_{req}': 3000.*units('nmi'),
         }) 
 
     if fixedBPR:
@@ -521,13 +521,13 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
 
     if Nmission == 3:
         substitutions.update({
-            'ReqRng': [3000.*units('nmi'),3000.*units('nmi'),3000.*units('nmi')],
-            'n_{pax}': [180., 160., 120.],
+            'R_{req}': [3000.*units('nmi'),3000.*units('nmi'),3000.*units('nmi')],
+            'n_{pass}': [180., 160., 120.],
         })
     else:
         substitutions.update({
 ##           'n_{paxx}': 180.,
-            'ReqRng': 3000.*units('nmi'),
+            'R_{req}': 3000.*units('nmi'),
         })        
 
     if fixedBPR:
@@ -567,7 +567,7 @@ def run_M08_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 3000.*units('nmi'),
+        'R_{req}': 3000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -606,7 +606,7 @@ def run_M08_D8(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 3000.*units('nmi'),
+        'R_{req}': 3000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -645,7 +645,7 @@ def run_M08_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 3000.*units('nmi'),
+        'R_{req}': 3000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -683,8 +683,8 @@ def run_777300ER(objective = 'W_{f_{total}}'):
     substitutions = getb777300ERsubs()
 
     substitutions.update({
-##        'n_{pax}': [450.],
-        'ReqRng': 6000.*units('nmi'),
+##        'n_{pass}': [450.],
+        'R_{req}': 6000.*units('nmi'),
     })
 
     m.substitutions.update(substitutions)
@@ -712,8 +712,8 @@ def run_optimal_777(objective, fixedBPR, pRatOpt = False):
     substitutions = get_optimal_777300ER_subs()
 
     substitutions.update({
-##        'n_{pax}': [450.],
-        'ReqRng': 6000.,
+##        'n_{pass}': [450.],
+        'R_{req}': 6000.,
     })
 
     if fixedBPR:
@@ -751,8 +751,8 @@ def run_M08_optimal_777(objective, fixedBPR, pRatOpt = False):
     substitutions = get_optimal_777300ER_M08_subs()
 
     substitutions.update({
-##        'n_{pax}': [450.],
-        'ReqRng': [6000.],
+##        'n_{pass}': [450.],
+        'R_{req}': [6000.],
     })
 
     if fixedBPR:
@@ -790,8 +790,8 @@ def run_M072_optimal_777(objective, fixedBPR, pRatOpt = False):
     substitutions = get_optimal_777300ER_M072_subs()
 
     substitutions.update({
-##        'n_{pax}': [450.],
-        'ReqRng': [6000.],
+##        'n_{pass}': [450.],
+        'R_{req}': [6000.],
     })
 
     if fixedBPR:
@@ -830,7 +830,7 @@ def run_D8_big(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 6000.*units('nmi'),
+        'R_{req}': 6000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -869,7 +869,7 @@ def run_D8_big_no_BLI(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 6000.*units('nmi'),
+        'R_{req}': 6000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -908,7 +908,7 @@ def run_M072_D8_big_no_BLI(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 6000.*units('nmi'),
+        'R_{req}': 6000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -947,7 +947,7 @@ def run_D8_big_eng_wing(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 6000.*units('nmi'),
+        'R_{req}': 6000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -986,7 +986,7 @@ def run_M072_D8_big_eng_wing(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 6000.*units('nmi'),
+        'R_{req}': 6000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -1026,7 +1026,7 @@ def run_D8_big_M072(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 6000.*units('nmi'),
+        'R_{req}': 6000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -1065,7 +1065,7 @@ def run_D8_big_M08(objective, fixedBPR, pRatOpt = False):
 
     substitutions.update({
 #                'n_{paxx}': 180.,
-        'ReqRng': 6000.*units('nmi'),
+        'R_{req}': 6000.*units('nmi'),
     })
 
     if fixedBPR:
@@ -1103,8 +1103,8 @@ def run_optimal_RJ(objective, fixedBPR, pRatOpt = False):
     substitutions = get_optimal_RJ_subs()
 
     substitutions.update({
-##        'n_{pax}': [90.],
-        'ReqRng': [1500.],
+##        'n_{pass}': [90.],
+        'R_{req}': [1500.],
     })
 
     if fixedBPR:
@@ -1142,8 +1142,8 @@ def run_M072_optimal_RJ(objective, fixedBPR, pRatOpt = False):
     substitutions = get_M072_optimal_RJ_subs()
 
     substitutions.update({
-##        'n_{pax}': [90.],
-        'ReqRng': [1500.],
+##        'n_{pass}': [90.],
+        'R_{req}': [1500.],
     })
 
     if fixedBPR:
@@ -1181,8 +1181,8 @@ def run_small_D8(objective, fixedBPR, pRatOpt = False):
     substitutions = get_small_D8_subs()
 
     substitutions.update({
-##        'n_{pax}': [90.],
-        'ReqRng': [1500.],
+##        'n_{pass}': [90.],
+        'R_{req}': [1500.],
     })
 
     if fixedBPR:
@@ -1220,8 +1220,8 @@ def run_small_M08_D8(objective, fixedBPR, pRatOpt = False):
     substitutions = get_small_M08_D8_subs()
 
     substitutions.update({
-##        'n_{pax}': [90.],
-        'ReqRng': [1500.],
+##        'n_{pass}': [90.],
+        'R_{req}': [1500.],
     })
 
     if fixedBPR:
@@ -1257,8 +1257,8 @@ def run_small_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
     substitutions = get_small_D8_eng_wing_subs()
 
     substitutions.update({
-##        'n_{pax}': [90.],
-        'ReqRng': [1500.],
+##        'n_{pass}': [90.],
+        'R_{req}': [1500.],
     })
 
     if fixedBPR:
@@ -1296,8 +1296,8 @@ def run_small_M08_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
     substitutions = get_small_M08_D8_eng_wing_subs()
 
     substitutions.update({
-##        'n_{pax}': [90.],
-        'ReqRng': [1500.],
+##        'n_{pass}': [90.],
+        'R_{req}': [1500.],
     })
 
     if fixedBPR:
@@ -1335,8 +1335,8 @@ def run_small_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
     substitutions = get_small_D8_no_BLI_subs()
 
     substitutions.update({
-##        'n_{pax}': [90.],
-        'ReqRng': [1500.],
+##        'n_{pass}': [90.],
+        'R_{req}': [1500.],
     })
 
     if fixedBPR:
@@ -1374,8 +1374,8 @@ def run_small_M08_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
     substitutions = get_small_M08_D8_no_BLI_subs()
 
     substitutions.update({
-##        'n_{pax}': [90.],
-        'ReqRng': [1500.],
+##        'n_{pass}': [90.],
+        'R_{req}': [1500.],
     })
 
     if fixedBPR:

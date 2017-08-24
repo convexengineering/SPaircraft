@@ -157,7 +157,7 @@ class Mission(Model):
         W_fcruise = Variable('W_{f_{cruise}}', 'N', 'Fuel Weight Burned in Cruise')
         W_total = Variable('W_{total}', 'N', 'Total Aircraft Weight')
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
-        ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
+        ReqRng = Variable('R_{req}', 'nautical_miles', 'Required Cruise Range')
 
         h = climb.state['h']
         hftClimb = climb.state['hft']
@@ -468,12 +468,12 @@ if __name__ == '__main__':
     plot = True
     
     substitutions = {      
-            'ReqRng': 500,
+            'R_{req}': 500,
             'CruiseAlt': 30000,
             'numeng': 2,
 ##            'W_{Load_max}': 6664,
-            'W_{pax}': 91 * 9.81,
-            'n_{pax}': 150,
+            'W_{pass}': 91 * 9.81,
+            'n_{pass}': 150,
             'pax_{area}': 1,
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,
@@ -509,12 +509,12 @@ if __name__ == '__main__':
         sol = m.localsolve(solver='mosek', verbosity = 4)
 
     #     substitutions = {
-    #            'ReqRng': ('sweep', np.linspace(500,3000,8)),
+    #            'R_{req}': ('sweep', np.linspace(500,3000,8)),
     #             'CruiseAlt': 30000,
     #             'numeng': 2,
     # ##            'W_{Load_max}': 6664,
-    #             'W_{pax}': 91 * 9.81,
-    #             'n_{pax}': 150,
+    #             'W_{pass}': 91 * 9.81,
+    #             'n_{pass}': 150,
     #             'pax_{area}': 1,
     # ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
     #             'e': .9,
@@ -549,80 +549,80 @@ if __name__ == '__main__':
     #
     #     RC = []
     #
-    #     for i in range(len(solRsweep('ReqRng'))):
+    #     for i in range(len(solRsweep('R_{req}'))):
     #         RC.append(mag(solRsweep('RC')[i][0]))
     #
-    #     plt.plot(solRsweep('ReqRng'), RC, '-r')
+    #     plt.plot(solRsweep('R_{req}'), RC, '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Initial  Rate of Climb [ft/min]')
     #     plt.title('Initial Rate of Climb vs Range')
     # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
     #     plt.show()
     #
-    # ##    plt.plot(solRsweep('ReqRng'), solRsweep('L_{vtEO}'), '-r')
+    # ##    plt.plot(solRsweep('R_{req}'), solRsweep('L_{vtEO}'), '-r')
     # ##    plt.xlabel('Mission Range [nm]')
     # ##    plt.ylabel('VT Lift and Takeoff ENgine Out [N]')
     # ##    plt.title('Initial Climb Thrust vs Range')
     # ####    plt.savefig('HT_Sweeps/VT_rng_LVTTO.pdf')
     # ##    plt.show()
     #
-    #     plt.plot(solRsweep('ReqRng'), solRsweep('L_{v_{max}}'), '-r')
+    #     plt.plot(solRsweep('R_{req}'), solRsweep('L_{v_{max}}'), '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Max VT Lift Force [N]')
     #     plt.title('Initial Climb Thrust vs Range')
     # ##    plt.savefig('HT_Sweeps/VT_rng_LVmax.pdf')
     #     plt.show()
     #
-    # ##    plt.plot(solRsweep('ReqRng'), solRsweep('T_e'), '-r')
+    # ##    plt.plot(solRsweep('R_{req}'), solRsweep('T_e'), '-r')
     # ##    plt.xlabel('Mission Range [nm]')
     # ##    plt.ylabel('Initial  Climb Thrust [N]')
     # ##    plt.title('Initial Climb Thrust vs Range')
     # ####    plt.savefig('HT_Sweeps/VT_rng_TTO.pdf')
     # ##    plt.show()
     #
-    #     plt.plot(solRsweep('ReqRng'), solRsweep('W_{struct}'), '-r')
+    #     plt.plot(solRsweep('R_{req}'), solRsweep('W_{struct}'), '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Vertical Tail Weight [N]')
     #     plt.title('Vertical Tail Weight vs Range')
     # ##    plt.savefig('HT_Sweeps/VT_rng_VTweight.pdf')
     #     plt.show()
     #
-    #     plt.plot(solRsweep('ReqRng'), solRsweep('A_{vt}'), '-r')
+    #     plt.plot(solRsweep('R_{req}'), solRsweep('A_{vt}'), '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Vertical Tail Aspect Ratio')
     #     plt.title('Vertical Tail Aspect Ratio vs Range')
     # ##    plt.savefig('HT_Sweeps/VT_rng_VTAR.pdf')
     #     plt.show()
     #
-    #     plt.plot(solRsweep('ReqRng'), solRsweep('S_{vt}'), '-r')
+    #     plt.plot(solRsweep('R_{req}'), solRsweep('S_{vt}'), '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Vertical Tail Area [m$^2$]')
     #     plt.title('Vertical Tail Area vs Range')
     # ##    plt.savefig('HT_Sweeps/VT_rng_SVT.pdf')
     #     plt.show()
     #
-    #     plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['ReqRng'], '-r')
+    #     plt.plot(solRsweep('R_{req}'), solRsweep['sensitivities']['constants']['R_{req}'], '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Sensitivity of Mission Range')
     #     plt.title('Sensitivity to Range vs Range')
     # ####    plt.savefig('HT_Sweeps/VT_rng_RngSens.pdf')
     #     plt.show()
     #
-    #     plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['CruiseAlt'], '-r')
+    #     plt.plot(solRsweep('R_{req}'), solRsweep['sensitivities']['constants']['CruiseAlt'], '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Sensitivity of Cruise Altitude')
     #     plt.title('Sensitivity to Cruise Altitude vs Range')
     # ##    plt.savefig('HT_Sweeps/VT_rng_AltSens.pdf')
     #     plt.show()
     #
-    #     plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['b_{max}'], '-r')
+    #     plt.plot(solRsweep('R_{req}'), solRsweep['sensitivities']['constants']['b_{max}'], '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Sensitivity of Max Wing Span')
     #     plt.title('Sensitivity of Max Wing Span vs Range')
     # ##    plt.savefig('HT_Sweeps/VT_rng_bMaxSens.pdf')
     #     plt.show()
     #
-    #     plt.plot(solRsweep('ReqRng'), solRsweep['sensitivities']['constants']['W_{pax}'], '-r')
+    #     plt.plot(solRsweep('R_{req}'), solRsweep['sensitivities']['constants']['W_{pass}'], '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Sensitivity of Passenger Weight')
     #     plt.title('Sensitivity of Passegner Weight vs Range')
@@ -630,12 +630,12 @@ if __name__ == '__main__':
     #     plt.show()
     #
     #     substitutions = {
-    #             'ReqRng': 2000,
+    #             'R_{req}': 2000,
     #             'CruiseAlt': ('sweep', np.linspace(20000,40000,10)),
     #             'numeng': 2,
     # ##            'W_{Load_max}': 6664,
-    #             'W_{pax}': 91 * 9.81,
-    #             'n_{pax}': 150,
+    #             'W_{pass}': 91 * 9.81,
+    #             'n_{pass}': 150,
     #             'pax_{area}': 1,
     # ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
     #             'e': .9,
@@ -721,7 +721,7 @@ if __name__ == '__main__':
     # ##    plt.savefig('HT_Sweeps/VT_alt_VTarea.pdf')
     #     plt.show()
     #
-    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['ReqRng'], '-r')
+    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['R_{req}'], '-r')
     #     plt.xlabel('Cruise Altitude [ft]')
     #     plt.ylabel('Sensitivity of Mission Range')
     #     plt.title('Sensitivity to Range vs Cruise Altitude')
@@ -735,7 +735,7 @@ if __name__ == '__main__':
     # ##    plt.savefig('HT_Sweeps/VT_alt_AltSens.pdf')
     #     plt.show()
     #
-    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['W_{pax}'], '-r')
+    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep['sensitivities']['constants']['W_{pass}'], '-r')
     #     plt.xlabel('Cruise Altitude [ft]')
     #     plt.ylabel('Sensitivity of Mission Range')
     #     plt.title('Sensitivity to Passenger Weight vs Cruise Altitude')
@@ -750,12 +750,12 @@ if __name__ == '__main__':
     #     plt.show()
     #
     #     substitutions = {
-    #             'ReqRng': 2000,
+    #             'R_{req}': 2000,
     #             'CruiseAlt': ('sweep', np.linspace(20000,40000,10)),
     #             'numeng': 2,
     # ##            'W_{Load_max}': 6664,
-    #             'W_{pax}': 91 * 9.81,
-    #             'n_{pax}': 150,
+    #             'W_{pass}': 91 * 9.81,
+    #             'n_{pass}': 150,
     #             'pax_{area}': 1,
     # ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
     #             'e': .9,

@@ -30,9 +30,9 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Payload Weight Percent Diff: %s" % compute_diff(mag(sol('W_{payload}').to('lbf')), 38715.5)
         print "\n"
-        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{VT}').to('lbf')), 1383.8)
+        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{vt}').to('lbf')), 1383.8)
         print "\n"
-        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{HT}').to('lbf')), 1424.0)
+        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{ht}').to('lbf')), 1424.0)
         print "\n"
         print "Wing Weight Percent Diff: %s" % compute_diff(mag(sol('W_{wing}').to('lbf')), 16150.7)
 
@@ -121,9 +121,9 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Payload Weight Percent Diff: %s" % compute_diff(mag(sol('W_{payload}').to('lbf')), 115046.0)
         print "\n"
-        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{VT}').to('lbf')), 2368.3)
+        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{vt}').to('lbf')), 2368.3)
         print "\n"
-        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{HT}').to('lbf')), 9058.3)
+        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{ht}').to('lbf')), 9058.3)
         print "\n"
         print "Wing Weight Percent Diff: %s" % compute_diff(mag(sol('W_{wing}').to('lbf')), 91144.3)
 
@@ -211,9 +211,9 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Payload Weight Percent Diff: %s" % compute_diff(mag(sol('W_{payload}').to('lbf')), 103541.4)
         print "\n"
-        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{VT}').to('lbf')), 4872.7)
+        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{vt}').to('lbf')), 4872.7)
         print "\n"
-        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{HT}').to('lbf')), 5844.6)
+        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{ht}').to('lbf')), 5844.6)
         print "\n"
         print "Wing Weight Percent Diff: %s" % compute_diff(mag(sol('W_{wing}').to('lbf')), 99869.0)
 
@@ -301,9 +301,9 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Payload Weight Percent Diff: %s" % compute_diff(mag(sol('W_{payload}').to('lbf')), 38715.5)
         print "\n"
-        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{VT}').to('lbf')), 1764.1)
+        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{vt}').to('lbf')), 1764.1)
         print "\n"
-        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{HT}').to('lbf')), 2616.1)
+        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{ht}').to('lbf')), 2616.1)
         print "\n"
         print "Wing Weight Percent Diff: %s" % compute_diff(mag(sol('W_{wing}').to('lbf')), 23717.3)
 
@@ -391,9 +391,9 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Payload Weight Percent Diff: %s" % compute_diff(mag(sol('W_{payload}').to('lbf')), 38715.5)
         print "\n"
-        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{VT}').to('lbf')), 1477.2)
+        print "VT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{vt}').to('lbf')), 1477.2)
         print "\n"
-        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{HT}').to('lbf')), 1463.8)
+        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{ht}').to('lbf')), 1463.8)
         print "\n"
         print "Wing Weight Percent Diff: %s" % compute_diff(mag(sol('W_{wing}').to('lbf')), 21691.8)
 
@@ -481,9 +481,9 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Payload Weight Percent Diff: %s" % compute_diff(mag(sol('W_{payload}').to('lbf')), 38715.5)
         print "\n"
-        print "VT Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{VT}').to('lbf')), 376.4)
+        print "VT Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{vt}').to('lbf')), 376.4)
         print "\n"
-        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{HT}').to('lbf')), 1578.5)
+        print "HT Weight Percent Diff: %s" % compute_diff(mag(sol('W_{ht}').to('lbf')), 1578.5)
         print "\n"
         print "Wing Weight Percent Diff: %s" % compute_diff(mag(sol('W_{wing}').to('lbf')), 19737.5)
 

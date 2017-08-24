@@ -463,12 +463,12 @@ class Fuselage(Model):
     """
     def setup(self, **kwargs):
         #new variables
-        n_pax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+        n_pax = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
                            
         #weight variables
         W_payload = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
         W_e = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
-        W_pax = Variable('W_{pax}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
+        W_pax = Variable('W_{pass}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
 
         A_fuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
@@ -537,7 +537,7 @@ class Mission(Model):
         W_fcruise = Variable('W_{f_{cruise}}', 'N', 'Fuel Weight Burned in Cruise')
         W_total = Variable('W_{total}', 'N', 'Total Aircraft Weight')
         CruiseAlt = Variable('CruiseAlt', 'ft', 'Cruise Altitude [feet]')
-        ReqRng = Variable('ReqRng', 'nautical_miles', 'Required Cruise Range')
+        ReqRng = Variable('R_{req}', 'nautical_miles', 'Required Cruise Range')
 
         h = climb['h']
         hftClimb = climb['hft']
@@ -615,12 +615,12 @@ if __name__ == '__main__':
         
     substitutions = {      
 ##            'V_{stall}': 120,
-            'ReqRng': 500, #('sweep', np.linspace(500,2000,4)),
+            'R_{req}': 500, #('sweep', np.linspace(500,2000,4)),
             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 1,
 ##            'W_{Load_max}': 6664,
-            'W_{pax}': 91 * 9.81,
-            'n_{pax}': 150,
+            'W_{pass}': 91 * 9.81,
+            'n_{pass}': 150,
             'pax_{area}': 1,
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,
@@ -633,12 +633,12 @@ if __name__ == '__main__':
 
     substitutions = {
 ##            'V_{stall}': 120,
-            'ReqRng': ('sweep', np.linspace(500,3000,8)),
+            'R_{req}': ('sweep', np.linspace(500,3000,8)),
             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
             'numeng': 1,
 ##            'W_{Load_max}': 6664,
-            'W_{pax}': 91 * 9.81,
-            'n_{pax}': 150,
+            'W_{pass}': 91 * 9.81,
+            'n_{pass}': 150,
             'pax_{area}': 1,
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,
@@ -648,7 +648,7 @@ if __name__ == '__main__':
     m = Model(mission['W_{f_{total}}'], mission, substitutions)
 ##    solRsweep = m.localsolve(solver='mosek', verbosity = 4)
 
-##    plt.plot(solRsweep('ReqRng'), solRsweep('W_{f_{total}}'), '-r')
+##    plt.plot(solRsweep('R_{req}'), solRsweep('W_{f_{total}}'), '-r')
 ##    plt.xlabel('Mission Range [nm]')
 ##    plt.ylabel('Total Fuel Burn [N]')
 ##    plt.title('Fuel Burn vs Range')
@@ -656,12 +656,12 @@ if __name__ == '__main__':
 
     substitutions = {      
 ##            'V_{stall}': 120,
-            'ReqRng': 2000,#('sweep', np.linspace(500,2000,4)),
+            'R_{req}': 2000,#('sweep', np.linspace(500,2000,4)),
             'CruiseAlt': ('sweep', np.linspace(20000,40000,8)),
             'numeng': 1,
 ##            'W_{Load_max}': 6664,
-            'W_{pax}': 91 * 9.81,
-            'n_{pax}': 150,
+            'W_{pass}': 91 * 9.81,
+            'n_{pass}': 150,
             'pax_{area}': 1,
 ##            'C_{D_{fuse}}': .005, #assumes flat plate turbulent flow, from wikipedia
             'e': .9,

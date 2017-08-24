@@ -441,12 +441,12 @@ class Fuselage(Model):
     """
     def setup(self, **kwargs):
         #new variables
-        n_pax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+        n_pax = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
                            
         #weight variables
         W_payload = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
         W_e = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
-        W_pax = Variable('W_{pax}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
+        W_pax = Variable('W_{pass}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
 
         A_fuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')
