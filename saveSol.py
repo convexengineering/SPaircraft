@@ -140,6 +140,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         df = sol('d_{f}_Mission/Aircraft/Engine').to('m') # Engine frontal area
         lnace = sol('l_{nacelle}').to('m')
         yeng = sol('y_{eng}_Mission/Aircraft/VerticalTail/VerticalTailNoStruct').to('m')
+        xeng = sol('x_{eng}')
 
     # Creating the default (D82) resultsDict
     resultsDict = {
@@ -148,7 +149,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         'TTRJCLVSWWP':float(df.magnitude + 0.1625/2.*lnace.magnitude),       # Engine height
         'YUWFYBTYKTL':float(0.1625),             # Engine airfoil thickness/chord
         'TVQVWMMVRYB':float(df.magnitude + 0.1625/2.*lnace.magnitude),       # Engine width
-        'EGCVYPSLWEZ':float(xCGvt.magnitude+0.25*crootvt.magnitude),    # Engine x location
+        'EGCVYPSLWEZ':float(xeng.magnitude - 0.5*lnace.magnitude),    # Engine x location
         'RJLYSBJAFOT':float(0.5*wfuse.magnitude),     #Engine y location
         'GBGVQARDEVD':float(hfuse.magnitude - (df/5.).magnitude), # Engine z location
         'HKVDGHIEXRW':float(15.),                                  # Engine up-rotation (degrees)
@@ -205,7 +206,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     if aircraft in ['b737800', 'b777300ER','D8_eng_wing','M08_D8_eng_wing','optimal737','optimal777','optimalRJ']:
         resultsDict.update({
          # Engine Variables
-        'EGCVYPSLWEZ':float((xwing).magnitude - 0.25*croot.magnitude + yeng.magnitude*tan(sweep*pi/180)), # Engine x location
+        'EGCVYPSLWEZ':float(xeng.magnitude - 0.5*lnace.magnitude), # Engine x location
         'RJLYSBJAFOT':float(yeng.magnitude), #Engine y location
         'GBGVQARDEVD':float(-hfuse.magnitude - 0.2*df.magnitude), # Engine z location
         'HKVDGHIEXRW':float(0.),                                  # Engine up-rotation (degrees)
