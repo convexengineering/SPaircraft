@@ -539,9 +539,8 @@ class AircraftP(Model):
             # Tail aspect ratio and lift constraints
             aircraft.HT['AR_{ht}'] >= 4., #TODO change to tip Re constraint
             self.HTP['C_{L_{ht}}'] >= 0.01, #TODO remove
-            
-            # HT TE constraint, and CG calculation
-            xCG + self.HTP['\\Delta x_{trail_{ht}}'] <= aircraft.fuse['l_{fuse}'],
+
+            # HT CG calculation
             aircraft.HT['x_{CG_{ht}}'] >= xCG +0.5*(self.HTP['\\Delta x_{lead_{ht}}']+self.HTP['\\Delta x_{trail_{ht}}']),
 
             # VT TE constraint, and CG calculation
@@ -583,6 +582,17 @@ class AircraftP(Model):
             Cdnace == aircraft['f_{S_{nacelle}}'] * Cfnace[0] * rvnsurf **3.,
             Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2. * aircraft['S'],
             ])
+
+        # HT TE constraint
+        if conventional:
+            constraints.extend([
+                aircraft['l_{fuse}'] >= xCG + self.HTP['\\Delta x_{trail_{ht}}']])
+        if piHT:
+            with SignomialsEnabled():
+                constraints.extend([
+                    self.HTP['\\Delta x_{trail_{ht}}'] <= self.VTP['\\Delta x_{lead_{vt}}'] + \
+                        aircraft['b_{vt}']/aircraft['\\tan(\\Lambda_{vt})'] + \
+                        aircraft['w_{fuse}']/aircraft['\\tan(\\Lambda_{ht})'] + aircraft['c_{root_{ht}}']])
 
         if not aircraft.fitDrag:
             constraints.extend([

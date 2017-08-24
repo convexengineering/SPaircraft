@@ -211,7 +211,6 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     if aircraft in ['b737800', 'b777300ER','D8_eng_wing','M08_D8_eng_wing','optimal737','optimal777','optimalRJ']:
         resultsDict.update({
          # Engine Variables
-        'EGCVYPSLWEZ':float(xeng.magnitude - 0.5*lnace.magnitude), # Engine x location
         'RJLYSBJAFOT':float(yeng.magnitude), #Engine y location
         'GBGVQARDEVD':float(-hfuse.magnitude - 0.2*df.magnitude), # Engine z location
         'HKVDGHIEXRW':float(0.),                                  # Engine up-rotation (degrees)
