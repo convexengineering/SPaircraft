@@ -319,7 +319,7 @@ class VerticalTailNoStruct(Model):
         q      = Variable('q_{vt}', '-', 'Substituted variable = 1 + taper')
         rho0   = Variable('\\rho_{TO}', 'kg/m^3', 'Air density (SL))')
         tanL   = Variable('\\tan(\\Lambda_{vt})', '-',
-                          'Tangent of leading edge sweep (40 deg)')
+                          'Tangent of leading edge sweep')
         taper  = Variable('\\lambda_{vt}', '-', 'Vertical tail taper ratio')
         tau    = Variable('\\tau_{vt}', '-', 'Vertical tail thickness/chord ratio')
         xCGvt  = Variable('x_{CG_{vt}}', 'm', 'x-location of tail CG')
