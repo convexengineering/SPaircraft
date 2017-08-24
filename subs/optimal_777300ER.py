@@ -123,6 +123,7 @@ def get_optimal_777300ER_subs():
             'c_{d_{fv}}': 0.0060,
             'c_{d_{pv}}': 0.0035,
             'V_{vt_{min}}': 0.0001,
+            'Fsafetyfac': 1.1,
 
             # HT substitutions
 ##            '\\alpha_{ht,max}': 2.5,

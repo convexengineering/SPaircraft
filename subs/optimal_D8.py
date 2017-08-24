@@ -124,6 +124,7 @@ def get_optimal_D8_subs():
                 'c_{d_{fv}}': 0.0060,
                 'c_{d_{pv}}': 0.0035,
                 'V_{vt_{min}}': 0.001, #0.03,
+                'Fsafetyfac': 1.0,
 
                 # HT substitutions
                 '\\alpha_{ht,max}': 2.5,
@@ -197,7 +198,7 @@ def get_optimal_D8_subs():
 
                 'T_{t_{4.1_{max}}}': 1567.*units('K'),
 
-                'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
+##                'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
 
                 #BLI factors
                 #compute the cruise stagnation pressure loss factor given a min
@@ -206,8 +207,7 @@ def get_optimal_D8_subs():
                               (18753.9 +.5*0.301559*(Mcruisemin*295.)**2),
                 'f_{BLI_{V}}': 1 - BLIVloss,
 
-            'MaxClimbTime': 25*units('min'),
-##            'MaxClimbDistance': 300*units('nautical_miles')
+            'MaxClimbTime': 23*units('min'),
 
             #LG subs
             'E': 205,
@@ -224,7 +224,7 @@ def get_optimal_D8_subs():
             'f_{add,m}': 1.5,
             'f_{add,n}': 1.5,
             'h_{hold}': 1,
-            'h_{nacelle}': 0.5,
+##            'h_{nacelle}': 0.5,
             'n_{mg}': 2,
             'n_{wps}': 2,
             'p_{oleo}': 1800,
