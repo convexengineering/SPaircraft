@@ -65,7 +65,7 @@ def get_optimal_777300ER_subs():
             '\\theta_{db}': 0.00001,
 
             # TASOPT Fuselage substitutions
-            'L_{total/wing}': 1.127,
+            'f_{L_{total/wing}}': 1.127,
 
             # Power system and landing gear and engine weight fraction subs
             'f_{hpesys}': 0.01, # [TAS]
@@ -134,7 +134,7 @@ def get_optimal_777300ER_subs():
             '\\Delta x_{CG}': 11.97 * units('ft'),
             'x_{CG_{min}}': 117.31*units('ft'),
             'SM_{min}': .05,
-            'f_{HT}': 0.3,
+            'f_{ht}': 0.3,
             '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
             'c_{d_{fh}}': 0.0060,
             'c_{d_{ph}}': 0.0035,

@@ -70,7 +70,7 @@ def getD82subs():
 
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft'),
-                'L_{total/wing}': 1.195,
+                'f_{L_{total/wing}}': 1.195,
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
@@ -136,7 +136,7 @@ def getD82subs():
                 '\\Delta x_{CG}': 6*units('ft'),
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
-                'f_{HT}': 0.3,
+                'f_{ht}': 0.3,
 ##                'AR_{ht}': 12.,
                 '\\lambda_{ht}': 0.3,
                 '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep

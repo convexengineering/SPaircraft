@@ -58,7 +58,7 @@ def getD8bigsubs():
 
                 # TASOPT Fuselage substitutions
                 'l_{nose}': 29.*units('ft')*1.75,   #1.75 is estimated length increase factor from D8.2
-                'L_{total/wing}': 1.179,
+                'f_{L_{total/wing}}': 1.179,
 
                 # Fuselage subs
                 'f_{seat}': 0.1,
@@ -139,7 +139,7 @@ def getD8bigsubs():
                 '\\Delta x_{CG}': 11.97 * units('ft'),
                 'x_{CG_{min}}' : 117.31*units('ft'),
                 'C_{L_{hfcG}}': 0.85,
-                'f_{HT}': 0.3,
+                'f_{ht}': 0.3,
                 '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
                 'c_{d_{fh}}': 0.0060,
                 'c_{d_{ph}}': 0.0035,

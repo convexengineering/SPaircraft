@@ -225,7 +225,7 @@ class Wing(Model):
         self.wns = WingNoStruct()
         self.wb = WingBox(self.wns, "wing")
 
-        Wwing = Variable('W_{wing_system}', 'N', 'Total Wing Weight')
+        Wwing = Variable('W_{wing}', 'N', 'Wing System Weight')
 
         Cwing = Variable('C_{wing}', 1, '-', 'Wing Weight Margin and Sensitivity Factor')
 

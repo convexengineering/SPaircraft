@@ -105,12 +105,8 @@ class Aircraft(Model):
              W_fcruise = Variable('W_{f_{cruise}}', 'lbf','Fuel Weight Burned in Cruise')
              W_fprimary = Variable('W_{f_{primary}}', 'lbf', 'Total Fuel Weight Less Fuel Reserves')
 
-        Wwing = Variable('W_{wing}','lbf','Wing Weight')
-        WHT = Variable('W_{ht}','lbf','Horizontal Tail Weight')
-        WVT = Variable('W_{vt}','lbf','Vertical Tail Weight')
-
         # Fuselage lift fraction variables
-        Ltow = Variable('L_{total/wing}','-','Total lift as a percentage of wing lift')
+        Ltow = Variable('f_{L_{total/wing}}','-','Total lift as a percentage of wing lift')
 
         # Misc system variables
         Wmisc   = Variable('W_{misc}','lbf','Sum of Miscellaneous Weights')
@@ -153,7 +149,7 @@ class Aircraft(Model):
 
                             #compute the aircraft's zero fuel weight
                             TCS([self.fuse['W_{fuse}'] + numeng \
-                                * Wengsys + self.fuse['W_{tail}'] + Wwing + Wmisc <= W_dry]),
+                                * Wengsys + self.fuse['W_{tail}'] + self.wing['W_{wing}'] + Wmisc <= W_dry]),
 
                             # Total takeoff weight constraint
                             TCS([W_ftotal + W_dry + self.fuse['W_{payload}'] <= W_total]),
@@ -166,11 +162,6 @@ class Aircraft(Model):
 
                             # Wing fuel constraints
                             self.wing['W_{fuel_{wing}}'] >= f_wingfuel*W_ftotal/self.wing['FuelFrac'],
-
-                            # Lifting surface weights
-                            Wwing == self.wing['W_{wing_system}'],
-                            WHT == self.HT['W_{HT_system}'],
-                            WVT == self.VT['W_{VT_system}'],
 
                             # LG and Power Systems weights
                             Wmisc >= self.LG['W_{lg}'] + Whpesys,
@@ -230,7 +221,7 @@ class Aircraft(Model):
                             TCS([self.VT['L_{v_{max}}'] >= 0.5*rhoTO*Vne**2*self.VT['S_{vt}']*self.VT['C_{L_{vmax}}']]),
 
                             # Tail weight
-                            self.fuse['W_{tail}'] >= numVT*WVT + WHT + self.fuse['W_{cone}'],
+                            self.fuse['W_{tail}'] >= numVT*self.VT['W_{vt}'] + self.HT['W_{ht}'] + self.fuse['W_{cone}'],
 
                             # VT volume coefficient
                             self.VT['V_{vt}'] == numVT*self.VT['S_{vt}'] * self.VT['l_{vt}']/(self.wing['S']*self.wing['b']),
@@ -283,7 +274,7 @@ class Aircraft(Model):
             with SignomialsEnabled():
                 constraints.extend([
                     # Wing root moment constraint, with wing and engine weight load relief
-                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}']*(Wwing+f_wingfuel*W_ftotal)) * \
+                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}']*(self.wing['W_{wing}']+f_wingfuel*W_ftotal)) * \
                        (self.wing['b']**2/(12*self.wing['S'])*(self.wing['c_{root}'] + 2*self.wing['c_{tip}'])) - \
                                         self.wing['N_{lift}']*Wengsys*self.VT['y_{eng}']]), #[SP]
 
@@ -299,7 +290,7 @@ class Aircraft(Model):
 
                     # Moment of inertia constraints
                     Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
-                                    (self.wing['W_{fuel_{wing}}'] + Wwing)/(self.wing['S']*g)* \
+                                    (self.wing['W_{fuel_{wing}}'] + self.wing['W_{wing}'])/(self.wing['S']*g)* \
                                     self.wing['c_{root}']*self.wing['b']**3.*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
                     Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
                             #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
@@ -318,7 +309,7 @@ class Aircraft(Model):
             with SignomialsEnabled():
                 constraints.extend([
                     # Wing root moment constraint, with wing weight + fuel load relief
-                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (Wwing+f_wingfuel*W_ftotal)) * \
+                    TCS([self.wing['M_r']*self.wing['c_{root}'] >= (self.wing['L_{max}'] - self.wing['N_{lift}'] * (self.wing['W_{wing}']+f_wingfuel*W_ftotal)) * \
                         (self.wing['b']**2/(12*self.wing['S'])*(self.wing['c_{root}'] + 2*self.wing['c_{tip}']))]), #[SP]
 
                     # Horizontal tail aero+landing loads constants A1h
@@ -332,7 +323,7 @@ class Aircraft(Model):
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
                     # Moment of inertia constraints
-                    Izwing >= (self.wing['W_{fuel_{wing}}'] + Wwing) / (self.wing['S'] * g) * \
+                    Izwing >= (self.wing['W_{fuel_{wing}}'] + self.wing['W_{wing}']) / (self.wing['S'] * g) * \
                     self.wing['c_{root}'] * self.wing['b'] ** 3. * (1. / 12. - (1. - self.wing['\\lambda']) / 16.),
                     # [SP]
                     Iztail >= (self.fuse['W_{apu}'] + numeng * Wengsys + self.fuse['W_{tail}']) * self.VT[
@@ -523,7 +514,7 @@ class AircraftP(Model):
             self.wingP['\\eta_{o}'] == aircraft['w_{fuse}']/(aircraft['b']/2),
 
             # Fuselage lift (just calculating)
-            SignomialEquality(self.fuseP['L_{fuse}'], (self.aircraft['L_{total/wing}']-1.)*self.wingP['L_w']),
+            SignomialEquality(self.fuseP['L_{fuse}'], (self.aircraft['f_{L_{total/wing}}']-1.)*self.wingP['L_w']),
 
             # Geometric average of start and end weights of flight segment
             W_avg >= (W_start * W_end)**.5 + W_buoy, # Buoyancy weight included in Breguet Range
@@ -561,7 +552,7 @@ class AircraftP(Model):
             self.HTP['C_{L_{ah}}'] + (2*self.wingP['C_{L_{aw}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{ah_0}}'] <= self.HTP['C_{L_{ah_0}}']*aircraft.HT['\\eta_{ht}'],
 
            # Tail downforce penalty to total lift
-            TCS([Ltotal == self.aircraft['L_{total/wing}']*self.wingP['L_w']]),
+            TCS([Ltotal == self.aircraft['f_{L_{total/wing}}']*self.wingP['L_w']]),
             TCS([Ltotal >= W_avg + self.HTP['L_h']]),
 
             # Wing location and AC constraints
@@ -977,7 +968,7 @@ class Mission(Model):
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}']+aircraft['n_{eng}']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-                    + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
+                    + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
                     ]),
@@ -985,7 +976,7 @@ class Mission(Model):
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}']+aircraft['n_{eng}']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
-                    + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
+                    + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (cruise['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                      ]),
@@ -996,7 +987,7 @@ class Mission(Model):
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
-                    + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
+                    + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
                     + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]), # TODO improve; using x_b as a surrogate for xeng
@@ -1004,7 +995,7 @@ class Mission(Model):
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
-                    + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
+                    + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (cruise['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                     + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng

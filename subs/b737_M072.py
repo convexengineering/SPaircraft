@@ -45,7 +45,7 @@ def get_M072_737_subs():
             'D_{reduct}': 1,
 
             # TASOPT Fuselage substitutions
-            'L_{total/wing}': 1.127,
+            'f_{L_{total/wing}}': 1.127,
             'l_{nose}':20.*units('ft'),
             'n_{aisle}': 1.,
             'SPR': 6.,
@@ -121,7 +121,7 @@ def get_M072_737_subs():
             
             # HT substitutions
             '\\alpha_{max,h}': 2.5,
-            'f_{HT}': 0.3,
+            'f_{ht}': 0.3,
 ##            'AR_{ht}': 6.,
             '\\lambda_{ht}': 0.25,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
