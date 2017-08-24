@@ -94,6 +94,9 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     else:
         sweep = arccos(sol('\cos(\Lambda)_Mission/Aircraft/Wing/WingNoStruct'))*180/np.pi
 
+        # System-level descriptors
+        xCG = sol('x_{CG}').values()[0][0].to('m')
+
         # Wing descriptors
         b = sol('b').to('m')
         croot = sol('c_{root}').to('m')
@@ -119,8 +122,10 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         xCGht = sol('x_{CG_{ht}}').to('m')
         crootht = sol('c_{root_{ht}}').to('m')
         ctipht = sol('c_{tip_{ht}}').to('m')
+        dxleadht = sol('\\Delta x_{lead_{ht}}').values()[0][0].to('m')
+        dxtrailht = sol('\\Delta x_{trail_{ht}}').values()[0][0].to('m')
         bht = sol('b_{ht}').to('m')
-        xCGht = sol('x_{CG_{ht}}')
+        xCGht = sol('x_{CG_{ht}}').to('m')
         lht = sol('l_{ht}').to('m')
         tanht = sol('\\tan(\Lambda_{ht})_Mission/Aircraft/HorizontalTail/HorizontalTailNoStruct')
 
@@ -132,15 +137,15 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         lvt = sol('l_{vt}').to('m')
         crootvt = sol('c_{root_{vt}}').to('m')
         ctipvt = sol('c_{tip_{vt}}').to('m')
-        # dxleadvt = sol('\\Delta x_{lead_v}').to('m')
-        # dxtrailvt = sol('\\Delta x_{trail_v}').to('m')
+        dxleadvt = sol('\\Delta x_{lead_{vt}}').values()[0][0].to('m')
+        dxtrailvt = sol('\\Delta x_{trail_{vt}}').values()[0][0].to('m')
         tanvt = sol('\\tan(\Lambda_{vt})_Mission/Aircraft/VerticalTail/VerticalTailNoStruct')
 
         # Engine descriptors
         df = sol('d_{f}_Mission/Aircraft/Engine').to('m') # Engine frontal area
         lnace = sol('l_{nacelle}').to('m')
         yeng = sol('y_{eng}_Mission/Aircraft/VerticalTail/VerticalTailNoStruct').to('m')
-        xeng = sol('x_{eng}')
+        xeng = sol('x_{eng}').to('m')
 
     # Creating the default (D82) resultsDict
     resultsDict = {
@@ -173,16 +178,16 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         'HPKOTUWYSIY':float(2*wfuse.magnitude), # Fuselage width
 
         # HT Variables
-        'USGQFZQKJWC':float(float(xCGvt.magnitude) - 0.5*crootvt.magnitude + 1.0*tanvt*bvt.magnitude - wfuse.magnitude*tanht), # HT x location
-        'BLMHVDOLAQJ':float(0.5 + bvt.magnitude),                                             # HT z location
-        'IFZAMYYJPRP':float(arctan(tanht)*180/pi),                                                             # HT sweep
-        'CHYQUCYJMPS':float(bht.magnitude*0.5),                                               # HT half-span
-        'LQXJHZEHDRX':float(crootht.magnitude),                                               # HT root chord
-        'AYFSAELIRAY':float(ctipht.magnitude),                                                # HT tip chord
-        'IFZAMYYJPRP':float(np.arctan(tanht)*180/np.pi),                            # HT sweep angle
+        'USGQFZQKJWC':float(xCG.magnitude + dxleadht.magnitude), # HT x location
+        'BLMHVDOLAQJ':float(0.5 + bvt.magnitude), # HT z location
+        'IFZAMYYJPRP':float(arctan(tanht)*180/pi), # HT sweep
+        'CHYQUCYJMPS':float(bht.magnitude*0.5), # HT half-span
+        'LQXJHZEHDRX':float(crootht.magnitude), # HT root chord
+        'AYFSAELIRAY':float(ctipht.magnitude), # HT tip chord
+        'IFZAMYYJPRP':float(np.arctan(tanht)*180/np.pi), # HT sweep angle
 
         # VT variables
-        'LLYTEYDPDID':float(xCGvt.magnitude - 0.5*crootvt.magnitude), # VT x location (LE location)
+        'LLYTEYDPDID':float(xCG.magnitude + dxleadvt.magnitude), # VT x location (LE location)
         'BFZDOVCXTAV':float(2*wfuse.magnitude/2),                    # VT y location (as wide as fuselage)
         'FQDVQTUBLUX':float(0.5),                                  # VT z location (0.5 m off the widest point of the fuselage)
         'JXFRWSLYWDH':float(bvt.magnitude),                        # VT span
@@ -215,12 +220,10 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     if aircraft in ['b737800', 'b777300ER','optimal737','optimal777','optimalRJ']:
         resultsDict.update({
         # HT Variables
-        'USGQFZQKJWC':float(float(xCGht.magnitude) - crootht.magnitude),     # HT x location
         'BLMHVDOLAQJ':float(0.),                                             # HT z location
         'CHYQUCYJMPS':float(bht.magnitude*0.5 + wfuse.magnitude),            # HT half-span
 
         # VT variables
-        'LLYTEYDPDID':float(xCGvt.magnitude - 0.5*crootvt.magnitude),        # VT x location (LE location)
         'BFZDOVCXTAV':float(0.),                                             # VT y location (as wide as fuselage)
         'FQDVQTUBLUX':float(hfuse.magnitude),                                # VT z location (0.5 m off the widest point of the fuselage)
         'GWTZZGTPXQU':float(0.),                                             # VT dihedral
