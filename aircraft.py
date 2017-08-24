@@ -936,6 +936,7 @@ class Mission(Model):
         max_climb_distance = Variable('MaxClimbDistance', 'nautical_miles', 'Climb Distance')
         CruiseTt41max = Variable('T_{t_{4.1_{max-Cruise}}}', 'K', 'Max Cruise Turbine Inlet Temp')
         MinCruiseAlt = Variable('MinCruiseAlt', 'ft', 'Minimum Cruise Altitude')
+        Fsafetyfac = Variable('Fsafetyfac', '-', 'Safety factor on inital climb thrust')
         # make overall constraints
         constraints = []
 
@@ -1095,7 +1096,7 @@ class Mission(Model):
 
                 # Takeoff thrust T_e calculated for engine out + vertical tail sizing.
                 # Note: coeff can be varied as desired.
-                aircraft.VT['T_e'] == 1.1 * climb.climbP.engine['F'][0],
+                aircraft.VT['T_e'] == Fsafetyfac * climb.climbP.engine['F'][0],
 
                 # Set the range for each cruise segment.
                 # All cruise segments cover the same range.

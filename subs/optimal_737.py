@@ -117,6 +117,7 @@ def get737_optimal_subs():
             'c_{d_{fv}}': 0.0060,
             'c_{d_{pv}}': 0.0030,
             'V_{vt_{min}}': 0.001, #0.1,
+            'Fsafetyfac': 1.8,
             
             # HT substitutions
             '\\alpha_{ht,max}': 2.5,
