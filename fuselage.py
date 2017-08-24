@@ -49,7 +49,7 @@ class Fuselage(Model):
         # Tail cone variables
         lamcone = Variable('\\lambda_{cone}', '-', 'Tailcone radius taper ratio')
         lcone = Variable('l_{cone}', 'm', 'Cone length')
-        plamv = Variable('p_{\\lambda_v}', 1.6, '-', '1 + 2*Tail taper ratio')
+        plamv = Variable('p_{\\lambda_{vt}}', 1.6, '-', '1 + 2*Tail taper ratio')
         # tcone = Variable('t_{cone}', 'm', 'Cone thickness') # perhaps to be added later
 
         # Lengths

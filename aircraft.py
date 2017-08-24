@@ -75,7 +75,7 @@ class Aircraft(Model):
         # variable definitions
         numaisle = Variable('n_{aisle}','-','Number of Aisles')
         numeng = Variable('n_{eng}', '-', 'Number of Engines')
-        numVT = Variable('n_{VT}','-','Number of Vertical Tails')
+        numVT = Variable('n_{vt}','-','Number of Vertical Tails')
         Vne = Variable('V_{ne}',143.92,'m/s', 'Never-exceed speed')  # [Philippe]
         Vmn = Variable('V_{mn}', 'm/s','Maneuvering speed')
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
@@ -158,7 +158,7 @@ class Aircraft(Model):
 
                             # Load factor matching
                             self.fuse['N_{lift}'] == self.wing['N_{lift}'], # To make sure that the loads factors match.
-                            Ltow*self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{h_{max}}'],
+                            Ltow*self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{ht_{max}}'],
 
                             # Wing fuel constraints
                             self.wing['W_{fuel_{wing}}'] >= f_wingfuel*W_ftotal/self.wing['FuelFrac'],
@@ -198,8 +198,8 @@ class Aircraft(Model):
 
                             # Tail cone sizing
                             3. * (numVT*self.VT['M_r']) * self.VT['c_{root_{vt}}'] * \
-                                (self.fuse['p_{\\lambda_v}'] - 1.) >= numVT*self.VT[
-                                    'L_{v_{max}}'] * self.VT['b_{vt}'] * (self.fuse['p_{\\lambda_v}']),
+                                (self.fuse['p_{\\lambda_{vt}}'] - 1.) >= numVT*self.VT[
+                                    'L_{vt_{max}}'] * self.VT['b_{vt}'] * (self.fuse['p_{\\lambda_{vt}}']),
                             TCS([self.fuse['V_{cone}'] * (1. + self.fuse['\\lambda_{cone}']) * \
                              (pi + 4. * self.fuse['\\theta_{db}']) >= numVT*self.VT[
                                 'M_r'] * self.VT['c_{root_{vt}}'] / self.fuse['\\tau_{cone}'] * \
@@ -215,10 +215,10 @@ class Aircraft(Model):
                             TCS([self.HT['V_{ht}'] == self.HT['S_{ht}']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
 
                             # HT Max Loading
-                            TCS([self.HT['L_{h_{max}}'] >= 0.5*rhoTO*Vne**2*self.HT['S_{ht}']*self.HT['C_{L_{hmax}}']]),
+                            TCS([self.HT['L_{ht_{max}}'] >= 0.5*rhoTO*Vne**2*self.HT['S_{ht}']*self.HT['C_{L_{ht,max}}']]),
 
                             # VT Max Loading
-                            TCS([self.VT['L_{v_{max}}'] >= 0.5*rhoTO*Vne**2*self.VT['S_{vt}']*self.VT['C_{L_{vmax}}']]),
+                            TCS([self.VT['L_{vt_{max}}'] >= 0.5*rhoTO*Vne**2*self.VT['S_{vt}']*self.VT['C_{L_{vt,max}}']]),
 
                             # Tail weight
                             self.fuse['W_{tail}'] >= numVT*self.VT['W_{vt}'] + self.HT['W_{ht}'] + self.fuse['W_{cone}'],
@@ -229,15 +229,15 @@ class Aircraft(Model):
                             # VT sizing constraints
                             # Yaw rate constraint at flare
                             numVT*.5*self.VT['\\rho_{TO}']*self.VT['V_{land}']**2*self.VT['S_{vt}']*self.VT['l_{vt}']* \
-                                            self.VT['C_{L_{vyaw}}'] >= self.VT['\\dot{r}_{req}']*self.VT['I_{z}'],
+                                            self.VT['C_{L_{vt,yaw}}'] >= self.VT['\\dot{r}_{req}']*self.VT['I_{z}'],
 
                             # Force moment balance for one engine out condition
-                            numVT*self.VT['L_{vtEO}']*self.VT['l_{vt}'] >= self.VT['T_e']*self.VT['y_{eng}'] + \
+                            numVT*self.VT['L_{vt,EO}']*self.VT['l_{vt}'] >= self.VT['T_e']*self.VT['y_{eng}'] + \
                                         self.VT['D_{wm}']*self.VT['y_{eng}'],
                             # TASOPT 2.0 p45
 
                             # Vertical bending material coefficient (VT aero loads)
-                            self.fuse['B_{1v}'] == self.fuse['r_{M_v}']*numVT*self.VT['L_{v_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
+                            self.fuse['B_{1v}'] == self.fuse['r_{M_v}']*numVT*self.VT['L_{vt_{max}}']/(self.fuse['w_{fuse}']*self.fuse['\\sigma_{M_v}']),
 
                             # Moment of inertia around z-axis
                             # SignomialEquality(self.VT['I_{z}'], Izwing + Iztail + Izfuse),
@@ -285,7 +285,7 @@ class Aircraft(Model):
 
                     self.fuse['A_{1h_{MLF}}'] >= (self.fuse['N_{lift}'] * \
                                 (self.fuse['W_{tail}'] + self.fuse['W_{apu}']) \
-                                + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
+                                + self.fuse['r_{M_h}'] * self.HT['L_{ht_{max}}']) / \
                                  (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
                     # Moment of inertia constraints
@@ -319,7 +319,7 @@ class Aircraft(Model):
 
                     self.fuse['A_{1h_{MLF}}'] >= (self.fuse['N_{lift}'] * \
                                                (self.fuse['W_{tail}'] + numeng * Wengsys + self.fuse['W_{apu}']) \
-                                               + self.fuse['r_{M_h}'] * self.HT['L_{h_{max}}']) / \
+                                               + self.fuse['r_{M_h}'] * self.HT['L_{ht_{max}}']) / \
                                                 (self.fuse['h_{fuse}'] * self.fuse['\\sigma_{M_h}']),
 
                     # Moment of inertia constraints
@@ -365,26 +365,26 @@ class Aircraft(Model):
             with SignomialsEnabled():
                 constraints.extend([
                     # Pin VT joint moment constraint #PROBLEMATIC, instead using wingtip moment
-                    # SignomialEquality(self.HT['L_{h_{rect}}'] * (self.HT['b_{ht}'] / 2. - self.fuse['w_{fuse}']),
-                    #                   self.HT['L_{h_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 3.)), # [SP] #[SPEquality]
+                    # SignomialEquality(self.HT['L_{ht_{rect}}'] * (self.HT['b_{ht}'] / 2. - self.fuse['w_{fuse}']),
+                    #                   self.HT['L_{ht_{tri}}'] * (self.fuse['w_{fuse}'] - self.HT['b_{ht}'] / 3.)), # [SP] #[SPEquality]
                     # Pin VT constraint (wingtip moment = 0Nm) #TODO: may be problematic as well, relax if doesn't solve
-                    SignomialEquality(self.HT['b_{ht}']/4.*self.HT['L_{h_{rect}}'] + self.HT['b_{ht}']/3.*self.HT['L_{h_{tri}}'],
-                                      self.HT['b_{ht_{out}}'] * self.HT['L_{h_{max}}']/2.), #[SP] #[SPEquality]
+                    SignomialEquality(self.HT['b_{ht}']/4.*self.HT['L_{ht_{rect}}'] + self.HT['b_{ht}']/3.*self.HT['L_{ht_{tri}}'],
+                                      self.HT['b_{ht_{out}}'] * self.HT['L_{ht_{max}}']/2.), #[SP] #[SPEquality]
 
                     # HT outboard half-span
                     SignomialEquality(self.HT['b_{ht_{out}}'] , 0.5*self.HT['b_{ht}'] - self.fuse['w_{fuse}']), #[SP] #[SPEquality]
 
                     # HT center moment
-                    self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['L_{h_{rect}}'] * (
-                    self.HT['b_{ht}'] / 4.) + self.HT['L_{h_{tri}}'] * (self.HT['b_{ht}'] / 6.) - \
-                    self.fuse['w_{fuse}'] * self.HT['L_{h_{max}}'] / 2., # [SP]
+                    self.HT['M_r'] * self.HT['c_{root_{ht}}'] >= self.HT['L_{ht_{rect}}'] * (
+                    self.HT['b_{ht}'] / 4.) + self.HT['L_{ht_{tri}}'] * (self.HT['b_{ht}'] / 6.) - \
+                    self.fuse['w_{fuse}'] * self.HT['L_{ht_{max}}'] / 2., # [SP]
 
                     # HT joint moment
-                    self.HT['M_{r_{out}}']*self.HT['c_{attach}'] >= self.HT['L_{h_{rect_{out}}}'] * (0.5*self.HT['b_{ht_{out}}']) + \
-                                                                    self.HT['L_{h_{tri_{out}}}'] * (1./3.*self.HT['b_{ht_{out}}']),
+                    self.HT['M_{r_{out}}']*self.HT['c_{attach}'] >= self.HT['L_{ht_{rect_{out}}}'] * (0.5*self.HT['b_{ht_{out}}']) + \
+                                                                    self.HT['L_{ht_{tri_{out}}}'] * (1./3.*self.HT['b_{ht_{out}}']),
 
                     # HT joint shear (max shear)
-                    self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
+                    self.HT['L_{shear}'] >= self.HT['L_{ht_{rect_{out}}}'] + self.HT['L_{ht_{tri_{out}}}'],
 
                     # HT/VT joint constraint
                     self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
@@ -401,15 +401,15 @@ class Aircraft(Model):
             with SignomialsEnabled():
                 constraints.extend([
                     # HT root moment
-                    TCS([self.HT['M_r']*self.HT['c_{attach}'] >= 1./3.*self.HT['L_{h_{tri_{out}}}']*self.HT['b_{ht_{out}}'] + \
-                         1./2.*self.HT['L_{h_{rect_{out}}}']*self.HT['b_{ht_{out}}']]),
+                    TCS([self.HT['M_r']*self.HT['c_{attach}'] >= 1./3.*self.HT['L_{ht_{tri_{out}}}']*self.HT['b_{ht_{out}}'] + \
+                         1./2.*self.HT['L_{ht_{rect_{out}}}']*self.HT['b_{ht_{out}}']]),
                     # HT joint constraint
                     self.HT['c_{attach}'] == self.HT['c_{root_{ht}}'],
 
                     # HT auxiliary variables
                     self.HT['b_{ht_{out}}'] == 0.5*self.HT['b_{ht}'],
                     self.HT['M_{r_{out}}'] == self.HT['M_r'],
-                    self.HT['L_{shear}'] >= self.HT['L_{h_{rect_{out}}}'] + self.HT['L_{h_{tri_{out}}}'],
+                    self.HT['L_{shear}'] >= self.HT['L_{ht_{rect_{out}}}'] + self.HT['L_{ht_{tri_{out}}}'],
 
                     # HT structural factor calculation
                     self.HT['\\pi_{M-fac}'] == 1.0,
@@ -477,10 +477,10 @@ class AircraftP(Model):
         V2 = Variable('V_2', 'm/s', 'Interior Nacelle Flow Velcoity')
         Vnacrat = Variable('V_{nacelle_ratio}', '-', 'Vnle/Vinf')
         rvnsurf = Variable('r_{v_{nsurf}}', '-', 'Intermediate Nacelle Drag Parameter')
-        Cfnace = Variable('C_{f_nacelle}', '-', 'Nacelle Drag Coefficient')
-        Renace = Variable('R_{e_nacelle}', '-', 'Nacelle Reynolds Number')
-        Cfturb = Variable('C_{f_nacelle}', '-', 'Turbulent Nacelle Skin Friction Coefficient')
-        Cdnace = Variable('C_{d_nacelle}', '-', 'Nacelle Drag Coeffecient')
+        Cfnace = Variable('C_{f_{nacelle}}', '-', 'Nacelle Drag Coefficient')
+        Renace = Variable('R_{e_{nacelle}}', '-', 'Nacelle Reynolds Number')
+        Cfturb = Variable('C_{f_{nacelle}}', '-', 'Turbulent Nacelle Skin Friction Coefficient')
+        Cdnace = Variable('C_{d_{nacelle}}', '-', 'Nacelle Drag Coeffecient')
         Dnace = Variable('D_{nacelle}', 'N', 'Drag On One Nacelle')
 
         constraints = []
@@ -501,7 +501,7 @@ class AircraftP(Model):
             # Drag calculations
             self.fuseP['D_{fuse}'] == 0.5 * state['\\rho'] * state['V']**2 * \
                                         self.fuseP['C_{D_{fuse}}'] * aircraft['l_{fuse}'] * aircraft['R_{fuse}'] * (state['M']**2/aircraft.fuse['M_{fuseD}']**2),
-            D >= aircraft['D_{reduct}'] * (self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.aircraft['n_{VT}']*self.VTP['D_{vt}'] + self.HTP['D_{ht}'] + aircraft['n_{eng}'] * Dnace),
+            D >= aircraft['D_{reduct}'] * (self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.aircraft['n_{vt}']*self.VTP['D_{vt}'] + self.HTP['D_{ht}'] + aircraft['n_{eng}'] * Dnace),
             C_D == D/(.5*state['\\rho']*state['V']**2 * self.aircraft.wing['S']),
             LoD == W_avg/D,
 
@@ -534,11 +534,11 @@ class AircraftP(Model):
             # Aircraft trim conditions
             TCS([xAC/aircraft.wing['mac'] <= xCG/aircraft.wing['mac'] + \
                  self.wingP['c_{m_{w}}']/self.wingP['C_{L}']  +\
-                              aircraft.HT['V_{ht}']*(self.HTP['C_{L_h}']/self.wingP['C_{L}'])]),
+                              aircraft.HT['V_{ht}']*(self.HTP['C_{L_{ht}}']/self.wingP['C_{L}'])]),
 
             # Tail aspect ratio and lift constraints
             aircraft.HT['AR_{ht}'] >= 4., #TODO change to tip Re constraint
-            self.HTP['C_{L_h}'] >= 0.01, #TODO remove
+            self.HTP['C_{L_{ht}}'] >= 0.01, #TODO remove
             
             # HT TE constraint, and CG calculation
             xCG + self.HTP['\\Delta x_{trail_{ht}}'] <= aircraft.fuse['l_{fuse}'],
@@ -549,11 +549,11 @@ class AircraftP(Model):
             aircraft.VT['x_{CG_{vt}}'] >= xCG +0.5*(self.VTP['\\Delta x_{lead_{vt}}']+self.VTP['\\Delta x_{trail_{vt}}']),
  
             # HT lift coefficient calc
-            self.HTP['C_{L_{ah}}'] + (2*self.wingP['C_{L_{aw}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{ah_0}}'] <= self.HTP['C_{L_{ah_0}}']*aircraft.HT['\\eta_{ht}'],
+            self.HTP['C_{L_{\\alpha,ht}}'] + (2*self.wingP['C_{L_{\\alpha,w}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{ah_0}}'] <= self.HTP['C_{L_{ah_0}}']*aircraft.HT['\\eta_{ht}'],
 
            # Tail downforce penalty to total lift
             TCS([Ltotal == self.aircraft['f_{L_{total/wing}}']*self.wingP['L_w']]),
-            TCS([Ltotal >= W_avg + self.HTP['L_h']]),
+            TCS([Ltotal >= W_avg + self.HTP['L_{ht}']]),
 
             # Wing location and AC constraints
 
@@ -570,9 +570,9 @@ class AircraftP(Model):
             self.wingP['c_{m_{w}}'] == 1.9,
               
             TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] \
-                 + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{wmax}}'] <= \
+                 + self.wingP['c_{m_{w}}']/aircraft.wing['C_{L_{w,max}}'] <= \
                                             aircraft.HT['V_{ht}']*aircraft.HT['m_{ratio}'] +\
-                                            aircraft.HT['V_{ht}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{wmax}}']]), # [SP]
+                                            aircraft.HT['V_{ht}']*aircraft.HT['C_{L_{ht,max}}']/aircraft.wing['C_{L_{w,max}}']]), # [SP]
 
             #nacelle drag
             Renace == state['\\rho']*state['V'] * aircraft['l_{nacelle}']/state['\\mu'],
@@ -590,7 +590,7 @@ class AircraftP(Model):
                 self.VTP['C_{D_{vis}}'] >= (self.aircraft.VT['c_{d_{fv}}'] + self.aircraft.VT['c_{d_{pv}}']*self.aircraft.VT['\\cos(\\Lambda_{vt})^3']),
 
                 #set the HT drag coefficient
-                self.HTP['C_{D_{0_h}}'] >= (self.aircraft.HT['c_{d_{fh}}'] + self.aircraft.HT['c_{d_{ph}}']*self.aircraft.HT['\\cos(\\Lambda_{ht})^3']),
+                self.HTP['C_{D_{0,ht}}'] >= (self.aircraft.HT['c_{d_{fh}}'] + self.aircraft.HT['c_{d_{ph}}']*self.aircraft.HT['\\cos(\\Lambda_{ht})^3']),
                 ])
 
         return self.Pmodels, constraints

@@ -29,7 +29,7 @@ def get_small_M08_D8_eng_wing_subs():
                 'w_{seat}': 0.5*units('m'),
                 'w_{sys}': 0.1*units('m'),
                 'r_E': 1.,  # [TAS]
-                'p_{\\lambda_v}':1.6,
+                'p_{\\lambda_{vt}}':1.6,
                 '\\lambda_{cone}': 0.3,  # [TAS]
                 '\\rho_{cone}': 2700.,#*units('kg/m^3'),  # [TAS]
                 '\\rho_{bend}': 2700.,#*units('kg/m^3'),  # [TAS]
@@ -82,7 +82,7 @@ def get_small_M08_D8_eng_wing_subs():
                 'f_{lgnose}':0.0075, # [TAS]
 
                 # Wing substitutions
-                'C_{L_{wmax}}': 2.15/(cos(sweep)**2), # [TAS]
+                'C_{L_{w,max}}': 2.15/(cos(sweep)**2), # [TAS]
                 '\\tan(\\Lambda)': tan(sweep * pi / 180.),
                 '\\cos(\\Lambda)': cos(sweep * pi / 180.),
                 '\\eta': 0.97,
@@ -106,16 +106,16 @@ def get_small_M08_D8_eng_wing_subs():
 
                 # VT substitutions
                 'C_{D_{wm}}': 0.5, # [2]
-                'C_{L_{vmax}}': 2.6, # [TAS]
+                'C_{L_{vt,max}}': 2.6, # [TAS]
                 'V_1': 70.*units('m/s'),
                 '\\rho_{TO}': 1.225*units('kg/m^3'),
-                'c_{l_{vtEO}}': 0.5, # [TAS]
-                'e_v': 0.8,
+                'c_{l_{vt,EO}}': 0.5, # [TAS]
+                'e_{vt}': 0.8,
                 'V_{land}': 72.*units('m/s'),
                 '\\dot{r}_{req}': 0.0001, #0.1475 10 deg/s/s yaw rate acceleration
                 'N_{spar}': 1,
                 'f_{VT}': 0.4,
-                'n_{VT}': 2.,
+                'n_{vt}': 2.,
                 'A_{vt}' : 2.2,
                 '\\lambda_{vt}': 0.3,
                 '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
@@ -126,12 +126,12 @@ def get_small_M08_D8_eng_wing_subs():
                 'y_{eng}': 11*units('ft'),
 
                 # HT substitutions
-                '\\alpha_{max,h}': 2.5,
-                'C_{L_{hmax}}': 2.0, # [TAS]
+                '\\alpha_{ht,max}': 2.5,
+                'C_{L_{ht,max}}': 2.0, # [TAS]
                 'SM_{min}': 0.05,
                 '\\Delta x_{CG}': 6.8*units('ft'),
                 'x_{CG_{min}}' : 56.02*units('ft'),
-                'C_{L_{hfcG}}': 0.85,
+                'C_{L_{ht,fCG}}': 0.85,
                 'f_{ht}': 0.3,
 ##                'AR_{ht}': 12.,
                 '\\lambda_{ht}': 0.3,

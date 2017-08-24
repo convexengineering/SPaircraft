@@ -462,7 +462,7 @@ class WingPerformance(Model):
         Dwing = Variable('D_{wing}', 'N', 'Total Wing Drag')
         Lwing = Variable('L_{wing}', 'N', 'Wing Lift')
 
-        CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope, wing')
+        CLaw    = Variable('C_{L_{\\alpha,w}}', '-', 'Lift curve slope, wing')
 
         #constraints
         constraints = []

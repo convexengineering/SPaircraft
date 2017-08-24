@@ -27,7 +27,7 @@ def get_M072_optimal_RJ_subs():
             'w_{seat}': 0.5*units('m'),
             'w_{sys}': 0.1*units('m'),
             'r_E': 1.,  # [TAS]
-            'p_{\\lambda_v}':1.6,
+            'p_{\\lambda_{vt}}':1.6,
             '\\lambda_{cone}': 0.3,  # [TAS]
             '\\rho_{cone}': 2700.,#*units('kg/m^3'),  # [TAS]
             '\\rho_{bend}': 2700.,#*units('kg/m^3'),  # [TAS]
@@ -79,7 +79,7 @@ def get_M072_optimal_RJ_subs():
             'f_{lgnose}':0.0075, # [TAS]
 
             # Wing substitutions
-            'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
+            'C_{L_{w,max}}': 2.25/(cos(sweep)**2), # [TAS]
             '\\tan(\\Lambda)': tan(sweep * pi / 180.),
             '\\cos(\\Lambda)': cos(sweep * pi / 180.),
             '\\eta': 0.97,
@@ -103,16 +103,16 @@ def get_M072_optimal_RJ_subs():
 
             # VT substitutions
             'C_{D_{wm}}': 0.5, # [2]
-            'C_{L_{vmax}}': 2.6, # [TAS]
+            'C_{L_{vt,max}}': 2.6, # [TAS]
             'V_1': 70.*units('m/s'),
             '\\rho_{TO}': 1.225*units('kg/m^3'),
-            'c_{l_{vtEO}}': 0.5, # [TAS]
-            'e_v': 0.8,
+            'c_{l_{vt,EO}}': 0.5, # [TAS]
+            'e_{vt}': 0.8,
             'V_{land}': 72.*units('m/s'),
             'N_{spar}': 1.,
             'f_{VT}': 0.4,
             'y_{eng}': 11*units('ft'),
-            'n_{VT}': 1.,
+            'n_{vt}': 1.,
             'A_{vt}': 2.,
             '\\lambda_{vt}': 0.3,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
@@ -124,13 +124,13 @@ def get_M072_optimal_RJ_subs():
             'V_{vt_{min}}': 0.1,
             
             # HT substitutions
-            '\\alpha_{max,h}': 2.5,
+            '\\alpha_{ht,max}': 2.5,
             'f_{ht}': 0.3,
 ##            'AR_{ht}': 6.,
             '\\lambda_{ht}': 0.25,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
-            'C_{L_{hmax}}': 2.0,  # [TAS]
-            'C_{L_{hfcG}}': 0.7,
+            'C_{L_{ht,max}}': 2.0,  # [TAS]
+            'C_{L_{ht,fCG}}': 0.7,
             '\\Delta x_{CG}': 7.68 * units('ft'),
             'x_{CG_{min}}': 56.75 * units('ft'),
             'SM_{min}': .05,

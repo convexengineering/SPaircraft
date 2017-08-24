@@ -26,7 +26,7 @@ def getD80subs():
                 'p_s': 81.*units('cm'),
                 # 'CruiseAlt': 30000.*units('ft'),
                 'n_{eng}': 2.,
-                'n_{VT}': 2.,
+                'n_{vt}': 2.,
                 'n_{aisle}':2.,
                 'W_{avg. pass}': 180.*units('lbf'),
                 'W_{carry on}': 15.*units('lbf'),
@@ -36,7 +36,7 @@ def getD80subs():
                 'w_{seat}': 0.5*units('m'),
                 'w_{sys}': 0.1*units('m'),
                 'r_E': 1.,  # [TAS]
-                'p_{\\lambda_v}':1.6,
+                'p_{\\lambda_{vt}}':1.6,
                 '\\lambda_{cone}': 0.3,  # [TAS]
                 '\\rho_{cone}': 2700.,#*units('kg/m^3'),  # [TAS]
                 '\\rho_{bend}': 2700.,#*units('kg/m^3'),  # [TAS]
@@ -86,7 +86,7 @@ def getD80subs():
                 'f_{lgnose}':0.0075, # [TAS]
 
                 # Wing substitutions
-                'C_{L_{wmax}}': 2.25/(cos(sweep)**2), # [TAS]
+                'C_{L_{w,max}}': 2.25/(cos(sweep)**2), # [TAS]
                 '\\tan(\\Lambda)': tan(sweep * pi / 180.),
                 '\\cos(\\Lambda)': cos(sweep * pi / 180.),
                 '\\eta': 0.97,
@@ -109,11 +109,11 @@ def getD80subs():
 
                 # VT substitutions
                 'C_{D_{wm}}': 0.5, # [2]
-                'C_{L_{vmax}}': 2.6, # [TAS]
+                'C_{L_{vt,max}}': 2.6, # [TAS]
                 'V_1': 70.*units('m/s'),
                 '\\rho_{TO}': 1.225*units('kg/m^3'),
-                'c_{l_{vtEO}}': 0.5, # [TAS]
-                'e_v': 0.8,
+                'c_{l_{vt,EO}}': 0.5, # [TAS]
+                'e_{vt}': 0.8,
                 # 'y_{eng}': 4.83*units('m'), # [3]
                 'V_{land}': 72.*units('m/s'),
                 '\\dot{r}_{req}': 0.1475, # 10 deg/s/s yaw rate acceleration
@@ -128,12 +128,12 @@ def getD80subs():
                 'V_{vt_{min}}': 0.03,
 
                 # HT substitutions
-                '\\alpha_{max,h}': 2.5,
-                'C_{L_{hmax}}': 1.225,#2.0, # [TAS]
+                '\\alpha_{ht,max}': 2.5,
+                'C_{L_{ht,max}}': 1.225,#2.0, # [TAS]
                 'SM_{min}': 0.05,
                 '\\Delta x_{CG}': 2.0*units('m'),
                 'x_{CG_{min}}' : 10.0*units('m'),
-                'C_{L_{hfcG}}': 0.85,
+                'C_{L_{ht,fCG}}': 0.85,
                 'f_{ht}': 0.3,
                 'AR_{ht}': 8.25,
                 '\\lambda_{ht}' : 0.25,

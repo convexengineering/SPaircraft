@@ -212,8 +212,8 @@ class Mission(Model):
             climb['TSFC'] == .7*units('1/hr'),
             cruise['TSFC'] == .5*units('1/hr'),
 
-            # climb['C_{L_h}'] == 2*3.14*climb['\\alpha_{ht}],
-            # cruise['C_{L_h}'] == 2*3.14*cruise['\\alpha_{ht}],
+            # climb['C_{L_{ht}}'] == 2*3.14*climb['\\alpha_{ht}],
+            # cruise['C_{L_{ht}}'] == 2*3.14*cruise['\\alpha_{ht}],
             ])
         
         #Horizontal Tail Constraints
@@ -222,12 +222,12 @@ class Mission(Model):
 
                 # Trim condition for each flight segment
                 TCS([cruise['x_{AC}']/aircraft.wing['mac'] <= aircraft.wing['c_{m_{w}}']/cruise['C_{L}'] + \
-                     cruise['x_{CG}']/aircraft.wing['mac'] + aircraft.HT['V_{ht}']*(cruise['C_{L_h}']/cruise['C_{L}'])]),
+                     cruise['x_{CG}']/aircraft.wing['mac'] + aircraft.HT['V_{ht}']*(cruise['C_{L_{ht}}']/cruise['C_{L}'])]),
                 TCS([climb['x_{AC}']/aircraft.wing['mac'] <= aircraft.wing['c_{m_{w}}']/climb['C_{L}'] + \
-                     climb['x_{CG}']/aircraft.wing['mac'] + aircraft.HT['V_{ht}']*(climb['C_{L_h}']/climb['C_{L}'])]),
+                     climb['x_{CG}']/aircraft.wing['mac'] + aircraft.HT['V_{ht}']*(climb['C_{L_{ht}}']/climb['C_{L}'])]),
 
 
-                aircraft.HT['L_{h_{max}}'] == 0.5*aircraft['\\rho_0']*aircraft['V_{ne}']**2*aircraft.HT['S_{ht}']*aircraft.HT['C_{L_{hmax}}'],
+                aircraft.HT['L_{ht_{max}}'] == 0.5*aircraft['\\rho_0']*aircraft['V_{ne}']**2*aircraft.HT['S_{ht}']*aircraft.HT['C_{L_{ht,max}}'],
                 #compute mrat, is a signomial equality
                 SignomialEquality(aircraft.HT['m_{ratio}']*(1+2/aircraft.wing['AR']), 1 + 2/aircraft.HT['AR_{ht}']),
 
@@ -240,7 +240,7 @@ class Mission(Model):
                 aircraft.HT['l_{ht}'] >= aircraft.HT['x_{CG_{ht}}'] - climb['x_{CG}'],
 
                 #Stability constraint, is a signomial
-                TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] + aircraft.wing['c_{m_{w}}']/aircraft.wing['C_{L_{max}}'] <= aircraft.HT['V_{ht}']*aircraft.HT['m_{ratio}'] + aircraft.HT['V_{ht}']*aircraft.HT['C_{L_{hmax}}']/aircraft.wing['C_{L_{max}}']]),
+                TCS([aircraft['SM_{min}'] + aircraft['\\Delta x_{CG}']/aircraft.wing['mac'] + aircraft.wing['c_{m_{w}}']/aircraft.wing['C_{L_{max}}'] <= aircraft.HT['V_{ht}']*aircraft.HT['m_{ratio}'] + aircraft.HT['V_{ht}']*aircraft.HT['C_{L_{ht,max}}']/aircraft.wing['C_{L_{max}}']]),
 
                 # TCS([aircraft.wing['x_w'] >= cruise['x_{CG}'] + cruise['\\Delta x_w']]),
                 # TCS([aircraft.wing['x_w'] >= climb['x_{CG}'] + climb['\\Delta x_w']]),
@@ -301,20 +301,20 @@ class HorizontalTailNoStruct(Model):
                            'Spanwise location of mean aerodynamic chord')
         lht     = Variable('l_{ht}', 'm', 'Horizontal tail moment arm')
         ARht     = Variable('AR_{ht}', '-', 'Horizontal tail aspect ratio')
-        amax    = Variable('\\alpha_{max,h}', '-', 'Max angle of attack, htail')
-        e       = Variable('e_h', '-', 'Oswald efficiency factor')
+        amax    = Variable('\\alpha_{ht,max}', '-', 'Max angle of attack, htail')
+        e       = Variable('e_{ht}', '-', 'Oswald efficiency factor')
         Sh      = Variable('S_{ht}', 'm^2', 'Horizontal tail area')
         bht     = Variable('b_{ht}', 'm', 'Horizontal tail span')
         chma    = Variable('\\bar{c}_{ht}', 'm', 'Mean aerodynamic chord (ht)')
         croot   = Variable('c_{root_{ht}}', 'm', 'Horizontal tail root chord')
         ctip    = Variable('c_{tip_{ht}}', 'm', 'Horizontal tail tip chord')
-        Lmax    = Variable('L_{h_{max}}', 'N', 'Maximum load')
+        Lmax    = Variable('L_{ht_{max}}', 'N', 'Maximum load')
         # Kf      = Variable('K_f', '-',
         #                    'Empirical factor for fuselage-wing interference')
         fl      = Variable(r"f(\lambda_{ht})", '-',
                            'Empirical efficiency function of taper')
-        CLhmax  = Variable('C_{L_{hmax}}', '-', 'Max lift coefficient')
-        CLfCG = Variable('C_{L_{hfcG}}', '-', 'HT CL During Max Forward CG')
+        CLhmax  = Variable('C_{L_{ht,max}}', '-', 'Max lift coefficient')
+        CLfCG = Variable('C_{L_{ht,fCG}}', '-', 'HT CL During Max Forward CG')
 
         #new variables
         Vh = Variable('V_{ht}', '-', 'Horizontal Tail Volume Coefficient')
@@ -373,18 +373,18 @@ class HorizontalTailPerformance(Model):
         #variables
 
         D       = Variable('D_{ht}', 'N', 'Horizontal tail drag')
-        Lh      = Variable('L_h', 'N', 'Horizontal tail downforce')
+        Lh      = Variable('L_{ht}', 'N', 'Horizontal tail downforce')
         Rec     = Variable('Re_{c_h}', '-',
                            'Cruise Reynolds number (Horizontal tail)')
-        CLah    = Variable('C_{L_{ah}}', '-', 'Lift curve slope (htail)')
+        CLah    = Variable('C_{L_{\\alpha,ht}}', '-', 'Lift curve slope (htail)')
         CLah0   = Variable('C_{L_{ah_0}}', '-',
                            'Isolated lift curve slope (htail)')
-        CLh     = Variable('C_{L_h}', '-', 'Lift coefficient (htail)')
+        CLh     = Variable('C_{L_{ht}}', '-', 'Lift coefficient (htail)')
         # eta     = Variable('\\eta_h', '-',
         #                    ("Lift efficiency (diff between sectional and "
         #                     "actual lift)"))
-        CDh     = Variable('C_{D_h}', '-', 'Horizontal tail drag coefficient')
-        CD0h    = Variable('C_{D_{0_h}}', '-',
+        CDh     = Variable('C_{D_{ht}}', '-', 'Horizontal tail drag coefficient')
+        CD0h    = Variable('C_{D_{0,ht}}', '-',
                            'Horizontal tail parasitic drag coefficient')
         dxlead  = Variable('\\Delta x_{lead_{ht}}', 'm',
                             'Distance from CG to horizontal tail leading edge')
@@ -403,7 +403,7 @@ class HorizontalTailPerformance(Model):
                 # Angle of attack and lift slope constraints
                 CLh == CLah*alphah,
 ##
-                alphah <= self.HT['\\alpha_{max,h}'],
+                alphah <= self.HT['\\alpha_{ht,max}'],
 
 
                 # Currently using TAT to approximate
@@ -411,7 +411,7 @@ class HorizontalTailPerformance(Model):
 
                 # Drag
                 D == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CDh,
-                CDh >= CD0h + CLh**2/(pi*self.HT['e_h']*self.HT['AR_{ht}']),
+                CDh >= CD0h + CLh**2/(pi*self.HT['e_{ht}']*self.HT['AR_{ht}']),
 
                 #cruise Reynolds number
                 Rec == state['\\rho']*state['V']*self.HT['\\bar{c}_{ht}']/state['\\mu'],
@@ -481,8 +481,8 @@ class HorizontalTail(Model):
         constraints = []
         with SignomialsEnabled():
             constraints.append([
-                self.wb['L_{h_{rect}}'] >= self.HTns['L_{h_{max}}']/2.*self.HTns['c_{tip_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'],
-                self.wb['L_{h_{tri}}'] >= self.HTns['L_{h_{max}}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'], #[SP]
+                self.wb['L_{ht_{rect}}'] >= self.HTns['L_{ht_{max}}']/2.*self.HTns['c_{tip_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'],
+                self.wb['L_{ht_{tri}}'] >= self.HTns['L_{ht_{max}}']/4.*(1-self.wb['taper'])*self.HTns['c_{root_{ht}}']*self.HTns['b_{ht}']/self.HTns['S_{ht}'], #[SP]
                 Wht >= Cht*(self.wb['W_{struct}'] + self.wb['W_{struct}']  * fht),
             ])
 
@@ -513,12 +513,12 @@ if __name__ == '__main__':
             'b_{max}': 60,
 
             #HT subs
-            'C_{L_{hmax}}': 2.5,
+            'C_{L_{ht,max}}': 2.5,
             '\\tan(\\Lambda_{ht})': tan(30*pi/180),
             'w_{fuse}': 6,
             'c_{m_{w}}': 1,
             'C_{L_{max}}': 2,
-            '\\alpha_{max,h}': 2.5,
+            '\\alpha_{ht,max}': 2.5,
             'SM_{min}': 0.5,
             '\\Delta x_{CG}': 4,
 
@@ -547,7 +547,7 @@ if __name__ == '__main__':
     #             'b_{max}': 35,
 
     #              'V_{ne}': 144,
-    #              'C_{L_{hmax}}': 2.5,
+    #              'C_{L_{ht,max}}': 2.5,
 
     #              '\\rho_0': 1.225,
     #              '\\tan(\\Lambda_{ht})': tan(30*pi/180),
@@ -557,7 +557,7 @@ if __name__ == '__main__':
     #             'c_{m_{w}}': 1,
     #             'C_{L_{max}}': 2,
 
-    #             '\\alpha_{max,h}': 2.5,
+    #             '\\alpha_{ht,max}': 2.5,
 
          
     #             'SM_{min}': 0.5,
@@ -604,7 +604,7 @@ if __name__ == '__main__':
     #             'b_{max}': 35,
 
     #              'V_{ne}': 144,
-    #              'C_{L_{hmax}}': 2.5,
+    #              'C_{L_{ht,max}}': 2.5,
 
     #              '\\rho_0': 1.225,
     #              '\\tan(\\Lambda_{ht})': tan(30*pi/180),
@@ -614,7 +614,7 @@ if __name__ == '__main__':
     #             'c_{m_{w}}': 1,
     #             'C_{L_{max}}': 2,
 
-    #             '\\alpha_{max,h}': 2.5,
+    #             '\\alpha_{ht,max}': 2.5,
 
          
     #             'SM_{min}': 0.5,

@@ -293,13 +293,13 @@ class VerticalTailNoStruct(Model):
         Avt    = Variable('A_{vt}', '-', 'Vertical tail aspect ratio')
         CDwm   = Variable('C_{D_{wm}}', '-', 'Windmill drag coefficient')
         Dwm    = Variable('D_{wm}', 'N', 'Engine out windmill drag')
-        Lvmax  = Variable('L_{v_{max}}', 'N',
+        Lvmax  = Variable('L_{vt_{max}}', 'N',
                           'Maximum load for structural sizing')
-        CLvmax = Variable('C_{L_{vmax}}', '-', 'Max lift coefficient')
-        CLvtEO   = Variable('C_{L_{vtEO}}', '-', 'Vertical tail lift coefficient (Engine Out)')
-        clvtEO   = Variable('c_{l_{vtEO}}', '-',
+        CLvmax = Variable('C_{L_{vt,max}}', '-', 'Max lift coefficient')
+        CLvtEO   = Variable('C_{L_{vt,EO}}', '-', 'Vertical tail lift coefficient (engine out)')
+        clvtEO   = Variable('c_{l_{vt,EO}}', '-',
                             'Sectional lift force coefficient (engine out)')
-        LvtEO    = Variable('L_{vtEO}', 'N', 'Vertical tail lift in engine out')
+        LvtEO    = Variable('L_{vt,EO}', 'N', 'Vertical tail lift in engine out')
         Svt    = Variable('S_{vt}', 'm^2', 'Vertical tail reference area')
         V1     = Variable('V_1', 'm/s', 'Minimum takeoff velocity')
         bvt    = Variable('b_{vt}', 'm', 'Vertical tail span')
@@ -310,11 +310,11 @@ class VerticalTailNoStruct(Model):
         #                   'Distance from CG to vertical tail leading edge')
         # dxtrail= Variable('\\Delta x_{trail_v}', 'm',
         #                   'Distance from CG to vertical tail trailing edge')
-        e      = Variable('e_v', '-', 'Span efficiency of vertical tail')
+        e      = Variable('e_{vt}', '-', 'Span efficiency of vertical tail')
         lvt    = Variable('l_{vt}', 'm', 'Vertical tail moment arm')
         mu0    = Variable('\\mu_0', 1.8E-5, 'N*s/m^2', 'Dynamic viscosity (SL)')
         p      = Variable('p_{vt}', '-', 'Substituted variable = 1 + 2*taper')
-        # plamv  = Variable('p_{\\lambda_v}', '-',
+        # plamv  = Variable('p_{\\lambda_{vt}}', '-',
         #                   'Dummy variable = 1 + 2\\lambda') # fuselage
         q      = Variable('q_{vt}', '-', 'Substituted variable = 1 + taper')
         rho0   = Variable('\\rho_{TO}', 'kg/m^3', 'Air density (SL))')
@@ -336,7 +336,7 @@ class VerticalTailNoStruct(Model):
 
         #variables specific to yaw rate sizing
         Vland = Variable('V_{land}', 'm/s', 'Aircraft Landing Speed')
-        CLvyaw = Variable('C_{L_{vyaw}}', '-', 'VT CL at rotation')
+        CLvyaw = Variable('C_{L_{vt,yaw}}', '-', 'VT CL at rotation')
         Iz = Variable('I_{z}', 'kg*m^2', 'Aircraft Z-axis Moment of Inertia')
         rreq = Variable('\\dot{r}_{req}', 's^-2', 'Required Yaw Rate at Landing')
         
@@ -414,7 +414,7 @@ class VerticalTailPerformance(Model):
         with SignomialsEnabled():
             constraints.extend([
                         
-    ##            TCS([CLvt*(1 + clvt/(np.pi*self.vt['e_v']*self.vt['A_{vt}'])) <= clvt]),
+    ##            TCS([CLvt*(1 + clvt/(np.pi*self.vt['e_{vt}']*self.vt['A_{vt}'])) <= clvt]),
 
                 # Finite wing theory
                 # people.clarkson.edu/~pmarzocc/AE429/AE-429-4.pdf
@@ -482,15 +482,15 @@ if __name__ == '__main__':
 
             #VT subs
            'C_{D_{wm}}': 0.5, # [2]
-           'C_{L_{vmax}}': 2.6, # [2]
+           'C_{L_{vt,max}}': 2.6, # [2]
            'V_1': 70,
            'V_{ne}': 144, # [2]
            '\\rho_{TO}': 1.225,
            '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
 ##           'c_{l_{vt}}': 0.5, # [2]
-           'c_{l_{vtEO}}': 0.5,
+           'c_{l_{vt,EO}}': 0.5,
            'A_2': np.pi*(.5*1.75)**2, # [1]
-           'e_v': 0.8,
+           'e_{vt}': 0.8,
            'l_{fuse}': 39,
 ##           'x_{CG}': 18,
            'y_{eng}': 4.83, # [3]
@@ -522,15 +522,15 @@ if __name__ == '__main__':
     #
     #             #VT subs
     #            'C_{D_{wm}}': 0.5, # [2]
-    #            'C_{L_{vmax}}': 2.6, # [2]
+    #            'C_{L_{vt,max}}': 2.6, # [2]
     #            'V_1': 70,
     #            'V_{ne}': 144, # [2]
     #            '\\rho_{TO}': 1.225,
     #            '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
     # ##           'c_{l_{vt}}': 0.5, # [2]
-    #            'c_{l_{vtEO}}': 0.5,
+    #            'c_{l_{vt,EO}}': 0.5,
     #            'A_2': np.pi*(.5*1.75)**2, # [1]
-    #            'e_v': 0.8,
+    #            'e_{vt}': 0.8,
     #            'l_{fuse}': 39,
     # ##           'x_{CG}': 18,
     #            'y_{eng}': 4.83, # [3]
@@ -559,14 +559,14 @@ if __name__ == '__main__':
     # ##    plt.savefig('HT_Sweeps/VT_rng_RC.pdf')
     #     plt.show()
     #
-    # ##    plt.plot(solRsweep('R_{req}'), solRsweep('L_{vtEO}'), '-r')
+    # ##    plt.plot(solRsweep('R_{req}'), solRsweep('L_{vt,EO}'), '-r')
     # ##    plt.xlabel('Mission Range [nm]')
     # ##    plt.ylabel('VT Lift and Takeoff ENgine Out [N]')
     # ##    plt.title('Initial Climb Thrust vs Range')
     # ####    plt.savefig('HT_Sweeps/VT_rng_LVTTO.pdf')
     # ##    plt.show()
     #
-    #     plt.plot(solRsweep('R_{req}'), solRsweep('L_{v_{max}}'), '-r')
+    #     plt.plot(solRsweep('R_{req}'), solRsweep('L_{vt_{max}}'), '-r')
     #     plt.xlabel('Mission Range [nm]')
     #     plt.ylabel('Max VT Lift Force [N]')
     #     plt.title('Initial Climb Thrust vs Range')
@@ -643,15 +643,15 @@ if __name__ == '__main__':
     #
     #             #VT subs
     #            'C_{D_{wm}}': 0.5, # [2]
-    #            'C_{L_{vmax}}': 2.6, # [2]
+    #            'C_{L_{vt,max}}': 2.6, # [2]
     #            'V_1': 70,
     #            'V_{ne}': 144, # [2]
     #            '\\rho_{TO}': 1.225,
     #            '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
     # ##           'c_{l_{vt}}': 0.5, # [2]
-    #            'c_{l_{vtEO}}': 0.5,
+    #            'c_{l_{vt,EO}}': 0.5,
     #            'A_2': np.pi*(.5*1.75)**2, # [1]
-    #            'e_v': 0.8,
+    #            'e_{vt}': 0.8,
     #            'l_{fuse}': 39,
     # ##           'x_{CG}': 18,
     #            'y_{eng}': 4.83, # [3]
@@ -679,14 +679,14 @@ if __name__ == '__main__':
     # ##    plt.savefig('HT_Sweeps/VT_alt_RC.pdf')
     #     plt.show()
     #
-    # ##    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('L_{vtEO}'), '-r')
+    # ##    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('L_{vt,EO}'), '-r')
     # ##    plt.xlabel('Cruise Alt [ft]')
     # ##    plt.ylabel('Initial  Climb Thrust [N]')
     # ##    plt.title('Initial Climb Thrust vs Range')
     # ####    plt.savefig('HT_Sweeps/VT_alt_LvEOmax.pdf')
     # ##    plt.show()
     #
-    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('L_{v_{max}}'), '-r')
+    #     plt.plot(solAltsweep('CruiseAlt'), solAltsweep('L_{vt_{max}}'), '-r')
     #     plt.xlabel('Cruise Alt [ft]')
     #     plt.ylabel('Initial  Climb Thrust [N]')
     #     plt.title('Initial Climb Thrust vs Range')
@@ -763,15 +763,15 @@ if __name__ == '__main__':
     #
     #             #VT subs
     #            'C_{D_{wm}}': 0.5, # [2]
-    #            'C_{L_{vmax}}': 2.6, # [2]
+    #            'C_{L_{vt,max}}': 2.6, # [2]
     #            'V_1': 70,
     #            'V_{ne}': 144, # [2]
     #            '\\rho_{TO}': 1.225,
     #            '\\tan(\\Lambda_{vt})': np.tan(40*np.pi/180),
     # ##           'c_{l_{vt}}': 0.5, # [2]
-    #            'c_{l_{vtEO}}': 0.5,
+    #            'c_{l_{vt,EO}}': 0.5,
     #            'A_2': np.pi*(.5*1.75)**2, # [1]
-    #            'e_v': 0.8,
+    #            'e_{vt}': 0.8,
     #            'l_{fuse}': 39,
     # ##           'x_{CG}': 18,
     #            'y_{eng}': 4.83, # [3]

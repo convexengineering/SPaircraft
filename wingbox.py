@@ -59,7 +59,7 @@ class WingBox(Model):
             p = surface['p_{vt}']
             q = surface['q_{vt}']
             tau = surface['\\tau_{vt}']
-            Lmax = 2.*surface['L_{v_{max}}']
+            Lmax = 2.*surface['L_{vt_{max}}']
             taper = surface['\\lambda_{vt}']
         elif surfacetype == "horizontal_tail":
             taper = Variable('taper', 0.3, '-', 'Taper ratio')
@@ -69,16 +69,16 @@ class WingBox(Model):
             p = surface['p_{ht}']
             q = surface['q_{ht}']
             tau = surface['\\tau_{ht}']
-            Lmax = surface['L_{h_{max}}']
+            Lmax = surface['L_{ht_{max}}']
 
             # Pi tail sizing variables
             # Splits the max lift into triangular and rectangular components
             # for root bending sizing.
             bhtout = Variable('b_{ht_{out}}','m','Horizontal tail outboard half-span')
-            Lhtri = Variable('L_{h_{tri}}','N','Triangular HT load')
-            Lhrect = Variable('L_{h_{rect}}','N','Rectangular HT load')
-            Lhtriout = Variable('L_{h_{tri_{out}}}','N','Triangular HT load outboard')
-            Lhrectout = Variable('L_{h_{rect_{out}}}','N','Rectangular HT load outboard')
+            Lhtri = Variable('L_{ht_{tri}}','N','Triangular HT load')
+            Lhrect = Variable('L_{ht_{rect}}','N','Rectangular HT load')
+            Lhtriout = Variable('L_{ht_{tri_{out}}}','N','Triangular HT load outboard')
+            Lhrectout = Variable('L_{ht_{rect_{out}}}','N','Rectangular HT load outboard')
             Mrout = Variable('M_{r_{out}}','N','Wing moment at pin joint ') #TODO
             Lshear = Variable('L_{shear}','N','Maximum shear load (at pin joint)')
             piMfac = Variable('\\pi_{M-fac}','-','Pi-tail bending structural factor')

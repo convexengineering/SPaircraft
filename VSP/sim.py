@@ -68,8 +68,8 @@ Rfuse = sol('R_{fuse}_Mission, Aircraft, Fuselage').to('m')
 
 # Horizontal Tail descriptors
 xCGht = sol('x_{CG_{ht}}').to('m')
-crootht = sol('c_{root_h}').to('m')
-ctipht = sol('c_{tip_h}').to('m')
+crootht = sol('c_{root_{ht}}').to('m')
+ctipht = sol('c_{tip_{ht}}').to('m')
 bht = sol('b_{ht}').to('m')
 xCGht = sol('x_{CG_{ht}}')
 lht = sol('l_{ht}').to('m')
