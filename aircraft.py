@@ -332,6 +332,7 @@ class Aircraft(Model):
                     # NOTE: Using l_{vt} as an xeng - xCG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}']) / self.fuse['l_{fuse}'] * \
                     (self.fuse['x_{wing}'] ** 3. + self.VT['l_{vt}'] ** 3.) / (3. * g),
+                    # Note: Using x_{wing} as a CG surrogate. Want scalar Izfuse.
 
                     # Engine x-location (weight centroid, roughly)
                     xeng <= self.fuse['x_{shell2}'] + 0.75*self.fuse['l_{cone}'],
@@ -526,9 +527,6 @@ class AircraftP(Model):
             # Flight time unit conversion
             t == thours,
 
-            #VTP constraints
-##            aircraft.VT['x_{CG_{vt}}'] + 0.5*aircraft.VT['c_{root_{vt}}'] <= aircraft.fuse['l_{fuse}'],
-
             # Drag of a windmilling engine (VT sizing)
             TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2.*aircraft.engine['A_{2}']*aircraft.VT['C_{D_{wm}}']]),
 
@@ -541,8 +539,7 @@ class AircraftP(Model):
             aircraft.HT['AR_{ht}'] >= 4., #TODO change to tip Re constraint
             self.HTP['C_{L_{ht}}'] >= 0.01, #TODO remove
             
-            # HT TE constraint, and CG calculation
-            xCG + self.HTP['\\Delta x_{trail_{ht}}'] <= aircraft.fuse['l_{fuse}'],
+            # HT CG calculation
             aircraft.HT['x_{CG_{ht}}'] >= xCG +0.5*(self.HTP['\\Delta x_{lead_{ht}}']+self.HTP['\\Delta x_{trail_{ht}}']),
 
             # VT TE constraint, and CG calculation
@@ -584,6 +581,16 @@ class AircraftP(Model):
             Cdnace == aircraft['f_{S_{nacelle}}'] * Cfnace[0] * rvnsurf **3.,
             Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2. * aircraft['S'],
             ])
+        # HT TE constraint
+        if conventional:
+            constraints.extend([
+            aircraft['l_{fuse}'] >= xCG + self.HTP['\\Delta x_{trail_{ht}}']])
+        if piHT:
+            with SignomialsEnabled():
+                constraints.extend([
+                    self.HTP['\\Delta x_{trail_{ht}}'] <= self.VTP['\\Delta x_{lead_{vt}}'] + \
+                        aircraft['b_{vt}']/aircraft['\\tan(\\Lambda_{vt})'] + \
+                        aircraft['w_{fuse}']/aircraft['\\tan(\\Lambda_{ht})'] + aircraft['c_{root_{ht}}']])
 
         if not aircraft.fitDrag:
             constraints.extend([
@@ -968,7 +975,8 @@ class Mission(Model):
                 TCS([climb['x_{CG}']*climb['W_{avg}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}']+aircraft['n_{eng}']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'] \
+                    + aircraft['n_{eng}']*aircraft['W_{engsys}'] * aircraft['x_{eng}'] \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
@@ -976,7 +984,8 @@ class Mission(Model):
                 TCS([cruise['x_{CG}']*cruise['W_{avg}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}']+aircraft['n_{eng}']*aircraft['W_{engsys}'])*aircraft['x_{tail}'] \
+                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}']
+                    + aircraft['n_{eng}']*aircraft['W_{engsys}'] * aircraft['x_{eng}'] \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (cruise['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
@@ -991,7 +1000,7 @@ class Mission(Model):
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
-                    + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]), # TODO improve; using x_b as a surrogate for xeng
+                    + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]),
                 TCS([cruise['x_{CG}']*cruise['W_{avg}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
@@ -999,7 +1008,7 @@ class Mission(Model):
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (cruise['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
-                    + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_b']]), # TODO improve; using x_b as a surrogate for xeng
+                    + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]),
               ])
                 
             #LG CG distance and tip over computations
