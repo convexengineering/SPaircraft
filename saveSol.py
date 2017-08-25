@@ -155,7 +155,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         'YUWFYBTYKTL':float(0.1625),             # Engine airfoil thickness/chord
         'TVQVWMMVRYB':float(df.magnitude + 0.1625/2.*lnace.magnitude),       # Engine width
         'EGCVYPSLWEZ':float(xeng.magnitude - 0.5*lnace.magnitude),    # Engine x location
-        'RJLYSBJAFOT':float(0.5*wfuse.magnitude),     #Engine y location
+        'RJLYSBJAFOT':float(yeng.magnitude),     #Engine y location
         'GBGVQARDEVD':float(hfuse.magnitude - (df/5.).magnitude), # Engine z location
         'HKVDGHIEXRW':float(15.),                                  # Engine up-rotation (degrees)
 
@@ -211,7 +211,6 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     if aircraft in ['b737800', 'b777300ER','D8_eng_wing','M08_D8_eng_wing','optimal737','optimal777','optimalRJ']:
         resultsDict.update({
          # Engine Variables
-        'RJLYSBJAFOT':float(yeng.magnitude), #Engine y location
         'GBGVQARDEVD':float(-hfuse.magnitude - 0.2*df.magnitude), # Engine z location
         'HKVDGHIEXRW':float(0.),                                  # Engine up-rotation (degrees)
         })
@@ -230,9 +229,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
     # Rear mounted non-BLI D8 engines
     if aircraft in ['M08_D8_no_BLI', 'D8_no_BLI']:
         resultsDict.update({
-            'RJLYSBJAFOT':float(yeng.magnitude), #Engine y location
             'GBGVQARDEVD':float(0.0), # Engine z location
-            'EGCVYPSLWEZ':float(xCGvt.magnitude), # Engine x location
         })
 
     updateOpenVSP(resultsDict,i)
