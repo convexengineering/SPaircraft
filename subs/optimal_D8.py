@@ -158,7 +158,7 @@ def get_optimal_D8_subs():
                 # Minimum Cruise Mach Number
                 'M_{min}': Mcruisemin,
 
-                'MinCruiseAlt': 35000.0*units('ft'),
+                'MinCruiseAlt': 38478.0*units('ft'),
 
                 # Engine substitutions
                 '\\pi_{tn}': .995,
@@ -207,7 +207,7 @@ def get_optimal_D8_subs():
                               (18753.9 +.5*0.301559*(Mcruisemin*295.)**2),
                 'f_{BLI_{V}}': 1 - BLIVloss,
 
-            'MaxClimbTime': 23*units('min'),
+            'MaxClimbTime': 16*units('min'),
 
             #LG subs
             'E': 205,

@@ -14,39 +14,41 @@ from relaxed_constants import relaxed_constants, post_process
 from aircraft import Mission
 
 # Substitution dictionaries for different aircraft
-from subs.D80 import getD80subs
-from subs.D82 import getD82subs
-from subs.D82_737_engine import getD82_73engsubs
-from subs.D8_eng_wing import get_D8_eng_wing_subs
-from subs.D8_big import getD8bigsubs
-from subs.b737800 import getb737800subs
-from subs.b777300ER import getb777300ERsubs
-from subs.optimal_737 import get737_optimal_subs
 from subs.optimal_D8 import get_optimal_D8_subs
-from subs.D8_M08 import subs_M08_D8
-from subs.D8_eng_wing_M08 import getM08_D8_eng_wing_subs
-from subs.D8_eng_wing import get_D8_eng_wing_subs
-from subs.b737_M072 import get_M072_737_subs
-from subs.D8_no_BLI import get_D8_no_BLI_subs
-from subs.D8_no_BLI_M08 import get_subs_M08_D8_noBLI
 from subs.optimal_777300ER import get_optimal_777300ER_subs
-from subs.D8_big_M08 import getD8big_M08_subs
-from subs.D8_big_M072 import getD8big_M072_subs
-from subs.D8_big_eng_wing import getD8big_eng_wing_subs
-from subs.D8_big_no_BLI import getD8big_noBLI_subs
-from subs.optimal_RJ import get_optimal_RJ_subs
-from subs.optimal_RJ_M072 import get_M072_optimal_RJ_subs
-from subs.D8_small import get_small_D8_subs
-from subs.D8_small_no_BLI import get_small_D8_no_BLI_subs
-from subs.D8_small_eng_wing import get_small_D8_eng_wing_subs
-from subs.D8_small_M08 import get_small_M08_D8_subs
-from subs.D8_small_no_BLI_M08 import get_small_M08_D8_no_BLI_subs
-from subs.D8_small_eng_wing_M08  import get_small_M08_D8_eng_wing_subs
-from subs.D8_big_eng_wing_M072 import getD8big_M072_eng_wing_subs
-from subs.D8_big_no_BLI_M072 import getD8big_M072_noBLI_subs
-from subs.optimal_777_M072 import get_optimal_777300ER_M072_subs
-from subs.optimal_777_M08 import get_optimal_777300ER_M08_subs
-from subs.D12  import get_D12_subs
+from subs.optimal_737 import get737_optimal_subs
+
+#out of date sub files that don't currenlty work
+##from subs.D80 import getD80subs
+##from subs.D82 import getD82subs
+##from subs.D82_737_engine import getD82_73engsubs
+##from subs.D8_eng_wing import get_D8_eng_wing_subs
+##from subs.D8_big import getD8bigsubs
+##from subs.b737800 import getb737800subs
+##from subs.b777300ER import getb777300ERsubs
+##from subs.D8_M08 import subs_M08_D8
+##from subs.D8_eng_wing_M08 import getM08_D8_eng_wing_subs
+##from subs.D8_eng_wing import get_D8_eng_wing_subs
+##from subs.b737_M072 import get_M072_737_subs
+##from subs.D8_no_BLI import get_D8_no_BLI_subs
+##from subs.D8_no_BLI_M08 import get_subs_M08_D8_noBLI
+##from subs.D8_big_M08 import getD8big_M08_subs
+##from subs.D8_big_M072 import getD8big_M072_subs
+##from subs.D8_big_eng_wing import getD8big_eng_wing_subs
+##from subs.D8_big_no_BLI import getD8big_noBLI_subs
+##from subs.optimal_RJ import get_optimal_RJ_subs
+##from subs.optimal_RJ_M072 import get_M072_optimal_RJ_subs
+##from subs.D8_small import get_small_D8_subs
+##from subs.D8_small_no_BLI import get_small_D8_no_BLI_subs
+##from subs.D8_small_eng_wing import get_small_D8_eng_wing_subs
+##from subs.D8_small_M08 import get_small_M08_D8_subs
+##from subs.D8_small_no_BLI_M08 import get_small_M08_D8_no_BLI_subs
+##from subs.D8_small_eng_wing_M08  import get_small_M08_D8_eng_wing_subs
+##from subs.D8_big_eng_wing_M072 import getD8big_M072_eng_wing_subs
+##from subs.D8_big_no_BLI_M072 import getD8big_M072_noBLI_subs
+##from subs.optimal_777_M072 import get_optimal_777300ER_M072_subs
+##from subs.optimal_777_M08 import get_optimal_777300ER_M08_subs
+##from subs.D12  import get_D12_subs
 
 # Plotting tools
 import matplotlib.pyplot as plt
@@ -109,7 +111,7 @@ def gen_D82_plots(sol):
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('D8 Altitude Profile')
-    plt.savefig('D8_altitude_profile.pdf', bbox_inches="tight")
+    plt.savefig('D8_altitude_profile.eps', bbox_inches="tight")
     plt.show()
 
 def gen_D8_737_plots(solD8, sol737):
@@ -152,7 +154,7 @@ def gen_D8_737_plots(solD8, sol737):
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('737 and D8 Altitude Profile', fontsize=18)
-    plt.savefig('737_D8_altitude_profile.pdf', bbox_inches="tight")
+    plt.savefig('737_D8_altitude_profile.eps', bbox_inches="tight")
     plt.show()
 
 def gen_D8_D8_no_BLI_plots(solD8, solno_BLI):
@@ -215,7 +217,7 @@ def gen_737_plots(sol):
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('737 Altitude Profile', fontsize=18)
-    plt.savefig('737_altitude_profile.pdf', bbox_inches="tight")
+    plt.savefig('737_altitude_profile.eps', bbox_inches="tight")
     plt.show()
     
 def gen_777_plots(sol):
@@ -244,7 +246,7 @@ def gen_777_plots(sol):
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('777 Altitude Profile')
-    plt.savefig('777_altitude_profile.pdf', bbox_inches="tight")
+    plt.savefig('777_altitude_profile.eps', bbox_inches="tight")
     plt.show()
 
 def run_737800(objective = 'W_{f_{total}}'):

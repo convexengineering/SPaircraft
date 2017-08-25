@@ -527,7 +527,7 @@ class AircraftP(Model):
             t == thours,
 
             #VTP constraints
-            aircraft.VT['x_{CG_{vt}}'] + 0.5*aircraft.VT['c_{root_{vt}}'] <= aircraft.fuse['l_{fuse}'],
+##            aircraft.VT['x_{CG_{vt}}'] + 0.5*aircraft.VT['c_{root_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Drag of a windmilling engine (VT sizing)
             TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2.*aircraft.engine['A_{2}']*aircraft.VT['C_{D_{wm}}']]),
@@ -540,8 +540,9 @@ class AircraftP(Model):
             # Tail aspect ratio and lift constraints
             aircraft.HT['AR_{ht}'] >= 4., #TODO change to tip Re constraint
             self.HTP['C_{L_{ht}}'] >= 0.01, #TODO remove
-
-            # HT CG calculation
+            
+            # HT TE constraint, and CG calculation
+            xCG + self.HTP['\\Delta x_{trail_{ht}}'] <= aircraft.fuse['l_{fuse}'],
             aircraft.HT['x_{CG_{ht}}'] >= xCG +0.5*(self.HTP['\\Delta x_{lead_{ht}}']+self.HTP['\\Delta x_{trail_{ht}}']),
 
             # VT TE constraint, and CG calculation
@@ -583,17 +584,6 @@ class AircraftP(Model):
             Cdnace == aircraft['f_{S_{nacelle}}'] * Cfnace[0] * rvnsurf **3.,
             Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2. * aircraft['S'],
             ])
-
-        # HT TE constraint
-        if conventional:
-            constraints.extend([
-                aircraft['l_{fuse}'] >= xCG + self.HTP['\\Delta x_{trail_{ht}}']])
-        if piHT:
-            with SignomialsEnabled():
-                constraints.extend([
-                    self.HTP['\\Delta x_{trail_{ht}}'] <= self.VTP['\\Delta x_{lead_{vt}}'] + \
-                        aircraft['b_{vt}']/aircraft['\\tan(\\Lambda_{vt})'] + \
-                        aircraft['w_{fuse}']/aircraft['\\tan(\\Lambda_{ht})'] + aircraft['c_{root_{ht}}']])
 
         if not aircraft.fitDrag:
             constraints.extend([
@@ -666,7 +656,6 @@ class CruiseP(Model): # Cruise performance constraints
 
         constraints.extend([
             RC == theta*state['V'],
-            RC >= 0.01 * units('ft/min'),
 
             # Time
             self.aircraftP['thr'] * state['V'] == Rng,
@@ -1084,9 +1073,6 @@ class Mission(Model):
 
         with SignomialsEnabled():
             constraints.extend([
-                # WARNING: Arbitrary cruise altitude constraint
-                CruiseAlt >= 25000. * units('ft'),
-                
                 # Altitude constraints
                 climb['hft'][-1] >= CruiseAlt,
                 SignomialEquality(climb['hft'][1:Nclimb], climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]), #[SP]
@@ -1102,7 +1088,6 @@ class Mission(Model):
                     climb['thr'] * aircraft.engine['F'][:Nclimb],
 
                 # Thrust >= Drag + Vertical Potential Energy
-                aircraft['n_{eng}'] * aircraft.engine['F'][:Nclimb] >= climb['D'] + climb['W_{avg}'] * climb['\\theta'],
                 aircraft['n_{eng}'] * aircraft.engine['F'][Nclimb:] >= cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'],
 
                 # Takeoff thrust T_e calculated for engine out + vertical tail sizing.
@@ -1270,8 +1255,6 @@ class Mission(Model):
             aircraft.engine.engineP['hold_{2}'][Nclimb:] == 1.+.5*(1.398-1.)*M2**2.,
             aircraft.engine.engineP['hold_{2.5}'][Nclimb:] == 1.+.5*(1.354-1.)*M25**2.,
             
-            # Thrust >= Drag + Vertical Component of Weight
-            cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['n_{eng}'] * aircraft.engine['F_{spec}'][Nclimb:],
             ]
 
         if BLI or M072_737 or b737800 or b777300ER or optimal737 or D8_eng_wing or D8_no_BLI:

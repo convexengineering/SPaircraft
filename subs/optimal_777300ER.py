@@ -50,14 +50,14 @@ def get_optimal_777300ER_subs():
             'D_{reduct}': 1,
 
             # Fuselage subs
-            'l_{nose}': 40*units('ft'),
+            'l_{nose}': 30*units('ft'),
             'f_{seat}': 0.1,
             'W\'_{seat}': 1. * units('N'),  # Seat weight determined by weight fraction instead
             'W_{cargo}': 0.1*units('N'), # Cargo weight determined by W_{avg. pass_{total}}
             'W_{avg. pass_{total}}':230.*units('lbf'),
             'f_{string}': 0.34,
             'h_{floor}': 8. * units('in'),
-            'R_{fuse}' : 3.11*units('m'),
+##            'R_{fuse}' : 3.11*units('m'),
             '\\Delta P_{over}': 8.382 * units('psi'),
 
             # fuselage subs that make fuse circular
@@ -91,7 +91,7 @@ def get_optimal_777300ER_subs():
 ##            'AR': 8.455,
             'f_{wingfuel}': 0.5,
             '\\tau_{max_w}': 0.14208,
-            'TipReduct': 1,
+            'TipReduct': .96,
 
             # Wing fractional weights
             'FuelFrac': 0.9,
@@ -108,22 +108,22 @@ def get_optimal_777300ER_subs():
             'C_{L_{vt,max}}': 2.0, # [TAS]
             'V_1': 72.*units('m/s'),
             '\\rho_{TO}': 1.225*units('kg/m^3'),
-            'c_{l_{vt,EO}}': 2.5, # [TAS]
-            'e_{vt}': 0.85,
+            'c_{l_{vt,EO}}': 1.5, # [TAS]
+            'e_{vt}': 0.8,
             'V_{land}': 75.*units('m/s'),
             '\\dot{r}_{req}': 0.000001, # 10 deg/s/s yaw rate acceleration
             'y_{eng}': 32*units('ft'),
             'n_{vt}': 1.,
-            'A_{vt}': 3,
+            'A_{vt}': 2.35,
             '\\lambda_{vt}': 0.25,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,
-            'f_{VT}': 0.3,
+            'f_{VT}': 0.4,
             '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
             'c_{d_{fv}}': 0.0060,
             'c_{d_{pv}}': 0.0035,
             'V_{vt_{min}}': 0.0001,
-            'Fsafetyfac': 1.1,
+            'Fsafetyfac': 1.8,
 
             # HT substitutions
 ##            '\\alpha_{ht,max}': 2.5,
@@ -175,11 +175,11 @@ def get_optimal_777300ER_subs():
 
             'G_{f}': 1,
 
-            'h_{f}': 42.5,
+            'h_{f}': 43.003,
 
-            'C_{p_{t1}}': 1236.5,
-            'C_{p_{t2}}': 1200.4,
-            'C_{p_{c}}': 1253.9,
+            'C_{p_{t1}}': 1257.3,
+            'C_{p_{t2}}': 1217.0,
+            'C_{p_{c}}': 1278.5,
 
             'HTR_{f_{SUB}}': 1-.3**2,
             'HTR_{lpc_{SUB}}': 1 - 0.6**2,
@@ -194,7 +194,7 @@ def get_optimal_777300ER_subs():
             'T_{t_{4.1_{max}}}': 1860.*units('K'),
             'ReserveFraction': .05,
 
-##            'MaxClimbTime': 15*units('min'),
+            'MaxClimbTime': 15*units('min'),
 ##            'MaxClimbDistance': 180*units('nautical_miles')
 
             #LG subs
@@ -204,17 +204,17 @@ def get_optimal_777300ER_subs():
             '\\eta_s': 0.8,
             '\\lambda_{LG}': 2.5,
             '\\rho_{st}': 7850,
-            '\\tan(\\gamma)': np.tan(5*np.pi/180),
+            '\\tan(\\gamma)': np.tan(2*np.pi/180),
             '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
             '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
-            '\\tan(\\theta_{max})': np.tan(15*np.pi/180),
+            '\\tan(\\theta_{max})': np.tan(10*np.pi/180),
             '\\sigma_{y_c}': 470E6,
             'f_{add,m}': 1.5,
             'f_{add,n}': 1.5,
             'h_{hold}': 1,
             'h_{nacelle}': 0.5,
             'n_{mg}': 2,
-            'n_{wps}': 2,
+            'n_{wps}': 4,
             'p_{oleo}': 1800,
             't_{nacelle}': 0.15,
             'w_{ult}': 10,
