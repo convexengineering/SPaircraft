@@ -526,7 +526,7 @@ class AircraftP(Model):
             t == thours,
 
             #VTP constraints
-            aircraft.VT['x_{CG_{vt}}'] + 0.5*aircraft.VT['c_{root_{vt}}'] <= aircraft.fuse['l_{fuse}'],
+##            aircraft.VT['x_{CG_{vt}}'] + 0.5*aircraft.VT['c_{root_{vt}}'] <= aircraft.fuse['l_{fuse}'],
 
             # Drag of a windmilling engine (VT sizing)
             TCS([aircraft.VT['D_{wm}'] >= 0.5*aircraft.VT['\\rho_{TO}']*aircraft.VT['V_1']**2.*aircraft.engine['A_{2}']*aircraft.VT['C_{D_{wm}}']]),
@@ -655,7 +655,7 @@ class CruiseP(Model): # Cruise performance constraints
 
         constraints.extend([
             RC == theta*state['V'],
-            RC >= 0.01 * units('ft/min'),
+##            RC >= 0.01 * units('ft/min'),
 
             # Time
             self.aircraftP['thr'] * state['V'] == Rng,
