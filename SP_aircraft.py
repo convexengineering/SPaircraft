@@ -109,7 +109,7 @@ def gen_D82_plots(sol):
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('D8 Altitude Profile')
-    plt.savefig('D8_altitude_profile.pdf', bbox_inches="tight")
+    plt.savefig('D8_altitude_profile.eps', bbox_inches="tight")
     plt.show()
 
 def gen_D8_737_plots(solD8, sol737):
@@ -152,7 +152,7 @@ def gen_D8_737_plots(solD8, sol737):
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('737 and D8 Altitude Profile', fontsize=18)
-    plt.savefig('737_D8_altitude_profile.pdf', bbox_inches="tight")
+    plt.savefig('737_D8_altitude_profile.eps', bbox_inches="tight")
     plt.show()
 
 def gen_D8_D8_no_BLI_plots(solD8, solno_BLI):
@@ -215,7 +215,7 @@ def gen_737_plots(sol):
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('737 Altitude Profile', fontsize=18)
-    plt.savefig('737_altitude_profile.pdf', bbox_inches="tight")
+    plt.savefig('737_altitude_profile.eps', bbox_inches="tight")
     plt.show()
     
 def gen_777_plots(sol):
@@ -244,7 +244,7 @@ def gen_777_plots(sol):
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance [nm]', fontsize=18)
     plt.title('777 Altitude Profile')
-    plt.savefig('777_altitude_profile.pdf', bbox_inches="tight")
+    plt.savefig('777_altitude_profile.eps', bbox_inches="tight")
     plt.show()
 
 def run_737800(objective = 'W_{f_{total}}'):
