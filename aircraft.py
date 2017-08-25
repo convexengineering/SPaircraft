@@ -655,7 +655,6 @@ class CruiseP(Model): # Cruise performance constraints
 
         constraints.extend([
             RC == theta*state['V'],
-##            RC >= 0.01 * units('ft/min'),
 
             # Time
             self.aircraftP['thr'] * state['V'] == Rng,
