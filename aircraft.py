@@ -292,8 +292,8 @@ class Aircraft(Model):
                     Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
                                     (self.wing['W_{fuel_{wing}}'] + self.wing['W_{wing}'])/(self.wing['S']*g)* \
                                     self.wing['c_{root}']*self.wing['b']**3.*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
-                    Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{tail}'])*self.VT['l_{vt}']**2/g,
-                            #NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
+                    Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{cone}'] + self.VT['W_{vt}']) * self.VT['l_{vt}'] ** 2. / g + \
+                        self.HT['W_{ht}'] * self.HT['l_{ht}'] ** 2. / g,
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
                                     (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
 
@@ -326,15 +326,16 @@ class Aircraft(Model):
                     Izwing >= (self.wing['W_{fuel_{wing}}'] + self.wing['W_{wing}']) / (self.wing['S'] * g) * \
                     self.wing['c_{root}'] * self.wing['b'] ** 3. * (1. / 12. - (1. - self.wing['\\lambda']) / 16.),
                     # [SP]
-                    Iztail >= (self.fuse['W_{apu}'] + numeng * Wengsys + self.fuse['W_{tail}']) * self.VT[
-                        'l_{vt}'] ** 2. / g,
-                    # NOTE: Using xwing as a CG surrogate. Reason: xCG moves during flight; want scalar Izfuse
+                    Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{cone}'] + self.VT['W_{vt}'] + numeng * Wengsys) * \
+                        self.VT['l_{vt}'] ** 2. / g + \
+                        self.HT['W_{ht}'] * self.HT['l_{ht}'] ** 2. / g,
+                    # NOTE: Using l_{vt} as an xeng - xCG surrogate. Reason: xCG moves during flight; want scalar Izfuse
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}']) / self.fuse['l_{fuse}'] * \
                     (self.fuse['x_{wing}'] ** 3. + self.VT['l_{vt}'] ** 3.) / (3. * g),
 
                     # Engine x-location (weight centroid, roughly)
                     xeng <= self.fuse['x_{shell2}'] + 0.75*self.fuse['l_{cone}'],
-                    xeng >= self.fuse['x_{shell2}'] + 0.25*self.fuse['l_{cone}'],
+                    xeng >= self.fuse['x_{shell2}'] + 0.50*self.fuse['l_{cone}'],
                 ])
 
         ### FUSELAGE CONSTRAINTS
