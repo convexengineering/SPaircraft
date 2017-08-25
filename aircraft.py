@@ -452,7 +452,7 @@ class AircraftP(Model):
         W_start = Variable('W_{start}', 'lbf', 'Segment Start Weight')
         W_end = Variable('W_{end}', 'lbf', 'Segment End Weight')
         W_burn = Variable('W_{burn}', 'lbf', 'Segment Fuel Burn Weight')
-        WLoadmax = Variable('W_{Load_max}',6664., 'N/m^2', 'Max Wing Loading')
+        WLoadmax = Variable('W_{Load_{max}}',6664., 'N/m^2', 'Max Wing Loading')
         WLoad = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
         thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
@@ -549,7 +549,7 @@ class AircraftP(Model):
             aircraft.VT['x_{CG_{vt}}'] >= xCG +0.5*(self.VTP['\\Delta x_{lead_{vt}}']+self.VTP['\\Delta x_{trail_{vt}}']),
  
             # HT lift coefficient calc
-            self.HTP['C_{L_{\\alpha,ht}}'] + (2*self.wingP['C_{L_{\\alpha,w}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{ah_0}}'] <= self.HTP['C_{L_{ah_0}}']*aircraft.HT['\\eta_{ht}'],
+            self.HTP['C_{L_{\\alpha,ht}}'] + (2*self.wingP['C_{L_{\\alpha,w}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{\\alpha,ht_0}}'] <= self.HTP['C_{L_{\\alpha,ht_0}}']*aircraft.HT['\\eta_{ht}'],
 
            # Tail downforce penalty to total lift
             TCS([Ltotal == self.aircraft['f_{L_{total/wing}}']*self.wingP['L_w']]),

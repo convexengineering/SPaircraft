@@ -89,7 +89,7 @@ class AircraftP(Model):
         W_start = Variable('W_{start}', 'N', 'Segment Start Weight')
         W_end = Variable('W_{end}', 'N', 'Segment End Weight')
         W_burn = Variable('W_{burn}', 'N', 'Segment Fuel Burn Weight')
-        WLoadmax = Variable('W_{Load_max}', 'N/m^2', 'Max Wing Loading')
+        WLoadmax = Variable('W_{Load_{max}}', 'N/m^2', 'Max Wing Loading')
         WLoad = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
         thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
@@ -593,7 +593,7 @@ if __name__ == '__main__':
 #                  'R_{req}': 500,
 #                  'CruiseAlt': ('sweep', np.linspace(20000,40000,8)),
 #                  'numeng': 1,
-#      ##            'W_{Load_max}': 6664,
+#      ##            'W_{Load_{max}}': 6664,
 #                  'W_{pass}': 91 * 9.81,
 #                  'n_{pass}': 150,
 #                  'pax_{area}': 1,

@@ -73,7 +73,7 @@ import numpy as np
 ##        W_start = Variable('W_{start}', 'N', 'Segment Start Weight')
 ##        W_end = Variable('W_{end}', 'N', 'Segment End Weight')
 ##        W_burn = Variable('W_{burn}', 'N', 'Segment Fuel Burn Weight')
-##        WLoadmax = Variable('W_{Load_max}', 'N/m^2', 'Max Wing Loading')
+##        WLoadmax = Variable('W_{Load_{max}}', 'N/m^2', 'Max Wing Loading')
 ##        WLoad = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
 ##        t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
 ##        thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')

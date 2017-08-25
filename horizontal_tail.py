@@ -92,7 +92,7 @@ class AircraftP(Model):
         W_start = Variable('W_{start}', 'N', 'Segment Start Weight')
         W_end = Variable('W_{end}', 'N', 'Segment End Weight')
         W_burn = Variable('W_{burn}', 'N', 'Segment Fuel Burn Weight')
-        WLoadmax = Variable('W_{Load_max}', 'N/m^2', 'Max Wing Loading')
+        WLoadmax = Variable('W_{Load_{max}}', 'N/m^2', 'Max Wing Loading')
         WLoad = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
         t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
         thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
@@ -246,8 +246,8 @@ class Mission(Model):
                 # TCS([aircraft.wing['x_w'] >= climb['x_{CG}'] + climb['\\Delta x_w']]),
 
 
-                TCS([cruise['x_{CG}'] + cruise['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
-                TCS([climb['x_{CG}'] + climb['\\Delta x_{{trail}_h}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
+                TCS([cruise['x_{CG}'] + cruise['\\Delta x_{trail_{ht}}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
+                TCS([climb['x_{CG}'] + climb['\\Delta x_{trail_{ht}}'] <= aircraft.fuse['l_{fuse}']], reltol=0.002),
 
                 #compute the aerodynamic center location
                 #TODO: this sets xAC to xW in a stupid and long winded way
@@ -256,8 +256,8 @@ class Mission(Model):
 
 ##                SignomialEquality(cruise['x_{ac}'],xcg + cruise['\\Delta x_w'] ),
 ##                SignomialEquality(climb['x_{ac}'],xcg + climb['\\Delta x_w'] ),
-                TCS([aircraft.HT['x_{CG_{ht}}'] >= climb['x_{CG}'] + (climb['\\Delta x_{{lead}_h}']+climb['\\Delta x_{{trail}_h}'])/2]),
-                TCS([aircraft.HT['x_{CG_{ht}}'] >= cruise['x_{CG}'] + (cruise['\\Delta x_{{lead}_h}']+cruise['\\Delta x_{{trail}_h}'])/2]),
+                TCS([aircraft.HT['x_{CG_{ht}}'] >= climb['x_{CG}'] + (climb['\\Delta x_{lead_{ht}}']+climb['\\Delta x_{trail_{ht}}'])/2]),
+                TCS([aircraft.HT['x_{CG_{ht}}'] >= cruise['x_{CG}'] + (cruise['\\Delta x_{lead_{ht}}']+cruise['\\Delta x_{trail_{ht}}'])/2]),
                 #---------------------------------------------------------#
 
                 # Substitutions for xCG and xAC
@@ -377,7 +377,7 @@ class HorizontalTailPerformance(Model):
         Rec     = Variable('Re_{c_h}', '-',
                            'Cruise Reynolds number (Horizontal tail)')
         CLah    = Variable('C_{L_{\\alpha,ht}}', '-', 'Lift curve slope (htail)')
-        CLah0   = Variable('C_{L_{ah_0}}', '-',
+        CLah0   = Variable('C_{L_{\\alpha,ht_0}}', '-',
                            'Isolated lift curve slope (htail)')
         CLh     = Variable('C_{L_{ht}}', '-', 'Lift coefficient (htail)')
         # eta     = Variable('\\eta_h', '-',
@@ -538,7 +538,7 @@ if __name__ == '__main__':
     #             'R_{req}': ('sweep', np.linspace(500,2000,4)),
     #             'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
     #             'numeng': 1,
-    # ##            'W_{Load_max}': 6664,
+    # ##            'W_{Load_{max}}': 6664,
     #             'W_{pass}': 91 * 9.81,
     #             'n_{pass}': 150,
     #             'pax_{area}': 1,
@@ -595,7 +595,7 @@ if __name__ == '__main__':
     #             'R_{req}': 500, #('sweep', np.linspace(500,2000,4)),
     #             'CruiseAlt': ('sweep', np.linspace(20000,40000,4)),
     #             'numeng': 1,
-    # ##            'W_{Load_max}': 6664,
+    # ##            'W_{Load_{max}}': 6664,
     #             'W_{pass}': 91 * 9.81,
     #             'n_{pass}': 150,
     #             'pax_{area}': 1,
