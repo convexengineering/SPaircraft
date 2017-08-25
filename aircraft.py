@@ -1254,8 +1254,6 @@ class Mission(Model):
             aircraft.engine.engineP['hold_{2}'][Nclimb:] == 1.+.5*(1.398-1.)*M2**2.,
             aircraft.engine.engineP['hold_{2.5}'][Nclimb:] == 1.+.5*(1.354-1.)*M25**2.,
             
-            # Thrust >= Drag + Vertical Component of Weight
-            cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'] <= aircraft['n_{eng}'] * aircraft.engine['F_{spec}'][Nclimb:],
             ]
 
         if BLI or M072_737 or b737800 or b777300ER or optimal737 or D8_eng_wing or D8_no_BLI:
