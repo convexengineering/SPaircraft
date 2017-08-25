@@ -205,7 +205,7 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Total Aircraft Weight Percent Diff: %s" % compute_diff(mag(sol('W_{total}').to('lbf')), 625008.3)
         print "\n"
-        print "Engine Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{engsys}').to('lbf')), 53717.8)
+        print "Engine Weight Percent Diff: %s" % compute_diff(mag(sol('W_{engsys}').to('lbf')), 53717.8)
         print "\n"
         print "Fuselage Weight Percent Diff: %s" % compute_diff(mag(sol('W_{fuse}').to('lbf')), 107426.3)
         print "\n"
@@ -295,7 +295,7 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Total Aircraft Weight Percent Diff: %s" % compute_diff(mag(sol('W_{total}').to('lbf')), 174979.1)
         print "\n"
-        print "Engine Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{engsys}').to('lbf')), 12280.0)
+        print "Engine Weight Percent Diff: %s" % compute_diff(mag(sol('W_{engsys}').to('lbf')), 11632.6)
         print "\n"
         print "Fuselage Weight Percent Diff: %s" % compute_diff(mag(sol('W_{fuse}').to('lbf')), 37025.2)
         print "\n"
@@ -475,7 +475,7 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Total Aircraft Weight Percent Diff: %s" % compute_diff(mag(sol('W_{total}').to('lbf')), 134758.2)
         print "\n"
-        print "Engine Weight Percent Diff: %s" % compute_diff(2.*mag(sol('W_{engsys}').to('lbf')), 10502.8)
+        print "Engine Weight Percent Diff: %s" % compute_diff(mag(sol('W_{engsys}').to('lbf')), 10502.8)
         print "\n"
         print "Fuselage Weight Percent Diff: %s" % compute_diff(mag(sol('W_{fuse}').to('lbf')), 30487.4)
         print "\n"
