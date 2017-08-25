@@ -184,7 +184,7 @@ def getb777300ERsubs():
             # nacelle drag calc parameter
             'r_{v_{nacelle}}': 1.02,
             'T_{t_{4.1_{max}}}': 1860.*units('K'),
-            'ReserveFraction': .05,
+            'f_{fuel_{res}}': .05,
     }
 
     return substitutions

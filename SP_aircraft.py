@@ -72,8 +72,8 @@ def gen_plots(sol):
     #generate an altitude profile plot
     rng = []
     alt = []
-    for i in range(len(sol('RngClimb'))):
-           rng.append(mag(sol('RngClimb')[i][0]))
+    for i in range(len(sol('R_{climb}'))):
+           rng.append(mag(sol('R_{climb}')[i][0]))
     for i in range(len(sol('Rng'))):
            rng.append(mag(sol('Rng')[i][0]))
     for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
@@ -94,8 +94,8 @@ def gen_D82_plots(sol):
     #generate an altitude profile plot
     rng = [0]
     alt = [0]
-    for i in range(len(sol('RngClimb'))):
-           rng.append(mag(sol('RngClimb')[i][0]))
+    for i in range(len(sol('R_{climb}'))):
+           rng.append(mag(sol('R_{climb}')[i][0]))
     for i in range(len(sol('Rng'))):
            rng.append(mag(sol('Rng')[i][0]))
     for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
@@ -122,8 +122,8 @@ def gen_D8_737_plots(solD8, sol737):
     #generate an altitude profile plot
     rngD8 = []
     altD8 = []
-    for i in range(len(solD8('RngClimb'))):
-           rngD8.append(mag(solD8('RngClimb')[i][0]))
+    for i in range(len(solD8('R_{climb}'))):
+           rngD8.append(mag(solD8('R_{climb}')[i][0]))
     for i in range(len(solD8('Rng'))):
            rngD8.append(mag(solD8('Rng')[i][0]))
     for i in range(len(solD8('hft')['hft_Mission/FlightState/Altitude'])):
@@ -132,8 +132,8 @@ def gen_D8_737_plots(solD8, sol737):
 
     rng73 = []
     alt73 = []
-    for i in range(len(sol737('RngClimb'))):
-           rng73.append(mag(sol737('RngClimb')[i][0]))
+    for i in range(len(sol737('R_{climb}'))):
+           rng73.append(mag(sol737('R_{climb}')[i][0]))
     for i in range(len(sol737('Rng'))):
            rng73.append(mag(sol737('Rng')[i][0]))
     for i in range(len(sol737('hft')['hft_Mission/FlightState/Altitude'])):
@@ -165,8 +165,8 @@ def gen_D8_D8_no_BLI_plots(solD8, solno_BLI):
     #generate an altitude profile plot
     rngD8 = []
     altD8 = []
-    for i in range(len(solD8('RngClimb'))):
-           rngD8.append(mag(solD8('RngClimb')[i][0]))
+    for i in range(len(solD8('R_{climb}'))):
+           rngD8.append(mag(solD8('R_{climb}')[i][0]))
     for i in range(len(solD8('Rng'))):
            rngD8.append(mag(solD8('Rng')[i][0]))
     for i in range(len(solD8('hft')['hft_Mission/FlightState/Altitude'])):
@@ -175,8 +175,8 @@ def gen_D8_D8_no_BLI_plots(solD8, solno_BLI):
 
     rngno_BLI = []
     altno_BLI = []
-    for i in range(len(solno_BLI('RngClimb'))):
-           rngno_BLI.append(mag(solno_BLI('RngClimb')[i][0]))
+    for i in range(len(solno_BLI('R_{climb}'))):
+           rngno_BLI.append(mag(solno_BLI('R_{climb}')[i][0]))
     for i in range(len(solno_BLI('Rng'))):
            rngno_BLI.append(mag(solno_BLI('Rng')[i][0]))
     for i in range(len(solno_BLI('hft')['hft_Mission/FlightState/Altitude'])):
@@ -204,8 +204,8 @@ def gen_737_plots(sol):
     rng = [0]
     alt = [0]
 
-    for i in range(len(sol('RngClimb'))):
-           rng.append(mag(sol('RngClimb')[i][0]))
+    for i in range(len(sol('R_{climb}'))):
+           rng.append(mag(sol('R_{climb}')[i][0]))
     for i in range(len(sol('Rng'))):
            rng.append(mag(sol('Rng')[i][0]))
     for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
@@ -232,8 +232,8 @@ def gen_777_plots(sol):
     rng = [0]
     alt = [0]
     
-    for i in range(len(sol('RngClimb'))):
-           rng.append(mag(sol('RngClimb')[i][0]))
+    for i in range(len(sol('R_{climb}'))):
+           rng.append(mag(sol('R_{climb}')[i][0]))
     for i in range(len(sol('Rng'))):
            rng.append(mag(sol('Rng')[i][0]))
     for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):

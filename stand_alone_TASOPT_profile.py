@@ -126,10 +126,10 @@ class ClimbP(Model):
                                   
         #variable definitions
         theta = Variable('\\theta', '-', 'Aircraft Climb Angle')
-        excessP = Variable('excessP', 'W', 'Excess Power During Climb')
+        excessP = Variable('P_{excess}', 'W', 'Excess Power During Climb')
         RC = Variable('RC', 'feet/min', 'Rate of Climb/Decent')
         dhft = Variable('dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
-        RngClimb = Variable('RngClimb', 'nautical_miles', 'Down Range Distance Covered in Each Climb Segment')
+        RngClimb = Variable('R_{climb}', 'nautical_miles', 'Down Range Distance Covered in Each Climb Segment')
         TotRngClimb = Variable('TotRngClimb', 'nautical_miles', 'Down Range Distance Covered in Climb')
 
         #constraints
@@ -181,7 +181,7 @@ class CruiseP(Model):
         #new varibales for the TASOPT flight profile
         gammaCruise = Variable('\\gamma_{cruise}', '-', 'Cruise Climb Angle')
         RCCruise = Variable('RC_{cruise}', 'ft/min', 'Cruise Climb Rate')
-        excessP = Variable('excessP', 'W', 'Excess Power During Cruise')
+        excessP = Variable('P_{excess}', 'W', 'Excess Power During Cruise')
 
         constraints = []
 
@@ -588,7 +588,7 @@ class Mission(Model):
         with SignomialsEnabled():
             constraints.extend([
                 #re-evaluate this term
-                climb['TotRngClimb'] <= sum(climb['RngClimb']),
+                climb['TotRngClimb'] <= sum(climb['R_{climb}']),
 
                 #set the range for each cruise segment, doesn't take credit for climb
                 #down range disatnce covered

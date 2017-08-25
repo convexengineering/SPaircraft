@@ -153,7 +153,7 @@ def get_optimal_D8_subs():
                 # Cabin air substitutions in AircraftP
 
                 #set the fuel reserve fraction
-                'ReserveFraction': .20,
+                'f_{fuel_{res}}': .20,
 
                 # Minimum Cruise Mach Number
                 'M_{min}': Mcruisemin,

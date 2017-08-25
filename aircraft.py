@@ -79,7 +79,7 @@ class Aircraft(Model):
         Vne = Variable('V_{ne}',143.92,'m/s', 'Never-exceed speed')  # [Philippe]
         Vmn = Variable('V_{mn}', 'm/s','Maneuvering speed')
         rhoTO = Variable('\\rho_{T/O}',1.225,'kg*m^-3','Air density at takeoff')
-        ReserveFraction = Variable('ReserveFraction', '-', 'Fuel Reserve Fraction')
+        ReserveFraction = Variable('f_{fuel_{res}}', '-', 'Fuel Reserve Fraction')
 
         #fraction of fuel in wings
         f_wingfuel = Variable('f_{wingfuel}', '-', 'Fraction of fuel stored in wing tanks')
@@ -615,11 +615,11 @@ class ClimbP(Model): # Climb performance constraints
 
         # variable definitions
         theta = Variable('\\theta', '-', 'Aircraft Climb Angle')
-        excessP = Variable('excessP', 'W', 'Excess Power During Climb')
+        excessP = Variable('P_{excess}', 'W', 'Excess Power During Climb')
         RC = Variable('RC', 'feet/min', 'Rate of Climb/Descent')
         dhft = Variable(
             'dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
-        RngClimb = Variable('RngClimb', 'nautical_miles',
+        RngClimb = Variable('R_{climb}', 'nautical_miles',
                             'Down Range Covered in Each Climb Segment')
 
         constraints = []
@@ -978,7 +978,7 @@ class Mission(Model):
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'] \
                     + aircraft['n_{eng}']*aircraft['W_{engsys}'] * aircraft['x_{eng}'] \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
+                    + (climb['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
                     ]),
                 TCS([cruise['x_{CG}']*cruise['W_{avg}'] >=
@@ -987,7 +987,7 @@ class Mission(Model):
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}']
                     + aircraft['n_{eng}']*aircraft['W_{engsys}'] * aircraft['x_{eng}'] \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (cruise['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
+                    + (cruise['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                      ]),
               ])
@@ -998,7 +998,7 @@ class Mission(Model):
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (climb['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
+                    + (climb['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
                     + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]),
                 TCS([cruise['x_{CG}']*cruise['W_{avg}'] >=
@@ -1006,7 +1006,7 @@ class Mission(Model):
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (cruise['F_{fuel}']+aircraft['ReserveFraction'])*aircraft['W_{f_{primary}}'] \
+                    + (cruise['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                     + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]),
               ])
@@ -1075,7 +1075,7 @@ class Mission(Model):
             1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
             TCS([aircraft['W_{dry}'] + aircraft['W_{payload}'] + \
-                 aircraft['ReserveFraction'] * aircraft['W_{f_{primary}}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
+                 aircraft['f_{fuel_{res}}'] * aircraft['W_{f_{primary}}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
             TCS([aircraft['W_{f_{climb}}'] >= sum(climb.climbP.aircraftP['W_{burn}'])]),
             TCS([aircraft['W_{f_{cruise}}'] >= sum(cruise.cruiseP.aircraftP['W_{burn}'])]),
             ])
@@ -1155,7 +1155,7 @@ class Mission(Model):
         with SignomialsEnabled():
             constraints.extend([
                 #set the range constraints
-                TCS([sum(climb['RngClimb']) + sum(cruise['Rng']) >= ReqRng]), #[SP]
+                TCS([sum(climb['R_{climb}']) + sum(cruise['Rng']) >= ReqRng]), #[SP]
 
                 # Cruise climb constraint
                 cruise['hft'][0] <= climb['hft'][-1] + cruise['dhft'][0], #[SP]
@@ -1230,7 +1230,7 @@ class Mission(Model):
             aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
             
             #climb rate constraints
-            TCS([climb['excessP'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F_{spec}'][:Nclimb]]),
+            TCS([climb['P_{excess}'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
     
         if D8fam or M072_737 or D8big_M072 or D8_eng_wing or smallD8_eng_wing or optimal777_M072 or D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072:

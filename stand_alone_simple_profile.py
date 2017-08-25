@@ -126,10 +126,10 @@ class ClimbP(Model):
                                   
         #variable definitions
         theta = Variable('\\theta', '-', 'Aircraft Climb Angle')
-        excessP = Variable('excessP', 'W', 'Excess Power During Climb')
+        excessP = Variable('P_{excess}', 'W', 'Excess Power During Climb')
         RC = Variable('RC', 'feet/min', 'Rate of Climb/Decent')
         dhft = Variable('dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
-        RngClimb = Variable('RngClimb', 'nautical_miles', 'Down Range Covered in Each Climb Segment')
+        RngClimb = Variable('R_{climb}', 'nautical_miles', 'Down Range Covered in Each Climb Segment')
 
         #constraints
         constraints = []

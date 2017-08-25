@@ -145,7 +145,7 @@ def get_M072_optimal_RJ_subs():
             # Cabin air substitutions in AircraftP
 
             #set the fuel reserve fraction
-            'ReserveFraction': .20,
+            'f_{fuel_{res}}': .20,
 
             # Engine substitutions
             '\\pi_{tn}': .995,

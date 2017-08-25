@@ -151,7 +151,7 @@ def get_small_M08_D8_eng_wing_subs():
                 # Cabin air substitutions in AircraftP
 
                 #set the fuel reserve fraction
-                'ReserveFraction': .20,
+                'f_{fuel_{res}}': .20,
 
                 # Minimum Cruise Mach Number
                 'M_{min}': Mcruisemin,
