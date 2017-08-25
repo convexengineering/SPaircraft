@@ -378,6 +378,8 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
 
     post_compute(sol, Nclimb)
 
+    return sol
+
 def test():
     run_optimal_737('W_{f_{total}}', True, False)
 
