@@ -190,7 +190,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
 
         # VT variables
         'LLYTEYDPDID':float(xCG.magnitude + dxleadvt.magnitude), # VT x location (LE location)
-        'BFZDOVCXTAV':float(2*wfuse.magnitude/2),                    # VT y location (as wide as fuselage)
+        'BFZDOVCXTAV':float(wfuse.magnitude),                    # VT y location (as wide as fuselage)
         'FQDVQTUBLUX':float(0.5),                                  # VT z location (0.5 m off the widest point of the fuselage)
         'JXFRWSLYWDH':float(bvt.magnitude),                        # VT span
         'MBZGSEIYFGW':float(crootvt.magnitude),                    # VT root chord
@@ -224,9 +224,9 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         'CHYQUCYJMPS':float(bht.magnitude*0.5 + wfuse.magnitude),            # HT half-span
 
         # VT variables
-        'BFZDOVCXTAV':float(0.),                                             # VT y location (as wide as fuselage)
-        'FQDVQTUBLUX':float(hfuse.magnitude),                                # VT z location (0.5 m off the widest point of the fuselage)
-        'GWTZZGTPXQU':float(0.),                                             # VT dihedral
+        'BFZDOVCXTAV':float(0.),                           # VT y location (as wide as fuselage)
+        'FQDVQTUBLUX':float(0.),                           # VT z location (0.5 m off the widest point of the fuselage)
+        'GWTZZGTPXQU':float(0.),                           # VT dihedral
 
         # Fuselage variables
         'GCQLYPQAIGM':float(0.),
