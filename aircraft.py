@@ -335,8 +335,8 @@ class Aircraft(Model):
                     # Note: Using x_{wing} as a CG surrogate. Want scalar Izfuse.
 
                     # Engine x-location (weight centroid, roughly)
-                    xeng <= self.fuse['x_{shell2}'] + 0.75*self.fuse['l_{cone}'],
-                    xeng >= self.fuse['x_{shell2}'] + 0.50*self.fuse['l_{cone}'],
+                    xeng <= self.fuse['x_{shell2}'] + 1.00*self.fuse['l_{cone}'],
+                    xeng >= self.fuse['x_{shell2}'] + 0.75*self.fuse['l_{cone}'],
                 ])
 
         ### FUSELAGE CONSTRAINTS
