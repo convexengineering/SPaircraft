@@ -95,7 +95,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         sweep = arccos(sol('\cos(\Lambda)_Mission/Aircraft/Wing/WingNoStruct'))*180/np.pi
 
         # System-level descriptors
-        xCG = sol('x_{CG}').values()[0][0].to('m')
+        xCG = sol('x_{CG}_Mission/ClimbSegment/ClimbP/AircraftP')[0][0].to('m')
 
         # Wing descriptors
         b = sol('b').to('m')
@@ -122,8 +122,8 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         xCGht = sol('x_{CG_{ht}}').to('m')
         crootht = sol('c_{root_{ht}}').to('m')
         ctipht = sol('c_{tip_{ht}}').to('m')
-        dxleadht = sol('\\Delta x_{lead_{ht}}').values()[0][0].to('m')
-        dxtrailht = sol('\\Delta x_{trail_{ht}}').values()[0][0].to('m')
+        dxleadht = sol('\\Delta x_{lead_{ht}}_Mission/ClimbSegment/ClimbP/AircraftP/HorizontalTailPerformance')[0][0].to('m')
+        dxtrailht = sol('\\Delta x_{trail_{ht}}_Mission/ClimbSegment/ClimbP/AircraftP/HorizontalTailPerformance')[0][0].to('m')
         bht = sol('b_{ht}').to('m')
         xCGht = sol('x_{CG_{ht}}').to('m')
         lht = sol('l_{ht}').to('m')
@@ -137,8 +137,8 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         lvt = sol('l_{vt}').to('m')
         crootvt = sol('c_{root_{vt}}').to('m')
         ctipvt = sol('c_{tip_{vt}}').to('m')
-        dxleadvt = sol('\\Delta x_{lead_{vt}}').values()[0][0].to('m')
-        dxtrailvt = sol('\\Delta x_{trail_{vt}}').values()[0][0].to('m')
+        dxleadvt = sol('\\Delta x_{lead_{vt}}_Mission/ClimbSegment/ClimbP/AircraftP/VerticalTailPerformance')[0][0].to('m')
+        dxtrailvt = sol('\\Delta x_{trail_{vt}}_Mission/ClimbSegment/ClimbP/AircraftP/VerticalTailPerformance')[0][0].to('m')
         tanvt = sol('\\tan(\Lambda_{vt})_Mission/Aircraft/VerticalTail/VerticalTailNoStruct')
 
         # Engine descriptors
