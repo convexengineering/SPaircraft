@@ -72,8 +72,6 @@ def get_optimal_D8_subs():
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
-##                'f_{lgmain}':0.03, # [TAS]
-##                'f_{lgnose}':0.0075, # [TAS]
 
                 # Fractional weights
                 'f_{fadd}': 0.2,  # [TAS]
@@ -89,7 +87,6 @@ def get_optimal_D8_subs():
                 '\\eta': 0.97,
                 '\\rho_0': 1.225*units('kg/m^3'),
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-##                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
                 'f_{wingfuel}': 1.0,
@@ -134,7 +131,6 @@ def get_optimal_D8_subs():
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{ht,fCG}}': 0.85,
                 'f_{ht}': 0.3,
-##                'AR_{ht}': 12.,
                 '\\lambda_{ht}': 0.3,
                 '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
                 '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
@@ -175,9 +171,6 @@ def get_optimal_D8_subs():
                 '\\pi_{hc_D}': hpc,
                 '\\pi_{lc_D}': lpc,
 
-##                '\\alpha_{OD}': 6.97,
-##                '\\alpha_{max}': 6.97,
-
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,
                 '\\alpha_c': .16,
@@ -198,8 +191,6 @@ def get_optimal_D8_subs():
 
                 'T_{t_{4.1_{max}}}': 1567.*units('K'),
 
-##                'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
-
                 #BLI factors
                 #compute the cruise stagnation pressure loss factor given a min
                 #mach number and the BLI velocity loss factor
@@ -207,31 +198,30 @@ def get_optimal_D8_subs():
                               (18753.9 +.5*0.301559*(Mcruisemin*295.)**2),
                 'f_{BLI_{V}}': 1 - BLIVloss,
 
-            'MaxClimbTime': 16*units('min'),
+                'MaxClimbTime': 16*units('min'),
 
-            #LG subs
-            'E': 205,
-            'K': 2,
-            'N_s': 2,
-            '\\eta_s': 0.8,
-            '\\lambda_{LG}': 2.5,
-            '\\rho_{st}': 7850,
-            '\\tan(\\gamma)': np.tan(5*np.pi/180),
-            '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
-            '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
-            '\\tan(\\theta_{max})': np.tan(15*np.pi/180),
-            '\\sigma_{y_c}': 470E6,
-            'f_{add,m}': 1.5,
-            'f_{add,n}': 1.5,
-            'h_{hold}': 1,
-##            'h_{nacelle}': 0.5,
-            'n_{mg}': 2,
-            'n_{wps}': 2,
-            'p_{oleo}': 1800,
-            't_{nacelle}': 0.15,
-            'w_{ult}': 10,
-            'z_{CG}': 2,
-            'z_{wing}': 0.5,
+                #LG subs
+                'E': 205,
+                'K': 2,
+                'N_s': 2,
+                '\\eta_s': 0.8,
+                '\\lambda_{LG}': 2.5,
+                '\\rho_{st}': 7850,
+                '\\tan(\\gamma)': np.tan(5*np.pi/180),
+                '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
+                '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
+                '\\tan(\\theta_{max})': np.tan(15*np.pi/180),
+                '\\sigma_{y_c}': 470E6,
+                'f_{add,m}': 1.5,
+                'f_{add,n}': 1.5,
+                'h_{hold}': 1,
+                'n_{mg}': 2,
+                'n_{wps}': 2,
+                'p_{oleo}': 1800,
+                't_{nacelle}': 0.15,
+                'w_{ult}': 10,
+                'z_{CG}': 2,
+                'z_{wing}': 0.5,
         }
 
         return substitutions

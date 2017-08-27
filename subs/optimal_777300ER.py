@@ -57,7 +57,6 @@ def get_optimal_777300ER_subs():
             'W_{avg. pass_{total}}':230.*units('lbf'),
             'f_{string}': 0.34,
             'h_{floor}': 8. * units('in'),
-##            'R_{fuse}' : 3.11*units('m'),
             '\\Delta P_{over}': 8.382 * units('psi'),
 
             # fuselage subs that make fuse circular
@@ -69,8 +68,6 @@ def get_optimal_777300ER_subs():
 
             # Power system and landing gear and engine weight fraction subs
             'f_{hpesys}': 0.01, # [TAS]
-##            'f_{lgmain}':0.04, # [TAS]
-##            'f_{lgnose}':0.01, # [TAS]
             'f_{pylon}': 0.05,
 
             # Fractional weights
@@ -88,7 +85,6 @@ def get_optimal_777300ER_subs():
             '\\rho_0': 1.225*units('kg/m^3'),
             'b_{max}': 200 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-##            'AR': 8.455,
             'f_{wingfuel}': 0.5,
             '\\tau_{max_w}': 0.14208,
             'TipReduct': 1.0,
@@ -126,8 +122,6 @@ def get_optimal_777300ER_subs():
             'Fsafetyfac': 1.8,
 
             # HT substitutions
-##            '\\alpha_{ht,max}': 2.5,
-##            'AR_{ht}': 4.8,
             '\\lambda_{ht}': 0.32,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
             'C_{L_{ht,max}}': 1.5,  # [TAS]
@@ -162,9 +156,6 @@ def get_optimal_777300ER_subs():
             '\\pi_{f_D}': fan,
             '\\pi_{hc_D}': hpc,
             '\\pi_{lc_D}': lpc,
-
-##            '\\alpha_{OD}': 8.62,
-##            '\\alpha_{max}': 8.62,
 
             'hold_{4a}': 1+.5*(1.313-1)*M4a**2,
             'r_{uc}': 0.01,

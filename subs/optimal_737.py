@@ -56,7 +56,6 @@ def get737_optimal_subs():
             'W_{avg. pass_{total}}':215.*units('lbf'),
             'f_{string}': 0.35,
             'h_{floor}': 5. * units('in'),
-            # 'R_{fuse}' : 1.715*units('m'),
             '\\Delta P_{over}': 8.382 * units('psi'),
             # fuselage subs that make fuse circular
             '\\Delta R_{fuse}': 0.0001 * units('m'),
@@ -79,7 +78,6 @@ def get737_optimal_subs():
             '\\cos(\\Lambda)': cos(sweep * pi / 180.),
             '\\eta': 0.97,
             '\\rho_0': 1.225*units('kg/m^3'),
-##            'AR': 10.1,
             'b_{max}': 117.5 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'f_{wingfuel}': .5,  #.35 may be a better answer
@@ -122,7 +120,6 @@ def get737_optimal_subs():
             # HT substitutions
             '\\alpha_{ht,max}': 2.5,
             'f_{ht}': 0.3,
-##            'AR_{ht}': 6.,
             '\\lambda_{ht}': 0.25,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
             'C_{L_{ht,max}}': 2.0,  # [TAS]
@@ -161,9 +158,6 @@ def get737_optimal_subs():
             '\\pi_{f_D}': fan,
             '\\pi_{hc_D}': hpc,
             '\\pi_{lc_D}': lpc,
-
-##            '\\alpha_{OD}': 6.97,
-##            '\\alpha_{max}': 6.97,
 
             'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
             'r_{uc}': .01,
