@@ -114,7 +114,7 @@ def get_optimal_777300ER_subs():
             '\\dot{r}_{req}': 0.000001, # 10 deg/s/s yaw rate acceleration
             'y_{eng}': 32*units('ft'),
             'n_{vt}': 1.,
-            'A_{vt}': 3,
+            'A_{vt}': 2.35,
             '\\lambda_{vt}': 0.25,
             '\\tan(\\Lambda_{vt})': tan(VTsweep * pi / 180.),  # tangent of VT sweep
             'N_{spar}': 1.,

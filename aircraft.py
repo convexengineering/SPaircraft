@@ -1103,6 +1103,11 @@ class Mission(Model):
                 # Note: coeff can be varied as desired.
                 aircraft.VT['T_e'] == Fsafetyfac * climb.climbP.engine['F'][0],
 
+                climb['\\Delta x_{trail_{vt}}'][0] + climb['x_{CG}'][0] <= climb['\\Delta x_{trail_{vt}}'][1:Nclimb] + climb['x_{CG}'][1:Nclimb],
+                climb['\\Delta x_{trail_{vt}}'][0] + climb['x_{CG}'][0] <= cruise['\\Delta x_{trail_{vt}}'] + cruise['x_{CG}'],
+                climb['\\Delta x_{trail_{ht}}'][0] + climb['x_{CG}'][0] <= climb['\\Delta x_{trail_{ht}}'][1:Nclimb] + climb['x_{CG}'][1:Nclimb],
+                climb['\\Delta x_{trail_{ht}}'][0] + climb['x_{CG}'][0] <= cruise['\\Delta x_{trail_{ht}}'] + cruise['x_{CG}'], 
+
                 # Set the range for each cruise segment.
                 # All cruise segments cover the same range.
                 cruise['Rng'][:Ncruise-1] == cruise['Rng'][1:Ncruise],
