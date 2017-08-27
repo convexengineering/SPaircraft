@@ -372,11 +372,11 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
-    post_process(sol)
-
-    percent_diff(sol, 'b737800', Nclimb)
-
-    post_compute(sol, Nclimb)
+##    post_process(sol)
+##
+##    percent_diff(sol, 'b737800', Nclimb)
+##
+##    post_compute(sol, Nclimb)
 
     return sol
 

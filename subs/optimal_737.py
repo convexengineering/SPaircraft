@@ -222,3 +222,11 @@ def get737_optimal_subs():
     }
 
     return substitutions
+
+##plt.plot(sol('T_{t_{4.1_{max}}}'),sol['sensitivities']['constants']['C_{engsys}'])
+##plt.ylabel('Sensitivity to Engine System Weight')
+##plt.xlabel('Max Turbine Inlet Temp [K]')
+##plt.xlim([1275,1700])
+##plt.ylim([0,.37])
+##plt.savefig('turbine_inlet_sens.eps', bbox_inches="tight")
+##plt.show()
