@@ -205,7 +205,7 @@ def get_optimal_777300ER_subs():
             '\\rho_{st}': 7850,
             '\\tan(\\gamma)': np.tan(2*np.pi/180),
             '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
-            '\\tan(\\psi_{max})': np.tan(67*np.pi/180),
+            '\\tan(\\psi_{max})': np.tan(75*np.pi/180),
             '\\tan(\\theta_{max})': np.tan(10*np.pi/180),
             '\\sigma_{y_c}': 470E6,
             'f_{add,m}': 1.5,
