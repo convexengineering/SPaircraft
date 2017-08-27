@@ -194,7 +194,7 @@ def get737_optimal_subs():
 
             'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
 
-            'MaxClimbTime': 15*units('min'),
+            'MaxClimbTime': 14*units('min'),
 
             #LG subs
             'E': 205,
