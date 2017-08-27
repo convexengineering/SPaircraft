@@ -176,6 +176,8 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         'TBCZTWFMJDM':float(2*wfuse.magnitude), # Fuselage width
         'JOBWSWPMZIB':float(2.0*hfuse.magnitude), # Fuselage height
         'HPKOTUWYSIY':float(2*wfuse.magnitude), # Fuselage width
+        'GCQLYPQAIGM':float(0.8*2*wfuse.magnitude), # Fuselage width (for DB line trailing edge).
+
 
         # HT Variables
         'USGQFZQKJWC':float(xCG.magnitude + dxleadht.magnitude), # HT x location
@@ -225,6 +227,9 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         'BFZDOVCXTAV':float(0.),                                             # VT y location (as wide as fuselage)
         'FQDVQTUBLUX':float(hfuse.magnitude),                                # VT z location (0.5 m off the widest point of the fuselage)
         'GWTZZGTPXQU':float(0.),                                             # VT dihedral
+
+        # Fuselage variables
+        'GCQLYPQAIGM':float(0.),
         })
     # Rear mounted non-BLI D8 engines
     if aircraft in ['M08_D8_no_BLI', 'D8_no_BLI']:
