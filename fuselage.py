@@ -399,41 +399,5 @@ class FuselagePerformance(Model):
         # new variables
         CDfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
         Dfuse = Variable('D_{fuse}', 'N', 'Fuselage Drag')
-        # CLfuse = Variable('C_{L_{fuse}}','-', 'Fuselage Lift Coefficient')
         Lfuse = Variable('L_{fuse}','N','Fuselage Lift')
-        # Refuse = Variable('Re_{fuse}','-','Fuselage Reynolds number')
-        # Dfrict = Variable('D_{friction}', 'N', 'Friction drag')
-        # Dupswp = Variable('D_{upsweep}', 'N', 'Drag due to fuse upsweep')
-        # f = Variable('f', '-', 'Fineness ratio')
-        # FF = Variable('FF', '-', 'Fuselage form factor')
-        # phi = Variable('\\phi', '-', 'Upsweep angle')
 
-        # Moments
-        # CMVf = Variable('CMV_{f1}','m^3','Fuselage pitching moment volume dependence')
-        # alphafuse = Variable('\\alpha_{fuse}','-','Fuselage angle of attack')
-
-        # BLI surrogate
-##        fBLI = Variable('f_{BLI}','-','1-fBLI surrogate')
-        # thetaBLI = Variable('\\theta_{BLI}','m^2','Momentum defect area absorbed by engines')
-
-        constraints = []
-        constraints.extend([
-            # Refuse == state.atm['\\rho'] * state['V'] * aircraft['l_{fuse}'] / state['\\mu'],
-            #                                                                                     * fuse['l_{fuse}'] / state.atm['\\mu']
-            # CMVf <= 2*fuse('V_{cabin}')*(alphafuse - fuse('\\alpha_{Mf0}')) #TODO: figure out directionality of inequality
-##            CDfuse == CDfuse,
-##            Dfuse == Dfuse,
-##            Lfuse == Lfuse,
-            #Dfuse == Cdfuse * (.5 * fuse['A_{fuse}'] * state.atm['\\rho'] * state['V']**2),
-            # fineness ratio
-            # f == fuse['l_{fuse}'] / ((4 / np.pi * fuse['A_{fuse}'])**0.5),
-            # FF >= 1 + 60 / f**3 + f / 400,  # form factor
-            # Dfrict >= FF * np.pi * fuse['R_{fuse}'] * state.atm['\\mu'] * state['V'] * 0.074 * (state.atm['\\rho'] * state['V']
-            #                                                                                     * fuse['l_{fuse}'] / state.atm['\\mu'])**0.8,
-            # Monomial fit of tan(phi)
-            # 1.13226 * phi**1.03759 == fuse['R_{fuse}'] / fuse['l_{cone}'],
-            # Dupswp >= 3.83 * phi**2.5 * fuse['A_{fuse}'] * 0.5 * state.atm['\\rho'] * state['V']**2,
-            # Dfuse >= Dfrict + Dupswp,
-        ])
-
-        return constraints
