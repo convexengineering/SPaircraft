@@ -4,7 +4,6 @@ import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize
 from gpkit.constraints.sigeq import SignomialEquality
 from gpkit.constraints.tight import Tight as TCS
-from simple_ac_imports_no_engine import Wing, Fuselage, Engine, CruiseP, ClimbP, FlightState, CruiseSegment, ClimbSegment
 from wingbox import WingBox
 
 class VerticalTail(Model):
@@ -264,7 +263,7 @@ class VerticalTailPerformance(Model):
 
 ##import matplotlib.pyplot as plt
 ##from gpkit.small_scripts import mag
-
+##from simple_ac_imports_no_engine import Wing, Fuselage, Engine, CruiseP, ClimbP, FlightState, CruiseSegment, ClimbSegment
 ##    class Aircraft(Model):
 ##    "Aircraft class"
 ##    def setup(self, **kwargs):
