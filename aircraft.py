@@ -1,5 +1,5 @@
-"""Simple commercial aircraft flight profile and D8 aircraft model"""
-""" Integrates Wing, VerticalTail, HorizontalTail and Fuselage models """
+"""Simple commercial aircraft flight profile and aircraft model"""
+""" Integrates Wing, VerticalTail, HorizontalTail , Fuselage, and Landing Gear models """
 
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
@@ -21,20 +21,9 @@ from landing_gear import LandingGear
 
 
 """
-Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
-Anderson's Aircraft Performance and Design (eqn 5.85).
-Inputs
------
-- Number of passengers
-- Passenger weight [N]
-- Fuselage area per passenger (recommended to use 1 m^2 based on research) [m^2]
-- Engine weight [N]
-- Number of engines
-- Required mission range [nm]
-- Oswald efficiency factor
-- Max allowed wing span [m]
-- Cruise altitude [ft]
-Sources for substitutions:
+Models required to minimize the aircraft total fuel weight. 
+
+Sources for substitutions and equations:
 -[b757 freight doc]
 -[Boeing]
 -[Philippe]
@@ -167,6 +156,8 @@ class Aircraft(Model):
                             Wmisc >= self.LG['W_{lg}'] + Whpesys,
                             Whpesys == fhpesys*W_total,
 
+                            ## LANDING GEAR CONSTRAINTS
+
                             # LG and Power System locations
                             self.LG['x_n'] <= self.fuse['l_{nose}'],
                             TCS([self.LG['x_m'] >= self.fuse['x_{wing}']]),
@@ -247,7 +238,8 @@ class Aircraft(Model):
                             TCS([2.*self.fuse['w_{fuse}'] >= self.fuse['SPR'] * self.fuse['w_{seat}'] + \
                                  numaisle*self.fuse['w_{aisle}'] + 2. * self.fuse['w_{sys}'] + self.fuse['t_{db}']]),
 
-                            #engine system weight constraints
+                            ## ENGINE SYSTEM
+                            #engine system weight constraints, nacelle dimensions
                             Snace == rSnace * np.pi * 0.25 * self.engine['d_{f}']**2,
                             lnace == 0.15 * self.engine['d_{f}'] * rSnace,
                             fSnace == Snace * self.wing['S']**-1,
