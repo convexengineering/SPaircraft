@@ -73,7 +73,7 @@ import numpy as np
 ##        W_start = Variable('W_{start}', 'N', 'Segment Start Weight')
 ##        W_end = Variable('W_{end}', 'N', 'Segment End Weight')
 ##        W_burn = Variable('W_{burn}', 'N', 'Segment Fuel Burn Weight')
-##        WLoadmax = Variable('W_{Load_max}', 'N/m^2', 'Max Wing Loading')
+##        WLoadmax = Variable('W_{Load_{max}}', 'N/m^2', 'Max Wing Loading')
 ##        WLoad = Variable('W_{Load}', 'N/m^2', 'Wing Loading')
 ##        t = Variable('tmin', 'min', 'Segment Flight Time in Minutes')
 ##        thours = Variable('thr', 'hour', 'Segment Flight Time in Hours')
@@ -131,10 +131,10 @@ class ClimbP(Model):
                                   
         #variable definitions
         theta = Variable('\\theta', '-', 'Aircraft Climb Angle')
-        excessP = Variable('excessP', 'W', 'Excess Power During Climb')
+        excessP = Variable('P_{excess}', 'W', 'Excess Power During Climb')
         RC = Variable('RC', 'feet/min', 'Rate of Climb/Decent')
         dhft = Variable('dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
-        RngClimb = Variable('RngClimb', 'nautical_miles', 'Down Range Covered in Each Climb Segment')
+        RngClimb = Variable('R_{climb}', 'nautical_miles', 'Down Range Covered in Each Climb Segment')
 
         #constraints
         constraints = []
@@ -207,10 +207,10 @@ class CruiseClimbP(Model):
                                   
         #variable definitions
         theta = Variable('\\theta', '-', 'Aircraft Climb Angle')
-        excessP = Variable('excessP', 'W', 'Excess Power During Climb')
+        excessP = Variable('P_{excess}', 'W', 'Excess Power During Climb')
         RC = Variable('RC', 'feet/min', 'Rate of Climb/Decent')
         dhft = Variable('dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
-        RngCruise = Variable('RngCruise', 'nautical_miles', 'Down Range Covered in Each Cruise Segment')
+        RngCruise = Variable('R_{cruise}', 'nautical_miles', 'Down Range Covered in Each Cruise Segment')
 
         #constraints
         constraints = []
@@ -462,7 +462,7 @@ class WingPerformance(Model):
         Dwing = Variable('D_{wing}', 'N', 'Total Wing Drag')
         Lwing = Variable('L_{wing}', 'N', 'Wing Lift')
 
-        CLaw    = Variable('C_{L_{aw}}', '-', 'Lift curve slope, wing')
+        CLaw    = Variable('C_{L_{\\alpha,w}}', '-', 'Lift curve slope, wing')
 
         #constraints
         constraints = []
@@ -487,12 +487,12 @@ class Fuselage(Model):
     """
     def setup(self, **kwargs):
         #new variables
-        n_pax = Variable('n_{pax}', '-', 'Number of Passengers to Carry')
+        n_pax = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
                            
         #weight variables
         W_payload = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
         W_e = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
-        W_pax = Variable('W_{pax}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
+        W_pax = Variable('W_{pass}', 'N', 'Estimated Average Passenger Weight, Includes Baggage')
 
         A_fuse = Variable('A_{fuse}', 'm^2', 'Estimated Fuselage Area')
         pax_area = Variable('pax_{area}', 'm^2', 'Estimated Fuselage Area per Passenger')

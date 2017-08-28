@@ -45,7 +45,7 @@ Since we are optimizing a D8.2 aircraft, we need to import the appropriate param
     substitutions = getD82subs()
 And we need to specify a mission range::
 
-    substitutions.update({'ReqRng': 3000.*units('nmi')})
+    substitutions.update({'R_{req}': 3000.*units('nmi')})
 We can update our model **m** with the substitutions::
 
     m.substitutions.update(substitutions)

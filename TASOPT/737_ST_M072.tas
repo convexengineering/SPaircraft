@@ -1,0 +1,552 @@
+#
+# configuration name
+737-800
+
+# case description (2 lines)
+Baseline technology
+(Aluminum, CFM56 engine)
+
+#------------------------------------------------------------------
+#- execution control flags and limits
+
+F   ! Litprint   print every weight iteration? 
+50  ! iterwmax   max number of weight iterations for design mission
+15  ! iterfmax   max number of fuel iterations for off-design missions
+ 
+T       ! Lopt      optimize variables?
+T       ! Loprint   print every optimization iteration?
+2000    ! istepmax  max number of optimization-descent steps
+100     ! istepout  number of opt. steps between solution re-output
+0.01    ! Wftol     fuel-weight tolerance for optimum [N]
+
+T   ! LlBFcon     constrain lBF   < lBFmax   during optimization?
+T   ! LWfmaxcon   constrain Wfuel < Wfmax    during optimization?
+T   ! Lbmaxcon    constrain b     < bmax     during optimization?
+T   ! Lgtoccon    constrain g_toc > gtocmin  during optimization?
+
+T   ! Loutwrite   write  output  to xxx_iNN_jMM.out files?
+F   ! Lfblwrite   write  fuse BL to xxx_iNN_jMM.out files?
+F   ! Ltrpwrite   write  Trefftz to xxx_iNN_jMM.out files?
+
+F   ! Lsavwrite   write  optimized vars to xxx.sav restart file?
+
+F   ! Laswwrite   write  xxx.asw  Aswing-input file?
+
+#------------------------------------------------------------------
+#- Keywords of parameters which can be sequenced in "i" or "j" loops,
+#-    declared as array  cpars , in index.inc
+#- A parameter cannot be chosen here if it's also selected as
+#     an optimized variable farther below
+#
+# Mach   = cruise Mach
+# Nmax   = max in-flight load factor
+# sigfac = max-stress multiplier
+# CL     = cruise CL
+# AR     = overall aspect ratio
+# sweep  = wing sweep
+# etas   = strut-attach eta location
+# Tt4CR  = cruise  Tt4
+# Tt4TO  = takeoff Tt4
+# OPR    = overall pressure ratio
+# FPR    = fan pressure ratio
+# lBFmax = balanced field length
+# bmax   = max span for span constraint
+
+#----------------------------------------
+#- "i" parameter sequence values (overrides value given later in file),
+AR  ! 8 9 10 11 12
+
+#- corresponding MATLAB-plotting label and line colors
+"AR =  (blue) 8, 9, 10, 11, 12 (magenta)"
+"bcgrm"
+
+#----------------------------------------
+#- "j" parameter j sequence values (overrides value given later in file)
+Mach ! 0.80 0.78 0.76 0.75 0.74 0.73 0.72 0.71 0.70
+
+#- corresponding MATLAB-plotting x-axis label
+"Mach"
+
+#------------------------------------------------------------------
+#- Variables to be optimized (if Lopt=T), and their initial perturbations
+#- Keywords are declared as array  cparo , in index.inc
+#- A zero or missing perturbation value disables the optimization of that variable
+CL        0.001    ! cruise CL
+AR        0.05     ! overall aspect ratio
+sweep     0.025    ! wing sweep angle
+hboxo      0.00025  ! airfoil t/c at etao  (wing root)
+hboxs      0.00025  ! airfoil t/c at etas  (planform break)
+lambdas ! 0.001    ! inner panel taper ratio
+lambdat   0.001    ! outer panel taper ratio
+rcls      0.001    ! local cl scale at etas  (planform break)
+rclt      0.001    ! local cl scale at 1     (tip)
+FPR     !  0.005   ! fan pressure ratio
+BPR     ! 0.025    ! baypass ratio
+alt        10.0     ! start-of cruise altitude
+Tt4CR      0.5      ! cruise  Tt4
+Tt4TO      0.25     ! takeoff Tt4
+OPR     !  0.05    ! overall pressure ratio (pilc assumed fixed)
+
+#------------------------------------------------------------------
+#- fleet mission specification 
+#- (first one is the weight-sizing design mission)
+
+1.0    0.0  !  0.0    0.0  ! mission-averaging weights for total fleet PFEI 
+                          ! (these also set the number of missions evaluated)
+
+#- parameters for each mission 
+#- (all same values used if only one value is given)
+
+3000.0 3000.0 3000.0 3000.0 * 1852.0 ! Range(.) [m]
+180    180    120     80             ! Npax(.)  number of passengers
+215.0                  * 4.45   ! Wpax(.)  PAX weight (including baggage)
+0.0                    * 0.3048 ! altTO    takeoff/landing altitude [m]
+288.0                           ! T0TO     ambient takeoff/landing temp [K]
+
+
+#------------------------------------------------------------------
+#- Design cruise-start altitude (with max fuel, max payload)
+ 35000.0 * 0.3048   ! altCR    cruise-start altitude [m]
+
+#------------------------------------------------------------------
+#- Takeoff and initial climb parameters
+ 2.25      ! clpmax   wing max cl_perp  = CLmax/cos(sweep)^2
+
+ 0.500    ! cdefan    CDA_fan /A_fan  of dead engine in engine-out climb
+ 0.015    ! CDgear    CDA_gear/S      during climb
+ 0.10     ! CDspoiler CDA_spoiler/S   during braking
+ 0.025    ! muroll    rolling-resistance coefficient
+ 0.35     ! mubrake   braking-resistance coefficient
+
+ 35.0 * 0.3048  ! hobst     obstacle height
+
+8000.0 * 0.3048 ! lBFmax   specified max takeoff length for takeoff constraint
+0.015           ! gtocmin  specified min top-of-climb gradient
+90.0            ! dBSLmax  max dBA for sideline   (not used)
+75.0            ! dBSLmax  max dBA for cutback    (not used)
+
+40.0     !  thetaCB   cutback sight angle
+ 3.0     !  gammaCB   prescribed cutback climb angle
+
+-3.0     !  gammaDE1   prescribed descent angle at top    of descent
+-3.0     !  gammaDEn   prescribed descent angle at bottom of descent
+
+#-----------------------------------------
+#- sizing-load parameters
+3.0            ! Nlift  max vertical load factor for wing bending loads
+6.0            ! Nland  max vertical load factor for fuse bending loads
+280.0 * 0.514  ! Vne    never-exceed IAS, for tail loads
+
+8000.0 * 0.3048   !  cabin pressure altitude
+#-----------------------------------------
+#- cruise aero parameters
+ 0.57   ! CL 
+ 0.72   ! Mach
+
+#----------------------------------------
+#- basic wing parameters 
+26.0   !  sweep    wing sweep angle 
+10.1   !  AR       overall wing aspect ratio
+
+117.5  * 0.3048  ! bmax   max span for span constraint (if selected)
+
+0.70   !  lambdas  inner panel taper ratio  cs/co  ( = 1.0  for single taper)
+0.25   !  lambdat  outer panel taper ratio  ct/co
+
+! 0     !  iwplan   (cantilever wing, plain)
+  1     !  iwplan   (cantilever, engine mounted at eta=etas)
+! 2     !  iwplan   (strut braced, strut attach at eta=etas)
+
+! 0     !  ifwcen   (no fuel in center wing box)
+  1     !  ifwcen   (fuel    in center wing box)
+
+0.90    !  rWfmax   usability factor of max fuel volume
+
+-0.3   !  fLo   fuselage lift carryover loss factor
+-0.05  !  fLt   tip lift rolloff factor
+
+154.0 * 0.0254  ! zs  strut vertical base  (used only if iwplan=2)
+
+ 71.0 * 0.0254  ! yo        wing centerbox halfspan
+0.285   ! etas  panel break eta location  (strut-attach if iwplan=2)
+
+1.0     ! rVstrut  strut local/freesteam velocity ratio
+
+#----------------------------------------
+#- tail download parameter at max load case (download looks like added weight)
+-0.5   !  CLh / CLmax
+
+#----------------------------------------
+#- wing spanwise cl and cm distributions over mission
+#- ( rclo = clo/clo = 1.0  by definition, so it's not specified )
+
+#- takeoff, initial climb 
+1.1     !  rcls    break/root cl ratio = cls/clo
+0.6     !  rclt    tip  /root cl ratio = clt/clo
+-0.20   !  cmpo    root  cm
+-0.20   !  cmps    break cm
+-0.02   !  cmpt    tip   cm
+
+#- clean climb, cruise, descent,  also for wing structure sizing
+1.238   !  rcls    
+0.90    !  rclt    
+-0.06   !  cmpo    
+-0.06   !  cmps    
+-0.06   !  cmpt    
+
+#- landing, forward-CG tail sizing case
+1.1     !  rcls
+0.5     !  rclt
+-0.35   !  cmpo    
+-0.35   !  cmps    
+-0.02   !  cmpt    
+
+
+#-----------------------------------------
+#- wing and tail structural box parameters
+ 0.50    ! wbox    box width/c
+ 0.1268  ! hboxo   box height/c  (airfoil t/c) at root
+ 0.1266  ! hboxs   box height/c  (airfoil t/c) at break and tip
+ 0.75    ! rh      web-height/hbox ratio
+ 0.40    ! Xaxis   spar box axis x/c location
+
+ 0.15    ! hstrut  strut t/c    (used only if iwplan=2)
+
+#----------------------------------------
+#- weight fractions of flight surfaces and secondary wing components, 
+#     as fractions of wing box  (sum = fwadd)
+ 0.200   ! fflap
+ 0.100   ! fslat
+ 0.040   ! faile
+ 0.100   ! flete
+ 0.150   ! fribs
+ 0.020   ! fspoi
+ 0.030   ! fwatt
+
+#-----------------------------------------
+#- horizontal and vertical tail parameters
+!1    !  iHTsize   set Sh via Vh
+ 2    !  iHTsize   set Sh via CLhCGfwd at max-forward CG during landing
+1.45  !  Vh        HT volume coefficient    (only used if iHTsize=1)
+-0.70 !  CLhCGfwd  HT CL at forward CG trim (only used if iHTsize=2)
+
+!1    !  iVTsize   set Sv via Vv
+ 2    !  iVTsize   set Sv via CLveout on engine-out
+0.10  !  Vv        VT volume coefficient    (only used if iVTsize=1)
+0.5   !  CLveout   VT CL at engine-out trim (only used if iVTsize=2)
+
+!0    !  ixwmove   fix wing position
+!1    !  ixwmove   move wing to get CLh=CLhspec in cruise
+ 2    !  ixwmove   move wing to get min static margin = SMmin
+-0.02 !  CLhspec
+0.05  !  SMmin
+
+!0.36  !  dCLh/dCL  HT lift-curve slope factor for NP calculation
+0.60  !  deps/da   downwash factor at tail
+
+!0.70 !  dCLn/dCL  nacelle lift-slope ratio for NP calculation
+3.8   !  dCLn/da   nacelle lift-curve slope for NP calculation
+      !             ( ~3.8  for wing mount,  ~0.0 for rear fuse mount )
+
+6.0   !  ARh       HT aspect ratio
+2.0   !  ARv       VT aspect ratio
+0.25  !  lambdah   HT taper ratio
+0.30  !  lambdav   VT taper ratio
+25.0  !  sweeph    HT sweep
+25.0  !  sweepv    VT sweep
+
+2.5 * 0.3048   !  yoh       HT support y location
+0.0            !  yov       VT support z location
+
+0.1   !  fCDhcen   CDhtail contribution factor for center part  0 < y < yoh
+
+2.0   !  CLhmax    HT max +/-CL at Vmn, for HT structural sizing
+2.6   !  CLvmax    VT max +/-CL at Vmn, for VT structural sizing
+
+0.30  !  fhadd     HT added-weight fraction (e.g. ribs,LE,elevator, attach)
+0.40  !  fvadd     VT added-weight fraction (e.g. ribs,LE,rudder  , attach)
+
+0.50  !  wboxh     HT box width/chord
+0.50  !  wboxv     VT box width/chord
+0.14  !  hboxh     HT box height/chord  (airfoil t/c)
+0.14  !  hboxv     VT box height/chord  (airfoil t/c)
+0.75  !  rhh       HT web-height/hbox ratio
+0.75  !  rhv       VT web-height/hbox ratio
+
+ 1    !  nvtail    number of vertical tails
+
+#----------------------------------------
+#- cabin and fuselage geometry parameters
+
+ 77.0 * 0.0254  ! Rfuse     main bubble radius
+ 15.0 * 0.0254  ! dRfuse    downward shift of lower bubbles
+  0.0 * 0.0254  ! wdb       y offset of bubble center
+  5.0 * 0.0254  ! hfloor    depth of floor beams
+
+ 1.65           ! anose     nose radius = Rfuse*(1 - xi^anose)^(1/anose)
+ 2.0            ! btail     tail radius = Rfuse*(1 - xi^btail)
+
+  0.0 * 0.3048  ! xnose     nose tip location
+124.0 * 0.3048  ! xend      tail tip location
+ 20.0 * 0.3048  ! xblend1   start of cylindrical section
+ 97.0 * 0.3048  ! xblend2   end   of cylindrical section
+ 17.0 * 0.3048  ! xshell1   front of pressure shell (center of nose ellipse)
+102.0 * 0.3048  ! xshell2   end   of pressure shell (center of end bulkhead)
+117.0 * 0.3048  ! xconend   end   of tailcone primary structure  @
+ 57.0 * 0.3048  ! xwbox     wing box location
+114.5 * 0.3048  ! xhtail    HT   box location
+110.0 * 0.3048  ! xvtail    VT   box location                          
+
+ -5.5 * 0.3048  ! zwing     wing box z location   !  for Trefftz plane
+  0.0 * 0.3048  ! zhtail    HT   box z location   !  definition
+
+1               ! iengloc    engine location  (1 = wing, 2 = fuselage)
+
+ 52.0 * 0.3048  ! xeng      engine x location
+ 16.0 * 0.3048  ! yeng      critical-engine y location
+ 2              ! neng      number of engines         
+
+0.3   ! lambdac  tailcone taper ratio
+
+0.35  ! fstring  Wstringer/Wskin
+0.25  ! fframe   Wframe   /Wskin
+0.20  ! fadd     Wfadd    /Wskin
+
+3000.0  * 4.45    ! Wfix(.)  added fixed weight (pilots,cockpit)
+ 7.0    * 0.3048  ! xfix     location of Wfix's c.g.
+
+145.0 * 3.0 ! W'window   Wwindow/length  [N/m]   @
+22.0   ! W''insul   Winsul/area     [N/m^2] @ (insulation and inside shell)
+60.0   ! W''floor   Wfloor/area     [N/m^2] @ (floor planking, not beams)
+
+0.4   ! rMh   HT-load fuselage bending moment inertial relief factor
+0.7   ! rMv   VT-load fuselage bending moment inertial relief factor
+
+ 0     ! ifclose   (taper fuselage to a point)
+!1     ! ifclose   (taper fuselage to an edge)
+
+ 2390.0 * 0.0283  ! CMVf1  fuselage moment volume derivative  d(Mfuse/q)/dCL
+ 0.185            ! CLMf1  CL where Mfuse = 0
+
+0.018    ! fduo   fuselage velocity overspeed at wing root
+0.014    ! fdus   fuselage velocity overspeed at wing break
+0.0045   ! fdut   fuselage velocity overspeed at wing tip
+
+#-----------------------------------------
+#- power systems and landing gear locations and weight fractions
+
+ 62.0 * 0.3048   !  xhpesys   hyd/pneu/ele system location
+ 14.0 * 0.3048   !  xlgnose   nose LG location
+  1.0 * 0.3048   ! dxlgmain   main LG offset behind wing lift centroid
+
+ 0.010     ! fhpesys    Whpesys/WMTO
+ 0.011     ! flgnose    Wlgnose/WMTO
+ 0.044     ! flgmain    Wlgmain/WMTO
+
+#-----------------------------------------
+#- other added-weight fractions
+
+120.0 * 0.3048 ! xapu                 APU location
+0.035          ! fapu   Wapu/Wpay     APU weight fraction
+
+0.10  ! fseat    Wseat/Wpay    seat weight fraction
+0.35  ! fpadd    Wpadd/Wpay    other payload-proportional fraction
+
+0.10  ! feadd    Weadd/Wbare   engine accessories, fuel system fraction @
+0.10  ! fpylon   Wpylon/We+a+n engine pylon weight fraction   @
+0.20  ! freserve Wfreserve/Wburn
+
+#----------------------------------------
+#- allowable stresses at sizing cases
+1.0   !  sigfac   convenient multiplier on all the stress values below
+
+15000.0 / 0.000145   ! sigskin   fuselage pressurization skin stress
+30000.0 / 0.000145   ! sigbend   fuselage bending skin+stringer stress
+
+30000.0 / 0.000145   ! sigcap    wing,tail bending caps
+20000.0 / 0.000145   ! tauweb    wing,tail shear webs
+30000.0 / 0.000145   ! sigstrut  strut           
+
+#----------------------------------------
+#- fuselage shell modulus ratio, for bending material sizing
+1.0                  ! rEshell   Ebend/Eskin  ratio
+
+#----------------------------------------
+#- moduli, for strut-induced buckling load estimation
+ 10.0e6 / 0.000145   ! Ecap     wing sparcap
+ 10.0e6 / 0.000145   ! Estrut   strut
+
+#----------------------------------------
+#- structural material densities
+ 2700.0  !  rhoskin     fuselage skin
+ 2700.0  !  rhobend     fuselage bending stringers 
+ 2700.0  !  rhocap  	wing, tail bending caps	 
+ 2700.0  !  rhoweb  	wing, tail shear webs	 
+ 2700.0  !  rhostrut	strut           
+
+#------------------------------------------------------------------
+#- database for wing profile cd in transonic cruise, high climb
+ ../../air/C.air   ! C-series airfoils
+!../../air/Cl.air  ! C-series airfoils with laminar bottom
+
+0.0085  !  cdfw    wing profile cd for low speed (takeoff, initial climb)
+0.0035  !  cdpw    
+20.0e6  !  Rerefw
+
+0.0060  !  cdft    tail profile cd
+0.0030  !  cdpt    
+10.0e6  !  Rereft  
+
+0.0085  !  cdfs    strut profile cd (not used if there's no strut)
+0.0035  !  cdps    
+1.0e6   !  Rerefs  
+
+-0.15   !  aRexp   exponent for Re-scaling:  CD = cd * (Re/Re_ref)^aRexp
+
+1.02     !  fexcdw   ! wing excrescence drag factor
+1.02     !  fexcdt   ! tail excrescence drag factor
+1.03     !  fexcdf   ! fuse excrescence drag factor
+
+0.0    ! fBLIw   fraction of wing-BL  KE defect ingested
+0.0    ! fBLIf   fraction of fuse-BL  KE defect ingested
+0      ! iBLIc   0 = core in clean flow, 1 = core ingests KE defect (if any)
+
+#-----------------------------------------
+#- fuel parameters
+#  ifuel = 11  ! methane
+#  ifuel = 12  ! ethane
+#  ifuel = 13  ! propane
+#  ifuel = 14  ! butane
+#  ifuel = 18  ! octane  
+#  ifuel = 24  ! kerosene  (C14H30)
+#
+#  rhofuel = 423.0   ! methane
+#  rhofuel = 547.0   ! ethane
+#  rhofuel = 582.0   ! propane
+#  rhofuel = 600.0   ! butane
+#  rhofuel = 700.0   ! octane
+#  rhofuel = 817.0   ! kerosene
+
+24     ! ifuel
+817.0  ! rhofuel
+280.0  ! Tfuel
+
+#----------------------------------------
+#- engine temperatures
+
+#---- E3 engine
+#     hot day T/O Tt41 = 2480F = 1360K
+#     max cruise  Tt41 = 2190F = 1199K
+#
+#     2000 F  =  1366 K
+#     2100 F  =  1423 K
+#     2700 F  =  1755 K
+#     2900 F  =  1866 K
+#     3100 F  =  1977 K
+
+1280.0   ! Tmetal
+
+1833.0   ! Tt4TO    takeoff
+0.2      ! fTt4CL1  bot of climb Tt4 fraction over  Tt4TO .. Tt4CR
+0.2      ! fTt4CLn  top of climb Tt4 fraction over  Tt4TO .. Tt4CR
+1587.0   ! Tt4CR    cruise
+
+#----------------------------------------
+#- turbine cooling parameters
+200.0  !  dTstrk  hot-streak temperature allowance 
+1.0    !  Mtexit  turbine blade row exit Mach, for temperature drops
+0.09   !  StA     area-weighted effective Stanton number
+0.7    !  efilm   blade-to-cooling flow heat transfer efficiency
+0.30   !  tfilm   cooling-film effectiveness factor
+0.9    !  M4a     Mach number at start of cooling-air mixing zone
+0.15   !  ruc     u_cool/u_edge  velocity ratio of exiting cooling air
+
+#------------------------------
+#- design pressure ratios, efficiencies, etc.
+
+#- 40psi offtake air requires that roughly  pilc = 7.0  (includes FPR)
+
+30.0   !   OPR    overall pressure ratio
+8.0    !   pilc   LPC pressure ratio  (includes FPR)
+1.685  !   FPR    fan pressure ratio
+0.998  !   pid    diffuser pressure ratio
+0.94   !   pib    burner pressure ratio
+0.98   !   pifn   fan  nozzle pressure ratio
+0.989  !   pitn   core nozzle pressure ratio
+0.8948 !   epolf  fan poly efficiency at FPR = FPRo
+0.88   !   epollc LPC poly efficiency
+0.87   !   epolhc HPC poly efficiency
+0.889  !   epolht HPT poly efficiency
+0.899  !   epollt LPT poly efficiency
+
+0.985  !   etab  combustor efficiency
+
+1.685  !   FPRo   | fan efficiency function constants
+-0.077 !   K_epf  |  epolf_actual = epolf + K_epf*(FPR-FPRo)
+
+5.1    !   BPR    bypass ratio
+1.0    !   Gearf  LPC/fan speed ratio
+0.30   !   HTRf   fan hub/tip ratio
+0.60   !   HTRlc  LPC hub/tip ratio
+0.80   !   HTRhc  HPC hub/tip ratio
+
+0.60   !   M2     fan-face Mach number
+0.60   !   M25    HPC-face Mach number
+
+#- - - - - - - - - - - - - - - - - - - - -
+# power loss fractions
+
+0.01       !   epsl     low  spool
+0.022      !   epsh     high spool
+
+#- - - - - - - - - - - - - - - - - - - - -
+# offtakes (total for both engines)
+
+0.008           !   moff_PAX   LPC mass flow offtake per PAX
+0.0085 * 0.001  !   moff_mMTO  LPC mass flow offtake per kg of max mass
+
+200.0          !   Poff_PAX   low spool power offtake per PAX
+0.5            !   Poff_mMTO  low spool power offtake per kg of max mass
+
+300.0      !  Tt9   offtake air discharge Tt
+30000.0    !  pt9   offtake air discharge pt
+
+#------------------------------
+#- fan nozzle area factors relative to cruise design area
+ 1.0   ! static
+ 1.0   ! rotation/takeoff
+ 1.0   ! cutback
+ 1.0   ! climb1
+ 1.0   ! climbn
+ 1.0   ! descent1
+ 1.0   ! descentn
+
+#------------------------------
+#- core nozzle area factors relative to cruise design area
+ 1.0   ! static
+ 1.0   ! rotation/takeoff
+ 1.0   ! cutback
+ 1.0   ! climb1
+ 1.0   ! climbn
+ 1.0   ! descent1
+ 1.0   ! descentn
+
+#------------------------------
+#- nacelle drag stuff
+16.0   ! rSnace   nacelle+pylon wetted area/fan area  Snace/Afan
+ 1.02  ! rVnace   nacelle local/freesteam velocity ratio
+
+#------------------------------
+#- engine weight model
+1   ! iengwgt = 0  MD's original model
+    !         = 1  NF's new model, basic tech    |  ungeared if Gearf  = 1, 
+    !         = 2  NF's new model, advanced tech |  geared   if Gearf /= 1
+#-----------------------------------------
+# Advanced Technology Parameters
+0.07 	! fRiblet
+0 	! mRiblet = 0 No riblets
+# 	! 	  = 1 Riblets on fuselage
+#       !         = 2 Riblets on fuselage, wing, vtail, htail, nacelles
+.000 * 47.88     ! W''structural health monitoring Wshm/area   [N/m^2] 
+00000. * 4.45! Additional payload weight for sizing structure [N]
+#0.0 * 4.45! Additional payload weight for sizing structure [N]

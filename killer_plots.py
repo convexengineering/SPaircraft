@@ -62,9 +62,9 @@ def RJ_M08_killer_plot_standard():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
@@ -177,9 +177,9 @@ def RJ_killer_plot_standard():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
@@ -294,9 +294,9 @@ def RJ_killer_plot_max_opt_eng():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
@@ -416,11 +416,11 @@ def b777_killer_plot_standard():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
-                 sol6['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol6['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+                 sol6['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol6['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
@@ -545,11 +545,11 @@ def b777_killer_plot_reordered():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
-                 sol6['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol6['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+                 sol6['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol6['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
@@ -672,9 +672,9 @@ def b777_killer_plot_max_opt_eng():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
@@ -789,9 +789,9 @@ def M_08_killer_plot_max_opt_eng():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
@@ -906,9 +906,9 @@ def M_08_killer_plot_optimal():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
@@ -1025,9 +1025,9 @@ def M_08_killer_plot_fixed_BPR():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
@@ -1150,9 +1150,9 @@ def standard_killer_plot():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
@@ -1320,9 +1320,9 @@ def standard_killer_plot_optimal_engine():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
@@ -1371,9 +1371,9 @@ def standard_killer_plot_max_opt_eng():
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
-    HT_sens = [sol0['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol2['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{HT}_Mission/Aircraft/HorizontalTail']]
+    HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
