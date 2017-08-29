@@ -110,7 +110,7 @@ def gen_D82_plots(sol):
     plt.legend(['SP Model', 'TASOPT'], loc=4)
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance [nm]', fontsize=18)
-    plt.title('D8 Altitude Profile')
+    plt.title('D8.2 Altitude Profile')
     plt.savefig('D8_altitude_profile.eps', bbox_inches="tight")
     plt.show()
 
