@@ -80,6 +80,7 @@ class Aircraft(Model):
              Izwing = Variable('I_{z_{wing}}','kg*m**2','Wing moment of inertia')
              Iztail = Variable('I_{z_{tail}}','kg*m**2','Tail moment of inertia')
              Izfuse = Variable('I_{z_{fuse}}','kg*m**2','Fuselage moment of inertia')
+             Iz = Variable('I_{z}', 'kg*m^2', 'Aircraft Z-axis Moment of Inertia')
 
         Mmin = Variable('M_{min}','-','Minimum Cruise Mach Number')
 
@@ -236,7 +237,7 @@ class Aircraft(Model):
                             # VT sizing constraints
                             # Yaw rate constraint at flare
                             numVT*.5*self.VT['\\rho_{TO}']*self.VT['V_{land}']**2*self.VT['S_{vt}']*self.VT['l_{vt}']* \
-                                            self.VT['C_{L_{vt,yaw}}'] >= self.VT['\\dot{r}_{req}']*self.VT['I_{z}'],
+                                            self.VT['C_{L_{vt,yaw}}'] >= self.VT['\\dot{r}_{req}']*self.VT['I_{z, max}'],
 
                             # Force moment balance for one engine out condition
                             # TASOPT 2.0 p45
@@ -249,7 +250,8 @@ class Aircraft(Model):
                             
                             ## ------------- MOMENT OF INERTIA ------------
                             # Moment of inertia around z-axis
-                            self.VT['I_{z}'] >= Izwing + Iztail + Izfuse,
+                            Iz >= Izwing + Iztail + Izfuse,
+                            self.VT['I_{z, max}'] >= Iz,
 
 
                             ## --------------ENGINE SYSTEM----------------
