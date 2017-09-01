@@ -152,9 +152,10 @@ class Aircraft(Model):
                             TCS([W_ftotal + W_dry + self.fuse['W_{payload}'] <= W_total]),
                             TCS([W_ftotal >= W_fprimary + ReserveFraction * W_fprimary]),
                             TCS([W_fprimary >= W_fclimb + W_fcruise]),
-##                            W_totalmax >= W_total,
-                            W_totalmax >= W_total[0],
-                            W_totalmax >= W_total[1],
+                            W_totalmax >= W_total,
+                            ## NEEDED FOR MULTIMISSION TODO: add if statement
+##                            W_totalmax >= W_total[0],
+##                            W_totalmax >= W_total[1],
 
 
                             ## ---------------- WING CONSTRAINTS -------------
