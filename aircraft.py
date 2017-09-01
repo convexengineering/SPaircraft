@@ -94,6 +94,8 @@ class Aircraft(Model):
              W_fcruise = Variable('W_{f_{cruise}}', 'lbf','Fuel Weight Burned in Cruise')
              W_fprimary = Variable('W_{f_{primary}}', 'lbf', 'Total Fuel Weight Less Fuel Reserves')
 
+        W_totalmax = Variable('W_{total, max}', 'lbf', 'Total Aircraft Weight')
+
         # Fuselage lift fraction variables
         Ltow = Variable('f_{L_{total/wing}}','-','Total lift as a percentage of wing lift')
 
@@ -138,7 +140,7 @@ class Aircraft(Model):
                             self.wing['x_w'] == self.fuse['x_{wing}'],
                             # Load factor matching
                             self.fuse['N_{lift}'] == self.wing['N_{lift}'], # To make sure that the loads factors match.
-                            Ltow*self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_total + self.HT['L_{ht_{max}}'],
+                            Ltow*self.wing['L_{max}'] >= self.wing['N_{lift}'] * W_totalmax + self.HT['L_{ht_{max}}'],
 
                             ## ----------------- WEIGHT BUILD UPS --------------
                             #compute the aircraft's zero fuel weight
@@ -147,8 +149,12 @@ class Aircraft(Model):
 
                             # Total takeoff weight constraint
                             TCS([W_ftotal + W_dry + self.fuse['W_{payload}'] <= W_total]),
+                            TCS([W_ftotal + W_dry + self.fuse['W_{payload}'] <= W_total]),
                             TCS([W_ftotal >= W_fprimary + ReserveFraction * W_fprimary]),
                             TCS([W_fprimary >= W_fclimb + W_fcruise]),
+                            W_totalmax >= W_total,
+##                            W_totalmax >= W_total[0],
+##                            W_totalmax >= W_total[1],
 
 
                             ## ---------------- WING CONSTRAINTS -------------
@@ -159,7 +165,7 @@ class Aircraft(Model):
                             ## --------------------LANDING GEAR and POWER SYSTEM ----------------
                             # LG and Power Systems weights
                             Wmisc >= self.LG['W_{lg}'] + Whpesys,
-                            Whpesys == fhpesys*W_total,
+                            Whpesys == fhpesys*W_totalmax,
                             
                             # LG and Power System locations
                             self.LG['x_n'] <= self.fuse['l_{nose}'],
@@ -177,17 +183,17 @@ class Aircraft(Model):
                            # sink rate of 10 feet per second at the maximum
                            # design landing weight
                            # Landing condition from Torenbeek p360
-                           self.LG['E_{land}'] >= W_total/(2*self.LG['g'])*self.LG['w_{ult}']**2, # Torenbeek (10-26)
+                           self.LG['E_{land}'] >= W_totalmax/(2*self.LG['g'])*self.LG['w_{ult}']**2, # Torenbeek (10-26)
 
                             #setting fuselage upsweep location
                             self.LG['x_{up}'] == self.fuse['x_{shell2}'],
 
                            # Maximum static loads through main and nose gears
-                           self.LG['L_n'] == W_total*self.LG['\\Delta x_m']/self.LG['B'],
-                           self.LG['L_m'] == W_total*self.LG['\\Delta x_n']/self.LG['B'],
+                           self.LG['L_n'] == W_totalmax*self.LG['\\Delta x_m']/self.LG['B'],
+                           self.LG['L_m'] == W_totalmax*self.LG['\\Delta x_n']/self.LG['B'],
 
                             # (assumes deceleration of 10 ft/s^2)
-                            self.LG['L_{n_{dyn}}'] >= 0.31*((self.LG['z_{CG}']+self.LG['l_m'])/self.LG['B'])*W_total,
+                            self.LG['L_{n_{dyn}}'] >= 0.31*((self.LG['z_{CG}']+self.LG['l_m'])/self.LG['B'])*W_totalmax,
                                                          self.VT['y_{eng}'] >= self.LG['y_m'],
 
                             ## ------------------- FUSELAGE CONSTRAINTS ---------------

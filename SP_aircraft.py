@@ -292,7 +292,7 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 1
+    Nmission = 3
     aircraft = 'optimalD8'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
@@ -338,17 +338,17 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 1
+    Nmission = 2
     aircraft = 'optimal737'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
     substitutions = get737_optimal_subs()
 
-    if Nmission == 3:
+    if Nmission > 1:
         substitutions.update({
-            'R_{req}': [3000.*units('nmi'),3000.*units('nmi'),3000.*units('nmi')],
-            'n_{pass}': [180., 160., 120.],
+            'R_{req}': [3000.*units('nmi'),2500.*units('nmi')],
+            'n_{pass}': [180., 180.],
         })
     else:
         substitutions.update({
