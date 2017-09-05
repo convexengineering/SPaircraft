@@ -70,7 +70,6 @@ def get737_optimal_subs():
             'f_{lugg,1}': 0.4,  # [Philippe]
             'f_{lugg,2}': 0.1,  # [Philippe]
             'f_{padd}': 0.35,  # [TAS]
-            'f_{hpesys}': 0.01, # [TAS]
 
             # Wing substitutions
             'C_{L_{w,max}}': 2.25/(cos(sweep* pi / 180.)**2), # [TAS]

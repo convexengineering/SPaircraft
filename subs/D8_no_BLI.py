@@ -1,9 +1,10 @@
 from gpkit import units
 from numpy import cos, tan, pi
+import numpy as np
 
-def get_D8_eng_wing_subs():
+def get_D8_no_BLI_subs():
         """
-        returns substitution dic for the D8 with wing-podded engines
+        returns substitution dic for the rear-engined D8 with no BLI
         """
         sweep = 13.237  # [deg]
         VTsweep = 25.0 #[deg]
@@ -53,8 +54,6 @@ def get_D8_eng_wing_subs():
                 'f_{string}': 0.35,
 
                 'h_{floor}': 5.12*units('in'),
-##                'R_{fuse}': 1.715*units('m'),
-##                '\\Delta R_{fuse}': 0.43*units('m'),
                 'w_{db}': 0.93*units('m'),
                 '\\Delta P_{over}': 8.382 * units('psi'),
                 'SPR': 8.,
@@ -65,8 +64,6 @@ def get_D8_eng_wing_subs():
 
                 # Power system and landing gear subs
                 'f_{hpesys}': 0.01, # [TAS]
-                'f_{lgmain}':0.044, # [TAS]
-                'f_{lgnose}':0.011, # [TAS]
 
                 # Fractional weights
                 'f_{fadd}': 0.2,  # [TAS]
@@ -82,7 +79,6 @@ def get_D8_eng_wing_subs():
                 '\\eta': 0.97,
                 '\\rho_0': 1.225*units('kg/m^3'),
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
-##                'AR':15.749,
                 'b_{max}': 140.0 * 0.3048*units('m'),
                 '\\tau_{max_w}': 0.14733,
                 'f_{wingfuel}': 1.0,
@@ -106,8 +102,8 @@ def get_D8_eng_wing_subs():
                 'c_{l_{vt,EO}}': 0.5, # [TAS]
                 'e_{vt}': 0.8,
                 'V_{land}': 72.*units('m/s'),
-                '\\dot{r}_{req}': 0.00001, #0.1475 10 deg/s/s yaw rate acceleration
-                'N_{spar}': 1.,
+                '\\dot{r}_{req}': 0.1475, # 10 deg/s/s yaw rate acceleration
+                'N_{spar}': 1,
                 'f_{VT}': 0.4,
                 'n_{vt}': 2.,
                 'A_{vt}' : 2.2,
@@ -116,8 +112,8 @@ def get_D8_eng_wing_subs():
                 '\\cos(\\Lambda_{vt})^3': cos(VTsweep * pi / 180.)**3,
                 'c_{d_{fv}}': 0.0060,
                 'c_{d_{pv}}': 0.0035,
-                'V_{vt_{min}}': 0.001,#0.1,
-                'y_{eng}': 4.8768*units('m'),
+                'V_{vt_{min}}': 0.001,#0.065,
+                'Fsafetyfac': 1.0,
 
                 # HT substitutions
                 '\\alpha_{ht,max}': 2.5,
@@ -127,20 +123,20 @@ def get_D8_eng_wing_subs():
                 'x_{CG_{min}}' : 56.02*units('ft'),
                 'C_{L_{ht,fCG}}': 0.85,
                 'f_{ht}': 0.3,
-##                'AR_{ht}': 12.,
                 '\\lambda_{ht}': 0.3,
                 '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
                 '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
                 'c_{d_{fh}}': 0.0060,
                 'c_{d_{ph}}': 0.0035,
+                '\\eta_{ht}': 1, 
                 
                 #engine system subs
                 'r_{S_{nacelle}}': 16.,
-                'f_{pylon}': 0.1,
+                'f_{pylon}': 0.11,
                 'f_{eadd}': 0.1,
 
                 #nacelle drag calc parameter
-                'r_{v_{nacelle}}': 1.02,
+                'r_{v_{nacelle}}': 1.0,
 
                 # Cabin air substitutions in AircraftP
 
@@ -149,6 +145,8 @@ def get_D8_eng_wing_subs():
 
                 # Minimum Cruise Mach Number
                 'M_{min}': Mcruisemin,
+
+                'MinCruiseAlt': 38478.0*units('ft'),
 
                 # Engine substitutions
                 '\\pi_{tn}': .995,
@@ -165,9 +163,6 @@ def get_D8_eng_wing_subs():
                 '\\pi_{hc_D}': hpc,
                 '\\pi_{lc_D}': lpc,
 
-##                '\\alpha_{OD}': 6.97,
-##                '\\alpha_{max}': 6.97,
-
                 'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
                 'r_{uc}': .01,
                 '\\alpha_c': .16,
@@ -177,18 +172,44 @@ def get_D8_eng_wing_subs():
 
                 'G_{f}': 1.,
 
-                'h_{f}': 43.003,
+                'h_{f}': 42.5,
 
                 'C_{p_{t1}}': 1236.5,
                 'C_{p_{t2}}': 1200.4,
-                'C_{p_{c}}': 1257.9,
+                'C_{p_{c}}': 1253.9,
 
-                'HTR_{f_{SUB}}': 1.-.3**2.,
-                'HTR_{lpc_{SUB}}': 1. - 0.6**2.,
+                'HTR_{f_{SUB}}': 1. - .3 ** 2.,
+                'HTR_{lpc_{SUB}}': 1. - 0.6 ** 2.,
 
                 'T_{t_{4.1_{max}}}': 1567.*units('K'),
 
-                'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
+##                'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
+
+                'MaxClimbTime': 16*units('min'),
+
+                #LG subs
+                'E': 205,
+                'K': 2,
+                'N_s': 2,
+                '\\eta_s': 0.8,
+                '\\lambda_{LG}': 2.5,
+                '\\rho_{st}': 7850,
+                '\\tan(\\gamma)': np.tan(5*np.pi/180),
+                '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
+                '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
+                '\\tan(\\theta_{max})': np.tan(15*np.pi/180),
+                '\\sigma_{y_c}': 470E6,
+                'f_{add,m}': 1.5,
+                'f_{add,n}': 1.5,
+                'h_{hold}': 1,
+                'n_{mg}': 2,
+                'n_{wps}': 2,
+                'p_{oleo}': 1800,
+                't_{nacelle}': 0.15,
+                'w_{ult}': 10,
+                'z_{CG}': 2,
+                'z_{wing}': 0.5,
         }
 
         return substitutions
+

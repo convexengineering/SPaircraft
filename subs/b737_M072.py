@@ -1,5 +1,6 @@
 from gpkit import units
 from numpy import cos, tan, pi
+import numpy as np
 
 def get_M072_737_subs():
     """
@@ -55,7 +56,6 @@ def get_M072_737_subs():
             'W_{avg. pass_{total}}':215.*units('lbf'),
             'f_{string}': 0.35,
             'h_{floor}': 5. * units('in'),
-            # 'R_{fuse}' : 1.715*units('m'),
             '\\Delta P_{over}': 8.382 * units('psi'),
             # fuselage subs that make fuse circular
             '\\Delta R_{fuse}': 0.0001 * units('m'),
@@ -63,8 +63,6 @@ def get_M072_737_subs():
 
             # Power system and landing gear and engine weight fraction subs
             'f_{hpesys}': 0.01, # [TAS]
-            'f_{lgmain}':0.044, # [TAS]
-            'f_{lgnose}':0.011, # [TAS]
 
             # Fractional weights
             'f_{fadd}': 0.2,  # [TAS]
@@ -72,7 +70,6 @@ def get_M072_737_subs():
             'f_{lugg,1}': 0.4,  # [Philippe]
             'f_{lugg,2}': 0.1,  # [Philippe]
             'f_{padd}': 0.35,  # [TAS]
-            'f_{hpesys}': 0.01, # [TAS]
 
             # Wing substitutions
             'C_{L_{w,max}}': 2.25/(cos(sweep)**2), # [TAS]
@@ -80,7 +77,6 @@ def get_M072_737_subs():
             '\\cos(\\Lambda)': cos(sweep * pi / 180.),
             '\\eta': 0.97,
             '\\rho_0': 1.225*units('kg/m^3'),
-##            'AR': 10.1,
             'b_{max}': 117.5 * units('ft'),
             '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
             'f_{wingfuel}': .5,  #.35 may be a better answer
@@ -118,11 +114,11 @@ def get_M072_737_subs():
             'c_{d_{fv}}': 0.0060,
             'c_{d_{pv}}': 0.0030,
             'V_{vt_{min}}': 0.001, #0.1,
+            'Fsafetyfac': 1.8,
             
             # HT substitutions
             '\\alpha_{ht,max}': 2.5,
             'f_{ht}': 0.3,
-##            'AR_{ht}': 6.,
             '\\lambda_{ht}': 0.25,
             '\\tan(\\Lambda_{ht})': tan(HTsweep * pi / 180.),  # tangent of HT sweep
             'C_{L_{ht,max}}': 2.0,  # [TAS]
@@ -133,6 +129,7 @@ def get_M072_737_subs():
             '\\cos(\\Lambda_{ht})^3': cos(HTsweep * pi / 180.)**3,
             'c_{d_{fh}}': 0.0060,
             'c_{d_{ph}}': 0.0030,
+            '\\eta_{ht}': 0.9, 
 
             #engine system subs
             'f_{pylon}': 0.1,
@@ -143,7 +140,10 @@ def get_M072_737_subs():
             #set the fuel reserve fraction
             'f_{fuel_{res}}': .20,
 
-            # Engine substitutions
+            #min altitude for start of cruise
+            'MinCruiseAlt': 35000*units('ft'),
+
+           # Engine substitutions
             '\\pi_{tn}': .995,
             '\\pi_{b}': .94,
             '\\pi_{d}': .995,
@@ -158,9 +158,6 @@ def get_M072_737_subs():
             '\\pi_{hc_D}': hpc,
             '\\pi_{lc_D}': lpc,
 
-##            '\\alpha_{OD}': 6.97,
-##            '\\alpha_{max}': 6.97,
-
             'hold_{4a}': 1.+.5*(1.313-1.)*M4a**2.,
             'r_{uc}': .01,
             '\\alpha_c': .16,
@@ -170,11 +167,11 @@ def get_M072_737_subs():
 
             'G_{f}': 1.,
 
-            'h_{f}': 43.003,
+            'h_{f}': 42.5,
 
             'C_{p_{t1}}': 1236.5,
             'C_{p_{t2}}': 1200.4,
-            'C_{p_{c}}': 1257.9,
+            'C_{p_{c}}': 1253.9,
 
             'HTR_{f_{SUB}}': 1. - .3 ** 2.,
             'HTR_{lpc_{SUB}}': 1. - 0.6 ** 2.,
@@ -189,6 +186,32 @@ def get_M072_737_subs():
             'T_{t_{4.1_{max}}}': 1567.*units('K'),
 
             'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
-    }
+
+           'MaxClimbTime': 14*units('min'),
+
+            #LG subs
+            'E': 205,
+            'K': 2,
+            'N_s': 2,
+            '\\eta_s': 0.8,
+            '\\lambda_{LG}': 2.5,
+            '\\rho_{st}': 7850,
+            '\\tan(\\gamma)': np.tan(5*np.pi/180),
+            '\\tan(\\phi_{min})': np.tan(15*np.pi/180),
+            '\\tan(\\psi_{max})': np.tan(63*np.pi/180),
+            '\\tan(\\theta_{max})': np.tan(15*np.pi/180),
+            '\\sigma_{y_c}': 470E6,
+            'f_{add,m}': 1.5,
+            'f_{add,n}': 1.5,
+            'h_{hold}': 1,
+            'h_{nacelle}': 0.5,
+            'n_{mg}': 2,
+            'n_{wps}': 2,
+            'p_{oleo}': 1800,
+            't_{nacelle}': 0.15,
+            'w_{ult}': 10,
+            'z_{CG}': 2,
+            'z_{wing}': 0.5,
+        }
 
     return substitutions

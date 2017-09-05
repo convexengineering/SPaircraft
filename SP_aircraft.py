@@ -17,20 +17,20 @@ from aircraft import Mission
 from subs.optimal_D8 import get_optimal_D8_subs
 from subs.optimal_777300ER import get_optimal_777300ER_subs
 from subs.optimal_737 import get737_optimal_subs
+from subs.b737_M072 import get_M072_737_subs
+from subs.D8_no_BLI import get_D8_no_BLI_subs
+from subs.D8_eng_wing import get_D8_eng_wing_subs
 
 #out of date sub files that don't currenlty work
 ##from subs.D80 import getD80subs
 ##from subs.D82 import getD82subs
 ##from subs.D82_737_engine import getD82_73engsubs
-##from subs.D8_eng_wing import get_D8_eng_wing_subs
 ##from subs.D8_big import getD8bigsubs
 ##from subs.b737800 import getb737800subs
 ##from subs.b777300ER import getb777300ERsubs
 ##from subs.D8_M08 import subs_M08_D8
 ##from subs.D8_eng_wing_M08 import getM08_D8_eng_wing_subs
 ##from subs.D8_eng_wing import get_D8_eng_wing_subs
-##from subs.b737_M072 import get_M072_737_subs
-##from subs.D8_no_BLI import get_D8_no_BLI_subs
 ##from subs.D8_no_BLI_M08 import get_subs_M08_D8_noBLI
 ##from subs.D8_big_M08 import getD8big_M08_subs
 ##from subs.D8_big_M072 import getD8big_M072_subs
@@ -380,6 +380,142 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
 
     return sol
 
+def run_M072_737(objective, fixedBPR, pRatOpt = False):
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    aircraft = 'M072_737'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get_M072_737_subs()
+
+    if Nmission > 1:
+        substitutions.update({
+            'R_{req}': [3000.*units('nmi'),2500.*units('nmi')],
+            'n_{pass}': [180., 180.],
+        })
+    else:
+        substitutions.update({
+##           'n_{paxx}': 180.,
+            'R_{req}': 3000.*units('nmi'),
+        })        
+
+    if fixedBPR:
+        substitutions.update({
+            '\\alpha_{max}': 6.97,
+        })
+        
+    if pRatOpt:
+        del substitutions['\pi_{f_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
+
+    m.substitutions.update(substitutions)
+
+    m = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, aircraft, Nclimb)
+
+    post_compute(sol, Nclimb)
+
+    return sol
+
+def run_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    aircraft = 'D8_eng_wing'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get_D8_eng_wing_subs()
+
+    if Nmission > 1:
+        substitutions.update({
+            'R_{req}': [3000.*units('nmi'),2500.*units('nmi')],
+            'n_{pass}': [180., 180.],
+        })
+    else:
+        substitutions.update({
+##           'n_{paxx}': 180.,
+            'R_{req}': 3000.*units('nmi'),
+        })        
+
+    if fixedBPR:
+        substitutions.update({
+            '\\alpha_{max}': 6.97,
+        })
+        
+    if pRatOpt:
+        del substitutions['\pi_{f_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
+
+    m.substitutions.update(substitutions)
+    m = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 'b737800', Nclimb)
+
+    post_compute(sol, Nclimb)
+
+    return sol
+
+def run_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
+    # User definitions
+    Nclimb = 3
+    Ncruise = 2
+    Nmission = 1
+    aircraft = 'D8_no_BLI'
+
+    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
+    
+    substitutions = get_D8_no_BLI_subs()
+
+    if Nmission > 1:
+        substitutions.update({
+            'R_{req}': [3000.*units('nmi'),2500.*units('nmi')],
+            'n_{pass}': [180., 180.],
+        })
+    else:
+        substitutions.update({
+##           'n_{paxx}': 180.,
+            'R_{req}': 3000.*units('nmi'),
+        })        
+
+    if fixedBPR:
+        substitutions.update({
+            '\\alpha_{max}': 6.97,
+        })
+        
+    if pRatOpt:
+        del substitutions['\pi_{f_D}']
+##        del substitutions['\pi_{lc_D}']
+##        del substitutions['\pi_{hc_D}']
+
+    m.substitutions.update(substitutions)
+    m = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
+
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    post_process(sol)
+
+    percent_diff(sol, 'D82', Nclimb)
+
+    post_compute(sol, Nclimb)
+
+    return sol
+
 def test():
     run_optimal_737('W_{f_{total}}', True, False)
 
@@ -482,125 +618,10 @@ def test():
 ##
 ##    return sol
 ##
-##def run_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
-##    # User definitions
-##    Nclimb = 3
-##    Ncruise = 2
-##    Nmission = 1
-##    aircraft = 'D8_no_BLI'
+
 ##
-##    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
-##    
-##    substitutions = get_D8_no_BLI_subs()
-##
-##    substitutions.update({
-###                'n_{paxx}': 180.,
-##        'R_{req}': 3000.*units('nmi'),
-##    })
-##
-##    if fixedBPR:
-##        substitutions.update({
-##            '\\alpha_{max}': 6.97,
-##        })
-##
-##    if pRatOpt:
-##        del substitutions['\pi_{f_D}']
-####        del substitutions['\pi_{lc_D}']
-####        del substitutions['\pi_{hc_D}']
-##
-##    m.substitutions.update(substitutions)
-##    m = Model(m.cost, BCS(m))
-##    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
-##
-##    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
-##    post_process(sol)
-##
-##    percent_diff(sol, 'D82', Nclimb)
-##
-##    post_compute(sol, Nclimb)
-##
-##    return sol
-##
-##def run_M072_737(objective, fixedBPR, pRatOpt = False):
-##    # User definitions
-##    Nclimb = 3
-##    Ncruise = 2
-##    Nmission = 1
-##    aircraft = 'M072_737'
-##
-##    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
-##    
-##    substitutions = get_M072_737_subs()
-##
-##    substitutions.update({
-###                'n_{paxx}': 180.,
-##        'R_{req}': 3000.*units('nmi'),
-##    })
-##
-##    if fixedBPR:
-##        substitutions.update({
-##            '\\alpha_{max}': 6.97,
-##        })
-##
-##    if pRatOpt:
-##        del substitutions['\pi_{f_D}']
-####        del substitutions['\pi_{lc_D}']
-####        del substitutions['\pi_{hc_D}']
-##
-##    m.substitutions.update(substitutions)
-##
-##    m = Model(m.cost, BCS(m))
-##    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
-##
-##    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
-##    post_process(sol)
-##
-##    percent_diff(sol, aircraft, Nclimb)
-##
-##    post_compute(sol, Nclimb)
-##
-##    return sol
-##
-##def run_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
-##    # User definitions
-##    Nclimb = 3
-##    Ncruise = 2
-##    Nmission = 1
-##    aircraft = 'D8_eng_wing'
-##
-##    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
-##    
-##    substitutions = get_D8_eng_wing_subs()
-##
-##    substitutions.update({
-###                'n_{paxx}': 180.,
-##        'R_{req}': 3000.*units('nmi'),
-##    })
-##
-##    if fixedBPR:
-##        substitutions.update({
-##            '\\alpha_{max}': 6.97,
-##        })
-##
-##    if pRatOpt:
-##        del substitutions['\pi_{f_D}']
-####        del substitutions['\pi_{lc_D}']
-####        del substitutions['\pi_{hc_D}']
-##
-##    m.substitutions.update(substitutions)
-##    m = Model(m.cost, BCS(m))
-##    m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
-##
-##    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
-##    post_process(sol)
-##
-##    percent_diff(sol, 'b737800', Nclimb)
-##
-##    post_compute(sol, Nclimb)
-##
-##    return sol
-##
-##    return sol
+    
+
 ##
 ##def run_M08_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
 ##    # User definitions
