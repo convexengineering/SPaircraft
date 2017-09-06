@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 # Percent diffs
 from D8_TASOPT_percent_diff import percent_diff
 
+from gpkit.small_scripts import mag
+
 # Solution saving
 from saveSol import genSolOut
 
@@ -38,62 +40,75 @@ from SP_aircraft import run_optimal_777
 ##from SP_aircraft import run_M072_D8_big_eng_wing
 ##from SP_aircraft import run_M072_D8_big_no_BLI
 
-def standard_killer_plot_max_opt_eng():
+def standard_killer_plot_max_opt_eng():    
     #TURN ON THE RIGHT CONSTRIANTS INSIDE D8.py
-    sol0 = run_optimal_737('W_{f_{total}}', True, False)
+    sol0 = run_optimal_737('W_{f_{total}}', True)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_M072_737('W_{f_{total}}', True, False)
+    sol1 = run_M072_737('W_{f_{total}}', True)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_D8_eng_wing('W_{f_{total}}', True, False)
+    sol2 = run_D8_eng_wing('W_{f_{total}}', True)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_D8_no_BLI('W_{f_{total}}', True, False)
+    sol3 = run_D8_no_BLI('W_{f_{total}}', True)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_optimal_D8('W_{f_{total}}', True, False)
+    sol4 = run_optimal_D8('W_{f_{total}}', True)
     wf4 = sol4('W_{f_{total}}')
+
+    sol5 = run_optimal_D8('W_{f_{total}}', False, True)
+    wf5 = sol5('W_{f_{total}}')
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
                  sol2['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol3['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \
-                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
+                 sol4['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol5['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing']]
     HT_sens = [sol0['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol1['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
                  sol2['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol3['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], \
-                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
+                 sol4['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail'], sol5['sensitivities']['constants']['C_{ht}_Mission/Aircraft/HorizontalTail']]
     VT_sens = [sol0['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol1['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
                  sol2['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol3['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], \
-                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
+                 sol4['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail'], sol5['sensitivities']['constants']['C_{VT}_Mission/Aircraft/VerticalTail']]
     fuse_sens = [sol0['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol1['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
                  sol2['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol3['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], \
-                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
+                 sol4['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage'], sol5['sensitivities']['constants']['C_{fuse}_Mission/Aircraft/Fuselage']]
     engine_sens = [sol0['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
                  sol2['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], \
-                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
+                 sol4['sensitivities']['constants']['C_{engsys}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{engsys}_Mission/Aircraft']]
 ##    lg_sens = [sol0['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol1['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
 ##                 sol2['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol3['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], \
-##                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
+##                 sol4['sensitivities']['constants']['C_{lg}_Mission/Aircraft'], sol5['sensitivities']['constants']['C_{lg}_Mission/Aircraft']]
+    Mmin_sens = [sol0['sensitivities']['constants']['M_{min}_Mission/Aircraft'], sol1['sensitivities']['constants']['M_{min}_Mission/Aircraft'], \
+             sol2['sensitivities']['constants']['M_{min}_Mission/Aircraft'], sol3['sensitivities']['constants']['M_{min}_Mission/Aircraft'], \
+             sol4['sensitivities']['constants']['M_{min}_Mission/Aircraft'], sol5['sensitivities']['constants']['M_{min}_Mission/Aircraft']]
 
-    ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0]
+    ytest = [1, wf1/wf0, wf2/wf0, wf3/wf0, wf4/wf0, wf5/wf0, wf5/wf0]
     for i in range(len(ytest)):
         if i == 0:
             ytest[i] = ytest[i]
         if i != 0:
             ytest[i] = mag(ytest[i][0])
         
-    xtest = [0, 1, 2, 3, 4]
-    xlabels = ['Optimized 737-800 M = 0.8', 'Slow to M = 0.72', 'D8 fuselage, Pi tail', 'Rear podded engines', 'Integrated engines, BLI = D8']
+
+    xtest = [0, 1, 2, 3, 4, 5, 6]
+    xlabels = ['Optimized 737-800 M = 0.8', 'Slow to M = 0.72', 'D8 fuselage, Pi tail', 'Rear podded engines', 'Integrated engines, BLI = D8', 'Optimize engine', '2010 Engines']
 
     plt.plot(xtest, ytest, "o--")
+    plt.plot([0, 1, 2, 3, 4, 5, 6], [1, .88, .81, .82, .67, .66, .63], "o--")
+    plt.plot([0, 1, 2, 3, 6], [1, .868, .871, .865, .602], "o--")
+    plt.plot([0, 1, 2, 3, 4, 5, 6], [1, 41129./43843, 38402./43843, 37180./43843, 32987./43843, 32383./43843, 29753./43843], "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
     plt.ylim([0,1.1])
-    plt.xlim([-.5, 4.5])
+    plt.xlim([-.5, 6.5])
     plt.grid()
     plt.xlabel('Design Step', fontsize = 20)
-    plt.ylabel('$W_{f}/W_{f_0}$', fontsize = 20)
-    plt.title('D8 Morphing Chart - Maximum Engine Optimization')
-    plt.savefig('Morphing_Chart_Figs/D8_standard_killer_chart_max_opt_eng.pdf', bbox_inches="tight")
+    plt.ylabel('$W_{\mathrm{f}}/W_{\mathrm{f}_\mathrm{0}}$', fontsize = 20)
+    plt.title('D8 Morphing Chart')
+    plt.legend(['SP Model', 'TASOPT', 'NASA', 'Aurora'], loc=3)
+    plt.savefig('Morphing_Chart_Figs/D8_standard_morphing_chart.pdf', bbox_inches="tight")
     plt.show(), plt.close()
+
+    xtest = [0, 1, 2, 3, 4, 5]
 
     plt.plot(xtest, wing_sens, "o--")
     plt.xticks(xtest, xlabels,  rotation='vertical')
