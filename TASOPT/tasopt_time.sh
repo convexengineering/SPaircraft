@@ -1,3 +1,3 @@
 date
-tasopt 737so
+tasopt 737mo_MY
 date

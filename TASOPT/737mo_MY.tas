@@ -98,7 +98,7 @@ OPR     !  0.05    ! overall pressure ratio (pilc assumed fixed)
 #- parameters for each mission 
 #- (all same values used if only one value is given)
 
-3000.0 2500.0        * 1852.0 ! Range(.) [m]
+3000.0 2000.0        * 1852.0 ! Range(.) [m]
 180    180                    ! Npax(.)  number of passengers
 215.0                  * 4.45   ! Wpax(.)  PAX weight (including baggage)
 0.0                    * 0.3048 ! altTO    takeoff/landing altitude [m]
