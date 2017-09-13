@@ -230,7 +230,7 @@ class Fuselage(Model):
 
                 # Passenger constraints
                 Wlugg >= flugg2 * npass * 2 * Wchecked + flugg1 * npass * Wchecked + Wcarryon,
-                Wpass == npass * Wavgpass,
+                Wpass >= npass * Wavgpass,
                 Wpay >= Wpass + Wlugg + Wcargo,
                 Wpay >= npass * Wavgpasstot,
                 nseat >= npass,
@@ -367,7 +367,7 @@ class Fuselage(Model):
                 Vcabin >= Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse),
 
                 # Weight relations
-                Wapu == Wpay * fapu,
+                Wapu >= Wpay * fapu,
                 Wdb == rhoskin * g * Vdb,
                 Winsul >= Wppinsul * ((1.1 * pi + 2 * thetadb) * Rfuse * lshell + 0.55 * (Snose + Sbulk)),
                 Wwindow >= Wpwindow * lshell,
