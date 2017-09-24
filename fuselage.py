@@ -371,7 +371,7 @@ class Fuselage(Model):
                 Wdb == rhoskin * g * Vdb,
                 Winsul >= Wppinsul * ((1.1 * pi + 2 * thetadb) * Rfuse * lshell + 0.55 * (Snose + Sbulk)),
                 Wwindow >= Wpwindow * lshell,
-                Wpadd == Wpay * fpadd,
+                Wpadd >= Wpay * fpadd,
                 Wseat >= Wpseat * nseat,
                 Wseat >= fseat * Wpay,
 
