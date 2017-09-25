@@ -347,8 +347,8 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
 
     if Nmission > 1:
         substitutions.update({
-            'R_{req}': [3000.*units('nmi'),3500.*units('nmi')],
-            'n_{pass}': [180., 160.],
+            'R_{req}': [3000.*units('nmi'),3500.*units('nmi')],#,4000.*units('nmi')],
+            'n_{pass}': [180., 160.], #, 140.],
         })
     else:
         substitutions.update({

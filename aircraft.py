@@ -308,7 +308,7 @@ class Aircraft(Model):
                                     self.wing['c_{root}']*self.wing['b']**3.*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
                     Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{cone}'] + self.VT['W_{vt}']) * self.VT['l_{vt}'] ** 2. / g + \
                         self.HT['W_{ht}'] * self.HT['l_{ht}'] ** 2. / g,
-                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
+                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload_{max}}'])/self.fuse['l_{fuse}'] * \
                                     (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
 
                     # Engine ground clearance
@@ -344,7 +344,7 @@ class Aircraft(Model):
                         self.VT['l_{vt}'] ** 2. / g + \
                         self.HT['W_{ht}'] * self.HT['l_{ht}'] ** 2. / g,
                     # NOTE: Using l_{vt} as an xeng - xCG surrogate. Reason: xCG moves during flight; want scalar Izfuse
-                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}']) / self.fuse['l_{fuse}'] * \
+                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload_{max}}']) / self.fuse['l_{fuse}'] * \
                     (self.fuse['x_{wing}'] ** 3. + self.VT['l_{vt}'] ** 3.) / (3. * g),
                     # Note: Using x_{wing} as a CG surrogate. Want scalar Izfuse.
 
@@ -1207,13 +1207,11 @@ class Mission(Model):
              W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
 
         if not multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam and not D12:
              constraints.extend([
                   aircraft['n_{pass}'] == 180.,
-                  aircraft['n_{seat}'] == aircraft['n_{pass}']
                   ])
 
         if multimission and (D8bigfam or b777300ER or optimal777):
@@ -1221,8 +1219,6 @@ class Mission(Model):
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-
-                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
         if not multimission and (D8bigfam or b777300ER or optimal777):
              constraints.extend([
@@ -1235,8 +1231,6 @@ class Mission(Model):
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-
-                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
         if not multimission and RJfam:
              constraints.extend([
@@ -1249,7 +1243,6 @@ class Mission(Model):
 
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
                   ])
         if not multimission and D12:
              constraints.extend([
