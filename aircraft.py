@@ -1202,53 +1202,17 @@ class Mission(Model):
                     cruise['F_{fuel}'] <= 1.0, #just in case, TODO remove later
                     ])
 
-        ## ---------------------- SET PASSENGER AND SET COUNTS ---------------------
-        if multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
+        ## ---------------------- MULTIMISSION SETUP --------------------------
+        W_fmissions = Variable('W_{f_{missions}}', 'lbf', 'Fuel burn across all missions')
+        if multimission:
              constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   ])
+        else:
+            constraints.extend([
+                  W_fmissions == aircraft['W_{f_{total}}'],
+            ])
 
-        if not multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam and not D12:
-             constraints.extend([
-                  aircraft['n_{pass}'] == 180.,
-                  ])
-
-        if multimission and (D8bigfam or b777300ER or optimal777):
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
-
-             constraints.extend([
-                  W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  ])
-        if not multimission and (D8bigfam or b777300ER or optimal777):
-             constraints.extend([
-                  aircraft['n_{pass}'] == 450.,
-                  aircraft['n_{seat}'] == aircraft['n_{pass}']
-                  ])
-
-        if multimission and RJfam:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
-
-             constraints.extend([
-                  W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  ])
-        if not multimission and RJfam:
-             constraints.extend([
-                  aircraft['n_{pass}'] == 90.,
-                  aircraft['n_{seat}'] == aircraft['n_{pass}']
-                  ])
-
-        if multimission and D12:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
-
-             constraints.extend([
-                  W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  ])
-        if not multimission and D12:
-             constraints.extend([
-                  aircraft['n_{pass}'] == 500.,
-                  aircraft['n_{seat}'] == aircraft['n_{pass}']
-                  ])
 
         ## -------------------- SETTING ENGINE PARAMETERS ----------------------
         constraints.extend([
