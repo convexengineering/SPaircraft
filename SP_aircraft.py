@@ -292,7 +292,7 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 3
+    Nmission = 1
     aircraft = 'optimalD8'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
