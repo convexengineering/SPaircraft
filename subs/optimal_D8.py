@@ -157,6 +157,7 @@ def get_optimal_D8_subs():
                 'MinCruiseAlt': 38478.0*units('ft'),
 
                 # Engine substitutions
+                'OPR_{max}': 35,
                 '\\pi_{tn}': .995,
                 '\\pi_{b}': .94,
                 '\\pi_{d}': .995,
