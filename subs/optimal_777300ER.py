@@ -143,6 +143,7 @@ def get_optimal_777300ER_subs():
             'MinCruiseAlt': 31977*units('ft'),
 
             #new engine params
+            'OPR_{max}': 42,
             '\pi_{tn}': .995,
             '\\pi_{b}': .94,
             '\\pi_{d}': .995,

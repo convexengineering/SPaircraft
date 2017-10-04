@@ -971,17 +971,10 @@ class Mission(Model):
         CruiseTt41max = Variable('T_{t_{4.1_{max-Cruise}}}', 'K', 'Max Cruise Turbine Inlet Temp')
         MinCruiseAlt = Variable('MinCruiseAlt', 'ft', 'Minimum Cruise Altitude')
         Fsafetyfac = Variable('Fsafetyfac', '-', 'Safety factor on inital climb thrust')
+        OPRmax = Variable('OPR_{max}','-','Maximum Overall Pressure Ratio')
 
         # make overall constraints
         constraints = []
-
-        # Setting maximum OPR based on aircraft type, limits taken from TASOPT
-        if RJfam:
-            OPRmax = 30.
-        elif D8bigfam or optimal777 or b777300ER or D12:
-            OPRmax = 42.
-        else:
-            OPRmax = 35.
 
         with SignomialsEnabled():
             ## -------------------- BUOYANCY CONSTRAINTS ----------------
