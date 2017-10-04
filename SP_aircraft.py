@@ -317,8 +317,8 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
 
     if pRatOpt:
         del substitutions['\pi_{f_D}']
-##        del substitutions['\pi_{lc_D}']
-##        del substitutions['\pi_{hc_D}']
+        del substitutions['\pi_{lc_D}']
+        del substitutions['\pi_{hc_D}']
 
     m = Model(m.cost, BCS(m))
     m.substitutions.update(substitutions)
