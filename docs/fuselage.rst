@@ -30,4 +30,14 @@ material.
 Model Description
 =================
 
+.. figure:: fuselage.pdf_tex
+    :align: center
+    :width: 300px
+    Geometric variables of the fuselage model
+
+.. figure:: fuse_cross_section.pdf_tex
+    :align: center
+    :width: 300px
+    Geometric variables of the fuselage model cross-section
+
 Under construction...

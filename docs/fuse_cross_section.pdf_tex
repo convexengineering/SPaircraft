@@ -1,0 +1,64 @@
+%% Creator: Inkscape inkscape 0.91, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'fuse_cross_section.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{382.61530425bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,1.1870339)%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{fuse_cross_section.pdf}}%
+    \put(0.37747373,0.00315469){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$w_{fuse}$ (= $2R_{fuse})$}}}%
+    \put(0.90157581,0.42746533){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$h_{hold}$}}}%
+    \put(0.90575758,0.63778661){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\Delta h$}}}%
+    \put(0.90575758,0.54610417){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$h_{floor}$}}}%
+    \put(0.37647951,0.20254223){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$w_{aisle}$}}}%
+    \put(0.16097189,1.17482465){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$w_{seat}$}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{fuse_cross_section.pdf}}%
+    \put(0.7662187,1.17496646){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$w_{sys}$}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{fuse_cross_section.pdf}}%
+    \put(0.37800836,0.10953618){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$w_{floor}$}}}%
+  \end{picture}%
+\endgroup%
