@@ -1212,7 +1212,7 @@ class Mission(Model):
         ## -------------------- SETTING ENGINE PARAMETERS ----------------------
         constraints.extend([
             #constrain OPR less than max OPR
-            aircraft['OPR'][Nclimb] <= OPRmax,
+            aircraft['OPR'][:] <= OPRmax,
         ])
 
         M2 = .6
