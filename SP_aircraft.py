@@ -292,17 +292,17 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 1
+    Nmission = 2
     aircraft = 'optimalD8'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
     substitutions = get_optimal_D8_subs()
 
-    if Nmission == 3:
+    if Nmission == 2:
         substitutions.update({
-            'R_{req}': [2000.*units('nmi'), 3000.*units('nmi'), 1000.*units('nmi')],
-            'n_{pass}': [180., 150., 180.],
+            'R_{req}': [3000.*units('nmi'), 3500.*units('nmi')],#, 3000.*units('nmi')],
+            'n_{pass}': [180., 160.],
         })
     else:
         substitutions.update({
@@ -316,7 +316,7 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
         })
 
     if pRatOpt:
-        del substitutions['\pi_{f_D}']
+        ##del substitutions['\pi_{f_D}']
         del substitutions['\pi_{lc_D}']
         del substitutions['\pi_{hc_D}']
 
@@ -338,14 +338,14 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 1
+    Nmission = 2
     aircraft = 'optimal737'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
     substitutions = get737_optimal_subs()
 
-    if Nmission > 1:
+    if Nmission == 2:
         substitutions.update({
             'R_{req}': [3000.*units('nmi'),3500.*units('nmi')],#,4000.*units('nmi')],
             'n_{pass}': [180., 160.], #, 140.],
@@ -362,9 +362,9 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
         })
         
     if pRatOpt:
-        del substitutions['\pi_{f_D}']
-##        del substitutions['\pi_{lc_D}']
-##        del substitutions['\pi_{hc_D}']
+        #del substitutions['\pi_{f_D}']
+        del substitutions['\pi_{lc_D}']
+        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
 
@@ -519,7 +519,7 @@ def run_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
 def test():
     run_optimal_737('W_{f_{total}}', True, False)
 
-##    OLD CODE DOESN"T CURRENTLY WORK
+##    OLD CODE DOESN'T CURRENTLY WORK
     
 ##def run_737800(objective = 'W_{f_{total}}'):
 ##    # User definitions
