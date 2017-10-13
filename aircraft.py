@@ -1201,11 +1201,6 @@ class Mission(Model):
             TCS([climb['P_{excess}'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
     
-        if D8fam or M072_737 or D8big_M072 or D8_eng_wing or smallD8_eng_wing or optimal777_M072 or D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072:
-             M2 = .6
-
-        if D8_no_BLI or D8big_M08 or optimalRJ or M08D8 or smallD8_M08_eng_wing or smallD8_M08_no_BLI or smallD8_M08 or optimal777_M08:
-             M2 = .6
 
         if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI or D12) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
                                                                                          D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072):
