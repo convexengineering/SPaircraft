@@ -803,11 +803,11 @@ class Mission(Model):
         if airplane == 'D8_eng_wing':
             D8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'D8big':
-            D8big = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            D8big = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 4;
         if airplane == 'D8big_no_BLI':
-            D8big_no_BLI = True; rearengine = True; piHT = True; doublebubble = True;
+            D8big_no_BLI = True; rearengine = True; piHT = True; doublebubble = True; eng = 4;
         if airplane == 'D8big_eng_wing':
-            D8big_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
+            D8big_eng_wing = True; wingengine = True; piHT = True; doublebubble = True; eng = 4;
         if airplane == 'D8big_M072':
             D8big = True
             D8big_M072 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
@@ -820,13 +820,13 @@ class Mission(Model):
         if airplane == 'b737800':
             b737800 = True; conventional = True; eng = 1;
         if airplane == 'b777300ER':
-            b777300ER = True; conventional = True
+            b777300ER = True; conventional = True; eng = 4;
         if airplane == 'optimal737':
             optimal737 = True; conventional = True
         if airplane == 'optimalD8':
             optimalD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'optimal777':
-            optimal777 = True; conventional = True
+            optimal777 = True; conventional = True; eng = 4;
         if airplane == 'optimal777_M08':
             optimal777 = True
             optimal777_M08 = True; conventional = True
@@ -867,7 +867,7 @@ class Mission(Model):
             smallD8_eng_wing = True
             smallD8_M08_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'D12':
-            D12 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            D12 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 4;
 
         # if conventional choose wing engine and tube fuselage
         if conventional:
@@ -887,14 +887,6 @@ class Mission(Model):
            or optimalRJ or smallD8_eng_wing or smallD8_no_BLI:
             eng = 3
             BLI = False
-
-        if D8big or D12:
-             eng = 4
-             BLI = True
-
-        if b777300ER or optimal777 or D8big_eng_wing or D8big_no_BLI:
-             eng = 4
-             BLI = False
 
         if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_no_BLI or M08D8_noBLI or D8big_no_BLI or smallD8 or smallD8_no_BLI or D12:
             D8fam = True
