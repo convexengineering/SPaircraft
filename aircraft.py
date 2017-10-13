@@ -758,7 +758,7 @@ class Mission(Model):
         wingengine = False; rearengine = False; doublebubble = False; tube = False;
         piHT = False; conventional = False
 
-        # Aircraft type, only one active at once, most not currenlty supported
+        # Aircraft type, only one active at once, most not currently supported
         D80 = False
         D82 = False
         D82_73eng = False
@@ -795,11 +795,11 @@ class Mission(Model):
         # set geometry flags based on aircraft type
         #TODO - make more elegant
         if airplane == 'D80':
-            D80 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            D80 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'D82':
-            D82 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            D82 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'D82_73eng':
-            D82_73eng = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            D82_73eng = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 1;
         if airplane == 'D8_eng_wing':
             D8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'D8big':
@@ -818,13 +818,13 @@ class Mission(Model):
             D8big_eng_wing = True
             D8big_eng_wing_M072 = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'b737800':
-            b737800 = True; conventional = True
+            b737800 = True; conventional = True; eng = 1;
         if airplane == 'b777300ER':
             b777300ER = True; conventional = True
         if airplane == 'optimal737':
             optimal737 = True; conventional = True
         if airplane == 'optimalD8':
-            optimalD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            optimalD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'optimal777':
             optimal777 = True; conventional = True
         if airplane == 'optimal777_M08':
@@ -834,7 +834,7 @@ class Mission(Model):
             optimal777 = True
             optimal777_M072 = True; conventional = True
         if airplane == 'M08D8':
-            M08D8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            M08D8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'M08D8_noBLI':
             M08D8_noBLI = True; rearengine = True; piHT = True; doublebubble = True;
         if airplane == 'M08_D8_eng_wing':
@@ -852,7 +852,7 @@ class Mission(Model):
         if airplane == 'optimalRJ':
             optimalRJ = True; conventional = True
         if airplane == 'smallD8':
-            smallD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            smallD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'smallD8_eng_wing':
             smallD8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'smallD8_no_BLI':
@@ -883,22 +883,10 @@ class Mission(Model):
         fitDrag = None
 
         #specify engine choice and BLI true/false based on aircraft type....arugments required for engine model
-        if D80 or D82 or optimalD8 or M08D8 or smallD8:
-             eng = 3
-             BLI = True
-
         if D8_eng_wing or D8_no_BLI or M08_D8_eng_wing or optimal737 or M08D8_noBLI or M072_737 \
            or optimalRJ or smallD8_eng_wing or smallD8_no_BLI:
             eng = 3
             BLI = False
-
-        if b737800:
-             eng = 1
-             BLI = False
-
-        if D82_73eng:
-             eng = 1
-             BLI = True
 
         if D8big or D12:
              eng = 4
@@ -1205,7 +1193,7 @@ class Mission(Model):
         ## -------------------- SETTING ENGINE PARAMETERS ----------------------
         constraints.extend([
             #constrain OPR less than max OPR
-            aircraft['OPR'][:] <= OPRmax,
+            aircraft['OPR'] <= OPRmax,
         ])
 
         M2 = .6
