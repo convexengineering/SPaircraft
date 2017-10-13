@@ -1205,27 +1205,19 @@ class Mission(Model):
     
         if D8fam or M072_737 or D8big_M072 or D8_eng_wing or smallD8_eng_wing or optimal777_M072 or D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072:
              M2 = .6
-             M25 = .6
-             M4a = .2
              M0 = .72
 
         if D8_no_BLI or D8big_M08 or optimalRJ or M08D8 or smallD8_M08_eng_wing or smallD8_M08_no_BLI or smallD8_M08 or optimal777_M08:
              M2 = .6
-             M25 = .6
-             M4a = .2
              M0 = .8
 
         if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
                                                                                          D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072):
              M2 = .65
-             M25 = .6
-             M4a = .2
              M0 = .84
 
         if D12:
              M2 = .65
-             M25 = .6
-             M4a = .2
              M0 = .83
 
         enginecruise = [
