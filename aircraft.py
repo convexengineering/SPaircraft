@@ -1214,21 +1214,13 @@ class Mission(Model):
             
             ]
 
-        if BLI or M072_737 or b737800 or b777300ER or optimal737 or D8_eng_wing or D8_no_BLI:
-             with SignomialsEnabled():
-                  engineclimb.extend([
+        with SignomialsEnabled():
+            engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
                        ])
-                  enginecruise.extend([
+            enginecruise.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
                        ])
-        else:
-             engineclimb.extend([
-                  aircraft.engine.engineP['c1'][:Nclimb] <= 1. + 0.5*(.401)*0.54592**2.,
-                  ])
-             enginecruise.extend([
-                  aircraft.engine.engineP['c1'][Nclimb:] <= 1. + 0.5*(.401)*0.8**2.,
-                  ])
 
         ## --------- SETTING OBJECTIVE FLAGS FOR NON-STANDARD OBJECTIVE FUNCTIONS ---------------
         if not multimission and objective != 'Total_Time' and objective != 'L/D':
