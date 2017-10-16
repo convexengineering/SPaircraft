@@ -676,7 +676,7 @@ class CruiseP(Model): # Cruise performance constraints
         
         # variable definitions
         # z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
-        Rng = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
+        Rng = Variable('R_{cruise}', 'nautical_miles', 'Cruise Segment Range')
         RC = Variable('RC', 'feet/min', 'Rate of Climb/Descent')
         theta = Variable('\\theta','-','Climb Angle')
         dhft = Variable('dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
@@ -1107,13 +1107,13 @@ class Mission(Model):
 
                 # Set the range for each cruise segment.
                 # All cruise segments cover the same range.
-                cruise['Rng'][:Ncruise-1] == cruise['Rng'][1:Ncruise],
+                cruise['R_{cruise}'][:Ncruise-1] == cruise['R_{cruise}'][1:Ncruise],
 
                 # Cruise Mach Number constraint
                 cruise['M'] >= aircraft['M_{min}'],
 
                 ## ----------------------- CONSTRAIN TOTAL RANGE -----------
-                TCS([sum(climb['R_{climb}']) + sum(cruise['Rng']) >= ReqRng]), #[SP]
+                TCS([sum(climb['R_{climb}']) + sum(cruise['R_{cruise}']) >= ReqRng]), #[SP]
 
                 ## ---------------------- VERTICAL TAIL SIZING ----------
                 # Takeoff thrust T_e calculated for engine out + vertical tail sizing.
