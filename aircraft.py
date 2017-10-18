@@ -1176,9 +1176,8 @@ class Mission(Model):
                     ])
 
         ## ---------------------- MULTIMISSION SETUP --------------------------
-        if multimission:
-             W_fmissions = Variable('W_{f_{missions}}', 'lbf', 'Fuel burn across all missions')
-             constraints.extend([
+        W_fmissions = Variable('W_{f_{missions}}', 'lbf', 'Fuel burn across all missions')
+        constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   ])
 
