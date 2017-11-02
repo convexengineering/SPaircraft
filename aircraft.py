@@ -564,7 +564,7 @@ class AircraftP(Model):
 
             ## --------------- HORIZONTAL LOCATION GEOMETRY AND PERFORMANCE -----------
             # HT CG calculation
-            aircraft.HT['x_{CG_{ht}}'] >= xCG +0.5*(self.HTP['\\Delta x_{lead_{ht}}']+self.HTP['\\Delta x_{trail_{ht}}']),
+            aircraft.HT['x_{CG_{ht}}'] >= xCG +0.5*(aircraft.HT['\\Delta x_{lead_{ht}}']+aircraft.HT['\\Delta x_{trail_{ht}}']),
 
             # HT lift coefficient calc
             self.HTP['C_{L_{\\alpha,ht}}'] + (2*self.wingP['C_{L_{\\alpha,w}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{\\alpha,ht_0}}'] <= self.HTP['C_{L_{\\alpha,ht_0}}']*aircraft.HT['\\eta_{ht}'],
@@ -603,11 +603,11 @@ class AircraftP(Model):
         # HT TE constraint
         if conventional:
             constraints.extend([
-            aircraft['l_{fuse}'] >= xCG + self.HTP['\\Delta x_{trail_{ht}}']])
+            aircraft['l_{fuse}'] >= xCG + aircraft.HT['\\Delta x_{trail_{ht}}']])
         if piHT:
             with SignomialsEnabled():
                 constraints.extend([
-                    self.HTP['\\Delta x_{trail_{ht}}'] <= aircraft.VT['\\Delta x_{lead_{vt}}'] + \
+                    aircraft.HT['\\Delta x_{trail_{ht}}'] <= aircraft.VT['\\Delta x_{lead_{vt}}'] + \
                         aircraft['b_{vt}']/aircraft['\\tan(\\Lambda_{vt})'] + \
                         aircraft['w_{fuse}']/aircraft['\\tan(\\Lambda_{ht})'] + aircraft['c_{root_{ht}}']])
 
