@@ -558,8 +558,8 @@ class AircraftP(Model):
 
             ## ------------- VERTICAL TAIL CONSTRAINTS -----------
             # VT TE constraint, and CG calculation
-            xCG + self.VTP['\\Delta x_{trail_{vt}}'] <= aircraft.fuse['l_{fuse}'],
-            aircraft.VT['x_{CG_{vt}}'] >= xCG +0.5*(self.VTP['\\Delta x_{lead_{vt}}']+self.VTP['\\Delta x_{trail_{vt}}']),
+            xCG + aircraft.VT['\\Delta x_{trail_{vt}}'] <= aircraft.fuse['l_{fuse}'],
+            aircraft.VT['x_{CG_{vt}}'] >= xCG +0.5*(aircraft.VT['\\Delta x_{lead_{vt}}']+aircraft.VT['\\Delta x_{trail_{vt}}']),
             
 
             ## --------------- HORIZONTAL LOCATION GEOMETRY AND PERFORMANCE -----------
@@ -607,7 +607,7 @@ class AircraftP(Model):
         if piHT:
             with SignomialsEnabled():
                 constraints.extend([
-                    self.HTP['\\Delta x_{trail_{ht}}'] <= self.VTP['\\Delta x_{lead_{vt}}'] + \
+                    self.HTP['\\Delta x_{trail_{ht}}'] <= aircraft.VT['\\Delta x_{lead_{vt}}'] + \
                         aircraft['b_{vt}']/aircraft['\\tan(\\Lambda_{vt})'] + \
                         aircraft['w_{fuse}']/aircraft['\\tan(\\Lambda_{ht})'] + aircraft['c_{root_{ht}}']])
 
@@ -1131,11 +1131,6 @@ class Mission(Model):
                     climb['thr'] * aircraft.engine['F'][:Nclimb],
 
                 ## --------------------- HT AND VT GEOMETRY ----------------
-                #these constraints prevent the HT and VT from moving between flight segments
-                climb['\\Delta x_{trail_{vt}}'][0] + climb['x_{CG}'][0] <= climb['\\Delta x_{trail_{vt}}'][1:Nclimb] + climb['x_{CG}'][1:Nclimb],
-                climb['\\Delta x_{trail_{vt}}'][0] + climb['x_{CG}'][0] <= cruise['\\Delta x_{trail_{vt}}'] + cruise['x_{CG}'],
-                climb['\\Delta x_{trail_{ht}}'][0] + climb['x_{CG}'][0] <= climb['\\Delta x_{trail_{ht}}'][1:Nclimb] + climb['x_{CG}'][1:Nclimb],
-                climb['\\Delta x_{trail_{ht}}'][0] + climb['x_{CG}'][0] <= cruise['\\Delta x_{trail_{ht}}'] + cruise['x_{CG}'], 
 
 
                 # ----------------- NACELLE DRAG ---------------
@@ -1176,8 +1171,9 @@ class Mission(Model):
                     ])
 
         ## ---------------------- MULTIMISSION SETUP --------------------------
-        W_fmissions = Variable('W_{f_{missions}}', 'lbf', 'Fuel burn across all missions')
-        constraints.extend([
+        if multimission:
+            W_fmissions = Variable('W_{f_{missions}}', 'lbf', 'Fuel burn across all missions')
+            constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
                   ])
 

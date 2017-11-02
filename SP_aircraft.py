@@ -292,7 +292,7 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 2
+    Nmission = 1
     aircraft = 'optimalD8'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
@@ -301,8 +301,8 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
 
     if Nmission == 2:
         substitutions.update({
-            'R_{req}': [3000.*units('nmi'), 3500.*units('nmi')],#, 3000.*units('nmi')],
-            'n_{pass}': [180., 160.],
+            'R_{req}': [3000.*units('nmi'), 3500.*units('nmi')], #,2500.*units('nmi')
+            'n_{pass}': [180., 160.], #,140.
         })
     else:
         substitutions.update({
@@ -316,7 +316,7 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
         })
 
     if pRatOpt:
-        ##del substitutions['\pi_{f_D}']
+        #del substitutions['\pi_{f_D}']
         del substitutions['\pi_{lc_D}']
         del substitutions['\pi_{hc_D}']
 
@@ -347,8 +347,8 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
 
     if Nmission == 2:
         substitutions.update({
-            'R_{req}': [3000.*units('nmi'),3500.*units('nmi')],#,4000.*units('nmi')],
-            'n_{pass}': [180., 160.], #, 140.],
+            'R_{req}': [3000.*units('nmi'),3500.*units('nmi')], #,2500.*units('nmi')
+            'n_{pass}': [180., 160.], #, 140.
         })
     else:
         substitutions.update({

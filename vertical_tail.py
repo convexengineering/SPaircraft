@@ -82,6 +82,10 @@ class VerticalTailNoStruct(Model):
         croot  = Variable('c_{root_{vt}}', 'm', 'Vertical tail root chord')
         ctip   = Variable('c_{tip_{vt}}', 'm', 'Vertical tail tip chord')
         e      = Variable('e_{vt}', '-', 'Span efficiency of vertical tail')
+        dxlead  = Variable('\\Delta x_{lead_{vt}}', 'm',
+                           'Distance from CG to vertical tail leading edge')
+        dxtrail = Variable('\\Delta x_{trail_{vt}}', 'm',
+                           'Distance from CG to vertical tail trailing edge')
         lvt    = Variable('l_{vt}', 'm', 'Vertical tail moment arm')
         mu0    = Variable('\\mu_0', 1.8E-5, 'N*s/m^2', 'Dynamic viscosity (SL)')
         p      = Variable('p_{vt}', '-', 'Substituted variable = 1 + 2*taper')
@@ -141,6 +145,9 @@ class VerticalTailNoStruct(Model):
 
                 # Define vertical tail geometry
                 taper == ctip/croot,
+                # Moment arm and geometry -- same as for htail
+                dxlead + croot <= dxtrail,
+                TCS([dxlead + ymac * tanL + 0.25 * cma >= lvt], reltol=1e-2),  # [SP]
 
 
                 # TODO: Constrain taper by tip Reynolds number
@@ -167,11 +174,7 @@ class VerticalTailPerformance(Model):
         Dvt    = Variable('D_{vt}', 'N', 'Vertical tail viscous drag, cruise')
         Rec    = Variable('Re_{vt}', '-', 'Vertical tail reynolds number, cruise')
         CDvis  = Variable('C_{D_{vis}}', '-', 'Viscous drag coefficient')
-        dxlead  = Variable('\\Delta x_{lead_{vt}}', 'm',
-                           'Distance from CG to vertical tail leading edge')
-        dxtrail = Variable('\\Delta x_{trail_{vt}}', 'm',
-                           'Distance from CG to vertical tail trailing edge')
- 
+
         #constraints
         constraints = []
 
@@ -188,9 +191,6 @@ class VerticalTailPerformance(Model):
                 # Cruise Reynolds number
                 Rec == state.atm['\\rho']*state['V']*self.vt['\\bar{c}_{vt}']/state.atm['\\mu'],
 
-               # Moment arm and geometry -- same as for htail
-              dxlead + self.vt['c_{root_{vt}}'] <= dxtrail,
-              TCS([dxlead + self.vt['y_{\\bar{c}_{vt}}']*self.vt['\\tan(\\Lambda_{vt})'] + 0.25*self.vt['\\bar{c}_{vt}'] >= self.vt['l_{vt}']],reltol=1e-2), # [SP]
               ])
 
         if fitDrag:
