@@ -230,9 +230,9 @@ class Fuselage(Model):
             constraints.extend([
                 # Passenger constraints
                 Wlugg >= flugg2 * npass * 2 * Wchecked + flugg1 * npass * Wchecked + Wcarryon,
-                Wpass >= npass * Wavgpass,
+                TCS([Wpass >= npass * Wavgpass]),
                 Wpay >= Wpass + Wlugg + Wcargo,
-                Wpay >= npass * Wavgpasstot,
+                TCS([Wpay >= npass * Wavgpasstot]),
                 Wpaymax >= Wpay,
                 nseat >= npass,
                 nrows == nseat / SPR,
@@ -272,7 +272,7 @@ class Fuselage(Model):
 
                 # Floor loading
                 lfloor >= lshell + 2 * Rfuse,
-                Pfloor >= Nland * (Wpaymax + Wseat),
+                TCS([Pfloor >= Nland * (Wpaymax + Wseat)]),
                 Afloor >= 2. * Mfloor / (sigfloor * hfloor) + 1.5 * Sfloor / taufloor,
                 Vfloor == 2 * wfloor * Afloor,
                 Wfloor >= rhofloor * g * Vfloor + 2 * wfloor * lfloor * Wppfloor,
