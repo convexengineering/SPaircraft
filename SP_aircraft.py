@@ -301,8 +301,8 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
 
     if Nmission == 2:
         substitutions.update({
-            'R_{req}': [3000.*units('nmi'), 3500.*units('nmi')], #,2500.*units('nmi')
-            'n_{pass}': [180., 160.], #,140.
+            'R_{req}': [3000.*units('nmi'), 2000.*units('nmi')], #,2500.*units('nmi')
+            'n_{pass}': [180., 180.], #,140.
         })
     else:
         substitutions.update({
@@ -347,8 +347,8 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
 
     if Nmission == 2:
         substitutions.update({
-            'R_{req}': [3000.*units('nmi'),3500.*units('nmi')], #,2500.*units('nmi')
-            'n_{pass}': [180., 160.], #, 140.
+            'R_{req}': [3000.*units('nmi'),2000.*units('nmi')], #,2500.*units('nmi')
+            'n_{pass}': [180., 180.], #, 140.
         })
     else:
         substitutions.update({
