@@ -107,7 +107,7 @@ def get_optimal_777300ER_subs():
             'c_{l_{vt,EO}}': 1.5, # [TAS]
             'e_{vt}': 0.8,
             'V_{land}': 75.*units('m/s'),
-            '\\dot{r}_{req}': 0.000001, # 10 deg/s/s yaw rate acceleration
+            '\\dot{r}_{req}': 0.175, # 10 deg/s/s yaw rate acceleration
             'y_{eng}': 32*units('ft'),
             'n_{vt}': 1.,
             'A_{vt}': 2.35,
@@ -140,7 +140,7 @@ def get_optimal_777300ER_subs():
             'f_{eadd}': 0.1,
 
             #min altitude for start of cruise
-            'MinCruiseAlt': 31977*units('ft'),
+            'MinCruiseAlt': 38000*units('ft'),
 
             #new engine params
             'OPR_{max}': 42,

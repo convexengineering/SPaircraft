@@ -756,7 +756,7 @@ class Mission(Model):
 
         # aircraft geometry flags
         wingengine = False; rearengine = False; doublebubble = False; tube = False;
-        piHT = False; conventional = False
+        piHT = False; conventional = False; BLI = False;
 
         # Aircraft type, only one active at once, most not currently supported
         D80 = False
