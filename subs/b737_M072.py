@@ -144,6 +144,7 @@ def get_M072_737_subs():
             'MinCruiseAlt': 35000*units('ft'),
 
            # Engine substitutions
+            'OPR_{max}': 35,
             '\\pi_{tn}': .995,
             '\\pi_{b}': .94,
             '\\pi_{d}': .995,

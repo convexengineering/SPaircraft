@@ -261,8 +261,8 @@ def run_optimal_777(objective, fixedBPR, pRatOpt = False):
     substitutions = get_optimal_777300ER_subs()
 
     substitutions.update({
-##        'n_{pass}': [450.],
         'R_{req}': 6000.,
+        'n_{pass}': 450.,
     })
 
     if fixedBPR:
@@ -292,23 +292,23 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 3
+    Nmission = 1
     aircraft = 'optimalD8'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
     substitutions = get_optimal_D8_subs()
 
-    if Nmission == 3:
+    if Nmission == 2:
         substitutions.update({
-            'R_{req}': [2000.*units('nmi'), 3000.*units('nmi'), 1000.*units('nmi')],
-            'n_{pass}': [180., 150., 180.],
+            'R_{req}': [3000.*units('nmi'), 2000.*units('nmi')], #,2500.*units('nmi')
+            'n_{pass}': [180., 180.], #,140.
         })
     else:
         substitutions.update({
-#            'n_{paxx}': 180.,
             'R_{req}': 3000.*units('nmi'),
-        }) 
+            'n_{pass}': 180.,
+        })
 
     if fixedBPR:
         substitutions.update({
@@ -316,9 +316,9 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
         })
 
     if pRatOpt:
-        del substitutions['\pi_{f_D}']
-##        del substitutions['\pi_{lc_D}']
-##        del substitutions['\pi_{hc_D}']
+        #del substitutions['\pi_{f_D}']
+        del substitutions['\pi_{lc_D}']
+        del substitutions['\pi_{hc_D}']
 
     m = Model(m.cost, BCS(m))
     m.substitutions.update(substitutions)
@@ -345,16 +345,16 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
     
     substitutions = get737_optimal_subs()
 
-    if Nmission > 1:
+    if Nmission == 2:
         substitutions.update({
-            'R_{req}': [3000.*units('nmi'),2000.*units('nmi')],
-            'n_{pass}': [180., 180.],
+            'R_{req}': [3000.*units('nmi'),2000.*units('nmi')], #,2500.*units('nmi')
+            'n_{pass}': [180., 180.], #, 140.
         })
     else:
         substitutions.update({
-##           'n_{paxx}': 180.,
-            'R_{req}': 3000.*units('nmi'),
-        })        
+           'R_{req}': 3000.*units('nmi'),
+           'n_{pass}': 180.,
+        })
 
     if fixedBPR:
         substitutions.update({
@@ -362,16 +362,16 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
         })
         
     if pRatOpt:
-        del substitutions['\pi_{f_D}']
-##        del substitutions['\pi_{lc_D}']
-##        del substitutions['\pi_{hc_D}']
+        #del substitutions['\pi_{f_D}']
+        del substitutions['\pi_{lc_D}']
+        del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
 
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=1, iteration_limit=200, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
     post_process(sol)
 
     percent_diff(sol, 'b737800', Nclimb)
@@ -398,8 +398,8 @@ def run_M072_737(objective, fixedBPR, pRatOpt = False):
         })
     else:
         substitutions.update({
-##           'n_{paxx}': 180.,
             'R_{req}': 3000.*units('nmi'),
+            'n_{pass}': 180.,
         })        
 
     if fixedBPR:
@@ -444,7 +444,7 @@ def run_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
         })
     else:
         substitutions.update({
-##           'n_{paxx}': 180.,
+            'n_{pass}': 180.,
             'R_{req}': 3000.*units('nmi'),
         })        
 
@@ -489,8 +489,8 @@ def run_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
         })
     else:
         substitutions.update({
-##           'n_{paxx}': 180.,
             'R_{req}': 3000.*units('nmi'),
+            'n_{pass}': 180.,
         })        
 
     if fixedBPR:
@@ -519,7 +519,7 @@ def run_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
 def test():
     run_optimal_737('W_{f_{total}}', True, False)
 
-##    OLD CODE DOESN"T CURRENTLY WORK
+##    OLD CODE DOESN'T CURRENTLY WORK
     
 ##def run_737800(objective = 'W_{f_{total}}'):
 ##    # User definitions
@@ -533,7 +533,7 @@ def test():
 ##    substitutions = getb737800subs()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 3000.*units('nmi'),
 ##    })
 ##
@@ -562,7 +562,7 @@ def test():
 ##    substitutions = getD82subs()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 3000.*units('nmi'),
 ##    })
 ##
@@ -591,7 +591,7 @@ def test():
 ##    substitutions = get_D12_subs()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 500.,
+###                'n_{pass}': 500.,
 ##        'R_{req}': 5600.*units('nmi'),
 ##    })
 ##
@@ -635,7 +635,7 @@ def test():
 ##    substitutions = getM08_D8_eng_wing_subs()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 3000.*units('nmi'),
 ##    })
 ##
@@ -674,7 +674,7 @@ def test():
 ##    substitutions = subs_M08_D8()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 3000.*units('nmi'),
 ##    })
 ##
@@ -713,7 +713,7 @@ def test():
 ##    substitutions = get_subs_M08_D8_noBLI()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 3000.*units('nmi'),
 ##    })
 ##
@@ -861,7 +861,7 @@ def test():
 ##    substitutions = getD8bigsubs()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 6000.*units('nmi'),
 ##    })
 ##
@@ -900,7 +900,7 @@ def test():
 ##    substitutions = getD8big_noBLI_subs()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 6000.*units('nmi'),
 ##    })
 ##
@@ -939,7 +939,7 @@ def test():
 ##    substitutions = getD8big_M072_noBLI_subs()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 6000.*units('nmi'),
 ##    })
 ##
@@ -978,7 +978,7 @@ def test():
 ##    substitutions = getD8big_eng_wing_subs()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 6000.*units('nmi'),
 ##    })
 ##
@@ -1017,7 +1017,7 @@ def test():
 ##    substitutions = getD8big_M072_eng_wing_subs()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 6000.*units('nmi'),
 ##    })
 ##
@@ -1057,7 +1057,7 @@ def test():
 ##    substitutions = getD8big_M072_subs()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 6000.*units('nmi'),
 ##    })
 ##
@@ -1096,7 +1096,7 @@ def test():
 ##    substitutions = getD8big_M08_subs()
 ##
 ##    substitutions.update({
-###                'n_{paxx}': 180.,
+###                'n_{pass}': 180.,
 ##        'R_{req}': 6000.*units('nmi'),
 ##    })
 ##

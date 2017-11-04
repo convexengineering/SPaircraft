@@ -308,7 +308,7 @@ class Aircraft(Model):
                                     self.wing['c_{root}']*self.wing['b']**3.*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
                     Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{cone}'] + self.VT['W_{vt}']) * self.VT['l_{vt}'] ** 2. / g + \
                         self.HT['W_{ht}'] * self.HT['l_{ht}'] ** 2. / g,
-                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}'])/self.fuse['l_{fuse}'] * \
+                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload_{max}}'])/self.fuse['l_{fuse}'] * \
                                     (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
 
                     # Engine ground clearance
@@ -344,7 +344,7 @@ class Aircraft(Model):
                         self.VT['l_{vt}'] ** 2. / g + \
                         self.HT['W_{ht}'] * self.HT['l_{ht}'] ** 2. / g,
                     # NOTE: Using l_{vt} as an xeng - xCG surrogate. Reason: xCG moves during flight; want scalar Izfuse
-                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload}']) / self.fuse['l_{fuse}'] * \
+                    Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload_{max}}']) / self.fuse['l_{fuse}'] * \
                     (self.fuse['x_{wing}'] ** 3. + self.VT['l_{vt}'] ** 3.) / (3. * g),
                     # Note: Using x_{wing} as a CG surrogate. Want scalar Izfuse.
 
@@ -558,13 +558,13 @@ class AircraftP(Model):
 
             ## ------------- VERTICAL TAIL CONSTRAINTS -----------
             # VT TE constraint, and CG calculation
-            xCG + self.VTP['\\Delta x_{trail_{vt}}'] <= aircraft.fuse['l_{fuse}'],
-            aircraft.VT['x_{CG_{vt}}'] >= xCG +0.5*(self.VTP['\\Delta x_{lead_{vt}}']+self.VTP['\\Delta x_{trail_{vt}}']),
+            xCG + aircraft.VT['\\Delta x_{trail_{vt}}'] <= aircraft.fuse['l_{fuse}'],
+            aircraft.VT['x_{CG_{vt}}'] >= xCG +0.5*(aircraft.VT['\\Delta x_{lead_{vt}}']+aircraft.VT['\\Delta x_{trail_{vt}}']),
             
 
             ## --------------- HORIZONTAL LOCATION GEOMETRY AND PERFORMANCE -----------
             # HT CG calculation
-            aircraft.HT['x_{CG_{ht}}'] >= xCG +0.5*(self.HTP['\\Delta x_{lead_{ht}}']+self.HTP['\\Delta x_{trail_{ht}}']),
+            aircraft.HT['x_{CG_{ht}}'] >= xCG +0.5*(aircraft.HT['\\Delta x_{lead_{ht}}']+aircraft.HT['\\Delta x_{trail_{ht}}']),
 
             # HT lift coefficient calc
             self.HTP['C_{L_{\\alpha,ht}}'] + (2*self.wingP['C_{L_{\\alpha,w}}']/(pi*aircraft.wing['AR']))*aircraft.HT['\\eta_{ht}']*self.HTP['C_{L_{\\alpha,ht_0}}'] <= self.HTP['C_{L_{\\alpha,ht_0}}']*aircraft.HT['\\eta_{ht}'],
@@ -603,11 +603,11 @@ class AircraftP(Model):
         # HT TE constraint
         if conventional:
             constraints.extend([
-            aircraft['l_{fuse}'] >= xCG + self.HTP['\\Delta x_{trail_{ht}}']])
+            aircraft['l_{fuse}'] >= xCG + aircraft.HT['\\Delta x_{trail_{ht}}']])
         if piHT:
             with SignomialsEnabled():
                 constraints.extend([
-                    self.HTP['\\Delta x_{trail_{ht}}'] <= self.VTP['\\Delta x_{lead_{vt}}'] + \
+                    aircraft.HT['\\Delta x_{trail_{ht}}'] <= aircraft.VT['\\Delta x_{lead_{vt}}'] + \
                         aircraft['b_{vt}']/aircraft['\\tan(\\Lambda_{vt})'] + \
                         aircraft['w_{fuse}']/aircraft['\\tan(\\Lambda_{ht})'] + aircraft['c_{root_{ht}}']])
 
@@ -676,7 +676,7 @@ class CruiseP(Model): # Cruise performance constraints
         
         # variable definitions
         # z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
-        Rng = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
+        Rng = Variable('R_{cruise}', 'nautical_miles', 'Cruise Segment Range')
         RC = Variable('RC', 'feet/min', 'Rate of Climb/Descent')
         theta = Variable('\\theta','-','Climb Angle')
         dhft = Variable('dhft', 'feet', 'Change in Altitude Per Climb Segment [feet]')
@@ -756,9 +756,9 @@ class Mission(Model):
 
         # aircraft geometry flags
         wingengine = False; rearengine = False; doublebubble = False; tube = False;
-        piHT = False; conventional = False
+        piHT = False; conventional = False; BLI = False;
 
-        # Aircraft type, only one active at once, most not currenlty supported
+        # Aircraft type, only one active at once, most not currently supported
         D80 = False
         D82 = False
         D82_73eng = False
@@ -795,19 +795,19 @@ class Mission(Model):
         # set geometry flags based on aircraft type
         #TODO - make more elegant
         if airplane == 'D80':
-            D80 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            D80 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'D82':
-            D82 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            D82 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'D82_73eng':
-            D82_73eng = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            D82_73eng = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 1;
         if airplane == 'D8_eng_wing':
             D8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'D8big':
-            D8big = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            D8big = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 4;
         if airplane == 'D8big_no_BLI':
-            D8big_no_BLI = True; rearengine = True; piHT = True; doublebubble = True;
+            D8big_no_BLI = True; rearengine = True; piHT = True; doublebubble = True; eng = 4;
         if airplane == 'D8big_eng_wing':
-            D8big_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
+            D8big_eng_wing = True; wingengine = True; piHT = True; doublebubble = True; eng = 4;
         if airplane == 'D8big_M072':
             D8big = True
             D8big_M072 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
@@ -818,15 +818,15 @@ class Mission(Model):
             D8big_eng_wing = True
             D8big_eng_wing_M072 = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'b737800':
-            b737800 = True; conventional = True
+            b737800 = True; conventional = True; eng = 1;
         if airplane == 'b777300ER':
-            b777300ER = True; conventional = True
+            b777300ER = True; conventional = True; eng = 4;
         if airplane == 'optimal737':
             optimal737 = True; conventional = True
         if airplane == 'optimalD8':
-            optimalD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            optimalD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'optimal777':
-            optimal777 = True; conventional = True
+            optimal777 = True; conventional = True; eng = 4;
         if airplane == 'optimal777_M08':
             optimal777 = True
             optimal777_M08 = True; conventional = True
@@ -834,7 +834,7 @@ class Mission(Model):
             optimal777 = True
             optimal777_M072 = True; conventional = True
         if airplane == 'M08D8':
-            M08D8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            M08D8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'M08D8_noBLI':
             M08D8_noBLI = True; rearengine = True; piHT = True; doublebubble = True;
         if airplane == 'M08_D8_eng_wing':
@@ -852,7 +852,7 @@ class Mission(Model):
         if airplane == 'optimalRJ':
             optimalRJ = True; conventional = True
         if airplane == 'smallD8':
-            smallD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            smallD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'smallD8_eng_wing':
             smallD8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'smallD8_no_BLI':
@@ -867,7 +867,7 @@ class Mission(Model):
             smallD8_eng_wing = True
             smallD8_M08_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'D12':
-            D12 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
+            D12 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 4;
 
         # if conventional choose wing engine and tube fuselage
         if conventional:
@@ -883,30 +883,10 @@ class Mission(Model):
         fitDrag = None
 
         #specify engine choice and BLI true/false based on aircraft type....arugments required for engine model
-        if D80 or D82 or optimalD8 or M08D8 or smallD8:
-             eng = 3
-             BLI = True
-
         if D8_eng_wing or D8_no_BLI or M08_D8_eng_wing or optimal737 or M08D8_noBLI or M072_737 \
            or optimalRJ or smallD8_eng_wing or smallD8_no_BLI:
             eng = 3
             BLI = False
-
-        if b737800:
-             eng = 1
-             BLI = False
-
-        if D82_73eng:
-             eng = 1
-             BLI = True
-
-        if D8big or D12:
-             eng = 4
-             BLI = True
-
-        if b777300ER or optimal777 or D8big_eng_wing or D8big_no_BLI:
-             eng = 4
-             BLI = False
 
         if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_no_BLI or M08D8_noBLI or D8big_no_BLI or smallD8 or smallD8_no_BLI or D12:
             D8fam = True
@@ -971,17 +951,10 @@ class Mission(Model):
         CruiseTt41max = Variable('T_{t_{4.1_{max-Cruise}}}', 'K', 'Max Cruise Turbine Inlet Temp')
         MinCruiseAlt = Variable('MinCruiseAlt', 'ft', 'Minimum Cruise Altitude')
         Fsafetyfac = Variable('Fsafetyfac', '-', 'Safety factor on inital climb thrust')
+        OPRmax = Variable('OPR_{max}','-','Maximum Overall Pressure Ratio')
 
         # make overall constraints
         constraints = []
-
-        # Setting maximum OPR based on aircraft type, limits taken from TASOPT
-        if RJfam:
-            OPRmax = 30.
-        elif D8bigfam or optimal777 or b777300ER or D12:
-            OPRmax = 42.
-        else:
-            OPRmax = 35.
 
         with SignomialsEnabled():
             ## -------------------- BUOYANCY CONSTRAINTS ----------------
@@ -1134,13 +1107,13 @@ class Mission(Model):
 
                 # Set the range for each cruise segment.
                 # All cruise segments cover the same range.
-                cruise['Rng'][:Ncruise-1] == cruise['Rng'][1:Ncruise],
+                cruise['R_{cruise}'][:Ncruise-1] == cruise['R_{cruise}'][1:Ncruise],
 
                 # Cruise Mach Number constraint
                 cruise['M'] >= aircraft['M_{min}'],
 
                 ## ----------------------- CONSTRAIN TOTAL RANGE -----------
-                TCS([sum(climb['R_{climb}']) + sum(cruise['Rng']) >= ReqRng]), #[SP]
+                TCS([sum(climb['R_{climb}']) + sum(cruise['R_{cruise}']) >= ReqRng]), #[SP]
 
                 ## ---------------------- VERTICAL TAIL SIZING ----------
                 # Takeoff thrust T_e calculated for engine out + vertical tail sizing.
@@ -1158,11 +1131,6 @@ class Mission(Model):
                     climb['thr'] * aircraft.engine['F'][:Nclimb],
 
                 ## --------------------- HT AND VT GEOMETRY ----------------
-                #these constraints prevent the HT and VT from moving between flight segments
-                climb['\\Delta x_{trail_{vt}}'][0] + climb['x_{CG}'][0] <= climb['\\Delta x_{trail_{vt}}'][1:Nclimb] + climb['x_{CG}'][1:Nclimb],
-                climb['\\Delta x_{trail_{vt}}'][0] + climb['x_{CG}'][0] <= cruise['\\Delta x_{trail_{vt}}'] + cruise['x_{CG}'],
-                climb['\\Delta x_{trail_{ht}}'][0] + climb['x_{CG}'][0] <= climb['\\Delta x_{trail_{ht}}'][1:Nclimb] + climb['x_{CG}'][1:Nclimb],
-                climb['\\Delta x_{trail_{ht}}'][0] + climb['x_{CG}'][0] <= cruise['\\Delta x_{trail_{ht}}'] + cruise['x_{CG}'], 
 
 
                 # ----------------- NACELLE DRAG ---------------
@@ -1202,71 +1170,21 @@ class Mission(Model):
                     cruise['F_{fuel}'] <= 1.0, #just in case, TODO remove later
                     ])
 
-        ## ---------------------- SET PASSENGER AND SET COUNTS ---------------------
-        if multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
-             constraints.extend([
+        ## ---------------------- MULTIMISSION SETUP --------------------------
+        if multimission:
+            W_fmissions = Variable('W_{f_{missions}}', 'lbf', 'Fuel burn across all missions')
+            constraints.extend([
                   W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
-                  ])
-
-        if not multimission and not D8bigfam and not b777300ER and not optimal777 and not RJfam and not D12:
-             constraints.extend([
-                  aircraft['n_{pass}'] == 180.,
-                  aircraft['n_{seat}'] == aircraft['n_{pass}']
-                  ])
-
-        if multimission and (D8bigfam or b777300ER or optimal777):
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
-
-             constraints.extend([
-                  W_fmissions >= sum(aircraft['W_{f_{total}}']),
-
-                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
-                  ])
-        if not multimission and (D8bigfam or b777300ER or optimal777):
-             constraints.extend([
-                  aircraft['n_{pass}'] == 450.,
-                  aircraft['n_{seat}'] == aircraft['n_{pass}']
-                  ])
-
-        if multimission and RJfam:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
-
-             constraints.extend([
-                  W_fmissions >= sum(aircraft['W_{f_{total}}']),
-
-                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
-                  ])
-        if not multimission and RJfam:
-             constraints.extend([
-                  aircraft['n_{pass}'] == 90.,
-                  aircraft['n_{seat}'] == aircraft['n_{pass}']
-                  ])
-
-        if multimission and D12:
-             W_fmissions = Variable('W_{f_{missions}', 'N', 'Fuel burn across all missions')
-
-             constraints.extend([
-                  W_fmissions >= sum(aircraft['W_{f_{total}}']),
-                  aircraft['n_{seat}'] == aircraft['n_{pass}'][0], # TODO find a more robust way of doing this!
-                  ])
-        if not multimission and D12:
-             constraints.extend([
-                  aircraft['n_{pass}'] == 500.,
-                  aircraft['n_{seat}'] == aircraft['n_{pass}']
                   ])
 
         ## -------------------- SETTING ENGINE PARAMETERS ----------------------
         constraints.extend([
             #constrain OPR less than max OPR
-            aircraft['OPR'][Nclimb] <= OPRmax,
+            aircraft['OPR'] <= OPRmax,
         ])
 
         M2 = .6
         M25 = .6
-        M4a = .2
-        M0 = .5
 
         engineclimb = [
             aircraft.engine.engineP['M_2'][:Nclimb] == climb['M'],
@@ -1278,30 +1196,10 @@ class Mission(Model):
             TCS([climb['P_{excess}'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
     
-        if D8fam or M072_737 or D8big_M072 or D8_eng_wing or smallD8_eng_wing or optimal777_M072 or D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072:
-             M2 = .6
-             M25 = .6
-             M4a = .2
-             M0 = .72
 
-        if D8_no_BLI or D8big_M08 or optimalRJ or M08D8 or smallD8_M08_eng_wing or smallD8_M08_no_BLI or smallD8_M08 or optimal777_M08:
-             M2 = .6
-             M25 = .6
-             M4a = .2
-             M0 = .8
-
-        if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
+        if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI or D12) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
                                                                                          D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072):
              M2 = .65
-             M25 = .6
-             M4a = .2
-             M0 = .84
-
-        if D12:
-             M2 = .65
-             M25 = .6
-             M4a = .2
-             M0 = .83
 
         enginecruise = [
             aircraft.engine.engineP['M_2'][Nclimb:] == cruise['M'],
@@ -1311,21 +1209,13 @@ class Mission(Model):
             
             ]
 
-        if BLI or M072_737 or b737800 or b777300ER or optimal737 or D8_eng_wing or D8_no_BLI:
-             with SignomialsEnabled():
-                  engineclimb.extend([
+        with SignomialsEnabled():
+            engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
                        ])
-                  enginecruise.extend([
+            enginecruise.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
                        ])
-        else:
-             engineclimb.extend([
-                  aircraft.engine.engineP['c1'][:Nclimb] <= 1. + 0.5*(.401)*0.54592**2.,
-                  ])
-             enginecruise.extend([
-                  aircraft.engine.engineP['c1'][Nclimb:] <= 1. + 0.5*(.401)*0.8**2.,
-                  ])
 
         ## --------- SETTING OBJECTIVE FLAGS FOR NON-STANDARD OBJECTIVE FUNCTIONS ---------------
         if not multimission and objective != 'Total_Time' and objective != 'L/D':

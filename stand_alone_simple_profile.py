@@ -8,13 +8,13 @@ from gpkit.constraints.tight import Tight as TCS
 import matplotlib.pyplot as plt
 
 """
-Models requird to minimze the aircraft total fuel weight. Rate of climb equation taken from John
+Models required to minimize the aircraft total fuel weight. Rate of climb equation taken from John
 Anderson's Aircraft Performance and Design (eqn 5.85).
 Inputs
 -----
-- Number of passtengers
-- Passegner weight [N]
-- Fusealge area per passenger (recommended to use 1 m^2 based on research) [m^2]
+- Number of passengers
+- Passenger weight [N]
+- Fuselage area per passenger (recommended to use 1 m^2 based on research) [m^2]
 - Engine weight [N]
 - Number of engines
 - Required mission range [nm]

@@ -16,7 +16,7 @@ class Fuselage(Model):
         g = Variable('g',9.81,'m*s^-2','Acceleration due to gravity')
         dPover = Variable('\\Delta P_{over}', 'psi', 'Cabin overpressure')
         with Vectorize(Nmissions):
-            npass = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
+            npass = Variable('n_{pass}', '-', 'Number of passengers')
         Nland = Variable('N_{land}', 6.0, '-',
                          'Emergency landing load factor')  # [TAS]
         Nlift = Variable('N_{lift}','-','Wing maximum load factor')
@@ -203,6 +203,7 @@ class Fuselage(Model):
             Wpay = Variable('W_{payload}', 'lbf', 'Payload weight')
             Wlugg = Variable('W_{lugg}', 'lbf', 'Passenger luggage weight')
             Wpass = Variable('W_{pass}', 'lbf', 'Passenger weight')
+        Wpaymax = Variable('W_{payload_{max}}','lbf','Maximum payload weight')
         
         # x-location variables
         xshell1 = Variable('x_{shell1}', 'm', 'Start of cylinder section')
@@ -227,12 +228,12 @@ class Fuselage(Model):
         constraints = []
         with SignomialsEnabled():
             constraints.extend([
-
                 # Passenger constraints
                 Wlugg >= flugg2 * npass * 2 * Wchecked + flugg1 * npass * Wchecked + Wcarryon,
-                Wpass == npass * Wavgpass,
+                TCS([Wpass >= npass * Wavgpass]),
                 Wpay >= Wpass + Wlugg + Wcargo,
-                Wpay >= npass * Wavgpasstot,
+                TCS([Wpay >= npass * Wavgpasstot]),
+                Wpaymax >= Wpay,
                 nseat >= npass,
                 nrows == nseat / SPR,
                 lshell == nrows * pitch,
@@ -271,7 +272,7 @@ class Fuselage(Model):
 
                 # Floor loading
                 lfloor >= lshell + 2 * Rfuse,
-                Pfloor >= Nland * (Wpay + Wseat),
+                TCS([Pfloor >= Nland * (Wpaymax + Wseat)]),
                 Afloor >= 2. * Mfloor / (sigfloor * hfloor) + 1.5 * Sfloor / taufloor,
                 Vfloor == 2 * wfloor * Afloor,
                 Wfloor >= rhofloor * g * Vfloor + 2 * wfloor * lfloor * Wppfloor,
@@ -300,9 +301,9 @@ class Fuselage(Model):
                 SignomialEquality(A0h, A2hLand * (xshell2 - xhbendLand) ** 2 + A1hLand * (xtail - xhbendLand)), # [SP] #[SPEquality]
                 SignomialEquality(A0h, A2hMLF * (xshell2 - xhbendMLF) ** 2 + A1hMLF * (xtail - xhbendMLF)), # [SP] #[SPEquality]
 
-                A2hLand >= Nland * (Wpay + Wpadd + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
+                A2hLand >= Nland * (Wpaymax + Wpadd + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
                 (2 * lshell * hfuse * sigMh),  # Landing loads constant A2hLand
-                A2hMLF >= Nlift * (Wpay + Wpadd + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
+                A2hMLF >= Nlift * (Wpaymax + Wpadd + Wshell + Wwindow + Winsul + Wfloor + Wseat) / \
                 (2 * lshell * hfuse * sigMh),  # Max wing aero loads constant A2hMLF
 
                 # Shell inertia constant A0h
@@ -367,13 +368,14 @@ class Fuselage(Model):
                 Vcabin >= Afuse * (lshell + 0.67 * lnose + 0.67 * Rfuse),
 
                 # Weight relations
-                Wapu == Wpay * fapu,
+                Wapu == Wpaymax * fapu,
                 Wdb == rhoskin * g * Vdb,
                 Winsul >= Wppinsul * ((1.1 * pi + 2 * thetadb) * Rfuse * lshell + 0.55 * (Snose + Sbulk)),
                 Wwindow >= Wpwindow * lshell,
-                Wpadd == Wpay * fpadd,
+                Wpadd == Wpaymax * fpadd,
+                # Two methods for determining seat weight (must be inequalities)
                 Wseat >= Wpseat * nseat,
-                Wseat >= fseat * Wpay,
+                Wseat >= fseat * Wpaymax,
 
                 Wskin >= rhoskin * g * (Vcyl + Vnose + Vbulk),
                 Wshell >= Wskin * (1 + fstring + ffadd + fframe) + Wdb,
