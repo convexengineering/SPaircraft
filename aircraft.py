@@ -6,6 +6,7 @@ from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, 
 from gpkit.constraints.tight import Tight as TCS
 from gpkit.constraints.bounded import Bounded as BCS
 from numpy import pi
+from gpkit.tools import te_exp_minus1
 
 TCS.reltol = 1e-3
 
@@ -46,7 +47,7 @@ class Aircraft(Model):
     fitDrag: True = use Martin's tail drag fits, False = use the TASOPT tail drag model
     """
 
-    def setup(self, Nclimb, Ncruise, enginestate, eng, fitDrag, BLI = False, detailed_engine = True, Nmissions=1,  **kwargs):
+    def setup(self, Nclimb, Ncruise, enginestate, eng, fitDrag, BLI = False, detailed_engine = True, detailed_flight_profile = True, Nmissions=1,  **kwargs):
         # create submodels
         self.fuse = Fuselage(Nmissions)
         self.wing = Wing()
@@ -722,6 +723,46 @@ class ClimbSegment(Model): # Combines FlightState and Aircraft to form a climb f
         self.climbP = aircraft.climb_dynamic(self.state, Nclimb)
         return self.state, self.climbP
 
+class SimpleCruiseP(Model): # Cruise performance constraints
+    """
+    simple aircraftp performance model used in pkjournal
+    """
+    def setup(self, aircraft, state, **kwargs):
+        self.aircraft = aircraft
+        self.aircraftP = AircraftP(aircraft, state)
+        self.wingP = self.aircraftP.wingP
+        self.fuseP = self.aircraftP.fuseP
+        self.engine = aircraft.engine
+        
+        # variable definitions
+        z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
+        Rng = Variable('R_{cruise}', 'nautical_miles', 'Cruise Segment Range')
+
+        constraints = []
+
+
+        constraints.extend([
+            #taylor series expansion to get the weight term
+            TCS([self.aircraftP['W_{burn}']/self.aircraftP['W_{end}'] >=
+              te_exp_minus1(z_bre, nterm=3)]),
+
+            #time
+            self.aircraftP['thr'] * state['V'] == Rng,
+
+            z_bre >= self.engine['TSFC'] * self.aircraftP['thr'] * self.aircraftP['D'] / self.aircraftP['W_{avg}']
+        ])
+
+        return constraints + self.aircraftP
+
+class SimpleCruiseSegment(Model): 
+    """
+    Combines FlightState and the simple aircraft cruise profile to form a cruise flight segment
+    """
+    def setup(self, aircraft, **kwargs):
+        self.state = FlightState()
+        self.cruiseP = SimpleCruiseP(aircraft, self.state)
+        return self.state, self.cruiseP
+
 class StateLinking(Model):
     """
     link all the state model variables, required to link engine model
@@ -737,10 +778,11 @@ class StateLinking(Model):
         constraints = []
         for i in range(len(statevarkeys)):
             varkey = statevarkeys[i]
-            for i in range(Nclimb):
-                constraints.extend([
-                    climbstate[varkey][i] == enginestate[varkey][i]
-                    ])
+            if climbstate:
+                for i in range(Nclimb):
+                    constraints.extend([
+                        climbstate[varkey][i] == enginestate[varkey][i]
+                        ])
             for i in range(Ncruise):
                 constraints.extend([
                     cruisestate[varkey][i] == enginestate[varkey][i+Nclimb]
@@ -760,7 +802,7 @@ class Mission(Model):
               Nmission >/= 1 requires specification of range and number of passengers for each mission
     """
 
-    def setup(self, Nclimb, Ncruise, objective, airplane, detailed_engine = True, Nmission = 1):
+    def setup(self, Nclimb, Ncruise, objective, airplane, detailed_engine = True,  detailed_flight_profile = True, Nmission = 1):
         # define global variables
         global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
                optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_no_BLI, \
@@ -936,18 +978,27 @@ class Mission(Model):
         aircraft = Aircraft(Nclimb, Ncruise, enginestate, eng, fitDrag, BLI, detailed_engine, Nmission)
 
         # Vectorize dynamic variables
-        with Vectorize(Nmission):
-             with Vectorize(Nclimb):
-                 climb = ClimbSegment(aircraft, Nclimb)
+        if detailed_flight_profile:
+            with Vectorize(Nmission):
+                 with Vectorize(Nclimb):
+                     climb = ClimbSegment(aircraft, Nclimb)
 
-        with Vectorize(Nmission):
-             with Vectorize(Ncruise):
-                 cruise = CruiseSegment(aircraft, Nclimb)
+            with Vectorize(Nmission):
+                 with Vectorize(Ncruise):
+                     cruise = CruiseSegment(aircraft, Nclimb)
+        else:
+            with Vectorize(Nmission):
+                with Vectorize(Ncruise):
+                    cruise = SimpleCruiseSegment(aircraft)
+            climb  = False
 
         # StateLinking links the climb and cruise state variables to the engine state,
         # so that atmospheric variables match.
         if detailed_engine:
-            statelinking = StateLinking(climb.state, cruise.state, enginestate, Nclimb, Ncruise)
+            if detailed_flight_profile:
+                statelinking = StateLinking(climb.state, cruise.state, enginestate, Nclimb, Ncruise)
+            else:
+                statelinking = StateLinking(False, cruise.state, enginestate, Nclimb, Ncruise)
         else:
             statelinking = False
 
@@ -988,22 +1039,16 @@ class Mission(Model):
             # Note: Buoyancy model has been simplified, since it causes significant increases in runtime.
             constraints.extend([
                 cruise['W_{buoy}'] >= (cruise['\\rho_{cabin}'])*g*aircraft['V_{cabin}'], # [SP] # - cruise['\\rho']
-                climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
             ])
+            if detailed_flight_profile:
+                constraints.extend([
+                    climb['W_{buoy}'] >= (climb['\\rho_{cabin}'])*g*aircraft['V_{cabin}'],
+                ])
 
             ## ---------------------- CG CONSTRAINTS ----------------------
             #depends on engine location
             if rearengine:
                 constraints.extend([
-                TCS([climb['x_{CG}']*climb['W_{avg}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
-                    + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'] \
-                    + aircraft['n_{eng}']*aircraft['W_{engsys}'] * aircraft['x_{eng}'] \
-                    + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (climb['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
-                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
-                    ]),
                 TCS([cruise['x_{CG}']*cruise['W_{avg}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
@@ -1014,16 +1059,20 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                      ]),
               ])
+                if detailed_flight_profile:
+                    constraints.extend([
+                            TCS([climb['x_{CG}']*climb['W_{avg}'] >=
+                            aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                            + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                            + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'] \
+                            + aircraft['n_{eng}']*aircraft['W_{engsys}'] * aircraft['x_{eng}'] \
+                            + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
+                            + (climb['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
+                            * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
+                            ]),
+                        ])
             if wingengine:
                 constraints.extend([
-                TCS([climb['x_{CG}']*climb['W_{avg}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
-                    + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
-                    + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
-                    + (climb['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
-                    * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
-                    + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]),
                 TCS([cruise['x_{CG}']*cruise['W_{avg}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
@@ -1032,7 +1081,18 @@ class Mission(Model):
                     + (cruise['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                     + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]),
-              ])
+                  ])
+                if detailed_flight_profile:
+                    constraints.extend([
+                            TCS([climb['x_{CG}']*climb['W_{avg}'] >=
+                            aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                            + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
+                            + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
+                            + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
+                            + (climb['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
+                            * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
+                            + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]),
+                        ])
                 
             # ------------------ LG CG DISTANCE AND TIP OVER COMPUTATIONS ----------------------
             constraints.extend([
@@ -1046,89 +1106,143 @@ class Mission(Model):
             if optimalD8 or D80 or D82 or D82_73eng or M08D8 or D8_no_BLI or M08D8_noBLI or smallD8 or smallD8_no_BLI or D8_eng_wing or smallD8_eng_wing \
                or M08_D8_eng_wing:
                 constraints.extend([
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081,
                     aircraft.fuse['M_{fuseD}'] == 0.72,
                   ])
+                if detailed_flight_profile:
+                    constraints.extend([
+                        climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081,
+                        ])
 
             if D12 or D8big_eng_wing or D8big_no_BLI or D8big:
                 constraints.extend([
-                        climb.climbP.fuseP['C_{D_{fuse}}'] == 0.0167620,
                         cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.0167620,
                         aircraft.fuse['M_{fuseD}'] == 0.83,
                       ])
+                if detailed_flight_profile:
+                    constraints.extend([
+                            climb.climbP.fuseP['C_{D_{fuse}}'] == 0.0167620,
+                        ])
             if conventional and not (b777300ER or optimal777 or M072_737):
                 constraints.extend([
                     #Setting fuselage drag coefficient
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     aircraft.fuse['M_{fuseD}'] == 0.80,
                 ])
+                if detailed_flight_profile:
+                    constraints.extend([
+                        climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,
+                        ])
             if M072_737:
                 constraints.extend([
                     #Setting fuselage drag coefficient
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,#0.0129077,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,#0.0129077,
                     aircraft.fuse['M_{fuseD}'] == 0.80, #0.72,
                 ])
+                if detailed_flight_profile:
+                    constraints.extend([
+                       climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,#0.0129077,
+                        ])
             if b777300ER or optimal777:
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     #additioanl 1.1 factor accounts for mach drag rise model
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.00987663,
                     aircraft.fuse['M_{fuseD}'] == 0.84,
                 ])
+                if detailed_flight_profile:
+                    constraints.extend([
+                        climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663,
+                        ])
 
-        ## ------------------------ WEIGHT BUILD UP AND LINKING -------------------
-        constraints.extend([
-            climb.climbP.aircraftP['W_{start}'][0] == aircraft['W_{total}'],
-            climb.climbP.aircraftP['W_{end}'][-1] == cruise.cruiseP.aircraftP['W_{start}'][0],
 
-            # Climb segment weight decreases by the fuel burn...
-            TCS([climb.climbP.aircraftP['W_{start}'] >= climb.climbP.aircraftP[
-                'W_{end}'] + climb.climbP.aircraftP['W_{burn}']]),
-            # Cruise segment weight decreasesby the fuel burn...
-            TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP[
-                'W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
-
-            climb.climbP.aircraftP['W_{start}'][1:] == climb.climbP.aircraftP['W_{end}'][:-1],
-            cruise.cruiseP.aircraftP['W_{start}'][1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
-
-            TCS([aircraft['W_{dry}'] + aircraft['W_{payload}'] + \
-                 aircraft['f_{fuel_{res}}'] * aircraft['W_{f_{primary}}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
-            TCS([aircraft['W_{f_{climb}}'] >= sum(climb.climbP.aircraftP['W_{burn}'])]),
-            TCS([aircraft['W_{f_{cruise}}'] >= sum(cruise.cruiseP.aircraftP['W_{burn}'])]),
-            ])
 
         with SignomialsEnabled():
+            if detailed_flight_profile:                
+                constraints.extend([
+                        ## ------------------------ WEIGHT BUILD UP AND LINKING -------------------
+                        climb.climbP.aircraftP['W_{start}'][0] == aircraft['W_{total}'],
+                        climb.climbP.aircraftP['W_{end}'][-1] == cruise.cruiseP.aircraftP['W_{start}'][0],
+
+                        # Climb segment weight decreases by the fuel burn...
+                        TCS([climb.climbP.aircraftP['W_{start}'] >= climb.climbP.aircraftP['W_{end}'] + climb.climbP.aircraftP['W_{burn}']]),
+
+                        climb.climbP.aircraftP['W_{start}'][1:] == climb.climbP.aircraftP['W_{end}'][:-1],
+
+                        TCS([aircraft['W_{f_{climb}}'] >= sum(climb.climbP.aircraftP['W_{burn}'])]),
+
+                    
+                        ## ------------------------ CLIMB SEGMENT ALTITUDE AND PERFORMANCE CONSTRAINTS ---------------
+                        # Altitude constraints
+                        climb['hft'][-1] >= CruiseAlt,
+                        SignomialEquality(climb['hft'][1:Nclimb], climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]), #[SP]
+                        TCS([climb['hft'][0] == climb['dhft'][0]]),
+
+                        # All climb segments have the same total altitude change
+                        climb['dhft'][1:Nclimb] == climb['dhft'][:Nclimb - 1],
+
+                        # T/O minimum climb rate constraint
+                        climb['RC'][0] >= 2500. * units('ft/min'),
+
+                        # TASOPT TOC climb rate constraint
+                        climb['\\theta'][-1] >= 0.015, #higher than 0.015 radian climb gradient at top-of-climb
+
+                        # cruise ends at or above min cruise altitude
+                        climb['hft'][Nclimb-1] >= MinCruiseAlt,
+
+                        ## ----------------------- CONSTRAIN TOTAL RANGE -----------
+                        TCS([sum(climb['R_{climb}']) + sum(cruise['R_{cruise}']) >= ReqRng]), #[SP]
+
+                        ## -------------------- FUEL BURN --------------------
+                        # compute fuel burn from TSFC
+                        climb.climbP.aircraftP['W_{burn}'] == aircraft['n_{eng}'] * aircraft.engine['TSFC'][:Nclimb] * \
+                                                              climb['thr'] * aircraft.engine['F'][:Nclimb],
+
+                        ## ---------------------- SET WING MAX AOA -----------------
+                        climb['\\alpha_{max,w}'] == .18,
+
+                        ## -------------------- VARIOUS FLIGHT TIME COMPUTATIONS -------------------
+                        #compute the total time
+                        Total_Time >= sum(cruise['thr']) + sum(climb['thr']),
+                        #compute the climb in time
+                        climb_time >= sum(climb['thr']),
+                        climb_time <= max_climb_time,
+
+                        ## --------------------- CRUISE PERFORMANCE AND ALTITUDE CONSTRAINTS -------------------                
+                        # Thrust >= Drag + Vertical Potential Energy
+                        aircraft['n_{eng}'] * aircraft.engine['F'][Nclimb:] >= cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'],
+
+                        # Cruise climb constraint
+                        cruise['hft'][0] <= climb['hft'][-1] + cruise['dhft'][0], #[SP]
+                        cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
+                    ])
+            else:
+                constraints.extend([
+                        ## ----------------------- CONSTRAIN TOTAL RANGE -----------
+                        TCS([sum(cruise['R_{cruise}']) >= ReqRng]), #[SP]
+
+                        ## -------------------- VARIOUS FLIGHT TIME COMPUTATIONS -------------------
+                        #compute the total time
+                        Total_Time >= sum(cruise['thr']),
+
+                        cruise.cruiseP.aircraftP['W_{start}'][0] == aircraft['W_{total}'],
+                    ])
             constraints.extend([
-                ## ------------------------ CLIMB SEGMENT ALTITUDE AND PERFORMANCE CONSTRAINTS ---------------
-                # Altitude constraints
-                climb['hft'][-1] >= CruiseAlt,
-                SignomialEquality(climb['hft'][1:Nclimb], climb['hft'][:Nclimb - 1] + climb['dhft'][1:Nclimb]), #[SP]
-                TCS([climb['hft'][0] == climb['dhft'][0]]),
+                ## ------------------------ WEIGHT BUILD UP AND LINKING -------------------
+                # Cruise segment weight decreasesby the fuel burn...
+                TCS([cruise.cruiseP.aircraftP['W_{start}'] >= cruise.cruiseP.aircraftP[
+                'W_{end}'] + cruise.cruiseP.aircraftP['W_{burn}']]),
 
-                # All climb segments have the same total altitude change
-                climb['dhft'][1:Nclimb] == climb['dhft'][:Nclimb - 1],
 
-                # T/O minimum climb rate constraint
-                climb['RC'][0] >= 2500. * units('ft/min'),
+                cruise.cruiseP.aircraftP['W_{start}'][1:] == cruise.cruiseP.aircraftP['W_{end}'][:-1],
 
-                # TASOPT TOC climb rate constraint
-                climb['\\theta'][-1] >= 0.015, #higher than 0.015 radian climb gradient at top-of-climb
+                TCS([aircraft['W_{dry}'] + aircraft['W_{payload}'] + \
+                 aircraft['f_{fuel_{res}}'] * aircraft['W_{f_{primary}}'] <= cruise.cruiseP.aircraftP['W_{end}'][-1]]),
 
-                # cruise ends at or above min cruise altitude
-                climb['hft'][Nclimb-1] >= MinCruiseAlt,
+                TCS([aircraft['W_{f_{cruise}}'] >= sum(cruise.cruiseP.aircraftP['W_{burn}'])]),
 
-                ## --------------------- CRUISE PERFORMANCE AND ALTITUDE CONSTRAINTS -------------------
-                # Thrust >= Drag + Vertical Potential Energy
-                aircraft['n_{eng}'] * aircraft.engine['F'][Nclimb:] >= cruise['D'] + cruise['W_{avg}'] * cruise['\\theta'],
-
-                # Cruise climb constraint
-                cruise['hft'][0] <= climb['hft'][-1] + cruise['dhft'][0], #[SP]
-                cruise['hft'][1:Ncruise] <=  cruise['hft'][:Ncruise-1] + cruise['dhft'][1:Ncruise], #[SP]
-
+ 
+                ## --------------------- CRUISE PERFORMANCE AND ALTITUDE CONSTRAINTS -------------------            
                 # Set the range for each cruise segment.
                 # All cruise segments cover the same range.
                 cruise['R_{cruise}'][:Ncruise-1] == cruise['R_{cruise}'][1:Ncruise],
@@ -1136,60 +1250,68 @@ class Mission(Model):
                 # Cruise Mach Number constraint
                 cruise['M'] >= aircraft['M_{min}'],
 
-                ## ----------------------- CONSTRAIN TOTAL RANGE -----------
-                TCS([sum(climb['R_{climb}']) + sum(cruise['R_{cruise}']) >= ReqRng]), #[SP]
-
-                ## ---------------------- VERTICAL TAIL SIZING ----------
-                # Takeoff thrust T_e calculated for engine out + vertical tail sizing.
-                # Note: coeff can be varied as desired...this exists because we
-                # don't include a takeoff simulation and climb thrust < max takeoff
-                # thrust. Future work is to add a balanced field length constraint
-                # and remove this.
-                aircraft.VT['T_e'] == Fsafetyfac * climb.climbP.engine['F'][0],
-
                 ## -------------------- FUEL BURN --------------------
                 # compute fuel burn from TSFC
                 cruise.cruiseP.aircraftP['W_{burn}'] == aircraft['n_{eng}'] * aircraft.engine['TSFC'][Nclimb:] * \
                     cruise['thr'] * aircraft.engine['F'][Nclimb:],
-                climb.climbP.aircraftP['W_{burn}'] == aircraft['n_{eng}'] * aircraft.engine['TSFC'][:Nclimb] * \
-                    climb['thr'] * aircraft.engine['F'][:Nclimb],
 
                 ## --------------------- HT AND VT GEOMETRY ----------------
 
 
                 ## ---------------------- SET WING MAX AOA -----------------
-                climb['\\alpha_{max,w}'] == .18,
                 cruise['\\alpha_{max,w}'] == .1,
-
-
-                ## -------------------- VARIOUS FLIGHT TIME COMPUTATIONS -------------------
-                #compute the total time
-                Total_Time >= sum(cruise['thr']) + sum(climb['thr']),
-                #compute the climb in time
-                climb_time >= sum(climb['thr']),
-                climb_time <= max_climb_time,
                 ])
+        if detailed_flight_profile:
+            ## ---------------------- VERTICAL TAIL SIZING ----------
+            # Takeoff thrust T_e calculated for engine out + vertical tail sizing.
+            # Note: coeff can be varied as desired...this exists because we
+            # don't include a takeoff simulation and climb thrust < max takeoff
+            # thrust. Future work is to add a balanced field length constraint
+            # and remove this.
+            if detailed_engine:
+                constraints.extend([
+                        aircraft.VT['T_e'] == Fsafetyfac * climb.climbP.engine['F'][0],
+                    ])
+            else:
+                constraints.extend([
+                        aircraft.VT['T_e'] == Fsafetyfac * aircraft.engine['F_TO'],
+                    ])
+        else:
+            if detailed_engine:
+                constraints.extend([
+                        aircraft.VT['T_e'] == Fsafetyfac * cruise.cruiseP.engine['F'][0],
+                    ])
+            else:
+                constraints.extend([
+                        aircraft.VT['T_e'] == Fsafetyfac * aircraft.engine['F_TO'],
+                    ])
 
         if detailed_engine:
             constraints.extend([
-                ## --------------------- ENGINE CONSTRAINTS --------------------
-                #set the max allowed cruise Tt4.1
-                aircraft['T_{t_{4.1}}'][Nclimb:] <= CruiseTt41max,
-                
                 # ----------------- NACELLE DRAG ---------------
                 # Elevated this constraint to Mission for dimensionality
                 cruise.cruiseP['V_2'] == aircraft.engine['M_2'][Nclimb:] * cruise.state['a'],
-                climb.climbP['V_2'] == aircraft.engine['M_2'][:Nclimb] * climb.state['a'],
                 ])
+            if detailed_flight_profile:
+                constraints.extend([
+                    ## --------------------- ENGINE CONSTRAINTS --------------------
+                    #set the max allowed cruise Tt4.1
+                    aircraft['T_{t_{4.1}}'][Nclimb:] <= CruiseTt41max,
+                    
+                    # ----------------- NACELLE DRAG ---------------
+                    # Elevated this constraint to Mission for dimensionality
+                    climb.climbP['V_2'] == aircraft.engine['M_2'][:Nclimb] * climb.state['a'],
+                    ])               
 
         ## ------------------------ PERCENT FUEL REMAINING -------------------
         with SignomialsEnabled():
-            for i in range(0,Nclimb):
-                constraints.extend([
-                    TCS([climb['F_{fuel}'][i] >= (sum(climb['W_{burn}'][i+1:]) + \
-                                                             aircraft['W_{f_{cruise}}'])/aircraft['W_{f_{primary}}']]) ,
-                    climb['F_{fuel}'] <= 1.0, #just in case, TODO remove later
-                ])
+            if detailed_flight_profile:
+                for i in range(0,Nclimb):
+                    constraints.extend([
+                        TCS([climb['F_{fuel}'][i] >= (sum(climb['W_{burn}'][i+1:]) + \
+                                                                 aircraft['W_{f_{cruise}}'])/aircraft['W_{f_{primary}}']]) ,
+                        climb['F_{fuel}'] <= 1.0, #just in case, TODO remove later
+                    ])
             for i in range(0,Ncruise):
                 constraints.extend([
                     TCS([cruise['F_{fuel}'][i] >= (sum(cruise['W_{burn}'][i+1:]) + \
@@ -1213,16 +1335,16 @@ class Mission(Model):
 
             M2 = .6
             M25 = .6
-
-            engineclimb = [
-                aircraft.engine.engineP['M_2'][:Nclimb] == climb['M'],
-                aircraft.engine.engineP['M_{2.5}'][:Nclimb] == M25,
-                aircraft.engine.engineP['hold_{2}'][:Nclimb] == 1.+.5*(1.398-1.)*M2**2.,
-                aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
-                
-                #climb rate constraints
-                TCS([climb['P_{excess}'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F_{spec}'][:Nclimb]]),
-                ]
+            if detailed_flight_profile:
+                engineclimb = [
+                    aircraft.engine.engineP['M_2'][:Nclimb] == climb['M'],
+                    aircraft.engine.engineP['M_{2.5}'][:Nclimb] == M25,
+                    aircraft.engine.engineP['hold_{2}'][:Nclimb] == 1.+.5*(1.398-1.)*M2**2.,
+                    aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
+                    
+                    #climb rate constraints
+                    TCS([climb['P_{excess}'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F_{spec}'][:Nclimb]]),
+                    ]
         
 
             if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI or D12) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
@@ -1237,13 +1359,14 @@ class Mission(Model):
                 
                 ]
 
-            with SignomialsEnabled():
-                engineclimb.extend([
-                           SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
-                           ])
-                enginecruise.extend([
-                           SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
-                           ])
+            if detailed_flight_profile:
+                with SignomialsEnabled():
+                    engineclimb.extend([
+                               SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
+                               ])
+                    enginecruise.extend([
+                               SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
+                               ])
 
         ## --------- SETTING OBJECTIVE FLAGS FOR NON-STANDARD OBJECTIVE FUNCTIONS ---------------
         if not multimission and objective != 'Total_Time' and objective != 'L/D':
@@ -1256,7 +1379,11 @@ class Mission(Model):
             self.cost = 1/cruise['L/D'][0][0]
         else:
             self.cost = W_fmissions
-        if detailed_engine:
+        if detailed_engine and detailed_flight_profile:
             return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
-        else:
+        elif not detailed_engine and detailed_flight_profile:
             return constraints, aircraft, climb, cruise
+        elif detailed_engine and not detailed_flight_profile:
+            return constraints, aircraft, cruise, enginestate, statelinking, enginecruise
+        elif not detailed_engine and not detailed_flight_profile:
+            return constraints, aircraft, cruise
