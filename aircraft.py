@@ -51,7 +51,7 @@ class Aircraft(Model):
         # create submodels
         self.fuse = Fuselage(Nmissions)
         self.wing = Wing()
-        if Nmissions != 0 and detailed_engine:
+        if Nmissions > 1 and detailed_engine:
             self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, Nmissions, BLI)
         elif Nmissions == 1 and detailed_engine:
            self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, BLI)
@@ -1345,21 +1345,18 @@ class Mission(Model):
                     #climb rate constraints
                     TCS([climb['P_{excess}'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F_{spec}'][:Nclimb]]),
                     ]
-        
 
-            if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI or D12) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
-                                                                                             D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072):
-                 M2 = .65
+                if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI or D12) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
+                                                                             D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072):
+                     M2 = .65
 
-            enginecruise = [
-                aircraft.engine.engineP['M_2'][Nclimb:] == cruise['M'],
-                aircraft.engine.engineP['M_{2.5}'][Nclimb:] == M25,
-                aircraft.engine.engineP['hold_{2}'][Nclimb:] == 1.+.5*(1.398-1.)*M2**2.,
-                aircraft.engine.engineP['hold_{2.5}'][Nclimb:] == 1.+.5*(1.354-1.)*M25**2.,
-                
-                ]
+                enginecruise = [
+                    aircraft.engine.engineP['M_2'][Nclimb:] == cruise['M'],
+                    aircraft.engine.engineP['M_{2.5}'][Nclimb:] == M25,
+                    aircraft.engine.engineP['hold_{2}'][Nclimb:] == 1.+.5*(1.398-1.)*M2**2.,
+                    aircraft.engine.engineP['hold_{2.5}'][Nclimb:] == 1.+.5*(1.354-1.)*M25**2.,
+                    ]
 
-            if detailed_flight_profile:
                 with SignomialsEnabled():
                     engineclimb.extend([
                                SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
@@ -1367,6 +1364,20 @@ class Mission(Model):
                     enginecruise.extend([
                                SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
                                ])
+        
+
+            else:
+                if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI or D12) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
+                                                                                                 D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072):
+                     M2 = .65
+
+                enginecruise = [
+                    aircraft.engine.engineP['M_2'] == cruise['M'],
+                    aircraft.engine.engineP['M_{2.5}'] == M25,
+                    aircraft.engine.engineP['hold_{2}'] == 1.+.5*(1.398-1.)*M2**2.,
+                    aircraft.engine.engineP['hold_{2.5}'] == 1.+.5*(1.354-1.)*M25**2.,
+                    
+                    ]
 
         ## --------- SETTING OBJECTIVE FLAGS FOR NON-STANDARD OBJECTIVE FUNCTIONS ---------------
         if not multimission and objective != 'Total_Time' and objective != 'L/D':

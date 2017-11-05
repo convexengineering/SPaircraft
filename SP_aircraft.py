@@ -363,6 +363,7 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False,  detailed_engine = Tru
     #get engine subs
     engine_subs = get737_optimal_engine_subs(detailed_engine)
     if detailed_engine:
+        substitutions.update(engine_subs)
         if fixedBPR:
             substitutions.update({
                 '\\alpha_{max}': 6.97,
@@ -389,7 +390,6 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False,  detailed_engine = Tru
 
     if detailed_engine:
         percent_diff(sol, 'b737800', Nclimb)
-
         post_compute(sol, Nclimb)
 
     return sol
