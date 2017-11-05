@@ -45,13 +45,13 @@ class Aircraft(Model):
     fitDrag: True = use Martin's tail drag fits, False = use the TASOPT tail drag model
     """
 
-    def setup(self, Nclimb, Ncruise, enginestate, eng, fitDrag, BLI = False, Nmissions=0,  **kwargs):
+    def setup(self, Nclimb, Ncruise, enginestate, eng, fitDrag, BLI = False, detailed_engine = True, Nmissions=0,  **kwargs):
         # create submodels
         self.fuse = Fuselage(Nmissions)
         self.wing = Wing()
-        if Nmissions != 0:
+        if Nmissions != 0 and detailed_engine:
             self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, Nmissions, BLI)
-        else:
+        elif Nmissions != 0 and detailed_engine:
            self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, BLI)
         self.VT = VerticalTail()
         self.HT = HorizontalTail()
@@ -746,7 +746,7 @@ class Mission(Model):
               Nmission >/= 1 requires specification of range and number of passengers for each mission
     """
 
-    def setup(self, Nclimb, Ncruise, objective, airplane, Nmission = 1):
+    def setup(self, Nclimb, Ncruise, objective, airplane, detailed_engine = True, Nmission = 1):
         # define global variables
         global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
                optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_no_BLI, \
@@ -916,7 +916,7 @@ class Mission(Model):
             fitDrag = False
 
         # Build required submodels
-        aircraft = Aircraft(Nclimb, Ncruise, enginestate, eng, fitDrag, BLI, Nmission)
+        aircraft = Aircraft(Nclimb, Ncruise, enginestate, eng, fitDrag, BLI, detailed_engine, Nmission)
 
         # Vectorize dynamic variables
         with Vectorize(Nmission):
