@@ -61,8 +61,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'SPaircraft'
-copyright = u'2017, Berk Ozturk and Martin York'
-author = u'Berk Ozturk, Martin York'
+copyright = u'2017, Berk Ozturk, Philippe Kirschen and Martin York'
+author = u'Berk Ozturk, Philippe Kirschen, Martin York'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
