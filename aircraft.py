@@ -173,7 +173,7 @@ class Aircraft(Model):
                             TCS([self.LG['x_m'] >= self.fuse['x_{wing}']]),
                             self.LG['x_m'] <= self.wing['\\Delta x_{AC_{wing}}'] + self.fuse['x_{wing}'],
                             xhpesys == 1.1*self.fuse['l_{nose}'],
-                            xmisc*Wmisc >= self.LG['x_n']*self.LG['W_{ng}'] + self.LG['x_m']*self.LG['W_{mg}'] + xhpesys*Whpesys,
+                            xmisc*Wmisc >= xhpesys*Whpesys,
 
                             #compute nacelle diameter
                             self.LG['d_{nacelle}'] >= self.engine['d_{f}'] + 2*self.LG['t_{nacelle}'],
@@ -972,7 +972,7 @@ class Mission(Model):
             if rearengine:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{avg}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    aircraft['x_{misc}']*aircraft['W_{misc}'] + aircraft['x_{CG_{lg}}']*aircraft['W_{lg}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'] \
                     + aircraft['n_{eng}']*aircraft['W_{engsys}'] * aircraft['x_{eng}'] \
@@ -981,7 +981,7 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
                     ]),
                 TCS([cruise['x_{CG}']*cruise['W_{avg}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    aircraft['x_{misc}']*aircraft['W_{misc}'] + aircraft['x_{CG_{lg}}']*aircraft['W_{lg}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}']
                     + aircraft['n_{eng}']*aircraft['W_{engsys}'] * aircraft['x_{eng}'] \
@@ -993,7 +993,7 @@ class Mission(Model):
             if wingengine:
                 constraints.extend([
                 TCS([climb['x_{CG}']*climb['W_{avg}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    aircraft['x_{misc}']*aircraft['W_{misc}']  + aircraft['x_{CG_{lg}}']*aircraft['W_{lg}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
@@ -1001,7 +1001,7 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
                     + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]),
                 TCS([cruise['x_{CG}']*cruise['W_{avg}'] >=
-                    aircraft['x_{misc}']*aircraft['W_{misc}'] \
+                    aircraft['x_{misc}']*aircraft['W_{misc}']  + aircraft['x_{CG_{lg}}']*aircraft['W_{lg}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
                     + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
