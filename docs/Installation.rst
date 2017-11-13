@@ -7,7 +7,7 @@ To be able to use our SP aircraft models, you will need the following software i
 
 - `Python 2.7`
 - `GPkit`
-- `hoburg/turbofan`
+- `convexengineering/turbofan`
 
 Install GPkit
 -------------
@@ -15,11 +15,11 @@ The instructions for installing GPkit can be found `here`_.
 
 .. _here: http://gpkit.readthedocs.io/en/latest/installation.html
 
-Clone + install the hoburg/turbofan repository
+Clone + install the convexengineering/turbofan repository
 ----------------------------------------------
-To install `turbofan`, clone `hoburg/turbofan`_ into your directory of choice.
+To install `turbofan`, clone `convexengineering/turbofan`_ into your directory of choice.
 
-.. _hoburg/turbofan: https://github.com/hoburg/turbofan
+.. _convexengineering/turbofan: https://github.com/convexengineering/turbofan
 
 Using a console, go into the directory one level above the repository, and type in the following command::
 
@@ -30,4 +30,4 @@ Clone SPaircraft
 ----------------
 To install SPaircraft, simply clone the `repository`_ into your directory of choice.
 
-.. _repository: https://github.com/hoburg/d8
+.. _repository: https://github.com/convexengineering/SPaircraft
