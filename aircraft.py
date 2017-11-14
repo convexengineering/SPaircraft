@@ -58,7 +58,7 @@ class Aircraft(Model):
         elif not detailed_engine:
             if Nmissions == 1:
                 self.engine = SimpleEngine(Nclimb+Ncruise)
-            elif Nmissions != 1:
+            elif Nmissions > 1:
                 with Vectorize(Nmissions):
                         self.engine = SimpleEngine(Nclimb+Ncruise)
         self.VT = VerticalTail()
@@ -778,7 +778,6 @@ class StateLinking(Model):
         constraints = []
         for i in range(len(statevarkeys)):
             varkey = statevarkeys[i]
-            if climbstate:
                 for i in range(Nclimb):
                     constraints.extend([
                         climbstate[varkey][i] == enginestate[varkey][i]
@@ -1155,8 +1154,6 @@ class Mission(Model):
                         climb.climbP.fuseP['C_{D_{fuse}}'] == 0.00987663,
                         ])
 
-
-
         with SignomialsEnabled():
             if detailed_flight_profile:                
                 constraints.extend([
@@ -1171,7 +1168,6 @@ class Mission(Model):
 
                         TCS([aircraft['W_{f_{climb}}'] >= sum(climb.climbP.aircraftP['W_{burn}'])]),
 
-                    
                         ## ------------------------ CLIMB SEGMENT ALTITUDE AND PERFORMANCE CONSTRAINTS ---------------
                         # Altitude constraints
                         climb['hft'][-1] >= CruiseAlt,
