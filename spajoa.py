@@ -52,8 +52,7 @@ def run_optimal_737(objective = 'fuel'):
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=0, iteration_limit=50, reltol=0.01,
-                             modifylastgp=True)
+    sol = m_relax.localsolve(verbosity=0, iteration_limit=50, reltol=0.01)
     post_process(sol)
 
     return sol
@@ -94,19 +93,19 @@ if __name__ == "__main__":
     percent_diff(sol, 'optimal737')
     print sol.table()
 
-    # NPASS PLOTS
+    #NPASS PLOTS
     #
     # sol = run_sweeps_optimal_737('fuel','n_{pass}',np.linspace(150,210,20))
     #
-    # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{wing}'],label='Wing')
-    # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{VT}'], label = 'Vertical Tail')
-    # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{HT}'], label = 'Horizontal Tail')
-    # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{fuse}'], label = 'Fuselage')
-    # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{lg}'], label = 'Landing Gear')
+    # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{wing}'],label='Wing',ls='-',color='red',linewidth=1.5)
+    # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{fuse}'], label = 'Fuselage',ls='--',color='purple',linewidth=1.5)
+    # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{VT}'], label = 'Vertical Tail',ls=':',color='black',linewidth=1.5)
+    # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{HT}'], label = 'Horizontal Tail',ls='-.',color='blue',linewidth=1.5)
+    # plt.plot(sol('n_{pass}'),sol['sensitivities']['constants']['C_{lg}'], label = 'Landing Gear',ls='--',color='green',linewidth=1.5)
     # plt.xlabel('Number of passengers')
     # plt.ylabel('Sensitivity to component weights')
     # plt.grid()
-    # plt.legend(loc = "upper left")
+    # plt.legend(loc = "center right")
     # plt.savefig('figs/sweep-Wsens_vs_npass.png')
     # plt.close()
     #
@@ -117,7 +116,6 @@ if __name__ == "__main__":
     # plt.grid()
     # plt.savefig('figs/sweep-Wftotal_vs_npass.png')
     # plt.close()
-    #
     # plt.plot(sol('n_{pass}'),sol('W_{dry}'))
     # plt.xlabel('Number of passengers')
     # plt.ylabel('Dry weight [lbf]')
