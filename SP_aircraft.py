@@ -74,8 +74,8 @@ def gen_plots(sol):
     alt = []
     for i in range(len(sol('R_{climb}'))):
            rng.append(mag(sol('R_{climb}')[i][0]))
-    for i in range(len(sol('Rng'))):
-           rng.append(mag(sol('Rng')[i][0]))
+    for i in range(len(sol('R_{cruise}'))):
+           rng.append(mag(sol('R_{cruise}')[i][0]))
     for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
            alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     rng = np.cumsum(rng)
@@ -96,8 +96,8 @@ def gen_D82_plots(sol):
     alt = [0]
     for i in range(len(sol('R_{climb}'))):
            rng.append(mag(sol('R_{climb}')[i][0]))
-    for i in range(len(sol('Rng'))):
-           rng.append(mag(sol('Rng')[i][0]))
+    for i in range(len(sol('R_{cruise}'))):
+           rng.append(mag(sol('R_{cruise}')[i][0]))
     for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
            alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     rng = np.cumsum(rng)
@@ -206,8 +206,8 @@ def gen_737_plots(sol):
 
     for i in range(len(sol('R_{climb}'))):
            rng.append(mag(sol('R_{climb}')[i][0]))
-    for i in range(len(sol('Rng'))):
-           rng.append(mag(sol('Rng')[i][0]))
+    for i in range(len(sol('R_{cruise}'))):
+           rng.append(mag(sol('R_{cruise}')[i][0]))
     for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
            alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     rng = np.cumsum(rng)
@@ -234,8 +234,8 @@ def gen_777_plots(sol):
     
     for i in range(len(sol('R_{climb}'))):
            rng.append(mag(sol('R_{climb}')[i][0]))
-    for i in range(len(sol('Rng'))):
-           rng.append(mag(sol('Rng')[i][0]))
+    for i in range(len(sol('R_{cruise}'))):
+           rng.append(mag(sol('R_{cruise}')[i][0]))
     for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
            alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
     
