@@ -517,7 +517,7 @@ def run_D8_no_BLI(objective, fixedBPR, pRatOpt, mutategparg):
     return sol
 
 def test():
-    run_optimal_737('W_{f_{total}}', True, False)
+    run_optimal_737('W_{f_{total}}', True, False, True)
 
 ##    OLD CODE DOESN'T CURRENTLY WORK
     
