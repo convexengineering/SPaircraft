@@ -249,7 +249,7 @@ def gen_777_plots(sol):
     plt.savefig('777_altitude_profile.eps', bbox_inches="tight")
     plt.show()
 
-def run_optimal_777(objective, fixedBPR, pRatOpt = False):
+def run_optimal_777(objective, fixedBPR, pRatOpt, mutategparg):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -279,7 +279,7 @@ def run_optimal_777(objective, fixedBPR, pRatOpt = False):
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
     post_process(sol)
 
     percent_diff(sol, 'b777300ER', Nclimb)
@@ -288,7 +288,7 @@ def run_optimal_777(objective, fixedBPR, pRatOpt = False):
 
     return sol
 
-def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
+def run_optimal_D8(objective, fixedBPR, pRatOpt, mutategparg):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -325,7 +325,7 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
 
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, skipsweepfailures=True)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg, skipsweepfailures=True)
     post_process(sol)
 
     percent_diff(sol, 'D82', Nclimb)
@@ -334,7 +334,7 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt = False):
 
     return sol
 
-def run_optimal_737(objective, fixedBPR, pRatOpt = False):
+def run_optimal_737(objective, fixedBPR, pRatOpt, mutategparg):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -371,7 +371,7 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
     post_process(sol)
 
     percent_diff(sol, 'b737800', Nclimb)
@@ -380,7 +380,7 @@ def run_optimal_737(objective, fixedBPR, pRatOpt = False):
 
     return sol
 
-def run_M072_737(objective, fixedBPR, pRatOpt = False):
+def run_M072_737(objective, fixedBPR, pRatOpt, mutategparg):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -417,7 +417,7 @@ def run_M072_737(objective, fixedBPR, pRatOpt = False):
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
     post_process(sol)
 
     percent_diff(sol, aircraft, Nclimb)
@@ -426,7 +426,7 @@ def run_M072_737(objective, fixedBPR, pRatOpt = False):
 
     return sol
 
-def run_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
+def run_D8_eng_wing(objective, fixedBPR, pRatOpt, mutategparg):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -462,7 +462,7 @@ def run_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
     post_process(sol)
 
     percent_diff(sol, 'b737800', Nclimb)
@@ -471,7 +471,7 @@ def run_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
 
     return sol
 
-def run_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
+def run_D8_no_BLI(objective, fixedBPR, pRatOpt, mutategparg):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -507,7 +507,7 @@ def run_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
     m = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
     post_process(sol)
 
     percent_diff(sol, 'D82', Nclimb)
@@ -579,7 +579,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_D12(objective, fixedBPR, pRatOpt = False):
+##def run_D12(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -623,7 +623,7 @@ def test():
     
 
 ##
-##def run_M08_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
+##def run_M08_D8_eng_wing(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -662,7 +662,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_M08_D8(objective, fixedBPR, pRatOpt = False):
+##def run_M08_D8(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -701,7 +701,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_M08_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
+##def run_M08_D8_no_BLI(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -771,7 +771,7 @@ def test():
 ##
 ##
 ##
-##def run_M08_optimal_777(objective, fixedBPR, pRatOpt = False):
+##def run_M08_optimal_777(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -810,7 +810,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_M072_optimal_777(objective, fixedBPR, pRatOpt = False):
+##def run_M072_optimal_777(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -849,7 +849,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_D8_big(objective, fixedBPR, pRatOpt = False):
+##def run_D8_big(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -888,7 +888,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_D8_big_no_BLI(objective, fixedBPR, pRatOpt = False):
+##def run_D8_big_no_BLI(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -927,7 +927,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_M072_D8_big_no_BLI(objective, fixedBPR, pRatOpt = False):
+##def run_M072_D8_big_no_BLI(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -966,7 +966,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_D8_big_eng_wing(objective, fixedBPR, pRatOpt = False):
+##def run_D8_big_eng_wing(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -1005,7 +1005,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_M072_D8_big_eng_wing(objective, fixedBPR, pRatOpt = False):
+##def run_M072_D8_big_eng_wing(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -1045,7 +1045,7 @@ def test():
 ##    return sol
 ##
 ##
-##def run_D8_big_M072(objective, fixedBPR, pRatOpt = False):
+##def run_D8_big_M072(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -1084,7 +1084,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_D8_big_M08(objective, fixedBPR, pRatOpt = False):
+##def run_D8_big_M08(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -1123,7 +1123,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_optimal_RJ(objective, fixedBPR, pRatOpt = False):
+##def run_optimal_RJ(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -1162,7 +1162,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_M072_optimal_RJ(objective, fixedBPR, pRatOpt = False):
+##def run_M072_optimal_RJ(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -1201,7 +1201,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_small_D8(objective, fixedBPR, pRatOpt = False):
+##def run_small_D8(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -1240,7 +1240,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_small_M08_D8(objective, fixedBPR, pRatOpt = False):
+##def run_small_M08_D8(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -1277,7 +1277,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_small_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
+##def run_small_D8_eng_wing(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -1316,7 +1316,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_small_M08_D8_eng_wing(objective, fixedBPR, pRatOpt = False):
+##def run_small_M08_D8_eng_wing(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -1355,7 +1355,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_small_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
+##def run_small_D8_no_BLI(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
@@ -1394,7 +1394,7 @@ def test():
 ##
 ##    return sol
 ##
-##def run_small_M08_D8_no_BLI(objective, fixedBPR, pRatOpt = False):
+##def run_small_M08_D8_no_BLI(objective, fixedBPR, pRatOpt, mutategparg):
 ##    # User definitions
 ##    Nclimb = 3
 ##    Ncruise = 2
