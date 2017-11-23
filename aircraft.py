@@ -209,7 +209,7 @@ class Aircraft(Model):
                                   (self.fuse['l_{cone}'] / self.fuse['R_{fuse}'])]), #[SP]
 
                             # Tail weight
-                            self.fuse['W_{tail}'] >= numVT*self.VT['W_{vt}'] + self.HT['W_{ht}'] + self.fuse['W_{cone}'],
+                            self.fuse['W_{tail}'] >= numVT*self.VT['W_{vt}'] + self.HT['W_{ht}'],
 
                             # Fuselage width (numaisle comes in)
                             TCS([2.*self.fuse['w_{fuse}'] >= self.fuse['SPR'] * self.fuse['w_{seat}'] + \
@@ -306,7 +306,7 @@ class Aircraft(Model):
                     Izwing >= numeng*Wengsys*self.VT['y_{eng}']**2./g + \
                                     (self.wing['W_{fuel_{wing}}'] + self.wing['W_{wing}'])/(self.wing['S']*g)* \
                                     self.wing['c_{root}']*self.wing['b']**3.*(1./12.-(1.-self.wing['\\lambda'])/16.), #[SP]
-                    Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{cone}'] + self.VT['W_{vt}']) * self.VT['l_{vt}'] ** 2. / g + \
+                    Iztail >= (self.fuse['W_{apu}'] + self.VT['W_{vt}']) * self.VT['l_{vt}'] ** 2. / g + \
                         self.HT['W_{ht}'] * self.HT['l_{ht}'] ** 2. / g,
                     Izfuse >= (self.fuse['W_{fuse}'] + self.fuse['W_{payload_{max}}'])/self.fuse['l_{fuse}'] * \
                                     (self.fuse['x_{wing}']**3 + self.VT['l_{vt}']**3.)/(3.*g),
@@ -340,7 +340,7 @@ class Aircraft(Model):
                     Izwing >= (self.wing['W_{fuel_{wing}}'] + self.wing['W_{wing}']) / (self.wing['S'] * g) * \
                     self.wing['c_{root}'] * self.wing['b'] ** 3. * (1. / 12. - (1. - self.wing['\\lambda']) / 16.),
                     # [SP]
-                    Iztail >= (self.fuse['W_{apu}'] + self.fuse['W_{cone}'] + self.VT['W_{vt}'] + numeng * Wengsys) * \
+                    Iztail >= (self.fuse['W_{apu}'] + self.VT['W_{vt}'] + numeng * Wengsys) * \
                         self.VT['l_{vt}'] ** 2. / g + \
                         self.HT['W_{ht}'] * self.HT['l_{ht}'] ** 2. / g,
                     # NOTE: Using l_{vt} as an xeng - xCG surrogate. Reason: xCG moves during flight; want scalar Izfuse
@@ -974,7 +974,7 @@ class Mission(Model):
                 TCS([climb['x_{CG}']*climb['W_{avg}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] + aircraft['x_{CG_{lg}}']*aircraft['W_{lg}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'] \
+                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}'])*aircraft['x_{CG_{vt}}'] \
                     + aircraft['n_{eng}']*aircraft['W_{engsys}'] * aircraft['x_{eng}'] \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (climb['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
@@ -983,7 +983,7 @@ class Mission(Model):
                 TCS([cruise['x_{CG}']*cruise['W_{avg}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}'] + aircraft['x_{CG_{lg}}']*aircraft['W_{lg}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}']
+                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}']) + (aircraft['W_{vt}'])*aircraft['x_{CG_{vt}}']
                     + aircraft['n_{eng}']*aircraft['W_{engsys}'] * aircraft['x_{eng}'] \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (cruise['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
@@ -995,7 +995,7 @@ class Mission(Model):
                 TCS([climb['x_{CG}']*climb['W_{avg}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}']  + aircraft['x_{CG_{lg}}']*aircraft['W_{lg}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
+                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}'])*aircraft['x_{CG_{vt}}'])  \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (climb['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*climb['F_{fuel}']) \
@@ -1003,7 +1003,7 @@ class Mission(Model):
                 TCS([cruise['x_{CG}']*cruise['W_{avg}'] >=
                     aircraft['x_{misc}']*aircraft['W_{misc}']  + aircraft['x_{CG_{lg}}']*aircraft['W_{lg}'] \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
+                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}'])*aircraft['x_{CG_{vt}}'])  \
                     + (aircraft['W_{wing}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (cruise['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
