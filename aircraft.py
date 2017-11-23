@@ -231,7 +231,7 @@ class Aircraft(Model):
                             TCS([self.VT['L_{vt_{max}}'] >= 0.5*rhoTO*Vne**2*self.VT['S_{vt}']*self.VT['C_{L_{vt,max}}']]),
 
                             # Tail weight
-                            self.fuse['W_{tail}'] >= numVT*WVT + WHT + self.fuse['W_{cone}'],
+                            self.fuse['W_{tail}'] >= numVT*WVT + WHT,
 
                             # VT volume coefficient
                             self.VT['V_{vt}'] == numVT*self.VT['S_{vt}'] * self.VT['l_{vt}']/(self.wing['S']*self.wing['b']),
@@ -890,7 +890,7 @@ class Mission(Model):
                  TCS([cruise['x_{CG}']*cruise['W_{end}'] >=
                     aircraft['x_{CG_{misc}}']*aircraft['W_{misc}'] + aircraft['x_{CG_{lg}}']*aircraft['W_{LG}']  \
                     + 0.5*(aircraft.fuse['W_{fuse}']+aircraft.fuse['W_{payload}'])*aircraft.fuse['l_{fuse}'] \
-                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}']+aircraft['W_{cone}'])*aircraft['x_{CG_{vt}}'])  \
+                    + (aircraft['W_{ht}']*aircraft['x_{CG_{ht}}'] + (aircraft['W_{vt}'])*aircraft['x_{CG_{vt}}'])  \
                     + (aircraft['W_{wing_system}']*(aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}'])) \
                     + (cruise['F_{fuel}']+aircraft['f_{fuel_{res}}'])*aircraft['W_{f_{primary}}'] \
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])

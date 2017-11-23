@@ -381,7 +381,7 @@ class Fuselage(Model):
                 Wskin >= rhoskin * g * (Vcyl + Vnose + Vbulk),
                 Wshell >= Wskin * (1 + fstring + ffadd + fframe) + Wweb,
                 Wfuse >= Cfuse*(Wshell + Wfloor + Winsul + \
-                    Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend + Wvbend),
+                    Wapu + Wfix + Wwindow + Wpadd + Wseat + Whbend + Wvbend + Wcone),
             ])
 
         return constraints
