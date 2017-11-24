@@ -339,17 +339,22 @@ def run_optimal_737(objective, fixedBPR, pRatOpt, mutategparg):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 4
+    Nmission = 1
     aircraft = 'optimal737'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
     substitutions = get737_optimal_subs()
 
-    if Nmission > 1:
+    if Nmission == 4:
         substitutions.update({
             'R_{req}': [3000.*units('nmi'),2500.*units('nmi'),2000.*units('nmi'),1000.*units('nmi')], #,2500.*units('nmi')
             'n_{pass}': [180., 180., 180., 180.], #, 140.
+        })
+    elif Nmission == 2:
+        substitutions.update({
+            'R_{req}': [3000.*units('nmi'),2000.*units('nmi'),], #,2500.*units('nmi')
+            'n_{pass}': [180., 180.], #, 140.
         })
     else:
         substitutions.update({
@@ -373,11 +378,11 @@ def run_optimal_737(objective, fixedBPR, pRatOpt, mutategparg):
     m_relax = relaxed_constants(m, None, ['M_{takeoff}', '\\theta_{db}'])
 
     sol = m_relax.localsolve(verbosity=1, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
-    post_process(sol)
+    #post_process(sol)
 
-    percent_diff(sol, 'b737800', Nclimb)
+    #percent_diff(sol, 'b737800', Nclimb)
 
-    post_compute(sol, Nclimb)
+    #post_compute(sol, Nclimb)
 
     return sol
 
