@@ -140,7 +140,7 @@ def get_optimal_777300ER_subs():
             'f_{eadd}': 0.1,
 
             #min altitude for start of cruise
-            'MinCruiseAlt': 38000*units('ft'),
+            'MinCruiseAlt': 32000*units('ft'),
 
             #new engine params
             'OPR_{max}': 42,

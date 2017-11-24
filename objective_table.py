@@ -5,14 +5,14 @@ script to generate the values in the SP Aircraft different objective table
 from SP_aircraft import run_optimal_737
 
 #solve all the cases
-base_sol = run_optimal_737('W_{f_{total}}', False, True)
-emptyW_sol = run_optimal_737('W_{dry}', False, True)
-span_sol = run_optimal_737('b', False, True)
-AR_sol = run_optimal_737('AR', False, True)
-engineW_sol = run_optimal_737('W_{engine}', False, True)
-time_sol = run_optimal_737('Total_Time', False, True)
-LD_sol = run_optimal_737('L/D', False, True)
-LGw_sol = run_optimal_737('W_{lg}', False, True)
+base_sol = run_optimal_737('W_{f_{total}}', False, True, True)
+emptyW_sol = run_optimal_737('W_{dry}', False, True, True)
+span_sol = run_optimal_737('b', False, True, True)
+AR_sol = run_optimal_737('AR', False, True, True)
+engineW_sol = run_optimal_737('W_{engine}', False, True, True)
+time_sol = run_optimal_737('Total_Time', False, True, True)
+LD_sol = run_optimal_737('L/D', False, True, True)
+LGw_sol = run_optimal_737('W_{lg}', False, True, True)
 
 #compute times
 base_time = sum(base_sol('thr')['thr_Mission/ClimbSegment/ClimbP/AircraftP'])+sum(base_sol('thr')['thr_Mission/CruiseSegment/CruiseP/AircraftP.1'])
