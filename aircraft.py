@@ -401,8 +401,9 @@ class Aircraft(Model):
                     self.HT['L_{shear}'] >= self.HT['L_{ht_{rect_{out}}}'] + self.HT['L_{ht_{tri_{out}}}'],
 
                     # HT/VT joint constraint
-                    self.HT['b_{ht}'] / (2. * self.fuse['w_{fuse}']) * self.HT['\lambda_{ht}'] * self.HT['c_{root_{ht}}'] ==
-                    self.HT['c_{attach}'],
+                    SignomialEquality(self.HT['c_{tip_{ht}}'] + (1. - self.HT['\\lambda_{ht}']) * 2. * self.HT['b_{ht_{out}}'] / self.HT['b_{ht}'] * 
+                        self.HT['c_{root_{ht}}'],
+                    self.HT['c_{attach}']),
 
                     # HT structural factor calculation
                     self.HT['\\pi_{M-fac}'] >= (0.5*(self.HT['M_{r_{out}}']*self.HT['c_{attach}'] + \
