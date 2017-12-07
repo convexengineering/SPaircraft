@@ -20,7 +20,7 @@ from landing_gear import LandingGear
 
 
 """
-Models required to minimize the aircraft total fuel weight. 
+Models required to minimize the aircraft total fuel weight.
 
 Sources for substitutions and equations:
 -[b757 freight doc]
@@ -38,6 +38,7 @@ g = 9.81 * units('m*s**-2')
 class Aircraft(Model):
     """
     Aircraft class
+    SKIP VERIFICATION
 
     ARGUMENTS
     ---------
@@ -130,7 +131,7 @@ class Aircraft(Model):
         Dreduct = Variable('D_{reduct}', '-', 'BLI Drag Reduction Factor')
         Dwakefrac = Variable('D_{wakefraction}', 0.33, '-', 'Percent of Total Drag From Wake Dissipation')
         BLI_wake_benefit = Variable('BLI_{wakebenefit}', 0.02, '-', 'Wake Drag Reduction from BLI Wake Ingestion')
-     
+
         constraints = []
         with SignomialsEnabled():
             constraints.extend([
@@ -167,7 +168,7 @@ class Aircraft(Model):
                             # LG and Power Systems weights
                             Wmisc >= self.LG['W_{lg}'] + Whpesys,
                             Whpesys == fhpesys*W_totalmax,
-                            
+
                             # LG and Power System locations
                             self.LG['x_n'] <= self.fuse['l_{nose}'],
                             TCS([self.LG['x_m'] >= self.fuse['x_{wing}']]),
@@ -224,19 +225,19 @@ class Aircraft(Model):
                             SignomialEquality(self.HT['m_{ratio}']*(1+2/self.wing['AR']), 1 + 2/self.HT['AR_{ht}']),
 
                             # HT Location and Volume Coefficient
-                            self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],                           
+                            self.HT['x_{CG_{ht}}'] <= self.fuse['l_{fuse}'],
                             TCS([self.HT['V_{ht}'] == self.HT['S_{ht}']*self.HT['l_{ht}']/(self.wing['S']*self.wing['mac'])]),
 
                             # HT Max Loading
                             TCS([self.HT['L_{ht_{max}}'] >= 0.5*rhoTO*Vne**2*self.HT['S_{ht}']*self.HT['C_{L_{ht,max}}']]),
 
 
-                            ## ------------------- VERTICAL TAIL ----------------- 
+                            ## ------------------- VERTICAL TAIL -----------------
                             # VT Max Loading
                             TCS([self.VT['L_{vt_{max}}'] >= 0.5*rhoTO*Vne**2*self.VT['S_{vt}']*self.VT['C_{L_{vt,max}}']]),
 
                             #VT CG location
-                            self.VT['x_{CG_{vt}}'] <= self.fuse['l_{fuse}'], 
+                            self.VT['x_{CG_{vt}}'] <= self.fuse['l_{fuse}'],
 
                             # VT volume coefficient
                             self.VT['V_{vt}'] == numVT*self.VT['S_{vt}'] * self.VT['l_{vt}']/(self.wing['S']*self.wing['b']),
@@ -254,7 +255,7 @@ class Aircraft(Model):
                             # Drag of a windmilling engine (VT sizing)
                             TCS([self.VT['D_{wm}'] >= 0.5*self.VT['\\rho_{TO}']*self.VT['V_1']**2.*self.engine['A_{2}']*self.VT['C_{D_{wm}}']]),
 
-                            
+
                             ## ------------- MOMENT OF INERTIA ------------
                             # Moment of inertia around z-axis
                             Iz >= Izwing + Iztail + Izfuse,
@@ -445,6 +446,7 @@ class AircraftP(Model):
     """
     Aircraft performance models superclass, contains constraints true for
     all flight segments
+    SKIP VERIFICATION
     """
 
     def setup(self, aircraft, state):
@@ -561,7 +563,7 @@ class AircraftP(Model):
             # VT TE constraint, and CG calculation
             xCG + aircraft.VT['\\Delta x_{trail_{vt}}'] <= aircraft.fuse['l_{fuse}'],
             aircraft.VT['x_{CG_{vt}}'] >= xCG +0.5*(aircraft.VT['\\Delta x_{lead_{vt}}']+aircraft.VT['\\Delta x_{trail_{vt}}']),
-            
+
 
             ## --------------- HORIZONTAL LOCATION GEOMETRY AND PERFORMANCE -----------
             # HT CG calculation
@@ -600,7 +602,7 @@ class AircraftP(Model):
             Dnace == Cdnace * 0.5 * state['\\rho'] * state['V']**2. * aircraft['S'],
             ])
 
-        ## ------------------ HORIZONTAL TAIL TRAILING EDGE -------------    
+        ## ------------------ HORIZONTAL TAIL TRAILING EDGE -------------
         # HT TE constraint
         if conventional:
             constraints.extend([
@@ -625,6 +627,7 @@ class AircraftP(Model):
         return self.Pmodels, constraints
 
 class ClimbP(Model): # Climb performance constraints
+    "SKIP VERIFICATION"
 
     def setup(self, aircraft, state, Nclimb, **kwargs):
         # submodels
@@ -667,14 +670,14 @@ class ClimbP(Model): # Climb performance constraints
 
 
 class CruiseP(Model): # Cruise performance constraints
-
+    "SKIP VERIFICATION"
     def setup(self, aircraft, state, Nclimb, **kwargs):
         self.aircraft = aircraft
         self.aircraftP = AircraftP(aircraft, state)
         self.wingP = self.aircraftP.wingP
         self.fuseP = self.aircraftP.fuseP
         self.engine = aircraft.engine
-        
+
         # variable definitions
         # z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
         Rng = Variable('R_{cruise}', 'nautical_miles', 'Cruise Segment Range')
@@ -690,7 +693,7 @@ class CruiseP(Model): # Cruise performance constraints
 
             # Time and rage
             self.aircraftP['thr'] * state['V'] == Rng,
-            
+
             # compute segment altitude change
             dhft == self.aircraftP['tmin'] * RC,
             ])
@@ -698,12 +701,14 @@ class CruiseP(Model): # Cruise performance constraints
         return constraints + self.aircraftP
 
 class CruiseSegment(Model): # Combines FlightState and Aircraft to form a cruise flight segment
+    "SKIP VERIFICATION"
     def setup(self, aircraft, Nclimb, **kwargs):
         self.state = FlightState()
         self.cruiseP = aircraft.cruise_dynamic(self.state, Nclimb)
         return self.state, self.cruiseP
 
 class ClimbSegment(Model): # Combines FlightState and Aircraft to form a climb flight segment
+    "SKIP VERIFICATION"
     def setup(self, aircraft, Nclimb, **kwargs):
         self.state = FlightState()
         self.climbP = aircraft.climb_dynamic(self.state, Nclimb)
@@ -713,6 +718,7 @@ class StateLinking(Model):
     """
     link all the state model variables, required to link engine model
     to aircraft model
+    SKIP VERIFICATION
     """
     def setup(self, climbstate, cruisestate, enginestate, Nclimb, Ncruise):
         if conventional:
@@ -738,6 +744,7 @@ class StateLinking(Model):
 class Mission(Model):
     """
     Mission superclass, links together all subclasses into an optimization problem
+    SKIP VERIFICATION
     Inputs:
     Nclimb: number of climb segments (for Brequet Range)
     Ncruise: number of cruise segments (for Brequet Range)
@@ -1010,7 +1017,7 @@ class Mission(Model):
                     * (aircraft.fuse['x_{wing}']+aircraft.wing['\\Delta x_{AC_{wing}}']*cruise['F_{fuel}'])
                     + aircraft['n_{eng}']*aircraft['W_{engsys}']*aircraft['x_{eng}']]),
               ])
-                
+
             # ------------------ LG CG DISTANCE AND TIP OVER COMPUTATIONS ----------------------
             constraints.extend([
                 TCS([aircraft['\\Delta x_n'] + aircraft['x_n'] >= cruise['x_{CG}'][0]]),
@@ -1192,11 +1199,11 @@ class Mission(Model):
             aircraft.engine.engineP['M_{2.5}'][:Nclimb] == M25,
             aircraft.engine.engineP['hold_{2}'][:Nclimb] == 1.+.5*(1.398-1.)*M2**2.,
             aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
-            
+
             #climb rate constraints
             TCS([climb['P_{excess}'] + climb.state['V'] * climb['D'] <= climb.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F_{spec}'][:Nclimb]]),
             ]
-    
+
 
         if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI or D12) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
                                                                                          D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072):
@@ -1207,7 +1214,7 @@ class Mission(Model):
             aircraft.engine.engineP['M_{2.5}'][Nclimb:] == M25,
             aircraft.engine.engineP['hold_{2}'][Nclimb:] == 1.+.5*(1.398-1.)*M2**2.,
             aircraft.engine.engineP['hold_{2.5}'][Nclimb:] == 1.+.5*(1.354-1.)*M25**2.,
-            
+
             ]
 
         with SignomialsEnabled():
@@ -1215,7 +1222,7 @@ class Mission(Model):
                        SignomialEquality(aircraft.engine.engineP['c1'][:Nclimb], (1. + 0.5*(.401)*climb['M']**2.)),
                        ])
             enginecruise.extend([
-                       SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),                
+                       SignomialEquality(aircraft.engine.engineP['c1'][Nclimb:], (1. + 0.5*(.401)*cruise['M']**2.)),
                        ])
 
         ## --------- SETTING OBJECTIVE FLAGS FOR NON-STANDARD OBJECTIVE FUNCTIONS ---------------

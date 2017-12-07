@@ -10,6 +10,7 @@ from wingbox import WingBox
 class Wing(Model):
     """
     Philippe's thesis wing model
+    SKIP VERIFICATION
     """
     def setup(self, **kwargs):
         self.wns = WingNoStruct()
@@ -38,7 +39,7 @@ class Wing(Model):
             ])
 
         return self.wns, self.wb, constraints
-        
+
     def dynamic(self, state):
         """
         returns an instance of the wing perofrmance model
@@ -48,23 +49,24 @@ class Wing(Model):
 class WingNoStruct(Model):
     """
     Philippe's wing model minus structure
+    SKIP VERIFICATION
     """
     def setup(self, **kwargs):
         #declare variables
                #Variables
         Afuel   = Variable('\\bar{A}_{fuel, max}', '-', 'Non-dim. fuel area')
-        
+
         CLwmax  = Variable('C_{L_{w,max}}', '-', 'Max lift coefficient, wing')
-        
-        
+
+
         Vfuel   = Variable('V_{fuel, max}', 'm^3', 'Available fuel volume')
-        
+
         cosL    = Variable('\\cos(\\Lambda)', '-',
                            'Cosine of quarter-chord sweep angle')
         croot   = Variable('c_{root}', 'm', 'Wing root chord')
         ctip    = Variable('c_{tip}', 'm', 'Wing tip chord')
-        
-        
+
+
         eta     = Variable('\\eta', '-', 'Lift efficiency (diff b/w sectional, actual lift)')
         fl      = Variable('f(\\lambda_w)', '-', 'Empirical efficiency function of taper')
         g       = Variable('g', 9.81, 'm/s^2', 'Gravitational acceleration')
@@ -106,7 +108,7 @@ class WingNoStruct(Model):
         # Area fractions
         Atri = Variable('A_{tri}','m^2','Triangular Wing Area')
         Arect = Variable('A_{rect}','m^2','Rectangular Wing Area')
-        
+
         #make constraints
         constraints = []
 
@@ -137,7 +139,7 @@ class WingNoStruct(Model):
                 # Fuel volume [TASOPT doc]
                 # GP approx of the signomial constraint:
                 Vfuel <= .3026*mac**2*b*tau,
-                 
+
                 WfuelWing <= rhofuel*Vfuel*g,
 
                 b <= bmax,
@@ -148,15 +150,16 @@ class WingNoStruct(Model):
 class WingPerformance(Model):
     """
     Wing performance model
+    SKIP VERIFICATION
     """
     def setup(self, wing, state, **kwargs):
         self.wing = wing
-        
+
         #declare variables
         #Vector Variables
         alpha   = Variable('\\alpha_w', '-', 'Wing angle of attack')
         CLaw    = Variable('C_{L_{\\alpha,w}}', '-', 'Lift curve slope, wing')
-        
+
         Re      = Variable('Re_w', '-', 'Reynolds number (wing)')
         CDp     = Variable('C_{D_{p_w}}', '-',
                            'Wing parasitic drag coefficient')
@@ -164,7 +167,7 @@ class WingPerformance(Model):
                            'Wing induced drag coefficient')
         CDw     = Variable('C_{d_w}', '-', 'Drag coefficient, wing')
         CLw     = Variable('C_{L}', '-', 'Lift coefficient, wing')
- 
+
         D       = Variable('D_{wing}', 'N', 'Wing drag')
         Lw      = Variable('L_w', 'N', 'Wing lift')
 
@@ -182,7 +185,7 @@ class WingPerformance(Model):
         cmw = Variable('c_{m_{w}}', '-', 'Wing Pitching Moment Coefficient')
 
         amax    = Variable('\\alpha_{max,w}', '-', 'Max angle of attack')
-        
+
         #make constraints
         constraints = []
 
@@ -196,7 +199,7 @@ class WingPerformance(Model):
                 # Swept wing lift curve slope constraint
                 SignomialEquality((self.wing['AR']/self.wing['\\eta'])**2*(1 + self.wing['\\tan(\\Lambda)']**2 - state['M']**2) + 8*pi*self.wing['AR']/CLaw
                       , (2*pi*self.wing['AR']/CLaw)**2),
-                
+
                 CLw == CLaw*alpha,
                 alpha <= amax,
 
@@ -232,7 +235,7 @@ class WingPerformance(Model):
 ##
 ##    sweep = 30 #[deg]
 ##
-##    substitutions = {      
+##    substitutions = {
 ##            'R_{req}': 500, #('sweep', np.linspace(500,2000,4)),
 ##            'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
 ##            'numeng': 1,
@@ -284,7 +287,7 @@ class WingPerformance(Model):
 ##    sol = m.localsolve(solver='mosek', verbosity = 2)
 ##
 ##    if plot == True:
-##         substitutions = {      
+##         substitutions = {
 ##                 'R_{req}': 2000,#('sweep', np.linspace(500,3000,8)),
 ##                 'CruiseAlt': 30000,
 ##                 'numeng': 1,
@@ -302,7 +305,7 @@ class WingPerformance(Model):
 ##                 '\\rho_{fuel}': 817, # Kerosene [TASOPT]
 ##                 '\\tan(\\Lambda)': tan(sweep*pi/180),
 ##                 }
-##               
+##
 ##         mission = Mission()
 ##         m = Model(mission['W_{f_{total}}'], mission, substitutions)
 ##         solRsweep = m.localsolve(solver='mosek', verbosity = 4)
@@ -340,7 +343,7 @@ class WingPerformance(Model):
 ##        creates an aircraft climb performance model, given a state
 ##        """
 ##        return AircraftP(self, state)
-##        
+##
 ##    def climb_dynamic(self, state):
 ##        """
 ##        creates an aircraft climb performance model, given a state
@@ -395,7 +398,7 @@ class WingPerformance(Model):
 ##            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}']]),
 ##
 ##            #constraint CL and compute the wing loading
-##            W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,      
+##            W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,
 ##            WLoad == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2/self.aircraft.wing['S'],
 ##
 ##            #set average weight equal to the geometric avg of start and end weight
@@ -406,13 +409,13 @@ class WingPerformance(Model):
 ##
 ##            #compute fuel burn from TSFC
 ##            W_burn == aircraft['numeng']*self.engineP['TSFC'] * thours * self.engineP['F'],
-##               
+##
 ##            #time unit conversion
 ##            t == thours,
 ##            ])
 ##
 ##        return self.Pmodels, constraints
-##    
+##
 ##class Mission(Model):
 ##    """
 ##    mission class, links together all subclasses
@@ -500,5 +503,5 @@ class WingPerformance(Model):
 ##            climb['c_{m_{w}}'] == .10, # for boundedness
 ##            cruise['c_{m_{w}}'] == .10, # for boundedness
 ##            ])
-##        
+##
 ##        return aircraft, climb, cruise, constraints

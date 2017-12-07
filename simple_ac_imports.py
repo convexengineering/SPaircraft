@@ -19,7 +19,7 @@ class Aircraft(Model):
         if Nfleet != 0:
             self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, Nfleet)
         else:
-           self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng)            
+           self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng)
 
         #variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')
@@ -29,14 +29,14 @@ class Aircraft(Model):
 ##        SMmin = Variable('SM_{min}', '-', 'Minimum Static Margin')
 ##        dxCG = Variable('\\Delta x_{CG}', 'm', 'Max CG Travel Range')
 
-        
+
         constraints = [self.wing['x_w'] == self.fuse['l_{fuse}']*0.6,
                        ]
 
         self.components = [self.fuse, self.wing, self.engine]
 
         return self.components, constraints
-        
+
     def climb_dynamic(self, state):
         """
         creates an aircraft climb performance model, given a state
@@ -48,7 +48,7 @@ class Aircraft(Model):
         creates an aircraft cruise performance model, given a state
         """
         return CruiseP(self, state)
-    
+
     def cruise_climb_dynamic(self, state):
         """
         creates an aircraft cruise performance model, given a state
@@ -101,7 +101,7 @@ class AircraftP(Model):
             CD == D/(.5*state.atm['\\rho']*state['V']**2*self.aircraft['S']),
 
             #constraint CL and compute the wing loading
-            W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,      
+            W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,
             WLoad == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2/self.aircraft.wing['S'],
 
             #set average weight equal to the geometric avg of start and end weight
@@ -129,7 +129,7 @@ class ClimbP(Model):
         self.aircraftP = AircraftP(aircraft, state)
         self.wingP = self.aircraftP.wingP
         self.fuseP = self.aircraftP.fuseP
-                                  
+
         #variable definitions
         theta = Variable('\\theta', '-', 'Aircraft Climb Angle')
         excessP = Variable('P_{excess}', 'W', 'Excess Power During Climb')
@@ -139,16 +139,16 @@ class ClimbP(Model):
 
         #constraints
         constraints = []
-        
-        constraints.extend([ 
+
+        constraints.extend([
             RC == excessP/self.aircraftP['W_{avg}'],
             RC >= 500*units('ft/min'),
-            
+
             #make the small angle approximation and compute theta
             theta * state['V']  == RC,
-           
+
             dhft == self.aircraftP['tmin'] * RC,
-        
+
             #makes a small angle assumption during climb
             RngClimb == self.aircraftP['thr']*state['V'],
 
@@ -166,7 +166,7 @@ class CruiseP(Model):
         self.aircraftP = AircraftP(aircraft, state)
         self.wingP = self.aircraftP.wingP
         self.fuseP = self.aircraftP.fuseP
-                        
+
         #variable definitions
         z_bre = Variable('z_{bre}', '-', 'Breguet Parameter')
         Rng = Variable('Rng', 'nautical_miles', 'Cruise Segment Range')
@@ -196,7 +196,7 @@ class CruiseClimbP(Model):
         self.aircraftP = AircraftP(aircraft, state)
         self.wingP = self.aircraftP.wingP
         self.fuseP = self.aircraftP.fuseP
-                                  
+
         #variable definitions
         theta = Variable('\\theta', '-', 'Aircraft Climb Angle')
         excessP = Variable('P_{excess}', 'W', 'Excess Power During Climb')
@@ -206,15 +206,15 @@ class CruiseClimbP(Model):
 
         #constraints
         constraints = []
-        
-        constraints.extend([ 
+
+        constraints.extend([
             RC == excessP/self.aircraftP['W_{avg}'],
-            
+
             #make the small angle approximation and compute theta
             theta * state['V']  == RC,
-           
+
             dhft == self.aircraftP['tmin'] * RC,
-        
+
             #makes a small angle assumption during climb
             RngCruise == self.aircraftP['thr']*state['V'],
             ])
@@ -241,7 +241,7 @@ class CruiseClimbSegment(Model):
         self.cruiseP = aircraft.cruise_climb_dynamic(self.state)
 
         return self.state, self.cruiseP
-    
+
 class ClimbSegment(Model):
     """
     Combines a flight state and aircrat to form a cruise flight segment
@@ -261,11 +261,11 @@ class FlightState(Model):
         #make an atmosphere model
         self.alt = Altitude()
         self.atm = Atmosphere(self.alt)
-        
+
         #declare variables
         V = Variable('V', 'kts', 'Aircraft Flight Speed')
         a = Variable('a', 'm/s', 'Speed of Sound')
-        
+
         R = Variable('R', 287, 'J/kg/K', 'Air Specific Heat')
         gamma = Variable('\\gamma', 1.4, '-', 'Air Specific Heat Ratio')
         M = Variable('M', '-', 'Mach Number')
@@ -354,7 +354,7 @@ class Atmosphere(Model):
 ##    def setup(self, ** kwargs):
 ##        #new variables
 ##        W_wing = Variable('W_{wing}', 'N', 'Wing Weight')
-##                           
+##
 ##        #aircraft geometry
 ##        S = Variable('S', 'm^2', 'Wing Planform Area')
 ##        AR = Variable('AR', '-', 'Aspect Ratio')
@@ -369,13 +369,13 @@ class Atmosphere(Model):
 ##
 ##        mac    = Variable('mac', 'm',
 ##                  'Mean aerodynamic chord (wing)')
-##        
+##
 ##        cmw = Variable('c_{m_{w}}', '-', 'Wing Pitching Moment Coefficient')
 ##
 ##        CLmax = Variable('C_{L_{max}}', '-', 'Max Wing Lift Coefficient')
 ##
 ##        xw     = Variable('x_w', 'm', 'Position of wing aerodynamic center')
-##        
+##
 ##        constraints = []
 ##
 ##        constraints.extend([
@@ -403,7 +403,7 @@ class Atmosphere(Model):
 ##        creates an instance of the wing's performance model
 ##        """
 ##        return WingPerformance(self, state)
-##        
+##
 ##
 ##class WingPerformance(Model):
 ##    """
@@ -442,7 +442,7 @@ class Fuselage(Model):
     def setup(self, **kwargs):
         #new variables
         n_pax = Variable('n_{pass}', '-', 'Number of Passengers to Carry')
-                           
+
         #weight variables
         W_payload = Variable('W_{payload}', 'N', 'Aircraft Payload Weight')
         W_e = Variable('W_{e}', 'N', 'Empty Weight of Aircraft')
@@ -455,7 +455,7 @@ class Fuselage(Model):
         wfuse   = Variable('w_{fuse}', 'm', 'Fuselage width')
 
         constraints = []
-        
+
         constraints.extend([
             #compute fuselage area for drag approximation
             A_fuse == pax_area * n_pax,
@@ -464,7 +464,7 @@ class Fuselage(Model):
 
             #constraints on the various weights
             W_payload == n_pax * W_pax,
-            
+
             #estimate based on TASOPT 737 model
             W_e == .75*W_payload,
             ])
@@ -487,7 +487,7 @@ class FuselagePerformance(Model):
         Dfuse = Variable('D_{fuse}', 'N', 'Total Fuselage Drag')
 
         Cmfu    = Variable('C_{m_{fuse}}', '-', 'Moment coefficient (fuselage)')
-        
+
         #constraints
         constraints = []
 

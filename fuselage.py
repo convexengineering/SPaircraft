@@ -10,6 +10,7 @@ D8 double bubble fuselage files
 class Fuselage(Model):
     '''
     A double-bubble fuselage model
+    SKIP VERIFICATION
     '''
 
     def setup(self, Nmissions, **kwargs):
@@ -204,7 +205,7 @@ class Fuselage(Model):
             Wlugg = Variable('W_{lugg}', 'lbf', 'Passenger luggage weight')
             Wpass = Variable('W_{pass}', 'lbf', 'Passenger weight')
         Wpaymax = Variable('W_{payload_{max}}','lbf','Maximum payload weight')
-        
+
         # x-location variables
         xshell1 = Variable('x_{shell1}', 'm', 'Start of cylinder section')
         xshell2 = Variable('x_{shell2}', 'm', 'End of cylinder section')
@@ -262,7 +263,7 @@ class Fuselage(Model):
                     # NOTE: it is not clear which direction the pressure is!
                 lcone == Rfuse / lamcone,
                 xshell1 == lnose,
-                TCS([xshell2 >= lnose + lshell]), 
+                TCS([xshell2 >= lnose + lshell]),
                 # STRESS RELATIONS
                 # Pressure shell loading
                 tskin == dPover * Rfuse / sigskin,
@@ -282,7 +283,7 @@ class Fuselage(Model):
                 taucone == sigskin,
                 Wcone >= rhocone * g * Vcone * (1 + fstring + fframe),
                 xtail >= lnose + lshell + .5 * lcone,
-                
+
                 # BENDING MODEL
                 # Maximum axial stress is the sum of bending and pressurization
                 # stresses
@@ -395,6 +396,7 @@ class Fuselage(Model):
 class FuselagePerformance(Model):
     """
     Fuselage performance model
+    SKIP VERIFICATION
     """
 
     def setup(self, fuse, state, **kwargs):
@@ -402,4 +404,3 @@ class FuselagePerformance(Model):
         CDfuse = Variable('C_{D_{fuse}}', '-', 'Fuselage Drag Coefficient')
         Dfuse = Variable('D_{fuse}', 'N', 'Fuselage Drag')
         Lfuse = Variable('L_{fuse}','N','Fuselage Lift')
-

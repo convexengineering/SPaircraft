@@ -7,7 +7,8 @@ from gpkit.constraints.tight import Tight as TCS
 class LandingGear(Model):
     """
     Landing gear sizing constraint set
-    
+    SKIP VERIFICATION
+
     Sources:
     AERO 481 notes
     www.fzt.haw-hamburg.de/pers/Scholz/dglr/hh/text_2002_04_11_Fahrwerk.pdf
@@ -94,7 +95,7 @@ class LandingGear(Model):
                            'CG height relative to bottom of fuselage')
         zwing   = Variable('z_{wing}', 'm',
                            'Height of wing relative to base of fuselage')
-        
+
         d_nac   = Variable('d_{nacelle}', 'm', 'Nacelle diameter')
 
         with SignomialsEnabled():
@@ -209,4 +210,3 @@ class LandingGear(Model):
                           ]
 
         return constraints
-

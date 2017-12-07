@@ -7,6 +7,7 @@ class WingBox(Model):
     source: Hoburg, "Geometric Programming for Aircraft Design Optimization"
 
     Note - does not have a performance model
+    SKIP VERIFICATION
     """
 
     def setup(self, surface, surfacetype):
@@ -146,5 +147,5 @@ class WingBox(Model):
                     # Assumes bending stress carried by caps (Icap >> Iweb)
                     TCS([8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax)]),
                     ]
-        
+
         return constraints

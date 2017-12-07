@@ -9,6 +9,7 @@ from wingbox import WingBox
 class VerticalTail(Model):
     """
     Vertical tail sizing
+    SKIP VERIFICATION
 
     References:
     1: LEAP engine specs (1B)
@@ -53,6 +54,7 @@ class VerticalTail(Model):
 class VerticalTailNoStruct(Model):
     """
     Vertical tail sizing w/no structural model
+    SKIP VERIFICATION
 
     References:
     1: LEAP engine specs (1B)
@@ -112,7 +114,7 @@ class VerticalTailNoStruct(Model):
         CLvyaw = Variable('C_{L_{vt,yaw}}', '-', 'VT CL at rotation')
         Iz = Variable('I_{z, max}', 'kg*m^2', 'Aircraft Z-axis Moment of Inertia')
         rreq = Variable('\\dot{r}_{req}', 's^-2', 'Required Yaw Rate at Landing')
-        
+
         #constraints
         constraints = []
 
@@ -130,7 +132,7 @@ class VerticalTailNoStruct(Model):
 
                 Avt == bvt**2/Svt,
 
-                # Tail geometry relationship                         
+                # Tail geometry relationship
                 Svt <= bvt*(croot + ctip)/2, # [SP]
 
                 # Fuselage length constrains the tail trailing edge
@@ -139,7 +141,7 @@ class VerticalTailNoStruct(Model):
                 # Mean aerodynamic chord calculations
                 ymac == (bvt/3)*q/p,
                 zmac == (bvt/3)*q/p,
-                
+
 ##                TCS([(2./3)*(1 + taper + taper**2)*croot/q >= cma]), # [SP]
                 SignomialEquality((2./3)*(1 + taper + taper**2)*croot/q, cma),
 
@@ -152,7 +154,7 @@ class VerticalTailNoStruct(Model):
 
                 # TODO: Constrain taper by tip Reynolds number
                 taper >= 0.25,
-                
+
                 #Enforce a minimum vertical tail volume
                 Vvt >= Vvtmin,
                 ])
@@ -162,6 +164,7 @@ class VerticalTailNoStruct(Model):
 class VerticalTailPerformance(Model):
     """
     Vertical tail perofrmance model
+    SKIP VERIFICATION
 
     ARGUMENTS
     ---------
@@ -219,8 +222,8 @@ class VerticalTailPerformance(Model):
 
 ##if __name__ == '__main__':
 ##    plot = True
-##    
-##    substitutions = {      
+##
+##    substitutions = {
 ##            'R_{req}': 500,
 ##            'CruiseAlt': 30000,
 ##            'numeng': 2,
@@ -291,7 +294,7 @@ class VerticalTailPerformance(Model):
 ##        creates an aircraft climb performance model, given a state
 ##        """
 ##        return AircraftP(self, state)
-##        
+##
 ##    def climb_dynamic(self, state):
 ##        """
 ##        creates an aircraft climb performance model, given a state
@@ -348,7 +351,7 @@ class VerticalTailPerformance(Model):
 ##            TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.VTP['D_{vt}']]),
 ##
 ##            #constraint CL and compute the wing loading
-##            W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,      
+##            W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,
 ##            WLoad == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2/self.aircraft.wing['S'],
 ##
 ##            #set average weight equal to the geometric avg of start and end weight
@@ -359,7 +362,7 @@ class VerticalTailPerformance(Model):
 ##
 ##            #compute fuel burn from TSFC
 ##            W_burn == aircraft['numeng']*self.engineP['TSFC'] * thours * self.engineP['F'],
-##               
+##
 ##            #time unit conversion
 ##            t == thours,
 ##
@@ -454,9 +457,9 @@ class VerticalTailPerformance(Model):
 ##
 ##            # Drag of a windmilling engine
 ##            ac.VT['D_{wm}'] >= 0.5*ac.VT['\\rho_{TO}']*ac.VT['V_1']**2*ac.engine['A_2']*ac.VT['C_{D_{wm}}'],
-##            
+##
 ##            ac.VT['x_{CG_{vt}}'] <= ac.fuse['l_{fuse}'],
-##            
+##
 ##            #VTP constraints
 ##            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + climb.climbP.aircraftP['x_{CG}'],
 ##            ac.VT['x_{CG_{vt}}'] >= climb.climbP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
@@ -464,8 +467,7 @@ class VerticalTailPerformance(Model):
 ##            ac.fuse['l_{fuse}'] >= ac.VT['\\Delta x_{lead_v}'] + cruise.cruiseP.aircraftP['x_{CG}'],
 ##            ac.VT['x_{CG_{vt}}'] >= cruise.cruiseP.aircraftP['x_{CG}']+(ac.VT['\\Delta x_{lead_v}']+ac.VT['\\Delta x_{trail_v}'])/2,
 ##            ])
-##        
+##
 ##        # Model.__init__(self, W_ftotal + s*units('N'), constraints + ac + climb + cruise, subs)
 ##        self.cost = W_ftotal
 ##        return constraints, ac, cruise, climb
-

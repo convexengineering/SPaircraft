@@ -10,6 +10,7 @@ class HorizontalTailNoStruct(Model):
     """
     horiziontal tail model from Philippe's thesis
     as a performance model without the wing box
+    SKIP VERIFICATION
 
     References:
     [1] TASOPT code
@@ -19,7 +20,7 @@ class HorizontalTailNoStruct(Model):
     effectiveness.
     """
     def setup(self):
-        
+
         #variables
         p       = Variable('p_{ht}', '-', 'Substituted variable = 1 + 2*taper')
         q       = Variable('q_{ht}', '-', 'Substituted variable = 1 + taper')
@@ -86,7 +87,7 @@ class HorizontalTailNoStruct(Model):
                 TCS([e*(1 + fl*ARht) <= 1]),
 
                 ARht == bht**2/Sh,
-                
+
                 taper >= 0.2, # TODO: make less arbitrary
                 taper <= 1,
                 ])
@@ -96,6 +97,7 @@ class HorizontalTailNoStruct(Model):
 class HorizontalTailPerformance(Model):
     """
     Horizontal tail performance model
+    SKIP VERIFICATION
 
     ARGUMENTS
     ---------
@@ -103,7 +105,7 @@ class HorizontalTailPerformance(Model):
     """
     def setup(self, ht, state, fitDrag):
         self.HT = ht
-        
+
         #variables
         D       = Variable('D_{ht}', 'N', 'Horizontal tail drag')
         Lh      = Variable('L_{ht}', 'N', 'Horizontal tail downforce')
@@ -122,7 +124,7 @@ class HorizontalTailPerformance(Model):
         constraints = []
 
         with SignomialsEnabled():
-           
+
             constraints.extend([
                 Lh == 0.5*state['\\rho']*state['V']**2*self.HT['S_{ht}']*CLh,
 
@@ -165,6 +167,7 @@ class HorizontalTail(Model):
     """
     horiziontal tail model from Philippe's thesis
     as a performance model without the wing box
+    SKIP VERIFICATION
 
     References:
     [1] TASOPT code
@@ -207,11 +210,11 @@ class HorizontalTail(Model):
 
 ##if __name__ == '__main__':
 ##    plot = True
-##    
+##
 ##    #build required submodels
 ##    aircraft = Aircraft()
-##        
-##    substitutions = {      
+##
+##    substitutions = {
 ####            'V_{stall}': 120,
 ##            'R_{req}': 500, #('sweep', np.linspace(500,2000,4)),
 ##            'CruiseAlt': 30000, #('sweep', np.linspace(20000,40000,4)),
@@ -277,7 +280,7 @@ class HorizontalTail(Model):
 ##        creates an aircraft climb performance model, given a state
 ##        """
 ##        return AircraftP(self, state)
-##        
+##
 ##    def climb_dynamic(self, state):
 ##        """
 ##        creates an aircraft climb performance model, given a state
@@ -336,7 +339,7 @@ class HorizontalTail(Model):
 ##                TCS([D >= self.wingP['D_{wing}'] + self.fuseP['D_{fuse}'] + self.HTP['D_{ht}']]),
 ##
 ##                #constraint CL and compute the wing loading
-##                W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,      
+##                W_avg == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2,
 ##                WLoad == .5*self.wingP['C_{L}']*self.aircraft['S']*state.atm['\\rho']*state['V']**2/self.aircraft.wing['S'],
 ##
 ##                #set average weight equal to the geometric avg of start and end weight
@@ -347,7 +350,7 @@ class HorizontalTail(Model):
 ##
 ##                #compute fuel burn from TSFC
 ##                W_burn == aircraft['numeng']*self.engineP['TSFC'] * thours * self.engineP['F'],
-##                   
+##
 ##                #time unit conversion
 ##                t == thours,
 ##
@@ -435,7 +438,7 @@ class HorizontalTail(Model):
 ##            # climb['C_{L_{ht}}'] == 2*3.14*climb['\\alpha_{ht}],
 ##            # cruise['C_{L_{ht}}'] == 2*3.14*cruise['\\alpha_{ht}],
 ##            ])
-##        
+##
 ##        #Horizontal Tail Constraints
 ##        with SignomialsEnabled():
 ##            constraints.extend([
@@ -488,7 +491,7 @@ class HorizontalTail(Model):
 ##
 ##                #compute the HT chord at its attachment point to the VT
 ##                (aircraft.HT['b_{ht}']/aircraft.fuse['w_{fuse}'])*aircraft.HT['\lambda_{ht}']*aircraft.HT['c_{root_{ht}}'] == aircraft.HT['c_{attach}']
-##                                              
+##
 ##                ])
 ##
 ##        return climb, cruise, constraints
