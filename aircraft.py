@@ -1237,4 +1237,4 @@ class Mission(Model):
         else:
             self.cost = W_fmissions
 
-        return constraints, aircraft, climb, cruise, enginestate, statelinking, engineclimb, enginecruise
+        return constraints, aircraft, climb, cruise, statelinking, engineclimb, enginecruise
