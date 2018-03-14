@@ -184,7 +184,7 @@ def get737_optimal_subs():
             'r_{S_{nacelle}}': 16.,
             # nacelle drag calc parameter
             'r_{v_{nacelle}}': 1.02,
-            'T_{t_{4.1_{max}}}':1567.*units('K'),#('sweep', np.linspace(1350, 1700, 9)),# 1567.*units('K'),#
+            'T_{t_{4.1_{max}}}': ('sweep', np.linspace(1350, 1700, 9)),# 1567.*units('K'),#
 
             'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
 
@@ -218,9 +218,11 @@ def get737_optimal_subs():
     return substitutions
 
 ##plt.plot(sol('T_{t_{4.1_{max}}}'),sol['sensitivities']['constants']['C_{engsys}'])
-##plt.ylabel('Sensitivity to Engine System Weight')
-##plt.xlabel('Max Turbine Inlet Temp [K]')
-##plt.xlim([1275,1700])
+##plt.ylabel('Sensitivity to Engine System Weight', fontsize=18)
+##plt.xlabel('Max Turbine Inlet Temp [K]', fontsize=18)
+##plt.xlim([1350,1700])
 ##plt.ylim([0,.37])
+##plt.tick_params(axis='both', which='major', labelsize=14)
+##plt.tick_params(axis='both', which='minor', labelsize=14)
 ##plt.savefig('turbine_inlet_sens.eps', bbox_inches="tight")
 ##plt.show()
