@@ -288,7 +288,7 @@ class Atmosphere(Model):
 
     Lower Unbounded
     ---------------
-    rho, T_atm, h
+    rho
     """
     def setup(self, alt, **kwargs):
         p_sl = Variable("p_{sl}", 101325, "Pa", "Pressure at sea level")
