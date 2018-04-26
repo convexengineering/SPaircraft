@@ -38,6 +38,7 @@ g = 9.81 * units('m*s**-2')
 class Aircraft(Model):
     """
     Aircraft class
+
     SKIP VERIFICATION
 
     ARGUMENTS

@@ -184,8 +184,7 @@ def get737_optimal_subs():
             'r_{S_{nacelle}}': 16.,
             # nacelle drag calc parameter
             'r_{v_{nacelle}}': 1.02,
-            'T_{t_{4.1_{max}}}': ('sweep', np.linspace(1350, 1700, 9)),# 1567.*units('K'),#
-
+            'T_{t_{4.1_{max}}}': 1567.*units('K'),#('sweep', np.linspace(1350, 1700, 9)),
             'T_{t_{4.1_{max-Cruise}}}': 1125.*units('K'),
 
             'MaxClimbTime': 14*units('min'),

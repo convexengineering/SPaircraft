@@ -2,13 +2,13 @@ from gpkit.constraints.relax import ConstantsRelaxed
 from gpkit import Model
 
 """
-Methods to precondition an SP so that it solves with a relaxed constants algorithim
+Methods to precondition an SP so that it solves with a relaxed constants algorithm
 and postcondition an SP to ensure all relax values are 1
 """
 
 def relaxed_constants(model, include_only=None, exclude=None):
     """
-    Method to precondition an SP so it solves with a relaxed constants algorithim
+    Method to precondition an SP so it solves with a relaxed constants algorithm
 
     ARGUMENTS
     ---------
@@ -21,7 +21,7 @@ def relaxed_constants(model, include_only=None, exclude=None):
 
     if model.substitutions:
         constsrelaxed = ConstantsRelaxed(model, include_only, exclude)
-        feas = Model(constsrelaxed.relaxvars.prod()**20 * model.cost,
+        feas = Model(constsrelaxed.relaxvars.prod()**20 * model.cost + model.cost,
                      constsrelaxed)
         # NOTE: It hasn't yet been seen but might be possible that
         #       the model.cost component above could cause infeasibility
