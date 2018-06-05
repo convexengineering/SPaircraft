@@ -299,17 +299,17 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt, mutategparg):
     # User definitions
     Nclimb = 3
     Ncruise = 2
-    Nmission = 1
+    Nmission = 3
     aircraft = 'optimalD8'
 
     m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
     
     substitutions = get_optimal_D8_subs()
 
-    if Nmission == 2:
+    if Nmission == 3:
         substitutions.update({
-            'R_{req}': [3000.*units('nmi'), 2000.*units('nmi')], #,2500.*units('nmi')
-            'n_{pass}': [180., 180.], #,140.
+            'R_{req}': [3000.*units('nmi'), 2000.*units('nmi'),2500.*units('nmi')],
+            'n_{pass}': [180., 180.,140.],
         })
     else:
         substitutions.update({
@@ -335,9 +335,9 @@ def run_optimal_D8(objective, fixedBPR, pRatOpt, mutategparg):
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg, skipsweepfailures=True)
     post_process(sol)
 
-    percent_diff(sol, 'D82', Nclimb)
+    #percent_diff(sol, 'D82', Nclimb)
 
-    post_compute(sol, Nclimb)
+    #post_compute(sol, Nclimb)
 
     return sol
 
