@@ -4,9 +4,9 @@ import sys
 # Change this
 #sys.path.append("/Users/philippekirschen/Documents/MIT/Research/SPaircraft")
 from gpkit import Model, Variable
-from SP_aircraft import run_optimal_737
-from SP_aircraft import run_optimal_777
-from SP_aircraft import run_optimal_D8
+from SPaircraft import run_optimal_737
+from SPaircraft import run_optimal_777
+from SPaircraft import run_optimal_D8
 
 def convergence_plots(aircraft):
     if aircraft == "737":

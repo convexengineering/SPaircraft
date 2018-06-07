@@ -9,36 +9,36 @@ from gpkit.small_scripts import mag
 # Solution saving
 from saveSol import genSolOut
 
-from SP_aircraft import run_optimal_737
-from SP_aircraft import run_optimal_D8
-from SP_aircraft import run_M072_737
-from SP_aircraft import run_D8_eng_wing
-from SP_aircraft import run_D8_no_BLI
-from SP_aircraft import run_optimal_777
+from SPaircraft import run_optimal_737
+from SPaircraft import run_optimal_D8
+from SPaircraft import run_M072_737
+from SPaircraft import run_D8_eng_wing
+from SPaircraft import run_D8_no_BLI
+from SPaircraft import run_optimal_777
 
 ##old non-supported imports
-##from SP_aircraft import run_737800
-##from SP_aircraft import run_D82
-##from SP_aircraft import run_M08_D8_eng_wing
-##from SP_aircraft import run_M08_D8_no_BLI
-##from SP_aircraft import run_M08_D8
-##from SP_aircraft import run_D8_big_eng_wing
-##from SP_aircraft import run_D8_big_no_BLI
-##from SP_aircraft import run_D8_big
-##from SP_aircraft import run_D8_big_M072
-##from SP_aircraft import run_D8_big_M08
-##from SP_aircraft import run_optimal_RJ
-##from SP_aircraft import run_M072_optimal_RJ
-##from SP_aircraft import run_small_D8_eng_wing
-##from SP_aircraft import run_small_D8_no_BLI
-##from SP_aircraft import run_small_D8
-##from SP_aircraft import run_small_M08_D8_eng_wing
-##from SP_aircraft import run_small_M08_D8_no_BLI
-##from SP_aircraft import run_small_M08_D8
-##from SP_aircraft import run_M072_optimal_777
-##from SP_aircraft import run_M08_optimal_777
-##from SP_aircraft import run_M072_D8_big_eng_wing
-##from SP_aircraft import run_M072_D8_big_no_BLI
+##from SPaircraft import run_737800
+##from SPaircraft import run_D82
+##from SPaircraft import run_M08_D8_eng_wing
+##from SPaircraft import run_M08_D8_no_BLI
+##from SPaircraft import run_M08_D8
+##from SPaircraft import run_D8_big_eng_wing
+##from SPaircraft import run_D8_big_no_BLI
+##from SPaircraft import run_D8_big
+##from SPaircraft import run_D8_big_M072
+##from SPaircraft import run_D8_big_M08
+##from SPaircraft import run_optimal_RJ
+##from SPaircraft import run_M072_optimal_RJ
+##from SPaircraft import run_small_D8_eng_wing
+##from SPaircraft import run_small_D8_no_BLI
+##from SPaircraft import run_small_D8
+##from SPaircraft import run_small_M08_D8_eng_wing
+##from SPaircraft import run_small_M08_D8_no_BLI
+##from SPaircraft import run_small_M08_D8
+##from SPaircraft import run_M072_optimal_777
+##from SPaircraft import run_M08_optimal_777
+##from SPaircraft import run_M072_D8_big_eng_wing
+##from SPaircraft import run_M072_D8_big_no_BLI
 
 def standard_killer_plot_max_opt_eng():    
     #TURN ON THE RIGHT CONSTRIANTS INSIDE D8.py

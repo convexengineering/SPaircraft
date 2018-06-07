@@ -2,7 +2,7 @@
 script to generate the values in the SP Aircraft different objective table
 """
 
-from SP_aircraft import run_optimal_737
+from SPaircraft import run_optimal_737
 
 #solve all the cases
 base_sol = run_optimal_737('W_{f_{total}}', False, True, True)

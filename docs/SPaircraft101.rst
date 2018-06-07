@@ -3,9 +3,9 @@ SPaircraft 101
 
 These instructions will help you run SPaircraft for the first time!
 
-SP_aircraft.py - set of aircraft models
+SPaircraft.py - set of aircraft models
 =======================================
-**SP_aircraft.py** contains a set of methods that are used to optimize different aircraft configurations.
+**SPaircraft.py** contains a set of methods that are used to optimize different aircraft configurations.
 
 The process to create and run one of these models is general. The following definitions are required:
 
