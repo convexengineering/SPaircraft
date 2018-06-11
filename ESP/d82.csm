@@ -1,0 +1,204 @@
+# ../data/d82.csm written by ocsmSave (v1.11)
+
+# Constant and Design Parameters:
+despmtr   lfuse      32.67000
+despmtr   pxnose       0.27100
+despmtr   pxcone       0.82900
+despmtr   hfuse       3.77400/2.
+despmtr   wfuse       2.61050
+despmtr   Rfuse       1.68100
+despmtr   dRfuse       0.41300
+despmtr   wfuseTE       2.08850
+despmtr   wdb       0.93000
+despmtr   hfloor       0.13000
+despmtr   lfloor      21.59000
+despmtr   wfloor       5.22100
+despmtr   xfloor       7.15900
+despmtr   zfloor      -0.56500
+despmtr   xwing      18.34000
+despmtr   zwing      -1.68700
+despmtr   b          140*0.30
+despmtr   croot       5.47400
+despmtr   ctip       0.82110
+despmtr   sweep      13.32700
+despmtr   dihedral      5.00000
+despmtr   xht      31.07600
+despmtr   zht       4.15700
+despmtr   bht       10.26
+despmtr   crootht       2.16900
+despmtr   ctipht       0.95000
+despmtr   sweepht       8.00000
+despmtr   xCGvt      30.0
+despmtr   yvt       2.61000
+despmtr   zvt       0.50000
+despmtr   bvt       3.63700
+despmtr   crootvt   2.55700
+despmtr   ctipvt    0.76700
+despmtr   sweepvt   40.
+despmtr   dihedralvt      10.00000
+despmtr   lnace       1.21500
+despmtr   df       1.44900
+despmtr   toc       0.16300
+despmtr   xeng      30.70000
+despmtr   yeng       1.31000
+despmtr   zeng       1.62000
+despmtr   weng      10.00000
+
+# Writing out fuselage hyperellipse coordinates (normalized by Rfuse+0.5dRfuse and wfuse)
+dimension fuse      20  4  1
+#        x                    radius in y       radius in z       camberLine            
+despmtr fuse "0.0100000000000000;   0.231620320814217; 0.201788367337146; 0.415017595384628;\
+         0.0167511548156525;   0.303329825633191; 0.286800005551124; 0.432707096855554;\
+         0.0368204653581859;   0.465089555398346; 0.401402957687781; 0.391348086609170;\
+         0.0696604931527879;   0.639984339778467; 0.547053945092908; 0.336554479448422;\
+         0.114375447848785;    0.796914808663171; 0.690750012181914; 0.253564929286064;\
+         0.169745622045258;    0.918299891822636; 0.831913960689778; 0.145967817033052;\
+         0.234260661729399;    0.989572852786478; 0.940058547054229; 0.052165172147333;\
+         0.306160764796780;    0.999585285603803; 0.989558928335193; 0.0089841549140855;\
+         0.383484683865304;    0.999828050247791; 0.999895739428622; 0.0000001;\
+         0.464123223991196;    0.999835846523687; 0.999992038455302; 0.00000001;\
+         0.545876776008805;    0.999837104793590; 0.999992459108003; 0.00000001;\
+         0.626515316134696;    0.999836691312273; 1.000000000000;    0.000001;\
+         0.703839235203220;    0.999837116939711; 0.971402993194143; 0.0142164604347808;\
+         0.775739338270601;    1.0;               0.817680916438905; 0.0387447426776049;\
+         0.840254377954742;    0.966048629717998; 0.555797975170839; -0.001751049892089;\
+         0.895624552151215;    0.882868686664148; 0.310547207226524; -0.042810120752847;\
+         0.940339506847212;    0.795619028833805; 0.148753911080915; -0.052495746822761;\
+         0.973179534641814;    0.726999772783226; 0.057314226903622; -0.056768317278699;\
+         0.993248845184348;    0.683847989903762; 0.012920345779019; -0.058890618333758;\
+         1.0;                  0.669124268823783; 0.0;               -0.05918874470713;"
+
+# Writing out fuselage hyperellipse coordinates (normalized by Rfuse+0.5dRfuse and wfuse)
+dimension fuseExp      1 10 1
+dimension fuseProp     1 10 1
+dimension fusehmod     1 10 1
+dimension fusewmod     1 10 1
+despmtr fuseExp     "0.0; 0.2; 1.5; 3.0; 3.8; 3.8; 2.9; 1.2; 0.2; 0.0"
+despmtr fuseProp    "0.0; 0.1; 0.2; 0.3; 0.4; 0.5; 0.6; 0.7; 0.8; 0.9"
+despmtr fusehmod    "0.98; 0.98; 0.98; 0.98; 0.98; 0.98; 0.98; 0.9; 0.8; 0.5"
+despmtr fusewmod    "0.98; 0.98; 0.98; 0.98; 0.98; 0.98; 0.98; 0.98; 0.9; 0.8"
+
+# Global Attributes:
+
+# Branches:
+set       lcyl lfuse*(pxcone-pxnose)
+set       lnose pxnose*lfuse
+set       lshell2 pxcone*lfuse
+set       dRx1 wdb+Rfuse/2+dRfuse/2
+set       dRx2 wdb+Rfuse/2
+set       dRz1 -(Rfuse+dRfuse/2)
+set       dRz2 -(Rfuse+dRfuse)
+
+
+# Building the fuselage
+mark
+point     0  0  fuse[1,4]*hfuse
+
+patbeg    i  19
+   udprim ellipse   rx  abs(fuse[i,2]*wfuse)  rz  abs(fuse[i,3]*hfuse)
+   translate        0     fuse[i,1]*lfuse     fuse[i,4]*hfuse   
+patend
+
+# Add final line for sharp TE
+#skbeg     fuse[19,2]*wfuse      fuse[19,1]*lfuse     fuse[19,4]*hfuse
+#linseg   -fuse[19,2]*wfuse      fuse[19,1]*lfuse     fuse[19,4]*hfuse
+#linseg   fuse[19,2]*wfuse      fuse[19,1]*lfuse     fuse[19,4]*hfuse
+#skend
+blend 0
+
+rotatez 270 0 0
+
+# Building the wing
+despmtr   series_w  4409
+set xleadwroot   xwing-croot/4
+set xleadwtip    xleadwroot+b/2*tand(sweep)
+set zleadwroot   -0.8*Rfuse  # Arbitrary wing height
+#set zleadwtip    zleadwroot+sind(dihedral)*halfspan
+set halfspan     b/2
+
+mark
+udprim     naca     Series     series_w sharpte 1
+scale ctip
+rotatex 90 0 0 
+translate xleadwtip -halfspan zleadwroot+sind(dihedral)*halfspan            
+udprim     naca     Series     series_w sharpte 1
+scale croot
+rotatex 90 0 0
+translate xleadwroot 0 zleadwroot
+udprim     naca     Series     series_w sharpte 1
+scale ctip
+rotatex 90 0 0 
+translate xleadwtip halfspan zleadwroot+sind(dihedral)*halfspan
+rule
+union
+
+# Adding fuselage/wing blending 
+mark 
+
+patbeg i 10
+   udprim supell rx fusewmod[1,i]*wfuse-0.01 ry fusehmod[1,i]*hfuse-0.01 n_sw fuseExp[1,i]+1 n_se fuseExp[1,i]+1 n_nw 1 n_ne 1 
+   rotatey 90 0 0 
+   rotatex 90 0 0
+   translate fuseProp[1,i]*2.5*croot+xwing-0.75*croot   0   0
+patend
+blend
+
+# Building the vertical tail
+despmtr   series_vt  0009
+set xleadvtroot   lfuse-crootvt
+set xleadvttip    xleadvtroot+bvt*cosd(sweepvt)
+set yleadvtroot   0.67*wfuse-0.045*crootvt # Note this depends on af toc
+set yleadvttip    yleadvtroot+sind(dihedralvt)*bvt
+set zleadvtroot   fuse[19,4]*hfuse
+set zleadvttip    zleadvtroot+(cosd(dihedralvt))*bvt
+
+
+mark
+udprim     naca     Series     series_vt sharpte 1
+scale ctipvt
+rotatex dihedralvt 0 0
+translate xleadvttip yleadvttip zleadvttip             
+udprim     naca     Series     series_vt sharpte 1
+scale crootvt
+rotatex dihedralvt 0 0
+translate xleadvtroot yleadvtroot zleadvtroot
+rule
+#union
+
+mark
+udprim     naca     Series     series_vt sharpte 1
+scale ctipvt
+rotatex -dihedralvt 0 0
+translate xleadvttip -yleadvttip zleadvttip             
+udprim     naca     Series     series_vt sharpte 1
+scale crootvt
+rotatex -dihedralvt 0 0
+translate xleadvtroot -yleadvtroot zleadvtroot
+rule
+#union
+
+# Building the horizontal tail
+despmtr   series_ht  2209
+set xleadhtroot   xleadvttip-tand(sweepht)*yleadvttip
+set xleadhttip    xleadhtroot+bht/2.*tand(sweepht)
+set yleadhtroot   0
+set yleadhttip    bht/2
+set zleadhtroot   zleadvttip #TODO improve
+set zleadhttip    zleadvttip #TODO improve
+
+mark
+udprim     naca     Series     series_ht sharpte 1
+scale ctipht
+rotatex 90 0 0 
+translate xleadhttip yleadhttip zleadhttip
+udprim     naca     Series     series_ht sharpte 1
+scale crootht
+rotatex 90 0 0
+translate xleadhtroot yleadhtroot zleadhtroot
+udprim     naca     Series     series_ht sharpte 1
+scale ctipht
+rotatex 90 0 0 
+translate xleadhttip -yleadhttip zleadhttip
+rule
+
+end
