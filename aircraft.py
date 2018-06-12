@@ -960,7 +960,6 @@ class Mission(Model):
         CruiseTt41max = Variable('T_{t_{4.1_{max-Cruise}}}', 'K', 'Max Cruise Turbine Inlet Temp')
         MinCruiseAlt = Variable('MinCruiseAlt', 'ft', 'Minimum Cruise Altitude')
         Fsafetyfac = Variable('Fsafetyfac', '-', 'Safety factor on inital climb thrust')
-        OPRmax = Variable('OPR_{max}','-','Maximum Overall Pressure Ratio')
 
         # make overall constraints
         constraints = []
@@ -1189,7 +1188,7 @@ class Mission(Model):
         ## -------------------- SETTING ENGINE PARAMETERS ----------------------
         constraints.extend([
             #constrain OPR less than max OPR
-            aircraft['OPR'] <= OPRmax,
+            aircraft['OPR'] <= aircraft.engine['OPR_{max}'],
         ])
 
         M2 = .6
