@@ -757,126 +757,35 @@ class Mission(Model):
 
     def setup(self, Nclimb, Ncruise, objective, airplane, Nmission = 1):
         # define global variables
-        global D80, D82, D82, D82_73eng, D8_eng_wing, D8big, b737800, b777300ER, optimal737, \
-               optimalD8, Mo8D8, M08_D8_eng_wing, M072_737, D8fam, D8_no_BLI, \
-               M08D8_noBLI, optimal777, D8big_eng_wing, multimission, \
-               D8bigfam, optimalRJ, RJfam, smallD8, smallD8_no_BLI, smallD8_eng_wing, D12
-        global wingengine, rearengine, doublebubble, tube, piHT, conventional
+        global D8_eng_wing, optimal737, optimalD8, M072_737, D8_no_BLI, optimal777, \
+               multimission
+        global wingengine, rearengine, doublebubble, tube, piHT, D8fam, conventional
 
         # aircraft geometry flags
         wingengine = False; rearengine = False; doublebubble = False; tube = False;
         piHT = False; conventional = False; BLI = False;
 
         # Aircraft type, only one active at once, most not currently supported
-        D80 = False
-        D82 = False
-        D82_73eng = False
         D8_eng_wing = False
-        D8big = False
-        D8big_eng_wing = False
-        b737800 = False
-        b777300ER = False
         optimal737 = False
         optimalD8 = False
         optimal777 = False
-        M08D8 = False
-        M08D8_noBLI = False
-        M08_D8_eng_wing = False
         M072_737 = False
         D8_no_BLI = False
-        D8big_no_BLI = False
-        D8big_M072 = False
-        D8big_M08 = False
-        optimalRJ = False
-        smallD8 = False
-        smallD8_no_BLI = False
-        smallD8_eng_wing = False
-        smallD8_M08_eng_wing = False
-        smallD8_M08 = False
-        smallD8_M08_no_BLI = False
-        D12 = False
-        optimal777_M08 = False
-        optimal777_M072 = False
-        D8big_M072 = False
-        D8big_eng_wing_M072 = False
-        D8big_no_BLI_M072 = False
 
         # set geometry flags based on aircraft type
-        #TODO - make more elegant
-        if airplane == 'D80':
-            D80 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
-        if airplane == 'D82':
-            D82 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
-        if airplane == 'D82_73eng':
-            D82_73eng = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 1;
         if airplane == 'D8_eng_wing':
             D8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
-        if airplane == 'D8big':
-            D8big = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 4;
-        if airplane == 'D8big_no_BLI':
-            D8big_no_BLI = True; rearengine = True; piHT = True; doublebubble = True; eng = 4;
-        if airplane == 'D8big_eng_wing':
-            D8big_eng_wing = True; wingengine = True; piHT = True; doublebubble = True; eng = 4;
-        if airplane == 'D8big_M072':
-            D8big = True
-            D8big_M072 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
-        if airplane == 'D8big_no_BLI_M072':
-            D8big_no_BLI = True
-            D8big_no_BLI_M072 = True; rearengine = True; piHT = True; doublebubble = True;
-        if airplane == 'D8big_eng_wing_M072':
-            D8big_eng_wing = True
-            D8big_eng_wing_M072 = True; wingengine = True; piHT = True; doublebubble = True;
-        if airplane == 'b737800':
-            b737800 = True; conventional = True; eng = 1;
-        if airplane == 'b777300ER':
-            b777300ER = True; conventional = True; eng = 4;
         if airplane == 'optimal737':
             optimal737 = True; conventional = True
         if airplane == 'optimalD8':
             optimalD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
         if airplane == 'optimal777':
             optimal777 = True; conventional = True; eng = 4;
-        if airplane == 'optimal777_M08':
-            optimal777 = True
-            optimal777_M08 = True; conventional = True
-        if airplane == 'optimal777_M072':
-            optimal777 = True
-            optimal777_M072 = True; conventional = True
-        if airplane == 'M08D8':
-            M08D8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
-        if airplane == 'M08D8_noBLI':
-            M08D8_noBLI = True; rearengine = True; piHT = True; doublebubble = True;
-        if airplane == 'M08_D8_eng_wing':
-            M08_D8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
         if airplane == 'M072_737':
             M072_737 = True; conventional = True
         if airplane == 'D8_no_BLI':
             D8_no_BLI = True; rearengine = True; piHT = True; doublebubble = True;
-        if airplane == 'D8big_M072':
-            D8big = True
-            D8big_M072 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
-        if airplane == 'D8big_M08':
-            D8big = True
-            D8big_M08 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
-        if airplane == 'optimalRJ':
-            optimalRJ = True; conventional = True
-        if airplane == 'smallD8':
-            smallD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
-        if airplane == 'smallD8_eng_wing':
-            smallD8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
-        if airplane == 'smallD8_no_BLI':
-            smallD8_no_BLI = True; rearengine = True; piHT = True; doublebubble = True;
-        if airplane == 'smallD8_M08_no_BLI':
-            smallD8_no_BLI = True
-            smallD8_M08_no_BLI = True; rearengine = True; piHT = True; doublebubble = True;
-        if airplane == 'smallD8_M08':
-            smallD8 = True
-            smallD8_M08 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True;
-        if airplane == 'smallD8_M08_eng_wing':
-            smallD8_eng_wing = True
-            smallD8_M08_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
-        if airplane == 'D12':
-            D12 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 4;
 
         # if conventional choose wing engine and tube fuselage
         if conventional:
@@ -892,25 +801,14 @@ class Mission(Model):
         fitDrag = None
 
         #specify engine choice and BLI true/false based on aircraft type....arugments required for engine model
-        if D8_eng_wing or D8_no_BLI or M08_D8_eng_wing or optimal737 or M08D8_noBLI or M072_737 \
-           or optimalRJ or smallD8_eng_wing or smallD8_no_BLI:
+        if D8_eng_wing or D8_no_BLI or optimal737 or M072_737:
             eng = 3
             BLI = False
 
-        if optimalD8 or D80 or D82 or D82_73eng or D8big or M08D8 or D8_no_BLI or M08D8_noBLI or D8big_no_BLI or smallD8 or smallD8_no_BLI or D12:
+        if optimalD8 or D8_no_BLI:
             D8fam = True
         else:
             D8fam = False
-
-        if D8big_eng_wing or D8big_no_BLI or D8big:
-            D8bigfam = True
-        else:
-            D8bigfam = False
-
-        if optimalRJ or smallD8 or smallD8_eng_wing or smallD8_no_BLI:
-            RJfam = True
-        else:
-            RJfam = False
 
         # vectorize
         with Vectorize(Nmission):
@@ -918,8 +816,8 @@ class Mission(Model):
                  enginestate = FlightState()
 
         # True is use xfoil fit tail drag model, False is TASOPT tail drag model
-        if optimalD8 or M08_D8_eng_wing or M08D8_noBLI or M08D8 or M072_737 or \
-           D8_eng_wing or D8_no_BLI or D8big or optimal777 or optimal737 or D8big_eng_wing or D8big_no_BLI or RJfam or D12:
+        # Currently all models use xfoil fits.
+        if optimalD8 or M072_737 or D8_eng_wing or D8_no_BLI or optimal777 or optimal737:
             fitDrag = True
         else:
             fitDrag = False
@@ -1027,27 +925,29 @@ class Mission(Model):
                 ])
 
             # ---------------------- FUSELAGE LIFT, BLI CORRECTION, AND DRAG ----------------
-            if doublebubble and not (D12 or D8bigfam):
+            if doublebubble:
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081,
                     aircraft.fuse['M_{fuseD}'] == 0.72,
                   ])
 
-            elif D12 or D8bigfam:
-                constraints.extend([
-                        climb.climbP.fuseP['C_{D_{fuse}}'] == 0.0167620,
-                        cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.0167620,
-                        aircraft.fuse['M_{fuseD}'] == 0.83,
-                ])
-            if conventional and not (b777300ER or optimal777):
+            # Option for a high speed double bubble fuselage
+            # elif D12 or D8bigfam:
+            #     constraints.extend([
+            #             climb.climbP.fuseP['C_{D_{fuse}}'] == 0.0167620,
+            #             cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.0167620,
+            #             aircraft.fuse['M_{fuseD}'] == 0.83,
+            #     ])
+
+            if conventional and not optimal777:
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     aircraft.fuse['M_{fuseD}'] == 0.80,
                 ])
-            elif b777300ER or optimal777:
+            elif optimal777:
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     #additioanl 1.1 factor accounts for mach drag rise model
@@ -1197,8 +1097,7 @@ class Mission(Model):
             ]
 
 
-        if (b777300ER or optimal777 or D8big_eng_wing or D8big or D8big_no_BLI or D12) and not (D8big_M08 or D8big_M072 or optimal777_M08 or optimal777_M072 or \
-                                                                                         D8big_M072 or D8big_eng_wing_M072 or D8big_no_BLI_M072):
+        if optimal777:
              M2 = .65
 
         enginecruise = [
