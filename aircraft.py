@@ -1027,35 +1027,27 @@ class Mission(Model):
                 ])
 
             # ---------------------- FUSELAGE LIFT, BLI CORRECTION, AND DRAG ----------------
-            if optimalD8 or D80 or D82 or D82_73eng or M08D8 or D8_no_BLI or M08D8_noBLI or smallD8 or smallD8_no_BLI or D8_eng_wing or smallD8_eng_wing \
-               or M08_D8_eng_wing:
+            if doublebubble and not (D12 or D8bigfam):
                 constraints.extend([
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.018081,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.018081,
                     aircraft.fuse['M_{fuseD}'] == 0.72,
                   ])
 
-            if D12 or D8big_eng_wing or D8big_no_BLI or D8big:
+            elif D12 or D8bigfam:
                 constraints.extend([
                         climb.climbP.fuseP['C_{D_{fuse}}'] == 0.0167620,
                         cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.0167620,
                         aircraft.fuse['M_{fuseD}'] == 0.83,
-                      ])
-            if conventional and not (b777300ER or optimal777 or M072_737):
+                ])
+            if conventional and not (b777300ER or optimal777):
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     aircraft.fuse['M_{fuseD}'] == 0.80,
                 ])
-            if M072_737:
-                constraints.extend([
-                    #Setting fuselage drag coefficient
-                    climb.climbP.fuseP['C_{D_{fuse}}'] == 0.01107365,#0.0129077,
-                    cruise.cruiseP.fuseP['C_{D_{fuse}}'] == 0.01107365,#0.0129077,
-                    aircraft.fuse['M_{fuseD}'] == 0.80, #0.72,
-                ])
-            if b777300ER or optimal777:
+            elif b777300ER or optimal777:
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     #additioanl 1.1 factor accounts for mach drag rise model
