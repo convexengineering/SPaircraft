@@ -36,7 +36,7 @@ from saveSol import updateOpenVSP, genDesFile, genDesFileSweep
 # Aircraft options:
 # 'D8_eng_wing', 'optimal737', 'optimal777', 'optimalD8', 'D8_no_BLI', 'M072_737'
 
-def optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg):
+def optimize_aircraft(objective, aircraft, substitutions, fixedBPR=False, pRatOpt=True, mutategparg=False):
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -78,10 +78,6 @@ def optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mut
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
     post_process(sol)
 
-    percent_diff(sol, aircraft, Nclimb)
-
-    post_compute(sol, Nclimb)
-
     return sol
 
 def test():
@@ -91,4 +87,7 @@ def test():
     fixedBPR = True
     pRatOpt = False
     mutategparg = True
-    optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg)
+    sol = optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg)
+    Nclimb = 3
+    percent_diff(sol, aircraft, Nclimb)
+    post_compute(sol, Nclimb)

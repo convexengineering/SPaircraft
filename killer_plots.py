@@ -2,62 +2,41 @@
 import matplotlib.pyplot as plt
 
 # Percent diffs
-from D8_TASOPT_percent_diff import percent_diff
+from percent_diff import percent_diff
 
 from gpkit.small_scripts import mag
 
 # Solution saving
 from saveSol import genSolOut
 
-from SPaircraft import run_optimal_737
-from SPaircraft import run_optimal_D8
-from SPaircraft import run_M072_737
-from SPaircraft import run_D8_eng_wing
-from SPaircraft import run_D8_no_BLI
-from SPaircraft import run_optimal_777
+# Models and substitutions
+from SPaircraft import optimize_aircraft
+from subs.optimalD8 import get_optimalD8_subs
+from subs.optimal737 import get_optimal737_subs
+from subs.M072_737 import get_M072_737_subs
+from subs.D8_no_BLI import get_D8_no_BLI_subs
+from subs.D8_eng_wing import get_D8_eng_wing_subs
 
-##old non-supported imports
-##from SPaircraft import run_737800
-##from SPaircraft import run_D82
-##from SPaircraft import run_M08_D8_eng_wing
-##from SPaircraft import run_M08_D8_no_BLI
-##from SPaircraft import run_M08_D8
-##from SPaircraft import run_D8_big_eng_wing
-##from SPaircraft import run_D8_big_no_BLI
-##from SPaircraft import run_D8_big
-##from SPaircraft import run_D8_big_M072
-##from SPaircraft import run_D8_big_M08
-##from SPaircraft import run_optimal_RJ
-##from SPaircraft import run_M072_optimal_RJ
-##from SPaircraft import run_small_D8_eng_wing
-##from SPaircraft import run_small_D8_no_BLI
-##from SPaircraft import run_small_D8
-##from SPaircraft import run_small_M08_D8_eng_wing
-##from SPaircraft import run_small_M08_D8_no_BLI
-##from SPaircraft import run_small_M08_D8
-##from SPaircraft import run_M072_optimal_777
-##from SPaircraft import run_M08_optimal_777
-##from SPaircraft import run_M072_D8_big_eng_wing
-##from SPaircraft import run_M072_D8_big_no_BLI
-
-def standard_killer_plot_max_opt_eng():    
-    #TURN ON THE RIGHT CONSTRIANTS INSIDE D8.py
-    sol0 = run_optimal_737('W_{f_{total}}', True)
+def standard_killer_plot_max_opt_eng():
+    # Note that the killer plot is designed for the following user inputs
+    # Nclimb = 3, Ncruise = 2, Nmission = 1,
+    # Rreq = 3000nmi, Npass = 180
+    sol0 = optimize_aircraft('W_{f_{total}}', 'optimal737', get_optimal737_subs(), True, False, False)
     wf0 = sol0('W_{f_{total}}')
 
-    sol1 = run_M072_737('W_{f_{total}}', True)
+    sol1 = optimize_aircraft('W_{f_{total}}', 'M072_737', get_M072_737_subs(), True, False, False)
     wf1 = sol1('W_{f_{total}}')
 
-    sol2 = run_D8_eng_wing('W_{f_{total}}', True)
+    sol2 = optimize_aircraft('W_{f_{total}}', 'D8_eng_wing', get_D8_eng_wing_subs(), True, False, False)
     wf2 = sol2('W_{f_{total}}')
 
-    sol3 = run_D8_no_BLI('W_{f_{total}}', True)
+    sol3 = optimize_aircraft('W_{f_{total}}', 'D8_no_BLI', get_D8_no_BLI_subs(), True, False, False)
     wf3 = sol3('W_{f_{total}}')
 
-    sol4 = run_optimal_D8('W_{f_{total}}', True)
+    sol4 = optimize_aircraft('W_{f_{total}}', 'optimalD8', get_optimalD8_subs(), True, False, False)
     wf4 = sol4('W_{f_{total}}')
 
-    sol5 = run_optimal_D8('W_{f_{total}}', False, True)
+    sol5 = optimize_aircraft('W_{f_{total}}', 'optimalD8', get_optimalD8_subs(), False, True, False)
     wf5 = sol5('W_{f_{total}}')
 
     wing_sens = [sol0['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], sol1['sensitivities']['constants']['C_{wing}_Mission/Aircraft/Wing'], \

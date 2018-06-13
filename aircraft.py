@@ -761,6 +761,10 @@ class Mission(Model):
                multimission
         global wingengine, rearengine, doublebubble, tube, piHT, D8fam, conventional
 
+        self.Nclimb = Nclimb
+        self.Ncruise = Ncruise
+        self.Nmission = Nmission
+
         # aircraft geometry flags
         wingengine = False; rearengine = False; doublebubble = False; tube = False;
         piHT = False; conventional = False; BLI = False;
