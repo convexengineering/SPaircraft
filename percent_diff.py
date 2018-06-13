@@ -197,7 +197,7 @@ def percent_diff(sol,aircraft,Nclimb):
         # print "\n"
         # print "Weight of VB material: %s "  % compute_diff(mag(sol('W_{vbend}')), 1210.5)
 
-    if aircraft == 'b777300ER':
+    if aircraft == 'optimal777':
        #weights to compare for TASOPT 777-300ER run
         print "WEIGHT DIFFERENCES"
         print "\n"
@@ -467,7 +467,7 @@ def percent_diff(sol,aircraft,Nclimb):
         print "\n"
         print "Weight of VB material: %s "  % compute_diff(mag(sol('W_{vbend}')), 1210.5)
     
-    if aircraft == 'D82':
+    if aircraft == 'optimalD8':
         #weights to compare for D8.2
         print "WEIGHT DIFFERENCES"
         print "\n"

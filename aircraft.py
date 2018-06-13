@@ -1097,7 +1097,7 @@ class Mission(Model):
             ]
 
 
-        if optimal777:
+        if optimal777: #(or for larger aircraft)
              M2 = .65
 
         enginecruise = [

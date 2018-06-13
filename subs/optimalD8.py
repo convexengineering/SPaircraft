@@ -2,7 +2,7 @@ from gpkit import units
 from numpy import cos, tan, pi
 import numpy as np
 
-def get_optimal_D8_subs():
+def get_optimalD8_subs():
         """
         returns substitution dic for the D8.2
         """

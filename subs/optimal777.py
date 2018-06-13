@@ -2,7 +2,7 @@ from gpkit import units
 from numpy import cos, tan, pi
 import numpy as np
 
-def get_optimal_777300ER_subs():
+def get_optimal777_subs():
     """
     returns substitution dic for the TASOPT Boeing 777-300ER model
     """
