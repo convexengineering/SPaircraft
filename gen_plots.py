@@ -9,20 +9,12 @@ def gen_plots(sol):
     """
 
     #generate an altitude profile plot
-    rng = []
-    alt = []
-    for i in range(len(sol('R_{climb}'))):
-           rng.append(mag(sol('R_{climb}')[i][0]))
-    for i in range(len(sol('R_{cruise}'))):
-           rng.append(mag(sol('R_{cruise}')[i][0]))
-    for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
-           alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
-    rng = np.cumsum(rng)
+    rng = np.cumsum(mag(sol('R_{segment}')))
+    alt = mag(sol('hft'))
     plt.plot(rng, alt)
     plt.ylabel('Altitude [ft]', fontsize=18)
     plt.xlabel('Down Range Distance', fontsize=18)
     plt.title('Aircraft Altitude Profile')
-#    plt.savefig('M08_D8_wing_profile_drag.pdf', bbox_inches="tight")
     plt.show()
 
 def gen_D82_plots(sol):
@@ -31,14 +23,8 @@ def gen_D82_plots(sol):
     """
 
     #generate an altitude profile plot
-    rng = [0]
-    alt = [0]
-    for i in range(len(sol('R_{climb}'))):
-           rng.append(mag(sol('R_{climb}')[i][0]))
-    for i in range(len(sol('R_{cruise}'))):
-           rng.append(mag(sol('R_{cruise}')[i][0]))
-    for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
-           alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
+    rng = mag(sol('R_{segment}'))
+    alt = mag(sol('hft'))
     rng = np.cumsum(rng)
 
     tasrng = [0, 11.51, 27.36, 52.64, 103.28, 103.28, 2825.41, 2825.41, 2869.08, 2912.76, 2956.43, 3000]
@@ -62,25 +48,10 @@ def gen_D8_737_plots(solD8, sol737):
     """
 
     #generate an altitude profile plot
-    rngD8 = []
-    altD8 = []
-    for i in range(len(solD8('R_{climb}'))):
-           rngD8.append(mag(solD8('R_{climb}')[i][0]))
-    for i in range(len(solD8('Rng'))):
-           rngD8.append(mag(solD8('Rng')[i][0]))
-    for i in range(len(solD8('hft')['hft_Mission/FlightState/Altitude'])):
-           altD8.append(mag(solD8('hft')['hft_Mission/FlightState/Altitude'][i][0]))
-    rngD8 = np.cumsum(rngD8)
-
-    rng73 = []
-    alt73 = []
-    for i in range(len(sol737('R_{climb}'))):
-           rng73.append(mag(sol737('R_{climb}')[i][0]))
-    for i in range(len(sol737('Rng'))):
-           rng73.append(mag(sol737('Rng')[i][0]))
-    for i in range(len(sol737('hft')['hft_Mission/FlightState/Altitude'])):
-           alt73.append(mag(sol737('hft')['hft_Mission/FlightState/Altitude'][i][0]))
-    rng73 = np.cumsum(rng73)
+    rngD8 = np.cumsum(mag(solD8('R_{segment}')))
+    altD8 = mag(solD8('hft'))
+    rng73 = np.cumsum(mag(sol737('R_{segment}')))
+    alt73 = mag(sol737('hft'))
 
     tasrngD8 = [0, 11.51, 27.36, 52.64, 103.28, 103.28, 2825.41, 2825.41, 2869.08, 2912.76, 2956.43, 3000]
     tasaltD8 = [0, 9619.5, 19239.0, 28858.5, 38478.0, 38478.0, 41681.3, 41681.3, 32129.3, 21998.5, 11288.7, 0]
@@ -105,25 +76,10 @@ def gen_D8_D8_no_BLI_plots(solD8, solno_BLI):
     """
 
     #generate an altitude profile plot
-    rngD8 = []
-    altD8 = []
-    for i in range(len(solD8('R_{climb}'))):
-           rngD8.append(mag(solD8('R_{climb}')[i][0]))
-    for i in range(len(solD8('Rng'))):
-           rngD8.append(mag(solD8('Rng')[i][0]))
-    for i in range(len(solD8('hft')['hft_Mission/FlightState/Altitude'])):
-           altD8.append(mag(solD8('hft')['hft_Mission/FlightState/Altitude'][i][0]))
-    rngD8 = np.cumsum(rngD8)
-
-    rngno_BLI = []
-    altno_BLI = []
-    for i in range(len(solno_BLI('R_{climb}'))):
-           rngno_BLI.append(mag(solno_BLI('R_{climb}')[i][0]))
-    for i in range(len(solno_BLI('Rng'))):
-           rngno_BLI.append(mag(solno_BLI('Rng')[i][0]))
-    for i in range(len(solno_BLI('hft')['hft_Mission/FlightState/Altitude'])):
-           altno_BLI.append(mag(solno_BLI('hft')['hft_Mission/FlightState/Altitude'][i][0]))
-    rngno_BLI = np.cumsum(rngno_BLI)
+    rngD8 = np.cumsum(mag(solD8('R_{segment}')))
+    altD8 = mag(solD8('hft'))
+    rngno_BLI = np.cumsum(mag(solno_BLI('R_{segment}')))
+    altno_BLI = mag(solno_BLI('hft'))
 
     plt.plot(rngD8, altD8)
     plt.plot(rngno_BLI, altno_BLI)
@@ -138,21 +94,13 @@ def gen_737_plots(sol):
     """
     function to generate plots of interesting values
     """
+    rng = np.cumsum(mag(sol('R_{segment}')))
+    alt = mag(sol('hft'))
 
     #generate an altitude profile plot
     tasrng = [0, 13.68, 31.34, 59.96, 115.05, 115.05, 2875.38, 2875.38, 2906.56, 2937.74, 2968.92, 3000]
     tasalt = [0, 8750, 17500, 26250, 35000, 35000, 39677.3, 39677.3, 29758., 19838.6, 9919.3, 0]
 
-    rng = [0]
-    alt = [0]
-
-    for i in range(len(sol('R_{climb}'))):
-           rng.append(mag(sol('R_{climb}')[i][0]))
-    for i in range(len(sol('R_{cruise}'))):
-           rng.append(mag(sol('R_{cruise}')[i][0]))
-    for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
-           alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
-    rng = np.cumsum(rng)
     plt.plot(rng, alt)
     plt.plot(tasrng, tasalt)
     plt.legend(['SP Model', 'TASOPT'], loc=4, fontsize=18)
@@ -173,17 +121,9 @@ def gen_777_plots(sol):
     tasrng = [0, 15.6, 33.24, 60.40, 107.98, 107.98, 5850.37, 5850.37, 5887.82, 5925.28, 5962.74, 6000]
     tasalt = [0, 7994.2, 15988.5, 23982.8, 31977.0, 31977.0, 39723.4, 39723.4, 31282.2, 21847.9, 11420.5, 0]
 
-    rng = [0]
-    alt = [0]
+    rng = np.cumsum(mag(sol('R_{segment}')))
+    alt = mag(sol('hft'))
 
-    for i in range(len(sol('R_{climb}'))):
-           rng.append(mag(sol('R_{climb}')[i][0]))
-    for i in range(len(sol('R_{cruise}'))):
-           rng.append(mag(sol('R_{cruise}')[i][0]))
-    for i in range(len(sol('hft')['hft_Mission/FlightState/Altitude'])):
-           alt.append(mag(sol('hft')['hft_Mission/FlightState/Altitude'][i][0]))
-
-    rng = np.cumsum(rng)
     plt.plot(rng, alt)
     plt.plot(tasrng, tasalt)
     plt.legend(['SP Model', 'TASOPT'], loc=4, fontsize=18)
