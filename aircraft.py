@@ -47,14 +47,14 @@ class Aircraft(Model):
     fitDrag: True = use Martin's tail drag fits, False = use the TASOPT tail drag model
     """
 
-    def setup(self, Nclimb, Ncruise, enginestate, eng, fitDrag, BLI = False, Nmissions=0,  **kwargs):
+    def setup(self, Nclimb, Ncruise, flightstate, eng, fitDrag, BLI = False, Nmissions=0,  **kwargs):
         # create submodels
         self.fuse = Fuselage(Nmissions)
         self.wing = Wing()
         if Nmissions != 0:
-            self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, Nmissions, BLI)
+            self.engine = Engine(0, True, Nclimb+Ncruise, flightstate, eng, Nmissions, BLI)
         else:
-           self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, BLI)
+           self.engine = Engine(0, True, Nclimb+Ncruise, flightstate, eng, BLI)
         self.VT = VerticalTail()
         self.HT = HorizontalTail()
         self.LG = LandingGear()
@@ -668,40 +668,18 @@ class FlightP(Model): # Flight segment performance constraints
 
 class FlightSegment(Model):
     "SKIP VERIFICATION"
-    def setup(self, aircraft, Nclimb, Ncruise, **kwargs):
-        self.state = FlightState()
+    def setup(self, aircraft, flightstate, Nclimb, Ncruise, **kwargs):
+        self.state = flightstate
         self.flightP = aircraft.flight_dynamic(self.state, Nclimb, Ncruise)
         return self.state, self.flightP
-
-class StateLinking(Model):
-    """
-    link all the state model variables, required to link engine model
-    to aircraft model
-    SKIP VERIFICATION
-    """
-    def setup(self, flightstate, enginestate, Nclimb, Ncruise):
-        if conventional:
-             statevarkeys = ['L_{atm}', 'M_{atm}', 'P_{atm}', 'R_{atm}',
-                             '\\rho', 'T_{atm}', '\\mu', 'T_s', 'C_1', 'h', 'hft', 'V', 'a', 'R', '\\gamma', 'M']
-        else:
-             statevarkeys = ['P_{atm}', 'R_{atm}',
-                        '\\rho', 'T_{atm}', '\\mu', 'T_s', 'C_1', 'h', 'hft', 'V', 'a', 'R', '\\gamma', 'M']
-        constraints = []
-        for i in range(len(statevarkeys)):
-            varkey = statevarkeys[i]
-            for i in range(Nclimb+Ncruise):
-                constraints.extend([
-                    flightstate[varkey][i] == enginestate[varkey][i]
-                    ])
-        return constraints
 
 class Mission(Model):
     """
     Mission superclass, links together all subclasses into an optimization problem
     SKIP VERIFICATION
     Inputs:
-    Nclimb: number of climb segments (for Brequet Range)
-    Ncruise: number of cruise segments (for Brequet Range)
+    Nclimb: number of climb segments (for Breguet Range)
+    Ncruise: number of cruise segments (for Breguet Range)
     objective: defines the objective function
     airplane: string representing the aircraft model
     Nmission: specifies whether single-point or multi-point optimization
@@ -770,7 +748,7 @@ class Mission(Model):
         # vectorize
         with Vectorize(Nmission):
              with Vectorize(Nclimb + Ncruise):
-                 enginestate = FlightState()
+                 flightstate = FlightState()
 
         # True is use xfoil fit tail drag model, False is TASOPT tail drag model
         # Currently all models use xfoil fits.
@@ -780,16 +758,12 @@ class Mission(Model):
             fitDrag = False
 
         # Build required submodels
-        aircraft = Aircraft(Nclimb, Ncruise, enginestate, eng, fitDrag, BLI, Nmission)
+        aircraft = Aircraft(Nclimb, Ncruise, flightstate, eng, fitDrag, BLI, Nmission)
 
         # Vectorize dynamic variables
         with Vectorize(Nmission):
              with Vectorize(Nclimb+Ncruise):
-                 flight = FlightSegment(aircraft, Nclimb, Ncruise)
-
-        # StateLinking links the climb and cruise state variables to the engine state,
-        # so that atmospheric variables match.
-        statelinking = StateLinking(flight.state, enginestate, Nclimb, Ncruise)
+                 flight = FlightSegment(aircraft, flightstate, Nclimb, Ncruise)
 
         # Declare Mission variables
         if multimission:
@@ -1039,4 +1013,4 @@ class Mission(Model):
         else:
             self.cost = W_fmissions
 
-        return constraints, aircraft, flight, engineclimb, enginecruise, statelinking
+        return constraints, aircraft, flight, engineclimb, enginecruise
