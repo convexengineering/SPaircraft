@@ -72,8 +72,8 @@ def optimize_aircraft(objective, aircraft, substitutions, fixedBPR=False, pRatOp
         del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
-    m = Model(m.cost, BCS(m))
-    m_relax = relaxed_constants(m)
+    m_relax = Model(m.cost, BCS(m))
+    m_relax = relaxed_constants(m_relax)
 
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
     post_process(sol)
@@ -90,4 +90,4 @@ def test():
     sol = optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg)
     Nclimb = 3
     percent_diff(sol, aircraft, Nclimb)
-    post_compute(sol, Nclimb)
+    #post_compute(sol, Nclimb)
