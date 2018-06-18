@@ -90,4 +90,4 @@ def test():
     sol = optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg)
     Nclimb = 3
     percent_diff(sol, aircraft, Nclimb)
-    #post_compute(sol, Nclimb)
+    post_compute(sol, Nclimb)
