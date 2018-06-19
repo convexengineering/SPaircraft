@@ -95,7 +95,7 @@ def genDesFile(sol, aircraft = 'D82', i = 0, swpt = False):
         sweep = arccos(sol('\cos(\Lambda)_Mission/Aircraft/Wing/WingNoStruct'))*180/np.pi
 
         # System-level descriptors
-        xCG = sol('x_{CG}_Mission/ClimbSegment/ClimbP/AircraftP')[0][0].to('m')
+        xCG = sol('x_{CG}')[0].to('m')
 
         # Wing descriptors
         b = sol('b').to('m')

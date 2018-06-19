@@ -2,7 +2,7 @@ from gpkit import units
 from numpy import cos, tan, pi
 import numpy as np
 
-def get737_optimal_subs():
+def get_optimal737_subs():
     """
     returns substitution dic for the TASOPT Boeing 737-800 model
     """
