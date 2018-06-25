@@ -78,7 +78,7 @@ def optimize_aircraft(objective, aircraft, substitutions, fixedBPR=False, pRatOp
     sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
     post_process(sol)
 
-    return sol
+    return sol, m, m_relax
 
 def test():
     objective = 'W_{f_{total}}'
@@ -87,7 +87,7 @@ def test():
     fixedBPR = True
     pRatOpt = False
     mutategparg = True
-    sol = optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg)
-    Nclimb = 3
+    sol, m, m_relax = optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg)
+    Nclimb = m.Nclimb
     percent_diff(sol, aircraft, Nclimb)
     post_compute(sol, Nclimb)

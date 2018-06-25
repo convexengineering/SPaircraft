@@ -8,7 +8,7 @@ from wingbox import WingBox
 
 class HorizontalTailNoStruct(Model):
     """
-    horiziontal tail model from Philippe's thesis
+    horizontal tail model from Philippe's thesis
     as a performance model without the wing box
     SKIP VERIFICATION
 

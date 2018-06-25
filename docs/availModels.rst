@@ -7,12 +7,6 @@ Aircraft Families
 
 We define the range and passenger payload requirements for the families of aircraft we have designed using SPaircraft.
 
-RJ
---
-
-- Range: 1500 nmi
-- Passengers: 90
-
 B737
 ----
 

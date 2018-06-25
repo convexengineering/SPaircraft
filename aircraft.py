@@ -18,6 +18,8 @@ from turbofan.engine_validation import Engine
 from fuselage import Fuselage
 from landing_gear import LandingGear
 
+# for ESP
+from collections import OrderedDict
 
 """
 Models required to minimize the aircraft total fuel weight.
@@ -132,6 +134,49 @@ class Aircraft(Model):
         Dreduct = Variable('D_{reduct}', '-', 'BLI Drag Reduction Factor')
         Dwakefrac = Variable('D_{wakefraction}', 0.33, '-', 'Percent of Total Drag From Wake Dissipation')
         BLI_wake_benefit = Variable('BLI_{wakebenefit}', 0.02, '-', 'Wake Drag Reduction from BLI Wake Ingestion')
+
+        # Design parameters for .csm generation
+        self.design_parameters = OrderedDict([
+            # Wing descriptors
+            ('b',         self.wing['b']),
+            ('croot',     self.wing['c_{root}']),
+            ('ctip',      self.wing['c_{tip}']),
+            ('S',         self.wing['S']),
+            ('xwing',     self.fuse['x_{wing}']),
+            ('dihedral',  7.),
+            # Fuselage descriptors
+            ('hfloor',    self.fuse['h_{floor}']),
+            ('lnose',     self.fuse['l_{nose}']),
+            ('lshell',    self.fuse['l_{shell}']),
+            ('lcone',     self.fuse['l_{cone}']),
+            ('lfloor',    self.fuse['l_{floor}']),
+            ('lfuse',     self.fuse['l_{fuse}']),
+            ('hfuse',     self.fuse['h_{fuse}']),
+            ('wfuse',     self.fuse['w_{fuse}']),
+            ('wfloor',    self.fuse['w_{floor}']),
+            ('wdb',       self.fuse['w_{db}']),
+            ('Rfuse',     self.fuse['R_{fuse}']),
+            # Horizontal tail descriptors
+            ('xCGht',     self.HT['x_{CG_{ht}}']),
+            ('crootht',   self.HT['c_{root_{ht}}']),
+            ('ctipht',    self.HT['c_{tip_{ht}}']),
+            ('bht',       self.HT['b_{ht}']),
+            ('lht',       self.HT['l_{ht}']),
+            ('tanht',     self.HT['\\tan(\Lambda_{ht})']),
+            # Vertical tail descriptors
+            ('xCGvt',     self.VT['x_{CG_{vt}}']),
+            ('Svt',       self.VT['S_{vt}']),
+            ('bvt',       self.VT['b_{vt}']),
+            ('lvt',       self.VT['l_{vt}']),
+            ('crootvt',   self.VT['c_{root_{vt}}']),
+            ('ctipvt',    self.VT['c_{tip_{vt}}']),
+            ('tanvt',     self.VT['\\tan(\Lambda_{vt})']),
+            # Engine descriptors
+            ('df',        self.engine['d_{f}']),
+            ('lnace',     lnace),
+            ('yeng',      self.VT['y_{eng}']),
+            ('xeng',      xeng),
+        ])
 
         constraints = []
         with SignomialsEnabled():
@@ -681,12 +726,12 @@ class Mission(Model):
     Nclimb: number of climb segments (for Breguet Range)
     Ncruise: number of cruise segments (for Breguet Range)
     objective: defines the objective function
-    airplane: string representing the aircraft model
+    aircraft: string representing the aircraft model
     Nmission: specifies whether single-point or multi-point optimization
               Nmission >/= 1 requires specification of range and number of passengers for each mission
     """
 
-    def setup(self, Nclimb, Ncruise, objective, airplane, Nmission = 1):
+    def setup(self, Nclimb, Ncruise, objective, AC, Nmission = 1):
         # define global variables
         global D8_eng_wing, optimal737, optimalD8, M072_737, D8_no_BLI, optimal777, \
                multimission
@@ -708,18 +753,18 @@ class Mission(Model):
         M072_737 = False
         D8_no_BLI = False
 
-        # set geometry flags based on aircraft type
-        if airplane == 'D8_eng_wing':
+        # set geometry flags based on AC type
+        if AC == 'D8_eng_wing':
             D8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
-        if airplane == 'optimal737':
+        if AC == 'optimal737':
             optimal737 = True; conventional = True
-        if airplane == 'optimalD8':
+        if AC == 'optimalD8':
             optimalD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
-        if airplane == 'optimal777':
+        if AC == 'optimal777':
             optimal777 = True; conventional = True; eng = 4;
-        if airplane == 'M072_737':
+        if AC == 'M072_737':
             M072_737 = True; conventional = True
-        if airplane == 'D8_no_BLI':
+        if AC == 'D8_no_BLI':
             D8_no_BLI = True; rearengine = True; piHT = True; doublebubble = True;
 
         # if conventional choose wing engine and tube fuselage
@@ -741,6 +786,7 @@ class Mission(Model):
             BLI = False
 
         if optimalD8 or D8_no_BLI:
+            eng = 3
             D8fam = True
         else:
             D8fam = False
@@ -748,7 +794,7 @@ class Mission(Model):
         # vectorize
         with Vectorize(Nmission):
              with Vectorize(Nclimb + Ncruise):
-                 flightstate = FlightState()
+                 self.flightstate = flightstate = FlightState()
 
         # True is use xfoil fit tail drag model, False is TASOPT tail drag model
         # Currently all models use xfoil fits.
@@ -758,12 +804,12 @@ class Mission(Model):
             fitDrag = False
 
         # Build required submodels
-        aircraft = Aircraft(Nclimb, Ncruise, flightstate, eng, fitDrag, BLI, Nmission)
+        self.aircraft = aircraft = Aircraft(Nclimb, Ncruise, flightstate, eng, fitDrag, BLI, Nmission)
 
         # Vectorize dynamic variables
         with Vectorize(Nmission):
              with Vectorize(Nclimb+Ncruise):
-                 flight = FlightSegment(aircraft, flightstate, Nclimb, Ncruise)
+                 self.flight = flight = FlightSegment(aircraft, flightstate, Nclimb, Ncruise)
 
         # Declare Mission variables
         if multimission:
