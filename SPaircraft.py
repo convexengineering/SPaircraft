@@ -31,12 +31,23 @@ from post_compute import post_compute
 from percent_diff import percent_diff
 
 # VSP visualization tools
-from saveSol import updateOpenVSP, genDesFile, genDesFileSweep
+from saveSol import updateOpenVSP, gendes, gencsm
 
 # Aircraft options:
-# 'D8_eng_wing', 'optimal737', 'optimal777', 'optimalD8', 'D8_no_BLI', 'M072_737'
+#
 
 def optimize_aircraft(objective, aircraft, substitutions, fixedBPR=False, pRatOpt=True, mutategparg=False):
+    """
+    Optimizes an aircraft of a given configuration
+    :param objective:
+    :param aircraft: String describing configuration,
+                     currently one of: 'D8_eng_wing', 'optimal737', 'optimal777', 'optimalD8', 'D8_no_BLI', 'M072_737'
+    :param substitutions: Substitutions dictionary from the subs/ directory
+    :param fixedBPR: boolean specifying whether or not BPR is fixed (depends on config)
+    :param pRatOpt: boolean specifying whether or not pressure ratio is optimized (depends on config)
+    :param mutategparg: boolean whether to keep each GP solve intact
+    :return: solution of aircraft model, aircraft model, aircraft model relaxation
+    """
     # User definitions
     Nclimb = 3
     Ncruise = 2
@@ -82,10 +93,10 @@ def optimize_aircraft(objective, aircraft, substitutions, fixedBPR=False, pRatOp
 
 def test():
     objective = 'W_{f_{total}}'
-    aircraft = 'optimal737'
-    substitutions = get_optimal737_subs()
-    fixedBPR = True
-    pRatOpt = False
+    aircraft = 'optimalD8'
+    substitutions = get_optimalD8_subs()
+    fixedBPR = False
+    pRatOpt = True
     mutategparg = True
     sol, m, m_relax = optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg)
     Nclimb = m.Nclimb

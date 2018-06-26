@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE HTML PUBLIC "~//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<!--
+main file for ESP (the Engineering Sketch Pad)
+written by John Dannenhoffer
+-->
+
+<html id="mainBody">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+      <!--
+          Copyright (C) 2010/2017  John F. Dannenhoffer, III (Syracuse University)
+
+          This library is free software; you can redistribute it and/or
+          modify it under the terms of the GNU Lesser General Public
+          License as published by the Free Software Foundation; either
+          version 2.1 of the License, or (at your option) any later version.
+
+          This library is distributed in the hope that it will be useful,
+          but WITHOUT ANY WARRANTY; without even the implied warranty of
+          MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+          Lesser General Public License for more details.
+
+          You should have received a copy of the GNU Lesser General Public
+          License along with this library; if not, write to the Free Software
+          Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+          MA  02110-1301  USA
+        -->
+
+    <title>
+      ESP (Engineering Sketch Pad, V1.12)
+    </title>
+
+    <script type="text/javascript" src="WebViewer/webgl-utils.js"> </script>
+    <script type="text/javascript" src="WebViewer/webgl-debug.js"> </script>
+    <script type="text/javascript" src="WebViewer/J3DIMath.js">    </script>
+
+    <script>
+      var   wv   = {};            // object to store "globals"
+      var   sket = {};            // object to store "sketch"
+    </script>
+    <script type="text/javascript" src="WebViewer/wv-draw.js">     </script>
+    <script type="text/javascript" src="WebViewer/wv-render.js">   </script>
+    <script type="text/javascript" src="WebViewer/wv-gPrim.js">    </script>
+    <script type="text/javascript" src="WebViewer/wv-sGraph.js">   </script>
+    <script type="text/javascript" src="WebViewer/wv-socket.js">   </script>
+    <script type="text/javascript" src="WebViewer/wv-cbManage.js"> </script>
+
+    <script type="text/javascript" src="ESP.js">                   </script>
+
+    <script>
+      "use strict";
+
+      wv.zNear    =  1.0;           // have some values for Zscreen
+      wv.zFar     = 11.0;
+      wv.canvasID = "WebViewer";    // must match canvas id=... below
+      wv.canvasKY = "WVkey";
+
+      var pmtr    = new Array();    // structure for Parameters
+      var brch    = new Array();    // structure for Branches
+      var sgData  = {};             // structure for auxiliary scene graph data
+
+      // initialize webSockets
+//      var url = prompt("Enter hostname:port", "Localhost:7681");
+      var url = "Localhost:7681";
+      wv.getSockets("ws://"+url);
+
+      // set our callback functions
+      wv.setCallback("InitUI",        wvInitUI);
+      wv.setCallback("UpdateUI",      wvUpdateUI);
+      wv.setCallback("ServerMessage", wvServerMessage);
+      wv.setCallback("UpdateCanvas",  wvUpdateCanvas);
+
+      var myTree = new Tree(document, "myTree");
+
+      window.onresize        = resizeFrames;
+    </script>
+
+    <link rel="stylesheet"    type="text/css"  href="ESP.css"      />
+    <link rel="shortcut icon" type="image/png" href="esp_logo.png" />
+  </head>
+
+  <body onload="wv.Start(); resizeFrames()">
+    <div id="tlframe" oncontextmenu="return false;">
+      <div id="butnfrm" oncontextmenu="return false;">
+        <p>
+          <div class="fileMenu">
+            <button                              class="fileMenuBtn"            onclick="cmdFile()"       >File      </button>
+            <div id="myFileMenu"                 class="fileMenu-contents">
+              <button title="Create new model"                                  onclick="cmdFileNew()"    >New        </button>
+              <button title="Open .csm file"                                    onclick="cmdFileOpen()"   >Open       </button>
+              <button title="Save .csm file"                                    onclick="cmdFileSave()"   >Save       </button>
+              <button title="Edit .csm file"                                    onclick="cmdFileEdit()"   >Edit       </button>
+            </div>
+          </div>
+          <div class="sketchMenu" id="sketchMenu">
+            <button hidden id="sketchMenuBtn"    class="sketchMenuBtn"          onclick="cmdSketch()"     >Sketch     </button>
+            <div id="mySketchMenu"               class="sketchMenu-contents">
+              <button title="Save sketch"                                       onclick="cmdSketchSave()" >Save       </button>
+              <button title="Quit sketch"                                       onclick="cmdSketchQuit()" >Quit       </button>
+            </div>
+          </div>
+          <button title="Step through"           type="button" id="stepThruBtn" onClick="cmdStepThru()"   >StepThru  </button>
+          <button title="Open Help file"         type="button" id="helpButton"  onclick="cmdHelp()"       >Help      </button>
+          <!--
+          <button title="Open Test file"         type="button" id="testButton"  onclick="cmdTest()"       >Test      </button>
+          -->
+        <br>
+          <button title="Build config or Sketch" type="button" id="buildButton" onclick="cmdBuild()"      >Up to date</button>
+          <button title="Undo last action"       type="button" id="undoButton"  onclick="cmdUndo()"       >Undo      </button>
+        <br>
+          <button title="Home (front) view"      type="button" id="homeButton"  onclick="cmdHome()"       >H         </button>
+          <button title="Left side view"         type="button" id="leftButton"  onclick="cmdLeft()"       >L         </button>
+          <button title="Right side view"        type="button" id="riteButton"  onclick="cmdRite()"       >R         </button>
+          <button title="Bottom view"            type="button" id="botmButton"  onclick="cmdBotm()"       >B         </button>
+          <button title="Top view"               type="button" id="topButton"   onclick="cmdTop()"        >T         </button>
+          <button title="Zoom in"                type="button" id="inButton"    onclick="cmdIn()"         >+         </button>
+          <button title="Zoom out"               type="button" id="outButton"   onclick="cmdOut()"        >-         </button>
+        <br>
+        </p>
+      </div>
+      <div id="treefrm" oncontextmenu="return false;">
+      </div>
+    </div>
+    <div id="trframe", oncontextmenu="return false;">
+      <canvas id="WebViewer">
+        If you are seeing this, your web browser does not support the &lt;canvas&gt; element.
+      </canvas>
+
+      <form id="addBrchForm" onsubmit="return false" hidden>
+        <h3> Type of Branch to add: </h3>
+        <hr>
+        <table>
+          <tr>
+            <td><strong> Primitives </strong></td>
+            <td><strong> Grown      </strong></td>
+            <td><strong> Applied    </strong></td>
+            <td><strong> Boolean    </strong></td>
+            <td><strong> Transform  </strong></td>
+            <td><strong> Sketch     </strong></td>
+            <td><strong> Solver     </strong></td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="point">     point     </input></td>
+            <td><input type="radio" name="brchType" value="extrude">   extrude   </input></td>
+            <td><input type="radio" name="brchType" value="fillet">    fillet    </input></td>
+            <td><input type="radio" name="brchType" value="intersect"> intersect </input></td>
+            <td><input type="radio" name="brchType" value="translate"> translate </input></td>
+            <td><input type="radio" name="brchType" value="skbeg">     skbeg     </input></td>
+            <td><input type="radio" name="brchType" value="solbeg">    solbeg    </input></td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="box">       box       </input></td>
+            <td><input type="radio" name="brchType" value="rule">      rule      </input></td>
+            <td><input type="radio" name="brchType" value="chamfer">   chamfer   </input></td>
+            <td><input type="radio" name="brchType" value="subtract">  subtract  </input></td>
+            <td><input type="radio" name="brchType" value="rotatex">   rotatex   </input></td>
+            <td><input type="radio" name="brchType" value="skvar">     skvar     </input></td>
+            <td><input type="radio" name="brchType" value="solcon">    solcon    </input></td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="sphere">    sphere    </input></td>
+            <td><input type="radio" name="brchType" value="blend">     blend     </input></td>
+            <td><input type="radio" name="brchType" value="hollow">    hollow    </input></td>
+            <td><input type="radio" name="brchType" value="union">     union     </input></td>
+            <td><input type="radio" name="brchType" value="rotatey">   rotatey   </input></td>
+            <td><input type="radio" name="brchType" value="skcon">     skcon     </input></td>
+            <td><input type="radio" name="brchType" value="solend">    solend    </input></td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="cone">      cone      </input></td>
+            <td><input type="radio" name="brchType" value="revolve">   revolve   </input></td>
+            <td>                                                                         </td>
+            <td><input type="radio" name="brchType" value="join">      join      </input></td>
+            <td><input type="radio" name="brchType" value="rotatez">   rotatez   </input></td>
+            <td><input type="radio" name="brchType" value="linseg">    linseg    </input></td>
+            <td>                                                                         </td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="cylinder">  cylinder  </input></td>
+            <td><input type="radio" name="brchType" value="sweep">     sweep     </input></td>
+            <td>                                                                         </td>
+            <td><input type="radio" name="brchType" value="connect">   connect   </input></td>
+            <td><input type="radio" name="brchType" value="scale">     scale     </input></td>
+            <td><input type="radio" name="brchType" value="cirarc">    cirarc    </input></td>
+            <td>                                                                         </td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="torus">     torus     </input></td>
+            <td><input type="radio" name="brchType" value="loft">      loft*     </input></td>
+            <td>                                                                         </td>
+            <td><input type="radio" name="brchType" value="extract">   extract   </input></td>
+            <td><input type="radio" name="brchType" value="mirror">    mirror    </input></td>
+            <td><input type="radio" name="brchType" value="arc">       arc       </input></td>
+            <td>                                                                         </td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="import">    import    </input></td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+            <td><input type="radio" name="brchType" value="combine">   combine   </input></td>
+            <td><input type="radio" name="brchType" value="applycsys"> applycsys </input></td>
+            <td><input type="radio" name="brchType" value="spline">    spline    </input></td>
+            <td>                                                                         </td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="udprim">    udprim    </input></td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+            <td><input type="radio" name-"brchType" value="reorder">   reorder   </input></td>
+            <td><input type="radio" name="brchType" value="bezier">    bezier    </input></td>
+            <td>                                                                         </td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="restore">   restore   </input></td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+            <td><input type="radio" name="brchType" value="skend">     skend     </input></td>
+            <td>                                                                         </td>
+          </tr>
+          <tr>
+            <td><hr>                                                                     </td>
+            <td><hr>                                                                     </td>
+            <td><hr>                                                                     </td>
+            <td><hr>                                                                     </td>
+            <td><hr>                                                                     </td>
+            <td><hr>                                                                     </td>
+            <td><hr>                                                                     </td>
+          </tr>
+          <tr>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+            <td><strong>Utilities</strong>                                               </td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="dimension"> dimension </input></td>
+            <td><input type="radio" name="brchType" value="mark">      mark      </input></td>
+            <td><input type="radio" name="brchType" value="patbeg">    patbeg    </input></td>
+            <td><input type="radio" name="brchType" value="ifthen">    ifthen    </input></td>
+            <td><input type="radio" name="brchType" value="dump">      dump      </input></td>
+            <td><input type="radio" name="brchType" value="select">    select    </input></td>
+            <td><input type="radio" name="brchType" value="throw">     throw     </input></td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="set">       set       </input></td>
+            <td><input type="radio" name="brchType" value="group">     group     </input></td>
+            <td><input type="radio" name="brchType" value="patbreak">  patbreak  </input></td>
+            <td><input type="radio" name="brchType" value="elseif">    elseif    </input></td>
+            <td><input type="radio" name="brchType" value="store">     store     </input></td>
+            <td><input type="radio" name="brchType" value="getattr">   getattr   </input></td>
+            <td><input type="radio" name="brchType" value="catbeg">    catbeg    </input></td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="assert">    assert    </input></td>
+            <td>                                                                         </td>
+            <td><input type="radio" name="brchType" value="patend">    patend    </input></td>
+            <td><input type="radio" name="brchType" value="else">      else      </input></td>
+            <td>                                                                         </td>
+            <td><input type="radio" name="brchType" value="project">   project   </input></td>
+            <td><input type="radio" name="brchType" value="catend">    catend    </input></td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="brchType" value="udparg">    udparg    </input></td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+            <td><input type="radio" name="brchType" value="endif">     endif     </input></td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+            <td>                                                                         </td>
+          </tr>
+        </table>
+        <hr>
+        <center>
+          <input type="button" value="Cancel" onclick="addBrchCancel()">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="button" value="OK"     onclick="addBrchOk()">
+        </center>
+      </form>
+
+      <form id="editBrchForm" onsubmit="return false" hidden>
+        <div id="addBrchHeader" hidden>
+          <h3>Enter arguments for the new Branch</h3>
+        </div>
+        <div id="editBrchHeader" hidden>
+          <h3>Either select one of these options ...</h3>
+          <center>
+            <Input type="button" id="AddBrchOrAttr"  value="Add new Branch after this Branch" onclick="addBrch()">
+              &nbsp;&nbsp;&nbsp;
+            <Input type="button" id="DelBrchOrAttr"  value="Delete this Branch"               onclick="delBrch()">
+              &nbsp;&nbsp;&nbsp;
+            <Input type="button" id="ShowArgOrAttr"  value="Show Attributes/Csystems"         onclick="showBrchAttrs()">
+              &nbsp;&nbsp;&nbsp;
+            <Input type="button" id="EnterSketcher"  value="Enter Sketcher"                   onclick="enterSketcher()">
+              &nbsp;&nbsp;&nbsp;
+            <Input type="button" id="BuildTo"       value="Build to this Branch"              onclick="buildTo()">
+          </center>
+          <hr>
+          <div id="editBrchHeader2">
+            <h3>... or edit the arguments of the current Branch</h3>
+          </div>
+        </div>
+        <table id="editBrchArgs">
+          <tr id="type">
+            <td> Type:              </td>
+            <td  id="brchType">-----</td>
+          </tr>
+          <tr id="name">
+            <td>Name:                                                </td>
+            <td><input name="brchName" type="text" size=80 value=""/></td>
+          </tr>
+          <tr id="activity">
+            <td>Activity:</td>
+            <td><select name="activity">
+                <option value="300">Active    </option>
+                <option value="301">Suppressed</option>
+            </select></td>
+          </tr>
+          <tr>
+            <td>Num Attrs:        </td>
+            <td id="numArgs">-----</td>
+          </tr>
+          <tr>
+            <td          id="argName1">Name1:                        </td>
+            <td><input name="argValu1" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="argName2">Name2:                        </td>
+            <td><input name="argValu2" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="argName3">Name3:                        </td>
+            <td><input name="argValu3" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="argName4">Name4:                        </td>
+            <td><input name="argValu4" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="argName5">Name5:                        </td>
+            <td><input name="argValu5" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="argName6">Name6:                        </td>
+            <td><input name="argValu6" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="argName7">Name7:                        </td>
+            <td><input name="argValu7" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="argName8">Name8:                        </td>
+            <td><input name="argValu8" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="argName9">Name9:                        </td>
+            <td><input name="argValu9" type="text" size=80 value=""/></td>
+          </tr>
+        </table>
+        <table id="editBrchAttrs">
+          <tr>
+            <td          id="attrName1">Attr1:                        </td>
+            <td          id="attrType1">(attr)                        </td>
+            <td><input name="attrValu1" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="attrName2">Attr2:                        </td>
+            <td          id="attrType2">(attr)                        </td>
+            <td><input name="attrValu2" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="attrName3">Attr3:                        </td>
+            <td          id="attrType3">(attr)                        </td>
+            <td><input name="attrValu3" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="attrName4">Attr4:                        </td>
+            <td          id="attrType4">(attr)                        </td>
+            <td><input name="attrValu4" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="attrName5">Attr5:                        </td>
+            <td          id="attrType5">(attr)                        </td>
+            <td><input name="attrValu5" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="attrName6">Attr6:                        </td>
+            <td          id="attrType6">(attr)                        </td>
+            <td><input name="attrValu6" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="attrName7">Attr7:                        </td>
+            <td          id="attrType7">(attr)                        </td>
+            <td><input name="attrValu7" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="attrName8">Attr8:                        </td>
+            <td          id="attrType8">(attr)                        </td>
+            <td><input name="attrValu8" type="text" size=80 value=""/></td>
+          </tr>
+          <tr>
+            <td          id="attrName9">Attr9:                        </td>
+            <td          id="attrType9">(attr)                        </td>
+            <td><input name="attrValu9" type="text" size=80 value=""/></td>
+          </tr>
+        </table>
+        <hr>
+        <center>
+          <input type="button" value="Cancel" onclick="editBrchCancel()">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="button" value="OK"     onclick="editBrchOk()">
+        </center>
+      </form>
+
+      <form id="editPmtrForm" onsubmit="return false" hidden>
+        <div id="addPmtrHeader" hidden>
+          <h3>Either select one of these options...</h3>
+          <center>
+            <Input type="button" value="Add row", onclick="addRow()">
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <Input type="button" value="Add column" onclick="addColumn()">
+          </center>
+          <hr>
+          <h3>... or enter values for the new Parameter</h3>
+        </div>
+        <div id="editPmtrHeader" hidden>
+          <h3>Either select one of these options ...</h3>
+          <center>
+            <Input type="button" value="Compute sensitivity" onclick="compSens()">
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <Input type="button" value="Set Design Velocity" onclick="setVel()">
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <Input type="button" value="Clear Design Velocities" onclick="clrVels()">
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <Input type="button" value="Delete Parameter" onclick="delPmtr()">
+          </center>
+          <hr>
+          <h3>... or edit the current Parameter</h3>
+        </div>
+        <table>
+          <tr>
+            <td> Name:              </td>
+            <td  id="pmtrName">-----</td>
+          </tr>
+        </table>
+        <table id="editPmtrTable">
+          <tr>
+            <td> the table goes here</td>
+          </tr>
+        </table>
+        <hr>
+        <center>
+          <input type="button" value="Cancel" onclick="editPmtrCancel()">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="button" value="OK"     onclick="editPmtrOk()">
+        </center>
+      </form>
+
+      <form id="editCsmForm" onsubmit="return false" hidden>
+        <h3 id="editCsmFilename">filename</h3>
+        <textarea id="editCsmTextArea" rows="999" cols="80" spellcheck="false">
+          You should not see this.
+        </textarea>
+        <hr>
+        <center>
+          <input type="button" value="Cancel" onclick="editCsmCancel()">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="button" value="OK"     onclick="editCsmOk()">
+        </center>
+      </form>
+
+      <form id="sketcherForm" onsubmit="return false" hidden>
+        <canvas id="sketcher" width="250" height="600"></canvas>
+      </form>
+    </div>
+    <br />
+    <div id="blframe", oncontextmenu="return false;">
+      <canvas id="WVkey" hidden>
+      </canvas>
+
+      <div id="SketchStatus", oncontextmenu="return false;" hidden>
+      </div>
+
+      <div id="ESPlogo", oncontextmenu="return false;">
+        <img src="esp_logo.png" height="100"/>
+      </div>
+    </div>
+    <div id="brframe", oncontextmenu="return false;">
+    </div>
+   <script type="text/javascript" src="SPaircraftESP.js">                   </script>
+  </body>
+</html>

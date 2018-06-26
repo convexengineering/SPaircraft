@@ -1,0 +1,260 @@
+/*
+CSS file for ESP
+written by John Dannenhoffer
+*/
+
+/*
+Copyright (C) 2010/2017  John F. Dannenhoffer, III (Syracuse University)
+
+This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this library; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+   MA  02110-1301  USA
+*/
+
+/* background for table data entries (light-yellow) */
+td {
+    padding-left:               5px;
+    padding-right:              5px;
+    padding-top:                0px;
+    padding-bottom:             0px;
+    background-color:       #FFFFF0;
+}
+
+/* buttons */
+button {
+    font-size:                  9px;
+    padding:                    0px;
+}
+
+/* background for error table data entries (light-red) */
+/* used for Branch names that caused error */
+.errorTD {
+    padding-left:               5px;
+    padding-right:              5px;
+    padding-top:                0px;
+    padding-bottom:             0px;
+    background-color:       #FF7F7F;
+}
+
+/* background for linked table data entries (light-green) */
+/* not used */
+.linkedTD {
+    padding-left:               5px;
+    padding-right:              5px;
+    padding-top:                0px;
+    padding-bottom:             0px;
+    background-color:       #7FFF7F;
+}
+
+/* background for current table data entries (magenta) */
+/* used for Branch or Parameter that is being editted */
+.currentTD {
+    padding-left:               5px;
+    padding-right:              5px;
+    padding-top:                0px;
+    padding-bottom:             0px;
+    background-color:       #FF00FF;
+}
+
+/* background for parent table data entries (cyan) */
+/* used for parent of Branch that is being editted */
+.parentTD {
+    padding-left:               5px;
+    padding-right:              5px;
+    padding-top:                0px;
+    padding-bottom:             0px;
+    background-color:       #00FFFF;
+}
+
+/* background for child table data entries (yellow) */
+/* used for child of Branch that is being editted */
+.childTD {
+    padding-left:               5px;
+    padding-right:              5px;
+    padding-top:                0px;
+    padding-bottom:             0px;
+    background-color:       #FFFF00;
+}
+
+/* real text that looks like a link that has context-menu (green) */
+/* used for Design Parameters that can be editted */
+/* used for Branch names */
+.fakelinkcmenu {
+    cursor:                 pointer;
+    font-weight:               bold;
+    color:                  #00BF00;
+}
+
+/* real text that looks like a link that is "on" (blue) */
+/* used for Display attributes that are on */
+.fakelinkon {
+    cursor:                 pointer;
+    font-weight:               bold;
+    color:                  #0000FF;
+}
+
+/* real text that looks like a link that is "off" (red) */
+/* used for Display attributes that are off */
+.fakelinkoff {
+    cursor:                 pointer;
+    font-weight:               bold;
+    color:                  #FF0000;
+}
+
+/* + or - that looks like a link that is "on" (blue) */
+/* used for Expand/Collapse */
+.fakelinkexpand {
+    cursor:                 pointer;
+    font-weight:               bold;
+    color:                  #0000FF;
+}
+
+/* frame on top left that contains butnfrm and treefrm */
+#tlframe {
+    width:                    250px;
+    height:                   600px;
+    float:                     left;
+    font-size:                  9pt;
+    background:             #F7F7F7;
+    cursor:                 pointer;
+}
+
+/* frame on top left that contains buttons */
+#butnfrm {
+    width:                    250px;
+    height:                    90px;
+    float:                     left;
+    font-size:                  9pt;
+    background:             #F7F7F7;
+}
+
+/* frame on top left that contains tree */
+#treefrm {
+    width:                    250px;
+    height:                   190px;
+    float:                     left;
+    overflow:                scroll;
+    font-size:                  9pt;
+    background:             #F7F7F7;
+}
+
+/* frame on top right that contains the viewer */
+#trframe {
+    width:                    750px;
+    height:                   600px;
+    float:                     left;
+    overflow:                scroll;
+    cursor:               crosshair;
+}
+
+/* frame on bottom left that contains key */
+#blframe {
+    width:                    250px;
+    height:                   150px;
+    float:                     left;
+    overflow:                scroll;
+    font-size:                  9pt;
+}
+
+/* div on bottom left that contains sketch status */
+#SketchStatus {
+    width:                    250px;
+    height:                   350px;
+    overflow:                scroll;
+    font-family: courier, monospace;
+    font-size:                  9pt;
+    background:             #F7F7F7;
+}
+
+/* div on bottom left that contains ESP logo */
+#ESPlogo {
+    text-align:              center;
+}
+
+/* frame on bottom right that contains messages */
+#brframe {
+    width:                    750px;
+    height:                   150px;
+    overflow:                scroll;
+    font-family: courier, monospace;
+    font-size:                  9pt;
+    background:             #F7F7F7;
+    cursor:                    text;
+}
+
+/* frame on top in which the drawing is done */
+#sketcher {
+    border:         1px dotted gray;
+}
+
+/* canvas that holds WebGL image */
+canvas {
+    width:                    230px;
+    height:                   150px;
+    border-width:               0px;
+}
+
+/* <div> container used to position the File menu contents */
+.fileMenu {
+    position:              relative;
+    display:           inline-block;
+}
+
+/* File menu contents (hidden by default) */
+.fileMenu-contents {
+    display:                   none;
+    position:              absolute;
+    padding-left:              10px;
+    padding-right:             10px;
+    background-color:       #BFBFBF;
+}
+
+/* buttons inside File menu */
+.fileMenu-contents button {
+    display:                  block;
+    padding-left:              12px;
+    padding-right:             12px;
+}
+
+/* show the File menu contents */
+.showFileMenu {
+    display:                  block;
+}
+
+/* <div> container used to position the Sketch menu contents */
+.sketchMenu {
+    position:              relative;
+    display:           inline-block;
+}
+
+/* Sketch menu contents (hidden by default) */
+.sketchMenu-contents {
+    display:                   none;
+    position:              absolute;
+    padding-left:              10px;
+    padding-right:             10px;
+    background-color:       #BFBFBF;
+}
+
+/* buttons inside Sketch menu */
+.sketchMenu-contents button {
+    display:                  block;
+    padding-left:              12px;
+    padding-right:             12px;
+}
+
+/* show the Sketch menu contents */
+.showSketchMenu {
+    display:                  block;
+}
