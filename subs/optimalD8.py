@@ -6,7 +6,6 @@ def get_optimalD8_subs():
         """
         returns substitution dic for the D8.2
         """
-        sweep = 13.237  # [deg]
         VTsweep = 25.0 #[deg]
         HTsweep = 8.0 #[deg]
         M4a = .2
@@ -81,9 +80,6 @@ def get_optimalD8_subs():
                 'f_{padd}': 0.35,  # [TAS]
 
                 # Wing substitutions
-                'C_{L_{w,max}}': 2.15/(cos(sweep* pi / 180.)**2), # [TAS]
-                '\\tan(\\Lambda)': tan(sweep * pi / 180.),
-                '\\cos(\\Lambda)': cos(sweep * pi / 180.),
                 '\\eta': 0.97,
                 '\\rho_0': 1.225*units('kg/m^3'),
                 '\\rho_{fuel}': 817.*units('kg/m^3'),  # Kerosene [TASOPT]
