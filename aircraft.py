@@ -732,11 +732,10 @@ class Mission(Model):
               Nmission >/= 1 requires specification of range and number of passengers for each mission
     """
 
-    def setup(self, Nclimb, Ncruise, objective, AC, Nmission = 1):
+    def setup(self, Nclimb, Ncruise, config, Nmission = 1):
         # define global variables
-        global D8_eng_wing, optimal737, optimalD8, M072_737, D8_no_BLI, optimal777, \
-               multimission
-        global wingengine, rearengine, doublebubble, tube, piHT, D8fam, conventional
+        global wingengine, rearengine, doublebubble, tube, piHT, conventional
+        global largeAC, multimission
 
         self.Nclimb = Nclimb
         self.Ncruise = Ncruise
@@ -744,29 +743,24 @@ class Mission(Model):
 
         # aircraft geometry flags
         wingengine = False; rearengine = False; doublebubble = False; tube = False;
-        piHT = False; conventional = False; BLI = False;
+        piHT = False; conventional = False; BLI = False; eng = 0;
 
-        # Aircraft type, only one active at once, most not currently supported
-        D8_eng_wing = False
-        optimal737 = False
-        optimalD8 = False
-        optimal777 = False
-        M072_737 = False
-        D8_no_BLI = False
+        # Aircraft type, only one active at once
+        largeAC = False
 
-        # set geometry flags based on AC type
-        if AC == 'D8_eng_wing':
-            D8_eng_wing = True; wingengine = True; piHT = True; doublebubble = True;
-        if AC == 'optimal737':
-            optimal737 = True; conventional = True
-        if AC == 'optimalD8':
-            optimalD8 = True; rearengine = True; BLI = True; piHT = True; doublebubble = True; eng = 3;
-        if AC == 'optimal777':
-            optimal777 = True; conventional = True; eng = 4;
-        if AC == 'M072_737':
-            M072_737 = True; conventional = True
-        if AC == 'D8_no_BLI':
-            D8_no_BLI = True; rearengine = True; piHT = True; doublebubble = True;
+        # set geometry flags based on config type
+        if config == 'D8_eng_wing':
+            wingengine = True; piHT = True; doublebubble = True; eng = 3; BLI = False;
+        if config == 'optimal737':
+            conventional = True; eng = 3; BLI = False;
+        if config == 'optimalD8':
+            optimalD8 = True; rearengine = True; piHT = True; doublebubble = True; eng = 3; BLI = True;
+        if config == 'optimal777':
+            largeAC = True; conventional = True; eng = 4; BLI = False;
+        if config == 'M072_737':
+            conventional = True; eng = 3; BLI = False;
+        if config == 'D8_no_BLI':
+            rearengine = True; piHT = True; doublebubble = True; eng = 3; BLI = False;
 
         # if conventional choose wing engine and tube fuselage
         if conventional:
@@ -778,34 +772,18 @@ class Mission(Model):
         else:
             multimission = True
 
-        # Defining fitDrag, boolean describing whether or not to use tail drag fits
-        fitDrag = None
-
-        #specify engine choice and BLI true/false based on aircraft type....arugments required for engine model
-        if D8_eng_wing or D8_no_BLI or optimal737 or M072_737:
-            eng = 3
-            BLI = False
-
-        if optimalD8 or D8_no_BLI:
-            eng = 3
-            D8fam = True
-        else:
-            D8fam = False
+        # Defining fitDrag, boolean describing whether or not to use XFOIL tail drag fits
+        # False uses TASOPT tail drag model. Currently on.
+        fitDrag = True
 
         # vectorize
         with Vectorize(Nmission):
              with Vectorize(Nclimb + Ncruise):
                  self.flightstate = flightstate = FlightState()
 
-        # True is use xfoil fit tail drag model, False is TASOPT tail drag model
-        # Currently all models use xfoil fits.
-        if optimalD8 or M072_737 or D8_eng_wing or D8_no_BLI or optimal777 or optimal737:
-            fitDrag = True
-        else:
-            fitDrag = False
-
         # Build required submodels
         self.aircraft = aircraft = Aircraft(Nclimb, Ncruise, flightstate, eng, fitDrag, BLI, Nmission)
+        self.aircraft.config = config
 
         # Vectorize dynamic variables
         with Vectorize(Nmission):
@@ -894,13 +872,13 @@ class Mission(Model):
             #             aircraft.fuse['M_{fuseD}'] == 0.83,
             #     ])
 
-            if conventional and not optimal777:
+            if conventional and not largeAC:
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     flight.flightP.fuseP['C_{D_{fuse}}'] == 0.01107365,
                     aircraft.fuse['M_{fuseD}'] == 0.80,
                 ])
-            elif optimal777:
+            elif largeAC:
                 constraints.extend([
                     #Setting fuselage drag coefficient
                     #additioanl 1.1 factor accounts for mach drag rise model
@@ -1032,7 +1010,7 @@ class Mission(Model):
             ]
 
 
-        if optimal777: #(or for larger aircraft)
+        if largeAC: #(or for larger aircraft)
              M2 = .65
 
         enginecruise = [
@@ -1047,17 +1025,5 @@ class Mission(Model):
             engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'], (1. + 0.5*(.401)*flight['M']**2.)),
                        ])
-
-        ## --------- SETTING OBJECTIVE FLAGS FOR NON-STANDARD OBJECTIVE FUNCTIONS ---------------
-        if not multimission and objective != 'Total_Time' and objective != 'L/D':
-            self.cost = aircraft[objective]
-            self.cost = self.cost.sum()
-        elif not multimission and objective == 'Total_Time':
-            self.cost = Total_Time
-            self.cost = self.cost.sum()
-        elif not multimission and objective == 'L/D':
-            self.cost = 1/cruise['L/D'][0][0]
-        else:
-            self.cost = W_fmissions
 
         return constraints, aircraft, flight, engineclimb, enginecruise

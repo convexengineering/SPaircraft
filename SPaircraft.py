@@ -36,41 +36,15 @@ from saveSol import updateOpenVSP, gendes, gencsm
 # Aircraft options:
 #
 
-def optimize_aircraft(objective, aircraft, substitutions, fixedBPR=False, pRatOpt=True, mutategparg=False):
+def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, mutategparg=False):
     """
     Optimizes an aircraft of a given configuration
-    :param objective:
-    :param aircraft: String describing configuration,
-                     currently one of: 'D8_eng_wing', 'optimal737', 'optimal777', 'optimalD8', 'D8_no_BLI', 'M072_737'
-    :param substitutions: Substitutions dictionary from the subs/ directory
+    :param m: aircraft model with objective and configuration
     :param fixedBPR: boolean specifying whether or not BPR is fixed (depends on config)
     :param pRatOpt: boolean specifying whether or not pressure ratio is optimized (depends on config)
     :param mutategparg: boolean whether to keep each GP solve intact
-    :return: solution of aircraft model, aircraft model, aircraft model relaxation
+    :return: solution of aircraft model
     """
-    # User definitions
-    Nclimb = 3
-    Ncruise = 2
-    Nmission = 1
-
-    m = Mission(Nclimb, Ncruise, objective, aircraft, Nmission)
-
-    if Nmission == 4:
-        substitutions.update({
-            'R_{req}': [3000.*units('nmi'),2500.*units('nmi'),2000.*units('nmi'),1000.*units('nmi')], #,2500.*units('nmi')
-            'n_{pass}': [180., 180., 180., 180.], #, 140.
-        })
-    elif Nmission == 2:
-        substitutions.update({
-            'R_{req}': [3000.*units('nmi'),2000.*units('nmi'),], #,2500.*units('nmi')
-            'n_{pass}': [180., 180.], #, 140.
-        })
-    else:
-        substitutions.update({
-                # Commented substitutions are for 777 class aircraft
-           'R_{req}': 3000.*units('nmi'), #6000*units('nmi'),
-           'n_{pass}': 180.,              #450.,
-        })
 
     if fixedBPR:
         substitutions.update({
@@ -85,20 +59,32 @@ def optimize_aircraft(objective, aircraft, substitutions, fixedBPR=False, pRatOp
     m.substitutions.update(substitutions)
     m_relax = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m_relax)
-
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
+    sol = m_relax.localsolve(verbosity=2, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
     post_process(sol)
-
-    return sol, m, m_relax
+    return sol
 
 def test():
-    objective = 'W_{f_{total}}'
-    aircraft = 'optimalD8'
-    substitutions = get_optimalD8_subs()
+    Nclimb = 3 # number of climb segments
+    Ncruise = 2 # number of cruise segments
+    Nmission = 1 # number of missions
+    config = 'optimal737' # String describing configuration:
+    # currently one of: 'D8_eng_wing', 'optimal737', 'optimal777', 'optimalD8', 'D8_no_BLI', 'M072_737'
+    m = Mission(Nclimb, Ncruise, config, Nmission)
+
+    # Objective
+    m.cost = m['W_{f_{total}}'].sum()
+
+    # Inputs to the model
+    substitutions = get_optimal737_subs()
+    substitutions.update({'R_{req}': 3000.*units('nmi'), #6000*units('nmi'),
+                         'n_{pass}': 180.})              #450.,)
+
+    # Additional options
     fixedBPR = False
     pRatOpt = True
     mutategparg = True
-    sol, m, m_relax = optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg)
-    Nclimb = m.Nclimb
-    percent_diff(sol, aircraft, Nclimb)
+
+    # Optimization and solution comparison
+    sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt, mutategparg)
+    percent_diff(sol, config, Nclimb)
     post_compute(sol, Nclimb)
