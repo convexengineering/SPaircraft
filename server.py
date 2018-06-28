@@ -11,6 +11,8 @@ from subs.optimalD8 import get_optimalD8_subs
 from aircraft import Mission
 from SPaircraft import optimize_aircraft
 
+import cPickle as pickle
+
 EXIT = [False]
 ID = 0
 LASTSOL = None
@@ -31,23 +33,28 @@ class SPaircraftServer(WebSocket):
             print self.data
 
             config = 'optimalD8'
-            substitutions = get_optimalD8_subs()
             fixedBPR = False
             pRatOpt = True
             mutategparg = False
             m = Mission(3, 2, config, 1)
             m.cost = m['W_{f_{total}}']
-
-            for name, value in self.data.items():
-                try:
-                    key = m.design_parameters[name]
-                    m.substitutions[key] = value
-                except KeyError as e:
-                    print repr(e)
             substitutions = get_optimalD8_subs()
             substitutions.update({'R_{req}': 3000.*units('nmi'),
                          'n_{pass}': 180.})
-            sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt, mutategparg)
+            m.substitutions.update(substitutions)
+            LASTSOL = pickle.load(open("sols/d82_000.sol"))
+            for name, value in self.data.items():
+                try:
+                    variable = m.mission_inputs[name]
+                    m.substitutions[variable.key] = value
+                except:
+                    try:
+                        variable = m.aircraft.design_parameters[name]
+                        m.substitutions[variable.key] = value
+                    except KeyError as e:
+                        print repr(e)
+
+            sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt, mutategparg, x0 = LASTSOL)
             LASTSOL = sol
             genfiles(m, sol)
 
@@ -90,9 +97,8 @@ if __name__ == "__main__":
     fixedBPR = False
     pRatOpt = True
     mutategparg = False
-    sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt, mutategparg)
-    LASTSOL = sol
-    genfiles(m, sol)
+    LASTSOL = pickle.load(open("sols/d82_000.sol"))
+    genfiles(m, LASTSOL)
     server = SimpleWebSocketServer('', 8000, SPaircraftServer)
     while not EXIT[0]:
         server.serveonce()

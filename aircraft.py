@@ -811,6 +811,16 @@ class Mission(Model):
         MinCruiseAlt = Variable('MinCruiseAlt', 'ft', 'Minimum Cruise Altitude')
         Fsafetyfac = Variable('Fsafetyfac', '-', 'Safety factor on inital climb thrust')
 
+        # List of input parameters for reoptimization
+        self.mission_inputs = OrderedDict([
+            # Wing descriptors
+            ('mission:ReqRng',           ReqRng),
+            ('mission.MinCruiseAlt',     MinCruiseAlt),
+            ('mission:Fsafetyfac',       Fsafetyfac),
+            ('mission:CruiseTt41max',    CruiseTt41max)
+        ])
+
+
         # make overall constraints
         constraints = []
 

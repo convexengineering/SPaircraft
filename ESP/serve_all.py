@@ -13,12 +13,12 @@ def wait_until_file_exists(filename):
 
 try:
     os.remove("d82-0.csm")
-    os.remove("d82_000.egads")
+    #.remove("d82_000.egads")
 except OSError:
     pass
-Popen(["python", os.sep.join(["..","server.py"])])
-wait_until_file_exists("d82-0.csm")
-Popen(["serveCSM", "d82-0.csm"])
-wait_until_file_exists("d82_000.egads")
+Popen(["python", "server.py"])
+wait_until_file_exists("ESP/d82-0.csm")
+Popen(["serveCSM","ESP/d82-0.csm"])
+#wait_until_file_exists("ESP/d82_000.egads")
 sleep(5)
-webbrowser.open_new(os.sep.join(["ESP-localhost7681.html"]))
+webbrowser.open_new(os.sep.join(["..", "ESP", "ESP-localhost7681.html"]))
