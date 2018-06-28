@@ -5,6 +5,7 @@ from saveSol import gendes, gencsm
 from shutil import copyfile
 
 from gpkit import units
+import cPickle as pickle
 
 from subs.optimalD8 import get_optimalD8_subs
 from aircraft import Mission
@@ -16,22 +17,13 @@ LASTSOL = None
 
 def genfiles(m, sol):
     global ID
-    gensoltxt(m, sol, ID)
+    #gensoltxt(m, sol, ID)
     gencsm(m, sol, 'optimalD8', ID)
-    copyfile("d82.csm", "d82_%03i.csm" % ID)
+    copyfile("ESP/d82-0.csm", "ESP/d82_%03i.csm" % ID)
+    sol.save("sols/d82_%03i.sol" % ID)
     ID += 1
 
-
-def gensoltxt(m, sol, ID):
-    with open("sol_%03i.txt" % ID, "w") as f:
-        for var in sorted(m.varkeys, key=str):
-            f.write("%s [%s]\t\t%f\n" % (var, var.unitstr(options=":~",
-                                                          dimless="-"),
-                                         sol["variables"][var]))
-
-
 class SPaircraftServer(WebSocket):
-
     def handleMessage(self):
         print "< received", repr(self.data)
         try:
