@@ -4,14 +4,15 @@ from SPaircraft import Mission
 from saveSol import gendes, gencsm
 from shutil import copyfile
 
+from gpkit import units
+
 from subs.optimalD8 import get_optimalD8_subs
 from aircraft import Mission
 from SPaircraft import optimize_aircraft
 
 EXIT = [False]
 ID = 0
-LASTSOL = [None]
-
+LASTSOL = None
 
 def genfiles(m, sol):
     global ID
@@ -41,7 +42,7 @@ class SPaircraftServer(WebSocket):
             substitutions = get_optimalD8_subs()
             fixedBPR = False
             pRatOpt = True
-            mutategparg = True
+            mutategparg = False
             m = Mission(3, 2, config, 1)
             m.cost = m['W_{f_{total}}']
 
@@ -51,15 +52,17 @@ class SPaircraftServer(WebSocket):
                     m.substitutions[key] = value
                 except KeyError as e:
                     print repr(e)
-
+            substitutions = get_optimalD8_subs()
+            substitutions.update({'R_{req}': 3000.*units('nmi'),
+                         'n_{pass}': 180.})
             sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt, mutategparg)
-            LASTSOL[0] = sol
+            LASTSOL = sol
             genfiles(m, sol)
 
             self.send({"status": "optimal",
                        "msg": ("Successfully optimized."
-                               " Optimal heat transfer: %.1f watts "
-                               % sol["variables"][m.Q])})
+                               " Optimal objective: %.1f "
+                               % sol(m.cost))})
         except Exception as e:
             self.send({"status": "unknown", "msg": "The last solution"
                       " raised an exception; tweak it and send again."})
@@ -78,15 +81,25 @@ class SPaircraftServer(WebSocket):
 
 
 if __name__ == "__main__":
-    objective = 'W_{f_{total}}'
-    aircraft = 'optimald8'
+    Nclimb = 3 # number of climb segments
+    Ncruise = 2 # number of cruise segments
+    Nmission = 1 # number of missions
+    config = 'optimalD8' # String describing configuration:
+    # currently one of: 'D8_eng_wing', 'optimal737', 'optimal777', 'optimalD8', 'D8_no_BLI', 'M072_737'
+    m = Mission(Nclimb, Ncruise, config, Nmission)
+    # Objective
+    m.cost = m['W_{f_{total}}'].sum()
+    # Inputs to the model
     substitutions = get_optimalD8_subs()
+    substitutions.update({'R_{req}': 3000.*units('nmi'), #6000*units('nmi'),
+                         'n_{pass}': 180.})              #450.,)
+
+    # Additional options
     fixedBPR = False
     pRatOpt = True
-    mutategparg = True
-    LASTSOL[0] = None
-    sol = optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg, x0 = LASTSOL[0])
-    LASTSOL[0] = sol
+    mutategparg = False
+    sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt, mutategparg)
+    LASTSOL = sol
     genfiles(m, sol)
     server = SimpleWebSocketServer('', 8000, SPaircraftServer)
     while not EXIT[0]:
