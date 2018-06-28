@@ -6,6 +6,7 @@ from shutil import copyfile
 
 from subs.optimalD8 import get_optimalD8_subs
 from aircraft import Mission
+from SPaircraft import optimize_aircraft
 
 EXIT = [False]
 ID = 0
@@ -15,7 +16,7 @@ LASTSOL = [None]
 def genfiles(m, sol):
     global ID
     gensoltxt(m, sol, ID)
-    genFile('.csm', sol, 'optimalD8')
+    gencsm(m, sol, 'optimalD8', ID)
     copyfile("d82.csm", "d82_%03i.csm" % ID)
     ID += 1
 
@@ -36,12 +37,12 @@ class SPaircraftServer(WebSocket):
             self.data = json.loads(self.data)
             print self.data
 
-            objective = 'W_{f_{total}}'
-            aircraft = 'optimalD8'
+            config = 'optimalD8'
             substitutions = get_optimalD8_subs()
             fixedBPR = False
             pRatOpt = True
             mutategparg = True
+            m = Mission(3, 2, config, 1)
             m.cost = m['W_{f_{total}}']
 
             for name, value in self.data.items():
@@ -51,8 +52,8 @@ class SPaircraftServer(WebSocket):
                 except KeyError as e:
                     print repr(e)
 
-            sol = m.localsolve(x0=x0)
-            LASTSOL[0] = ((Ncoldpipes, Nhotpipes), sol)
+            sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt, mutategparg)
+            LASTSOL[0] = sol
             genfiles(m, sol)
 
             self.send({"status": "optimal",
@@ -83,11 +84,11 @@ if __name__ == "__main__":
     fixedBPR = False
     pRatOpt = True
     mutategparg = True
-    sol, m, m_relax = optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg)
-    sol = m.localsolve()
-    LASTSOL[0] = ((3, 3), sol)
+    LASTSOL[0] = None
+    sol = optimize_aircraft(objective, aircraft, substitutions, fixedBPR, pRatOpt, mutategparg, x0 = LASTSOL[0])
+    LASTSOL[0] = sol
     genfiles(m, sol)
-    server = SimpleWebSocketServer('', 8000, HXGPServer)
+    server = SimpleWebSocketServer('', 8000, SPaircraftServer)
     while not EXIT[0]:
         server.serveonce()
     print "Python server has exited."

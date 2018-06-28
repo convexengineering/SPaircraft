@@ -34,9 +34,9 @@ from percent_diff import percent_diff
 from saveSol import updateOpenVSP, gendes, gencsm
 
 # Aircraft options:
-#
+# currently one of: 'D8_eng_wing', 'optimal737', 'optimal777', 'optimalD8', 'D8_no_BLI', 'M072_737'
 
-def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, mutategparg=False):
+def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, mutategparg=False, x0 = None):
     """
     Optimizes an aircraft of a given configuration
     :param m: aircraft model with objective and configuration
@@ -59,7 +59,7 @@ def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, mutategpar
     m.substitutions.update(substitutions)
     m_relax = Model(m.cost, BCS(m))
     m_relax = relaxed_constants(m_relax)
-    sol = m_relax.localsolve(verbosity=2, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
+    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg, x0 = x0)
     post_process(sol)
     return sol
 
@@ -67,7 +67,7 @@ def test():
     Nclimb = 3 # number of climb segments
     Ncruise = 2 # number of cruise segments
     Nmission = 1 # number of missions
-    config = 'optimal737' # String describing configuration:
+    config = 'optimalD8' # String describing configuration:
     # currently one of: 'D8_eng_wing', 'optimal737', 'optimal777', 'optimalD8', 'D8_no_BLI', 'M072_737'
     m = Mission(Nclimb, Ncruise, config, Nmission)
 
@@ -75,16 +75,15 @@ def test():
     m.cost = m['W_{f_{total}}'].sum()
 
     # Inputs to the model
-    substitutions = get_optimal737_subs()
+    substitutions = get_optimalD8_subs()
     substitutions.update({'R_{req}': 3000.*units('nmi'), #6000*units('nmi'),
                          'n_{pass}': 180.})              #450.,)
 
     # Additional options
     fixedBPR = False
     pRatOpt = True
-    mutategparg = True
-
-    # Optimization and solution comparison
+    mutategparg = False
     sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt, mutategparg)
+    Nclimb = m.Nclimb
     percent_diff(sol, config, Nclimb)
     post_compute(sol, Nclimb)
