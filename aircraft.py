@@ -815,7 +815,7 @@ class Mission(Model):
         self.mission_inputs = OrderedDict([
             # Wing descriptors
             ('mission:ReqRng',           ReqRng),
-            ('mission.MinCruiseAlt',     MinCruiseAlt),
+            ('mission:MinCruiseAlt',     MinCruiseAlt),
             ('mission:Fsafetyfac',       Fsafetyfac),
             ('mission:CruiseTt41max',    CruiseTt41max)
         ])

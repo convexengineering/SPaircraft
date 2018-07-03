@@ -5,6 +5,7 @@ from saveSol import gendes, gencsm
 from shutil import copyfile
 
 from gpkit import units
+from gpkit.small_scripts import mag
 import cPickle as pickle
 
 from subs.optimalD8 import get_optimalD8_subs
@@ -21,7 +22,7 @@ def genfiles(m, sol):
     global ID
     #gensoltxt(m, sol, ID)
     gencsm(m, sol, 'optimalD8', ID)
-    copyfile("ESP/d82-0.csm", "ESP/d82_%03i.csm" % ID)
+    #copyfile("ESP/d82_000.csm", "ESP/d82_%03i.csm" % ID)
     sol.save("sols/d82_%03i.sol" % ID)
     ID += 1
 
@@ -37,7 +38,7 @@ class SPaircraftServer(WebSocket):
             pRatOpt = True
             mutategparg = False
             m = Mission(3, 2, config, 1)
-            m.cost = m['W_{f_{total}}']
+            m.cost = m['W_{f_{total}}'].sum()
             substitutions = get_optimalD8_subs()
             substitutions.update({'R_{req}': 3000.*units('nmi'),
                          'n_{pass}': 180.})
@@ -60,8 +61,8 @@ class SPaircraftServer(WebSocket):
 
             self.send({"status": "optimal",
                        "msg": ("Successfully optimized."
-                               " Optimal objective: %.1f "
-                               % sol(m.cost))})
+                               " Optimal objective: %.1f"
+                               % mag(sol(m.cost)))})
         except Exception as e:
             self.send({"status": "unknown", "msg": "The last solution"
                       " raised an exception; tweak it and send again."})

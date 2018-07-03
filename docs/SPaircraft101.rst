@@ -90,7 +90,7 @@ be used for highfidelity simulations in the future.
 To generate the required files, type this into the console::
 
     gendes(m, sol, 'optimalD8', 0) # Generates design0.des Design Variables file within the **VSP**  directory for openVSP.
-    gencsm(m, sol, 'optimalD8', 0) # Generates d82-0.csm file within **ESP** directory for ESP serveCSM.
+    gencsm(m, sol, 'optimalD8', 0) # Generates d82_000.csm file within **ESP** directory for ESP serveCSM.
 
 To load this .des files, click **File**, and select **Run Script...**.
 In the pop-up, select **reload.vspscript**. To load ESP files, once you have
