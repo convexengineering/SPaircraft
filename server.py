@@ -24,7 +24,6 @@ def genfiles(m, sol):
     gencsm(m, sol, 'optimalD8', ID)
     #copyfile("ESP/d82_000.csm", "ESP/d82_%03i.csm" % ID)
     sol.save("sols/d82_%03i.sol" % ID)
-    ID += 1
 
 class SPaircraftServer(WebSocket):
     def handleMessage(self):
@@ -47,11 +46,15 @@ class SPaircraftServer(WebSocket):
             for name, value in self.data.items():
                 try:
                     variable = m.mission_inputs[name]
-                    m.substitutions[variable.key] = value
+                    if reldiff(mag(LASTSOL(variable)),value) <= 1e-5:
+                        print variable
+                        m.substitutions[variable.key] = value
                 except:
                     try:
-                        variable = m.aircraft.design_parameters[name]
-                        m.substitutions[variable.key] = value
+                        variable = m.aircraft.design_variables[name]
+                        if reldiff(mag(LASTSOL(variable)),value) <= 1e-5:
+                            print variable
+                            m.substitutions[variable.key] = value
                     except KeyError as e:
                         print repr(e)
 

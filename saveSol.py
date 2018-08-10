@@ -49,8 +49,8 @@ def gencsm(m, sol, aircraft = 'optimalD8', i = 0):
     filenameWrite = 'ESP/d82_00' + str(i) + '.csm'
     resultsDict = {}
     # Note to make sure that the units are all METRIC
-    for key in m.aircraft.design_parameters.iterkeys():
-        resultsDict[key] = mag(sol(m.aircraft.design_parameters[key]))
+    for key in m.aircraft.design_variables.iterkeys():
+        resultsDict[key] = mag(sol(m.aircraft.design_variables[key]))
     for key in m.mission_inputs.iterkeys():
         resultsDict[key] = mag(sol(m.mission_inputs[key]))
     f = open(filenameWrite, 'w+')

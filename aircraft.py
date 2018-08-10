@@ -136,7 +136,7 @@ class Aircraft(Model):
         BLI_wake_benefit = Variable('BLI_{wakebenefit}', 0.02, '-', 'Wake Drag Reduction from BLI Wake Ingestion')
 
         # Design parameters for .csm generation
-        self.design_parameters = OrderedDict([
+        self.design_variables = OrderedDict([
             # Wing descriptors
             ('wing:b',             self.wing['b']),
             ('wing:croot',         self.wing['c_{root}']),
