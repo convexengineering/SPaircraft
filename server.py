@@ -46,13 +46,15 @@ class SPaircraftServer(WebSocket):
             for name, value in self.data.items():
                 try:
                     variable = m.mission_inputs[name]
-                    if reldiff(mag(LASTSOL(variable)),value) <= 1e-5:
+                    if mag(LASTSOL(variable)) != value:
+                    # if reldiff(mag(LASTSOL(variable)),value) <= 1e-5:
                         print variable
                         m.substitutions[variable.key] = value
                 except:
                     try:
                         variable = m.aircraft.design_variables[name]
-                        if reldiff(mag(LASTSOL(variable)),value) <= 1e-5:
+                        if mag(LASTSOL(variable)) != value:
+                        # if reldiff(mag(LASTSOL(variable)),value) <= 1e-5:
                             print variable
                             m.substitutions[variable.key] = value
                     except KeyError as e:
@@ -102,7 +104,6 @@ if __name__ == "__main__":
     pRatOpt = True
     mutategparg = False
     LASTSOL = pickle.load(open("sols/d82_000.sol"))
-    genfiles(m, LASTSOL)
     server = SimpleWebSocketServer('', 8000, SPaircraftServer)
     while not EXIT[0]:
         server.serveonce()
