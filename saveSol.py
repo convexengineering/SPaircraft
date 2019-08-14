@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import str
 from gpkit import Model, Variable
 from numpy import tan, cos, pi, arctan, arccos
 from gpkit.small_scripts import mag
@@ -50,7 +51,7 @@ def gencsm(m, sol, aircraft, i):
 
     resultsDict = {}
     # Note to make sure that the units are all METRIC
-    for key in m.aircraft.design_parameters.iterkeys():
+    for key in m.aircraft.design_parameters.keys():
         resultsDict[key] = mag(sol(m.aircraft.design_parameters[key]))
     f = open('ESP/d82-' + str(i) + '.csm', 'w')
     f.write("""# D8.2 aircraft
@@ -59,7 +60,7 @@ def gencsm(m, sol, aircraft, i):
 # Constant and Design Parameters:
 
 """)
-    for key in resultsDict.keys():
+    for key in list(resultsDict.keys()):
         f.write("despmtr   %s   %s\n" % (key, resultsDict[key]))
     f.write("""
 # Writing out fuselage hyperellipse coordinates (normalized by Rfuse+0.5dRfuse and wfuse)

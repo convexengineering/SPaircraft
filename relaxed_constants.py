@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 from gpkit.constraints.relax import ConstantsRelaxed
 from gpkit import Model
 

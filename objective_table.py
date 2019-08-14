@@ -4,6 +4,7 @@ aircraft optimized for different objectives
 """
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import range
 from gpkit import units
 from .aircraft import Mission
 from .SPaircraft import optimize_aircraft

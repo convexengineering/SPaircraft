@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import str
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import json
 from .SPaircraft import Mission
@@ -47,7 +48,7 @@ class SPaircraftServer(WebSocket):
             m = Mission(3, 2, config, 1)
             m.cost = m['W_{f_{total}}']
 
-            for name, value in self.data.items():
+            for name, value in list(self.data.items()):
                 try:
                     key = m.design_parameters[name]
                     m.substitutions[key] = value
@@ -69,7 +70,7 @@ class SPaircraftServer(WebSocket):
 
     def send(self, msg):
         print("> sent", repr(msg))
-        self.sendMessage(unicode(json.dumps(msg)))
+        self.sendMessage(str(json.dumps(msg)))
 
     def handleConnected(self):
         print(self.address, "connected")

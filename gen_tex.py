@@ -42,7 +42,7 @@ def gen_model_tex(model, modelname, texname=None):
 def find_submodels(models, modelnames):
     runagain = 0
     for m in models:
-        if "submodels" in m.__dict__.keys():
+        if "submodels" in list(m.__dict__.keys()):
             for sub in m.submodels:
                 if sub.__class__.__name__ not in modelnames:
                     models.append(sub)
