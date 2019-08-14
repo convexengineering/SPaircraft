@@ -14,7 +14,7 @@ from collections import defaultdict
 from gpkit.small_scripts import mag
 
 # importing from D8_integration
-from .stand_alone_simple_profile import FlightState, Altitude, Atmosphere
+from stand_alone_simple_profile import FlightState, Altitude, Atmosphere
 from D8_VT_yaw_rate_and_EO_simple_profile import VerticalTail, VerticalTailPerformance
 from Wing_simple_performance import Wing, WingPerformance
 from D8_integration import Engine, EnginePerformance

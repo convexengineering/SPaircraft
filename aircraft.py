@@ -12,13 +12,13 @@ from numpy import pi
 TCS.reltol = 1e-3
 
 # importing from D8_integration
-from .stand_alone_simple_profile import FlightState
-from .vertical_tail import VerticalTail
-from .horizontal_tail import HorizontalTail
-from .wing import Wing
+from stand_alone_simple_profile import FlightState
+from vertical_tail import VerticalTail
+from horizontal_tail import HorizontalTail
+from wing import Wing
 from turbofan.engine_validation import Engine
-from .fuselage import Fuselage
-from .landing_gear import LandingGear
+from fuselage import Fuselage
+from landing_gear import LandingGear
 
 # for ESP
 from collections import OrderedDict

@@ -6,9 +6,9 @@ from __future__ import print_function
 from __future__ import absolute_import
 from builtins import range
 from gpkit import units
-from .aircraft import Mission
-from .SPaircraft import optimize_aircraft
-from .subs.optimal737 import get_optimal737_subs
+from aircraft import Mission
+from SPaircraft import optimize_aircraft
+from subs.optimal737 import get_optimal737_subs
 
 # solve all the cases
 Nclimb = 3 # number of climb segments

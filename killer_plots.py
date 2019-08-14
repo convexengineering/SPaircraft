@@ -5,21 +5,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Percent diffs
-from .percent_diff import percent_diff
+from percent_diff import percent_diff
 from gpkit import units
 from gpkit.small_scripts import mag
 
 # Solution saving
-from .saveSol import genSolOut
+from saveSol import genSolOut
 
 # Models and substitutions
-from .aircraft import Mission
-from .SPaircraft import optimize_aircraft
-from .subs.optimalD8 import get_optimalD8_subs
-from .subs.optimal737 import get_optimal737_subs
-from .subs.M072_737 import get_M072_737_subs
-from .subs.D8_no_BLI import get_D8_no_BLI_subs
-from .subs.D8_eng_wing import get_D8_eng_wing_subs
+from aircraft import Mission
+from SPaircraft import optimize_aircraft
+from subs.optimalD8 import get_optimalD8_subs
+from subs.optimal737 import get_optimal737_subs
+from subs.M072_737 import get_M072_737_subs
+from subs.D8_no_BLI import get_D8_no_BLI_subs
+from subs.D8_eng_wing import get_D8_eng_wing_subs
 
 def standard_killer_plot():
     """
