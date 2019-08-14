@@ -1,12 +1,14 @@
+from __future__ import print_function
+from __future__ import absolute_import
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import json
-from SPaircraft import Mission
-from saveSol import gendes, gencsm
+from .SPaircraft import Mission
+from .saveSol import gendes, gencsm
 from shutil import copyfile
 
-from subs.optimalD8 import get_optimalD8_subs
-from aircraft import Mission
-from SPaircraft import optimize_aircraft
+from .subs.optimalD8 import get_optimalD8_subs
+from .aircraft import Mission
+from .SPaircraft import optimize_aircraft
 
 EXIT = [False]
 ID = 0
@@ -32,10 +34,10 @@ def gensoltxt(m, sol, ID):
 class SPaircraftServer(WebSocket):
 
     def handleMessage(self):
-        print "< received", repr(self.data)
+        print("< received", repr(self.data))
         try:
             self.data = json.loads(self.data)
-            print self.data
+            print(self.data)
 
             config = 'optimalD8'
             substitutions = get_optimalD8_subs()
@@ -50,7 +52,7 @@ class SPaircraftServer(WebSocket):
                     key = m.design_parameters[name]
                     m.substitutions[key] = value
                 except KeyError as e:
-                    print repr(e)
+                    print(repr(e))
 
             sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt, mutategparg)
             LASTSOL[0] = sol
@@ -63,17 +65,17 @@ class SPaircraftServer(WebSocket):
         except Exception as e:
             self.send({"status": "unknown", "msg": "The last solution"
                       " raised an exception; tweak it and send again."})
-            print type(e), e
+            print(type(e), e)
 
     def send(self, msg):
-        print "> sent", repr(msg)
+        print("> sent", repr(msg))
         self.sendMessage(unicode(json.dumps(msg)))
 
     def handleConnected(self):
-        print self.address, "connected"
+        print(self.address, "connected")
 
     def handleClose(self):
-        print self.address, "closed"
+        print(self.address, "closed")
         EXIT[0] = True
 
 
@@ -91,4 +93,4 @@ if __name__ == "__main__":
     server = SimpleWebSocketServer('', 8000, SPaircraftServer)
     while not EXIT[0]:
         server.serveonce()
-    print "Python server has exited."
+    print("Python server has exited.")

@@ -1,4 +1,5 @@
 "tasopt_tail_polarfits.py"
+from __future__ import print_function
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -46,7 +47,7 @@ def fit_setup(thick_range, re_range, M_range):
 
     u1 = np.hstack(re)
     u2 = np.hstack(tau)
-    print u2
+    print(u2)
     u3 = np.hstack(mach)
     w = np.hstack(cd)
     u1 = u1.astype(np.float)
@@ -86,8 +87,8 @@ def make_fit(thick_range, re_range, M_range):
     x, y = fit_setup(thick_range, re_range, M_range)
 
     cstrt, rms = fit(x, y, 5, 'SMA')
-    print "RMS"
-    print rms
+    print("RMS")
+    print(rms)
 
 def plot_fits(thick_range, re_range, M_range):
     "plot fit compared to data"

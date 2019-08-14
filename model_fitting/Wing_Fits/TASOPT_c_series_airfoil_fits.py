@@ -1,4 +1,5 @@
 "TASOPT c series airfoil fits"
+from __future__ import print_function
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -48,9 +49,9 @@ def fit_setup(thick_range, re_range, M_range):
                         mach.append(m)
 
     u1 = np.hstack(re)
-    print u1
+    print(u1)
     u2 = np.hstack(tau)
-    print u2
+    print(u2)
     u3 = np.hstack(mach)
     u4 = np.hstack(cl)
 ##    print len(u1)
@@ -102,8 +103,8 @@ def make_fit(thick_range, re_range, M_range):
     x, y = fit_setup(thick_range, re_range, M_range)
 
     cstrt, rms = fit(x, y, 4, 'SMA')
-    print "RMS"
-    print rms
+    print("RMS")
+    print(rms)
 
 def plot_fits(thick_range, re_range, M_range, cl_range):
     "plot fit compared to data"

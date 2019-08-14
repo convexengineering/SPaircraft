@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import webbrowser
@@ -8,7 +9,7 @@ from time import sleep
 def wait_until_file_exists(filename):
     while not os.path.exists(filename):
         sleep(1)
-    print "found", filename
+    print("found", filename)
 
 
 try:

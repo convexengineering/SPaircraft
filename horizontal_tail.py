@@ -1,10 +1,11 @@
 """D8 horizontal tail model linked with a simple flight profile"""
+from __future__ import absolute_import
 from numpy import pi, tan
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize, SignomialEquality
 from gpkit.tools import te_exp_minus1
 from gpkit.constraints.tight import Tight as TCS
-from wingbox import WingBox
+from .wingbox import WingBox
 
 class HorizontalTailNoStruct(Model):
     """

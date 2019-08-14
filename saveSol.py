@@ -1,3 +1,4 @@
+from __future__ import print_function
 from gpkit import Model, Variable
 from numpy import tan, cos, pi, arctan, arccos
 from gpkit.small_scripts import mag

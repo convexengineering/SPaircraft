@@ -2,10 +2,12 @@
 script to generate the values in the SP_TASOPT paper for
 aircraft optimized for different objectives
 """
+from __future__ import print_function
+from __future__ import absolute_import
 from gpkit import units
-from aircraft import Mission
-from SPaircraft import optimize_aircraft
-from subs.optimal737 import get_optimal737_subs
+from .aircraft import Mission
+from .SPaircraft import optimize_aircraft
+from .subs.optimal737 import get_optimal737_subs
 
 # solve all the cases
 Nclimb = 3 # number of climb segments
@@ -31,7 +33,7 @@ basesol = sol[0]
 # output the columns of the table
 for i in range(0,8):
     print ("column %s" % i)
-    print "\n"
-    print [sol[i](objectives[j])/basesol(objectives[j]) for j in range(0,8)]
-    print "\n"
-    print "\n"
+    print("\n")
+    print([sol[i](objectives[j])/basesol(objectives[j]) for j in range(0,8)])
+    print("\n")
+    print("\n")

@@ -1,6 +1,8 @@
 """
 Script to run the SP aircraft model
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 # GPkit tools
 from gpkit import units, Model
@@ -8,30 +10,30 @@ from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, 
 from gpkit.constraints.bounded import Bounded as BCS
 
 # Constant relaxation heuristic for SP solve
-from relaxed_constants import relaxed_constants, post_process
+from .relaxed_constants import relaxed_constants, post_process
 
 # Mission model
-from aircraft import Mission
+from .aircraft import Mission
 
 # Substitution dictionaries for different aircraft
-from subs.optimalD8 import get_optimalD8_subs
-from subs.optimal777 import get_optimal777_subs
-from subs.optimal737 import get_optimal737_subs
-from subs.M072_737 import get_M072_737_subs
-from subs.D8_no_BLI import get_D8_no_BLI_subs
-from subs.D8_eng_wing import get_D8_eng_wing_subs
+from .subs.optimalD8 import get_optimalD8_subs
+from .subs.optimal777 import get_optimal777_subs
+from .subs.optimal737 import get_optimal737_subs
+from .subs.M072_737 import get_M072_737_subs
+from .subs.D8_no_BLI import get_D8_no_BLI_subs
+from .subs.D8_eng_wing import get_D8_eng_wing_subs
 
 # Plotting tools
 #from gen_plots import *
 
 # File for calculating values after solution
-from post_compute import post_compute
+from .post_compute import post_compute
 
 # Solution check tool relative to TASOPT
-from percent_diff import percent_diff
+from .percent_diff import percent_diff
 
 # VSP visualization tools
-from saveSol import updateOpenVSP, gendes, gencsm
+from .saveSol import updateOpenVSP, gendes, gencsm
 
 # Aircraft options:
 # currently one of: 'D8_eng_wing', 'optimal737', 'optimal777', 'optimalD8', 'D8_no_BLI', 'M072_737'
@@ -73,7 +75,7 @@ def test():
 
     # Objective
     m.cost = m['W_{f_{total}}'].sum()
-    print m
+    print(m)
 
     # Inputs to the model
     substitutions = get_optimalD8_subs()
