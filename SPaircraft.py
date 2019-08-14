@@ -22,7 +22,7 @@ from subs.D8_no_BLI import get_D8_no_BLI_subs
 from subs.D8_eng_wing import get_D8_eng_wing_subs
 
 # Plotting tools
-from gen_plots import *
+#from gen_plots import *
 
 # File for calculating values after solution
 from post_compute import post_compute
@@ -73,6 +73,7 @@ def test():
 
     # Objective
     m.cost = m['W_{f_{total}}'].sum()
+    print m
 
     # Inputs to the model
     substitutions = get_optimalD8_subs()
@@ -87,3 +88,7 @@ def test():
     Nclimb = m.Nclimb
     percent_diff(sol, config, Nclimb)
     post_compute(sol, Nclimb)
+    sol.savetxt()
+    return sol
+
+sol = test()
