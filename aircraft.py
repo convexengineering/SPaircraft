@@ -1,5 +1,5 @@
-"""Simple commercial aircraft flight profile and aircraft model"""
-""" Integrates Wing, VerticalTail, HorizontalTail , Fuselage, and Landing Gear models """
+"""Simple commercial aircraft flight profile and aircraft model
+Integrates Wing, VerticalTail, HorizontalTail , Fuselage, and Landing Gear models """
 from __future__ import absolute_import
 
 from builtins import range

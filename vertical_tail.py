@@ -5,7 +5,7 @@ import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize
 from gpkit.constraints.sigeq import SignomialEquality
 from gpkit.constraints.tight import Tight as TCS
-from .wingbox import WingBox
+from wingbox import WingBox
 
 class VerticalTail(Model):
     """
