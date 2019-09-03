@@ -118,6 +118,7 @@ class WingNoStruct(Model):
             constraints.extend([
                  Arect == ctip*b,
                  Atri >= 1./2.*(1-taper)*croot*b, #[SP]
+                 Atri <= 1e10*units('m**2'),
                  p >= 1 + 2*taper,
                  2*q >= 1 + p,
                  ymac == (b/3)*q/p,

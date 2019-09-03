@@ -227,6 +227,7 @@ class Aircraft(Model):
 
                             #compute nacelle diameter
                             self.LG['d_{nacelle}'] >= self.engine['d_{f}'] + 2*self.LG['t_{nacelle}'],
+                            self.LG['d_{nacelle}'] <= self.wing['b'], # upper bounding
 
                            # Hard landing
                            # http://www.boeing.com/commercial/aeromagazine/...
@@ -446,6 +447,7 @@ class Aircraft(Model):
                     # HT joint moment
                     self.HT['M_{r_{out}}']*self.HT['c_{attach}'] >= self.HT['L_{ht_{rect_{out}}}'] * (0.5*self.HT['b_{ht_{out}}']) + \
                                                                     self.HT['L_{ht_{tri_{out}}}'] * (1./3.*self.HT['b_{ht_{out}}']),
+                    self.HT['M_{r_{out}}'] <= 1e20*units('N'), # upper bounding
 
                     # HT joint shear (max shear)
                     self.HT['L_{shear}'] >= self.HT['L_{ht_{rect_{out}}}'] + self.HT['L_{ht_{tri_{out}}}'],
@@ -809,7 +811,7 @@ class Mission(Model):
 
         max_climb_time = Variable('MaxClimbTime', 'min', 'Total Time in Climb')
         max_climb_distance = Variable('MaxClimbDistance', 'nautical_miles', 'Climb Distance')
-        CruiseTt41max = Variable('T_{t_{4.1_{max-Cruise}}}', 'K', 'Max Cruise Turbine Inlet Temp')
+        CruiseTt41max = Variable('T_{t_{4.1_{max-Cruise}}}', 3000., 'K', 'Max Cruise Turbine Inlet Temp')
         MinCruiseAlt = Variable('MinCruiseAlt', 'ft', 'Minimum Cruise Altitude')
         Fsafetyfac = Variable('Fsafetyfac', '-', 'Safety factor on inital climb thrust')
 
@@ -909,6 +911,7 @@ class Mission(Model):
                 ## ------------------------ FLIGHT SEGMENT ALTITUDE AND PERFORMANCE CONSTRAINTS ---------------
                 # Altitude constraints
                 flight['hft'][Nclimb-1] >= CruiseAlt,
+                CruiseAlt >= 1e-5*units('m'), # lower bounding
                 SignomialEquality(flight['hft'][1:Nclimb+Ncruise], flight['hft'][:Nclimb+Ncruise - 1] + flight['dhft'][1:Nclimb+Ncruise]), #[SP]
                 TCS([flight['hft'][0] == flight['dhft'][0]]),
 
@@ -967,6 +970,7 @@ class Mission(Model):
                 ## -------------------- VARIOUS FLIGHT TIME COMPUTATIONS -------------------
                 #compute the total time
                 Total_Time >= sum(flight['thr']),
+                Total_Time <= 1e10*units('s'), # upper bounding
                 #compute the climb in time
                 climb_time >= sum(flight['thr'][:Nclimb]),
                 climb_time <= max_climb_time,
@@ -994,8 +998,10 @@ class Mission(Model):
 
         ## -------------------- SETTING ENGINE PARAMETERS ----------------------
         constraints.extend([
-            #constrain OPR less than max OPR
+            # constrain OPR less than max OPR
             aircraft['OPR'] <= aircraft.engine['OPR_{max}'],
+            # bounding
+            aircraft.engine['\\alpha_{max}'] <= 100., # bypass ratio
         ])
 
         M2 = .6
@@ -1027,5 +1033,11 @@ class Mission(Model):
             engineclimb.extend([
                        SignomialEquality(aircraft.engine.engineP['c1'], (1. + 0.5*(.401)*flight['M']**2.)),
                        ])
+
+        # For solution stabilization (TODO:remove)
+        constraints.extend([
+            aircraft.engine['g'] >= 1*units('m/s**2'),
+            aircraft.engine['R'] >= 1*units('J/(kg*K)'),
+        ])
 
         return constraints, aircraft, flight, engineclimb, enginecruise

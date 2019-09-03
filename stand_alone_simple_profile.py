@@ -608,7 +608,7 @@ if __name__ == '__main__':
 
     mission = Mission(ac)
     m = Model(mission['W_{f_{total}}'], mission, substitutions)
-    sol = m.localsolve(solver='mosek', verbosity = 4)
+    sol = m.localsolve()
 
     substitutions = {
 ##            'V_{stall}': 120,
@@ -625,7 +625,7 @@ if __name__ == '__main__':
             }
     mission = Mission(ac)
     m = Model(mission['W_{f_{total}}'], mission, substitutions)
-    solRsweep = m.localsolve(solver='mosek', verbosity = 4)
+    solRsweep = m.localsolve()
 
 ##    plt.plot(solRsweep('R_{req}'), solRsweep('W_{f_{total}}'), '-r')
 ##    plt.xlabel('Mission Range [nm]')
@@ -649,7 +649,7 @@ if __name__ == '__main__':
 
     mmission = Mission(ac)
     m = Model(mission['W_{f_{total}}'], mission, substitutions)
-    solAltsweep = m.localsolve(solver='mosek', verbosity = 4)
+    solAltsweep = m.localsolve()
 
 ##    plt.plot(solAltsweep('CruiseAlt'), solAltsweep('W_{f_{total}}'), '-r')
 ##    plt.xlabel('Cruise Alt [ft]')
