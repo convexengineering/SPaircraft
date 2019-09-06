@@ -61,7 +61,7 @@ def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, mutategpar
     m.substitutions.update(substitutions)
     m_relax = Model(m.cost, Bounded(m), m.substitutions)
     m_relax = relaxed_constants(m_relax)
-    sol = m.localsolve(verbosity=2, iteration_limit=200, reltol=0.01, mutategp=mutategparg)#, x0 = x0)
+    sol = m_relax.localsolve(verbosity=2, iteration_limit=200, reltol=0.01, mutategp=mutategparg)#, x0 = x0)
     post_process(sol)
     return sol
 

@@ -232,7 +232,7 @@ end""")
     print('File generation successful!')
 
 def gendes(m, sol, aircraft = 'optimalD8', i = 0):
-    sweep = arccos(sol('\cos(\Lambda)_Mission/Aircraft/Wing/WingNoStruct'))*180/np.pi
+    sweep = arccos(sol(sorted(sol('\\cos(\\Lambda)').keys())[-1]))*180/np.pi
 
     # System-level descriptors
     xCG = sol('x_{CG}')[0].to('m')
@@ -246,8 +246,8 @@ def gendes(m, sol, aircraft = 'optimalD8', i = 0):
     dihedral = 6.
 
     # Fuselage descriptors
-    hfloor = sol('h_{floor}_Mission/Aircraft/Fuselage').to('m')
-    lnose = sol('l_{nose}_Mission/Aircraft/Fuselage').to('m')
+    hfloor = sol(sorted(sol('h_{floor}').keys())[-1]).to('m')
+    lnose = sol(sorted(sol('l_{nose}').keys())[-1]).to('m')
     lshell = sol('l_{shell}').to('m')
     lcone = sol('l_{cone}').to('m')
     lfloor = sol('l_{floor}').to('m')
@@ -255,9 +255,9 @@ def gendes(m, sol, aircraft = 'optimalD8', i = 0):
     hfuse = sol('h_{fuse}').to('m')
     wfuse = sol('w_{fuse}').to('m')
     wfloor = sol('w_{floor}').to('m')
-    wdb = sol('w_{db}_Mission/Aircraft/Fuselage').to('m')
-    Rfuse = sol('R_{fuse}_Mission/Aircraft/Fuselage').to('m')
-    dRfuse = sol('\\Delta R_{fuse}_Mission/Aircraft/Fuselage').to('m')
+    wdb = sol(sorted(sol('w_{db}').keys())[-1]).to('m')
+    Rfuse = sol('R_{fuse}').to('m')
+    dRfuse = sol('\\Delta R_{fuse}').to('m')
 
     # Horizontal Tail descriptors
     xCGht = sol('x_{CG_{ht}}').to('m')
@@ -268,7 +268,7 @@ def gendes(m, sol, aircraft = 'optimalD8', i = 0):
     bht = sol('b_{ht}').to('m')
     xCGht = sol('x_{CG_{ht}}').to('m')
     lht = sol('l_{ht}').to('m')
-    tanht = sol('\\tan(\Lambda_{ht})_Mission/Aircraft/HorizontalTail/HorizontalTailNoStruct')
+    tanht = sol(sorted(sol('\\tan(\Lambda_{ht})').keys())[-1])
 
     # Vertical Tail descriptors
     xCGvt = sol('x_{CG_{vt}}').to('m')
@@ -279,12 +279,12 @@ def gendes(m, sol, aircraft = 'optimalD8', i = 0):
     ctipvt = sol('c_{tip_{vt}}').to('m')
     dxleadvt = sol('\\Delta x_{lead_{vt}}').to('m')
     dxtrailvt = sol('\\Delta x_{trail_{vt}}').to('m')
-    tanvt = sol('\\tan(\Lambda_{vt})_Mission/Aircraft/VerticalTail/VerticalTailNoStruct')
+    tanvt = sol(sorted(sol('\\tan(\Lambda_{vt})').keys())[-1])
 
     # Engine descriptors
-    df = sol('d_{f}_Mission/Aircraft/Engine').to('m') # Engine frontal area
+    df = sol('d_{f}').to('m') # Engine frontal area
     lnace = sol('l_{nacelle}').to('m')
-    yeng = sol('y_{eng}_Mission/Aircraft/VerticalTail/VerticalTailNoStruct').to('m')
+    yeng = sol('y_{eng}').to('m')
     xeng = sol('x_{eng}').to('m')
 
 # Creating the default (D82) resultsDict

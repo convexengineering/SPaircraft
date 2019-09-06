@@ -56,9 +56,9 @@ class Aircraft(Model):
         self.fuse = Fuselage(Nmissions)
         self.wing = Wing()
         if Nmissions != 0:
-            self.engine = Engine(0, True, Nclimb+Ncruise, flightstate, eng, Nmissions, BLI)
+            self.engine = Engine(True, Nclimb+Ncruise, flightstate, eng, Nmissions, BLI)
         else:
-           self.engine = Engine(0, True, Nclimb+Ncruise, flightstate, eng, BLI)
+           self.engine = Engine(True, Nclimb+Ncruise, flightstate, eng, BLI)
         self.VT = VerticalTail()
         self.HT = HorizontalTail()
         self.LG = LandingGear()
@@ -1014,7 +1014,7 @@ class Mission(Model):
             aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
 
             #climb rate constraints (TODO: remove?)
-            TCS([flight['P_{excess}'] + flight.state['V'] * flight['D'] <= flight.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F_{spec}']]),
+            TCS([flight['P_{excess}'] + flight.state['V'] * flight['D'] <= flight.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F']]),
             ]
 
 
