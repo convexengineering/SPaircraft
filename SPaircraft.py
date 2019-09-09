@@ -1,11 +1,13 @@
 """
 Script to run the SP aircraft model
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 # GPkit tools
 from gpkit import units, Model
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
-from gpkit.constraints.bounded import Bounded as BCS
+from gpkit.constraints.bounded import Bounded
 
 # Constant relaxation heuristic for SP solve
 from relaxed_constants import relaxed_constants, post_process
@@ -57,9 +59,9 @@ def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, mutategpar
         del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
-    m_relax = Model(m.cost, BCS(m))
+    m_relax = Model(m.cost, Bounded(m), m.substitutions)
     m_relax = relaxed_constants(m_relax)
-    sol = m_relax.localsolve(verbosity=4, iteration_limit=200, reltol=0.01, mutategp=mutategparg, x0 = x0)
+    sol = m_relax.localsolve(verbosity=2, iteration_limit=200, reltol=0.01, mutategp=mutategparg)#, x0 = x0)
     post_process(sol)
     return sol
 
@@ -73,7 +75,6 @@ def test():
 
     # Objective
     m.cost = m['W_{f_{total}}'].sum()
-    print m
 
     # Inputs to the model
     substitutions = get_optimalD8_subs()

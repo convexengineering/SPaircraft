@@ -223,9 +223,6 @@ class Fuselage(Model):
         #fuselage drag reference mach
         MfuseD = Variable('M_{fuseD}', '-', 'Fuselage Drag Reference Mach')
 
-        # Moments
-        # alphaMf0 = Variable('\\alpha_{Mf0}','-','AoA at which fuselage moment is zero')
-
         constraints = []
         with SignomialsEnabled():
             constraints.extend([
@@ -254,8 +251,8 @@ class Fuselage(Model):
                 TCS([tshell <= tskin * (1. + rE * fstring * rhoskin / rhobend)]), #[SP]
 
                 # Fuselage surface area relations
-                Snose >= (2 * pi + 4 * thetadb) * Rfuse**2 * \
-                (1 / 3 + 2 / 3 * (lnose / Rfuse)**(8 / 5))**(5 / 8),
+                Snose**(8./5.) >= Sbulk**(8./5.) * \
+                (1./3. + 2./3. * (lnose / Rfuse)**(8./5.)),
                 Sbulk >= (2 * pi + 4 * thetadb) * Rfuse**2,
 
                 # Fuselage length relations

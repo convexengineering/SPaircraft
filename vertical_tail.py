@@ -1,4 +1,5 @@
 """Simple commercial aircraft flight profile and aircraft model"""
+from __future__ import absolute_import
 from numpy import pi
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize

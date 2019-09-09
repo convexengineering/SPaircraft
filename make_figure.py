@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from math import sin, cos, pi
 from itertools import combinations
 

@@ -1,6 +1,8 @@
-"""Simple commercial aircraft flight profile and aircraft model"""
-""" Integrates Wing, VerticalTail, HorizontalTail , Fuselage, and Landing Gear models """
+"""Simple commercial aircraft flight profile and aircraft model
+Integrates Wing, VerticalTail, HorizontalTail , Fuselage, and Landing Gear models """
+from __future__ import absolute_import
 
+from builtins import range
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.constraints.tight import Tight as TCS
@@ -54,9 +56,9 @@ class Aircraft(Model):
         self.fuse = Fuselage(Nmissions)
         self.wing = Wing()
         if Nmissions != 0:
-            self.engine = Engine(0, True, Nclimb+Ncruise, flightstate, eng, Nmissions, BLI)
+            self.engine = Engine(True, Nclimb+Ncruise, flightstate, eng, Nmissions, BLI)
         else:
-           self.engine = Engine(0, True, Nclimb+Ncruise, flightstate, eng, BLI)
+           self.engine = Engine(True, Nclimb+Ncruise, flightstate, eng, BLI)
         self.VT = VerticalTail()
         self.HT = HorizontalTail()
         self.LG = LandingGear()
@@ -225,6 +227,7 @@ class Aircraft(Model):
 
                             #compute nacelle diameter
                             self.LG['d_{nacelle}'] >= self.engine['d_{f}'] + 2*self.LG['t_{nacelle}'],
+                            self.LG['d_{nacelle}'] <= self.wing['b'], # upper bounding
 
                            # Hard landing
                            # http://www.boeing.com/commercial/aeromagazine/...
@@ -444,6 +447,7 @@ class Aircraft(Model):
                     # HT joint moment
                     self.HT['M_{r_{out}}']*self.HT['c_{attach}'] >= self.HT['L_{ht_{rect_{out}}}'] * (0.5*self.HT['b_{ht_{out}}']) + \
                                                                     self.HT['L_{ht_{tri_{out}}}'] * (1./3.*self.HT['b_{ht_{out}}']),
+                    self.HT['M_{r_{out}}'] <= 1e20*units('N'), # upper bounding
 
                     # HT joint shear (max shear)
                     self.HT['L_{shear}'] >= self.HT['L_{ht_{rect_{out}}}'] + self.HT['L_{ht_{tri_{out}}}'],
@@ -807,7 +811,7 @@ class Mission(Model):
 
         max_climb_time = Variable('MaxClimbTime', 'min', 'Total Time in Climb')
         max_climb_distance = Variable('MaxClimbDistance', 'nautical_miles', 'Climb Distance')
-        CruiseTt41max = Variable('T_{t_{4.1_{max-Cruise}}}', 'K', 'Max Cruise Turbine Inlet Temp')
+        CruiseTt41max = Variable('T_{t_{4.1_{max-Cruise}}}', 3000., 'K', 'Max Cruise Turbine Inlet Temp')
         MinCruiseAlt = Variable('MinCruiseAlt', 'ft', 'Minimum Cruise Altitude')
         Fsafetyfac = Variable('Fsafetyfac', '-', 'Safety factor on inital climb thrust')
 
@@ -907,6 +911,7 @@ class Mission(Model):
                 ## ------------------------ FLIGHT SEGMENT ALTITUDE AND PERFORMANCE CONSTRAINTS ---------------
                 # Altitude constraints
                 flight['hft'][Nclimb-1] >= CruiseAlt,
+                CruiseAlt >= 1e-5*units('m'), # lower bounding
                 SignomialEquality(flight['hft'][1:Nclimb+Ncruise], flight['hft'][:Nclimb+Ncruise - 1] + flight['dhft'][1:Nclimb+Ncruise]), #[SP]
                 TCS([flight['hft'][0] == flight['dhft'][0]]),
 
@@ -965,6 +970,7 @@ class Mission(Model):
                 ## -------------------- VARIOUS FLIGHT TIME COMPUTATIONS -------------------
                 #compute the total time
                 Total_Time >= sum(flight['thr']),
+                Total_Time <= 1e10*units('s'), # upper bounding
                 #compute the climb in time
                 climb_time >= sum(flight['thr'][:Nclimb]),
                 climb_time <= max_climb_time,
@@ -992,8 +998,10 @@ class Mission(Model):
 
         ## -------------------- SETTING ENGINE PARAMETERS ----------------------
         constraints.extend([
-            #constrain OPR less than max OPR
+            # constrain OPR less than max OPR
             aircraft['OPR'] <= aircraft.engine['OPR_{max}'],
+            # bounding
+            aircraft.engine['\\alpha_{max}'] <= 100., # bypass ratio
         ])
 
         M2 = .6
@@ -1006,7 +1014,7 @@ class Mission(Model):
             aircraft.engine.engineP['hold_{2.5}'][:Nclimb] == 1.+.5*(1.354-1.)*M25**2.,
 
             #climb rate constraints (TODO: remove?)
-            TCS([flight['P_{excess}'] + flight.state['V'] * flight['D'] <= flight.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F_{spec}']]),
+            TCS([flight['P_{excess}'] + flight.state['V'] * flight['D'] <= flight.state['V'] * aircraft['n_{eng}'] * aircraft.engine['F']]),
             ]
 
 

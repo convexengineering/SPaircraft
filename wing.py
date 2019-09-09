@@ -1,4 +1,5 @@
 """Simple commercial aircraft flight profile and aircraft model"""
+from __future__ import absolute_import
 from numpy import pi, cos, tan
 import numpy as np
 from gpkit import Variable, Model, units, SignomialsEnabled, Vectorize
@@ -117,6 +118,7 @@ class WingNoStruct(Model):
             constraints.extend([
                  Arect == ctip*b,
                  Atri >= 1./2.*(1-taper)*croot*b, #[SP]
+                 Atri <= 1e10*units('m**2'),
                  p >= 1 + 2*taper,
                  2*q >= 1 + p,
                  ymac == (b/3)*q/p,

@@ -38,4 +38,4 @@ setup(name = 'SPaircraft',
     author_email='bozturk@mit.edu',
     license=license,
     packages=[],
-    install_requires = ['turbofan', 'gpkit'])
+    install_requires = ['turbofan', 'gpkit', 'future'])

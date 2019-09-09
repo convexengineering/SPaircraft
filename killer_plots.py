@@ -1,4 +1,6 @@
+from __future__ import absolute_import
 # only needed for plotting
+from builtins import range
 import matplotlib.pyplot as plt
 import numpy as np
 

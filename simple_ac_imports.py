@@ -17,9 +17,9 @@ class Aircraft(Model):
         self.fuse = Fuselage()
         self.wing = Wing()
         if Nfleet != 0:
-            self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng, Nfleet)
+            self.engine = Engine(True, Nclimb+Ncruise, enginestate, eng, Nfleet)
         else:
-           self.engine = Engine(0, True, Nclimb+Ncruise, enginestate, eng)
+           self.engine = Engine(True, Nclimb+Ncruise, enginestate, eng)
 
         #variable definitions
         numeng = Variable('numeng', '-', 'Number of Engines')

@@ -2,6 +2,9 @@
 script to generate the values in the SP_TASOPT paper for
 aircraft optimized for different objectives
 """
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 from gpkit import units
 from aircraft import Mission
 from SPaircraft import optimize_aircraft
@@ -31,7 +34,7 @@ basesol = sol[0]
 # output the columns of the table
 for i in range(0,8):
     print ("column %s" % i)
-    print "\n"
-    print [sol[i](objectives[j])/basesol(objectives[j]) for j in range(0,8)]
-    print "\n"
-    print "\n"
+    print("\n")
+    print([sol[i](objectives[j])/basesol(objectives[j]) for j in range(0,8)])
+    print("\n")
+    print("\n")

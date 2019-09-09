@@ -1,4 +1,7 @@
 "naca_polarfits.py"
+from __future__ import print_function
+from builtins import zip
+from builtins import range
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -46,7 +49,7 @@ def fit_setup(naca_range, re_range, M_range):
 
     u1 = np.hstack(re)
     u2 = np.hstack(tau)
-    print u2
+    print(u2)
     u3 = np.hstack(mach)
     w = np.hstack(cd)
     u1 = u1.astype(np.float)
@@ -84,8 +87,8 @@ def make_fit(naca_range, re_range, M_range):
     x, y = fit_setup(naca_range, re_range, M_range)
 
     cstrt, rms = fit(x, y, 4, 'SMA')
-    print "RMS"
-    print rms
+    print("RMS")
+    print(rms)
 
 def plot_fits(naca_range, re_range, M_range):
     "plot fit compared to data"
@@ -223,7 +226,7 @@ def plot_data(naca_range, re_range, M_range):
 
 
 if __name__ == "__main__":
-    Re = range(500, 9500, 500)
+    Re = list(range(500, 9500, 500))
     NACA = ["0008", "0009", "0010", "0015", "0020"]
     M = [0.4, 0.6, 0.8]
 ##    X, Y = fit_setup(NACA, Re) # call fit(X, Y, 4, "SMA") to get fit
