@@ -1034,10 +1034,4 @@ class Mission(Model):
                        SignomialEquality(aircraft.engine.engineP['c1'], (1. + 0.5*(.401)*flight['M']**2.)),
                        ])
 
-        # For solution stabilization (TODO:remove)
-        constraints.extend([
-            aircraft.engine['g'] >= 1*units('m/s**2'),
-            aircraft.engine['R'] >= 1*units('J/(kg*K)'),
-        ])
-
         return constraints, aircraft, flight, engineclimb, enginecruise
