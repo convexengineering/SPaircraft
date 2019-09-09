@@ -3,6 +3,7 @@ Script to run the SP aircraft model
 """
 from __future__ import print_function
 from __future__ import absolute_import
+import sys
 
 # GPkit tools
 from gpkit import units, Model
@@ -89,7 +90,8 @@ def test():
     Nclimb = m.Nclimb
     percent_diff(sol, config, Nclimb)
     post_compute(sol, Nclimb)
-    sol.savetxt()
+    if sys.version_info.major < 3:
+        sol.savetxt()
     return sol
 
 sol = test()
