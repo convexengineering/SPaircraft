@@ -32,20 +32,25 @@ def relaxed_constants(model, include_only=None, exclude=None):
 
     return feas
 
-def post_process(sol):
+def post_process(sol, verbosity=0):
     """
     Model to print relevant info for a solved model with relaxed constants
     
     ARGUMENTS
     --------
     sol: the solution to the solved model
+    verbosity: how much info you'd like printed, 0 or greater
     """
     print("Checking for relaxed constants...")
     for i in range(len(sol.program.gps)):
         varkeys = [k for k in sol.program.gps[i].varlocs if "Relax" in k.models and sol.program.gps[i].result(k) >= 1.00001]
+        n_relaxed = len(varkeys)
         if varkeys:
-            print("GP iteration %s has relaxed constants" % i)
-            print(sol.program.gps[i].result.table(varkeys))
+            if verbosity > 0:
+                print("GP iteration %s has %s relaxed constants" % (i, n_relaxed))
+                print(sol.program.gps[i].result.table(varkeys))
             if i == len(sol.program.gps) - 1:
-                print("WARNING: The final GP iteration had relaxation values greater than 1")
+                print("WARNING: The final GP iteration had relaxation values greater than 1!!!")
+        elif i == len(sol.program.gps) - 1:
+            print("All relaxations are tight during final GP solve!")
 
