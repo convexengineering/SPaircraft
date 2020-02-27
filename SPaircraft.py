@@ -51,7 +51,7 @@ def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, mutategpar
 
     if fixedBPR:
         substitutions.update({
-            '\\alpha_{max}': 8.62, #6.97,
+            '\\alpha_{max}': 6.97, #8.62,
         })
 
     if pRatOpt:
