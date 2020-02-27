@@ -1,3 +1,3 @@
-skipsolvers : cvxopt, mosek_cli
+skipsolvers : cvxopt, mosek_cli, mosek_conif
 pip install : git+https://github.com/hoburg/turbofan.git
 gpkit-models branch : master 
