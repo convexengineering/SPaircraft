@@ -453,7 +453,7 @@ class Aircraft(Model):
                     self.HT['L_{shear}'] >= self.HT['L_{ht_{rect_{out}}}'] + self.HT['L_{ht_{tri_{out}}}'],
 
                     # HT/VT joint constraint
-                    SignomialEquality(self.HT['c_{tip_{ht}}'] + (1. - self.HT['\\lambda_{ht}']) * 2. * self.HT['b_{ht_{out}}'] / self.HT['b_{ht}'] * 
+                    SignomialEquality(self.HT['c_{tip_{ht}}'] + (1. - self.HT['\\lambda_{ht}']) * 2. * self.HT['b_{ht_{out}}'] / self.HT['b_{ht}'] *
                         self.HT['c_{root_{ht}}'],
                     self.HT['c_{attach}']),
 
@@ -714,7 +714,7 @@ class FlightP(Model): # Flight segment performance constraints
             R == self.aircraftP['thr'] * state['V'],
         ])
 
-        return constraints + self.aircraftP
+        return constraints, self.aircraftP
 
 class FlightSegment(Model):
     "SKIP VERIFICATION"
