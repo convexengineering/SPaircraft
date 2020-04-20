@@ -10,9 +10,6 @@ from gpkit import units, Model
 from gpkit import Variable, Model, units, SignomialsEnabled, SignomialEquality, Vectorize
 from gpkit.constraints.bounded import Bounded
 
-# Constant relaxation heuristic for SP solve
-from relaxed_constants import relaxed_constants, post_process
-
 # Mission model
 from aircraft import Mission
 
@@ -60,10 +57,8 @@ def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, mutategpar
         del substitutions['\pi_{hc_D}']
 
     m.substitutions.update(substitutions)
-    m_relax = Model(m.cost, Bounded(m), m.substitutions)
-    m_relax = relaxed_constants(m_relax)
-    sol = m_relax.localsolve(verbosity=2, iteration_limit=200, reltol=0.01, mutategp=mutategparg)#, x0 = x0)
-    post_process(sol)
+    m = Model(m.cost, Bounded(m), m.substitutions)
+    sol = m.localsolve(verbosity=2, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
     return sol
 
 def test():
@@ -87,11 +82,9 @@ def test():
     pRatOpt = True
     mutategparg = False
     sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt, mutategparg)
-    Nclimb = m.Nclimb
     percent_diff(sol, config, Nclimb)
     post_compute(sol, Nclimb)
-    if sys.version_info.major < 3:
-        sol.savetxt()
+    sol.savetxt()
     return sol
 
 sol = test()
