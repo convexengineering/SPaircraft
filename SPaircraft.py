@@ -36,7 +36,8 @@ from saveSol import updateOpenVSP, gendes, gencsm
 # Aircraft options:
 # currently one of: 'D8_eng_wing', 'optimal737', 'optimal777', 'optimalD8', 'D8_no_BLI', 'M072_737'
 
-def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, x0 = None):
+def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, x0=None,
+                      solver=None):
     """
     Optimizes an aircraft of a given configuration
     :param m: aircraft model with objective and configuration
@@ -57,7 +58,7 @@ def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, x0 = None)
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, Bounded(m), m.substitutions)
-    sol = m.localsolve(verbosity=2, iteration_limit=200, reltol=0.01)
+    sol = m.localsolve(solver=solver, verbosity=2, iteration_limit=200, reltol=1e-3)
     return sol
 
 def test():
@@ -86,4 +87,5 @@ def test():
     sol.savetxt()
     return sol
 
-sol = test()
+if __name__ == "__main__":
+    sol = test()
