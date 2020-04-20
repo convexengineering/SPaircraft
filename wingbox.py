@@ -80,7 +80,7 @@ class WingBox(Model):
             Lhrect = Variable('L_{ht_{rect}}','N','Rectangular HT load')
             Lhtriout = Variable('L_{ht_{tri_{out}}}','N','Triangular HT load outboard')
             Lhrectout = Variable('L_{ht_{rect_{out}}}','N','Rectangular HT load outboard')
-            Mrout = Variable('M_{r_{out}}','N','Wing moment at pin joint ') #TODO
+            Mrout = Variable('M_{r_{out}}','N','Wing moment at pin joint ')
             Lshear = Variable('L_{shear}','N','Maximum shear load (at pin joint)')
             piMfac = Variable('\\pi_{M-fac}','-','Pi-tail bending structural factor')
 
@@ -145,7 +145,7 @@ class WingBox(Model):
                     Nlift == 1,
                     # Stress limit
                     # Assumes bending stress carried by caps (Icap >> Iweb)
-                    TCS([8 >= Nlift*Mr*AR*q**2*tau/(S*Icap*sigmax)]),
+                    TCS([8 >= Nlift*Mrout*AR*q**2*tau/(S*Icap*sigmax)]),
                     ]
 
         return constraints
