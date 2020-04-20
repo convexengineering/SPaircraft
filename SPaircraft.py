@@ -36,13 +36,12 @@ from saveSol import updateOpenVSP, gendes, gencsm
 # Aircraft options:
 # currently one of: 'D8_eng_wing', 'optimal737', 'optimal777', 'optimalD8', 'D8_no_BLI', 'M072_737'
 
-def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, mutategparg=False, x0 = None):
+def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, x0 = None):
     """
     Optimizes an aircraft of a given configuration
     :param m: aircraft model with objective and configuration
     :param fixedBPR: boolean specifying whether or not BPR is fixed (depends on config)
     :param pRatOpt: boolean specifying whether or not pressure ratio is optimized (depends on config)
-    :param mutategparg: boolean whether to keep each GP solve intact
     :return: solution of aircraft model
     """
 
@@ -58,7 +57,7 @@ def optimize_aircraft(m, substitutions, fixedBPR=False, pRatOpt=True, mutategpar
 
     m.substitutions.update(substitutions)
     m = Model(m.cost, Bounded(m), m.substitutions)
-    sol = m.localsolve(verbosity=2, iteration_limit=200, reltol=0.01, mutategp=mutategparg)
+    sol = m.localsolve(verbosity=2, iteration_limit=200, reltol=0.01)
     return sol
 
 def test():
@@ -80,8 +79,8 @@ def test():
     # Additional options
     fixedBPR = False
     pRatOpt = True
-    mutategparg = False
-    sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt, mutategparg)
+    sol = optimize_aircraft(m, substitutions, fixedBPR, pRatOpt)
+
     percent_diff(sol, config, Nclimb)
     post_compute(sol, Nclimb)
     sol.savetxt()
